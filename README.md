@@ -2,198 +2,188 @@
 
 > 一本手把手教你从零构建直播系统的实战教程
 
+---
+
 ## 这本书适合谁？
 
-- **有 C++ 基础**，但对音视频一无所知
-- **看过 FFmpeg 命令**，但不知道怎么写代码调用
-- **想理解直播原理**，不只是调 API
+**适合：**
+- 有 C++ 基础，但对音视频一无所知
+- 用过 FFmpeg 命令行，但不知道怎么写代码调用
+- 想深入理解直播原理，不只是调 API
 
-## 不需要提前了解
-
+**不需要：**
 - 不需要懂音视频编解码
 - 不需要用过 FFmpeg
 - 不需要有直播开发经验
 
-## 学习方法
-
-每一章都是**完整的可运行代码**，不是伪代码：
-
-```
-第1章：本地播放器（你现在在这里）
-    ↓ 增加网络模块
-第2章：网络播放器
-    ↓ 增加硬件解码
-第3章：硬解播放器
-    ↓ 增加采集编码
-第4章：直播推流
-    ...
-```
-
-**每章结构**：
-1. **为什么需要这个功能？**（场景驱动）
-2. **原理讲解**（类比+图示）
-3. **代码实现**（完整可运行）
-4. **调试技巧**（排查问题）
-5. **课后思考**（加深理解）
+**前置知识：**
+- 熟悉 C++ 基础语法（类、指针、STL）
+- 了解基本的网络概念（TCP、HTTP）
+- 会用命令行和 git
 
 ---
 
-## 第一章：本地播放器
+## 本书特点
 
-### 本章目标
+### 1. 渐进式实战
 
-运行 `./live-player video.mp4`，弹出一个窗口播放视频。
+不是一下子给你一堆代码，而是**一步一步迭代**：
 
-通过这个过程，你会理解：
-- 视频文件里到底存了什么？
-- 为什么需要"解封装"和"解码"两步？
-- YUV 和 RGB 有什么区别？
+```
+第1章：本地播放器
+    能播放本地 MP4 文件
+    理解：解封装 → 解码 → 渲染
+    
+第2章：网络播放器
+    能播放 RTMP 直播流
+    新增：网络模块、TCP连接
+    
+第3章：硬件解码
+    播放 4K 不卡顿
+    新增：VideoToolbox、MediaCodec
+    
+第4章：直播推流
+    自己开播
+    新增：采集、编码、推流
+    
+...直到第10章完整的生产级系统
+```
 
-### 预计时间
+### 2. 详细讲解
 
-- 阅读：30 分钟
-- 动手：20 分钟
+每个概念都解释清楚：
+
+**不说**："RGB 是 3 字节"
+**而是**：
+> RGB 用 3 个字节表示一个像素：
+> - R（红色）：1 字节，范围 0-255
+> - G（绿色）：1 字节，范围 0-255  
+> - B（蓝色）：1 字节，范围 0-255
+> 
+> 为什么是 0-255？因为 1 字节 = 8 位（bit），2^8 = 256，可以表示 256 种强度。
+
+### 3. 完整代码
+
+每一章的代码都是：
+- **可运行的**：不是伪代码，是完整程序
+- **有注释的**：关键行都有解释
+- **有结构的**：模块化设计，不是一坨代码
+
+---
+
+## 目录
+
+| 章节 | 内容 | 新增模块 |
+|-----|------|---------|
+| [第1章](chapter-01/) | 本地播放器 | Demuxer、Decoder、Renderer |
+| [第2章](chapter-02/) | 网络播放器 | RTMPClient（TODO） |
+| [第3章](chapter-03/) | 硬件解码 | HWDecoder（TODO） |
+| [第4章](chapter-04/) | 直播推流 | Capture、Encoder（TODO） |
+| [第5章](chapter-05/) | 连麦互动 | WebRTC P2P（TODO） |
+| [第6章](chapter-06/) | 多人连麦 | SFU Server（TODO） |
+| [第7章](chapter-07/) | 美颜特效 | GPU Filter、AI（TODO） |
+| [第8章](chapter-08/) | 录制回放 | DVR、HLS（TODO） |
+| [第9章](chapter-09/) | 监控压测 | Telemetry（TODO） |
+| [第10章](chapter-10/) | 生产部署 | K8s、Docker（TODO） |
 
 ---
 
 ## 快速开始
 
-### 1. 安装依赖
+### 第1章：本地播放器
 
-**macOS：**
-```bash
-brew install ffmpeg sdl2 cmake
-```
+**预计时间**：阅读 40 分钟，动手 20 分钟。
 
-**Ubuntu/Debian：**
-```bash
-sudo apt-get update
-sudo apt-get install -y ffmpeg libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libsdl2-dev cmake
-```
-
-**Windows：**
-建议使用 WSL2，然后按 Ubuntu 步骤安装。
-
-### 2. 下载代码
+**目标**：运行 `./live-player video.mp4`，弹出窗口播放视频。
 
 ```bash
+# 1. 克隆代码
 git clone https://github.com/chapin666/live-system-book.git
 cd live-system-book/chapter-01
-```
 
-### 3. 构建
+# 2. 安装依赖（macOS）
+brew install ffmpeg sdl2 cmake
 
-```bash
-mkdir build
-cd build
-cmake ..
-make -j4
-```
+# 3. 构建
+mkdir build && cd build
+cmake .. && make -j4
 
-**构建成功你会看到：**
-```
-[100%] Built target live-player
-```
+# 4. 准备测试视频
+ffmpeg -f lavfi -i testsrc=duration=10:size=640x480:rate=30 \
+       -pix_fmt yuv420p sample.mp4
 
-### 4. 准备测试视频
-
-```bash
-# 下载一个测试视频（或者用你自己的）
-curl -L -o sample.mp4 "https://www.sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"
-
-# 或者生成一个测试视频
-ffmpeg -f lavfi -i testsrc=duration=10:size=640x480:rate=30 -pix_fmt yuv420p sample.mp4
-```
-
-### 5. 运行
-
-```bash
+# 5. 运行
 ./live-player sample.mp4
 ```
 
-**成功现象：**
-- 弹出一个窗口
-- 视频开始播放
-- 窗口标题显示 "Live Player - Chapter 01"
-- 按 ESC 或点击关闭按钮退出
+详细教程见 [chapter-01/README.md](chapter-01/)。
 
 ---
 
-## 如果运行失败
+## 项目结构
 
-### 错误1：找不到 FFmpeg
 ```
-CMake Error: Could not find FFmpeg
-```
-**解决：** 确认 FFmpeg 已安装，并且 `pkg-config` 能找到：
-```bash
-pkg-config --exists libavformat && echo "FFmpeg OK"
-```
-
-### 错误2：找不到 SDL2
-```
-CMake Error: Could not find SDL2
-```
-**解决：** macOS 上可能需要设置环境变量：
-```bash
-export PKG_CONFIG_PATH="/opt/homebrew/opt/sdl2/lib/pkgconfig:$PKG_CONFIG_PATH"
-```
-
-### 错误3：运行时崩溃
-```
-Segmentation fault
-```
-**解决：** 确认 sample.mp4 存在且格式正确：
-```bash
-ffprobe sample.mp4  # 应该能看到视频流信息
+live-system-book/
+├── README.md              # 本文件（项目总览）
+├── chapter-01/
+│   ├── README.md          # 第1章详细教程
+│   ├── CMakeLists.txt     # 构建配置
+│   └── src/               # 源代码
+│       ├── main.cpp
+│       ├── demuxer.h/cpp
+│       ├── decoder.h/cpp
+│       └── renderer.h/cpp
+├── chapter-02/            # （TODO）
+...
 ```
 
 ---
 
-## 本章知识地图
+## 学习建议
 
-学完本章，你会理解这个链路：
+1. **不要跳过第1章**
+   
+   第1章是所有后续章节的基础。Demuxer、Decoder、Renderer 三个模块会一直用到第10章。
 
-```
-[MP4文件] → 解封装 → [H.264数据] → 解码 → [YUV图像] → 渲染 → [屏幕显示]
-     ↑              ↑              ↑              ↑
-  Demuxer       AVPacket      AVFrame       SDL2窗口
-  解封装器       压缩数据包     原始像素       显示
-```
+2. **一定要动手跑代码**
+   
+   看完一章后，自己构建运行一遍。改改参数，看看会发生什么。
 
-### 关键概念（先混个脸熟）
+3. **遇到报错先看 FAQs**
+   
+   每章都有常见问题解答，90% 的问题都有答案。
 
-| 概念 | 一句话解释 | 类比 |
-|-----|-----------|------|
-| **容器(MP4)** | 装视频/音频/字幕的盒子 | ZIP 文件里装了多个文件 |
-| **解封装** | 把盒子打开，取出视频流 | 解压 ZIP |
-| **编解码(H.264)** | 压缩/解压视频的算法 | 视频版的 ZIP 压缩 |
-| **YUV** | 一种像素格式 | 不同于 RGB 的另一种颜色表示 |
-| **FFmpeg** | 处理音视频的工具库 | 音视频界的瑞士军刀 |
+4. **不理解的地方多查资料**
+   
+   每章末尾都有参考资料链接。FFmpeg 官方文档、维基百科都是很好的补充。
 
 ---
 
-## 目录结构
+## 技术栈
 
-```
-chapter-01/
-├── CMakeLists.txt          # 构建配置（告诉 cmake 怎么编译）
-├── README.md               # 本章教程（你现在读的）
-└── src/
-    ├── main.cpp            # 程序入口：拼接各个模块
-    ├── demuxer.h/cpp       # 解封装：读文件 → 取压缩数据
-    ├── decoder.h/cpp       # 解码：H.264 → YUV
-    └── renderer.h/cpp      # 渲染：YUV → 屏幕显示
-```
+- **语言**：C++14
+- **核心库**：FFmpeg 4.0+、SDL2
+- **构建工具**：CMake 3.10+
+- **支持平台**：macOS、Linux、Windows（WSL2）
 
 ---
 
-## 下一步
+## 许可证
 
-完成本章后，继续 [第二章：网络播放器](../chapter-02/README.md)，学习如何从网络拉流播放。
+MIT License
+
+你可以自由使用、修改、分发本书代码，用于个人学习或商业项目。
 
 ---
 
-## LICENSE
+## 问题反馈
 
-MIT License - 你可以自由使用、修改、分发代码。
+如果在学习过程中遇到问题：
+
+1. 先检查该章节的"常见问题"部分
+2. 确认依赖版本是否符合要求
+3. 在 GitHub Issues 提问
+
+---
+
+**准备好开始了吗？** 进入 [第1章：本地播放器](chapter-01/)。
