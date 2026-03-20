@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400">
+  <rect width="700" height="400" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="350" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">视频帧类型与 GOP 结构</text>
+  
+  <text x="350" y="50" text-anchor="middle" font-size="11" fill="#666">I 帧：完整编码 ｜ P 帧：前向预测 ｜ B 帧：双向预测</text>
+  
+  <!-- 时间轴 -->
+  <line x1="80" y1="330" x2="620" y2="330" stroke="#666" stroke-width="2"/>
+  <text x="350" y="355" text-anchor="middle" font-size="11" fill="#666">时间 →</text>
+  
+  <!-- I 帧 -->
+  <rect x="80" y="100" width="70" height="180" rx="4" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="115" y="130" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">I₀</text>
+  <text x="115" y="155" text-anchor="middle" font-size="11" fill="#666">关键帧</text>
+  <text x="115" y="180" text-anchor="middle" font-size="10" fill="#388e3c">50 KB</text>
+  <text x="115" y="205" text-anchor="middle" font-size="9" fill="#888">完整编码</text>
+  <text x="115" y="345" text-anchor="middle" font-size="10" fill="#666">t=0</text>
+  
+  <!-- B 帧 1 -->
+  <rect x="170" y="150" width="60" height="130" rx="4" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/>
+  <text x="200" y="175" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">B₁</text>
+  <text x="200" y="200" text-anchor="middle" font-size="10" fill="#666">双向预测</text>
+  <text x="200" y="222" text-anchor="middle" font-size="10" fill="#f9a825">5 KB</text>
+  <text x="200" y="345" text-anchor="middle" font-size="10" fill="#666">t=33</text>
+  
+  <!-- B 帧 2 -->
+  <rect x="250" y="150" width="60" height="130" rx="4" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/>
+  <text x="280" y="175" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">B₂</text>
+  <text x="280" y="200" text-anchor="middle" font-size="10" fill="#666">双向预测</text>
+  <text x="280" y="222" text-anchor="middle" font-size="10" fill="#f9a825">4 KB</text>
+  <text x="280" y="345" text-anchor="middle" font-size="10" fill="#666">t=66</text>
+  
+  <!-- P 帧 -->
+  <rect x="340" y="130" width="70" height="150" rx="4" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="375" y="160" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">P₃</text>
+  <text x="375" y="185" text-anchor="middle" font-size="11" fill="#666">前向预测</text>
+  <text x="375" y="210" text-anchor="middle" font-size="10" fill="#f57c00">8 KB</text>
+  <text x="375" y="235" text-anchor="middle" font-size="9" fill="#888">参考 I₀</text>
+  <text x="375" y="345" text-anchor="middle" font-size="10" fill="#666">t=100</text>
+  
+  <!-- B 帧 3 -->
+  <rect x="430" y="155" width="60" height="125" rx="4" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/>
+  <text x="460" y="180" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">B₄</text>
+  <text x="460" y="205" text-anchor="middle" font-size="10" fill="#666">双向预测</text>
+  <text x="460" y="227" text-anchor="middle" font-size="10" fill="#f9a825">6 KB</text>
+  <text x="460" y="345" text-anchor="middle" font-size="10" fill="#666">t=133</text>
+  
+  
+  <!-- B 帧 4 -->
+  <rect x="510" y="155" width="60" height="125" rx="4" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/>
+  <text x="540" y="180" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">B₅</text>
+  <text x="540" y="205" text-anchor="middle" font-size="10" fill="#666">双向预测</text>
+  <text x="540" y="227" text-anchor="middle" font-size="10" fill="#f9a825">5 KB</text>
+  <text x="540" y="345" text-anchor="middle" font-size="10" fill="#666">t=166</text>
+  
+  <!-- P 帧 2 -->
+  <rect x="600" y="130" width="70" height="150" rx="4" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="635" y="160" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">P₆</text>
+  <text x="635" y="185" text-anchor="middle" font-size="11" fill="#666">前向预测</text>
+  <text x="635" y="210" text-anchor="middle" font-size="10" fill="#f57c00">7 KB</text>
+  <text x="635" y="235" text-anchor="middle" font-size="9" fill="#888">参考 P₃</text>
+  <text x="635" y="345" text-anchor="middle" font-size="10" fill="#666">t=200</text>
+  
+  
+  <!-- 预测箭头 -->
+  <!-- I0 -> P3 -->
+  <path d="M 150 190 Q 245 80 340 190" stroke="#666" stroke-width="1.5" fill="none" stroke-dasharray="5,3"/>
+  <text x="245" y="115" text-anchor="middle" font-size="9" fill="#666">P₃参考I₀</text>
+  
+  <!-- P3 -> P6 -->
+  <path d="M 410 205 Q 505 95 600 205" stroke="#666" stroke-width="1.5" fill="none" stroke-dasharray="5,3"/>
+  <text x="505" y="130" text-anchor="middle" font-size="9" fill="#666">P₆参考P₃</text>
+  
+  <!-- I0 -> B1 -->
+  <path d="M 150 170 L 170 200" stroke="#388e3c" stroke-width="1" marker-end="url(#arrow)"/>
+  
+  <!-- P3 -> B1 -->
+  <path d="M 340 200 L 230 200" stroke="#f57c00" stroke-width="1" marker-end="url(#arrow)"/>
+  
+  <!-- 图例 -->
+  <rect x="50" y="370" width="600" height="25" rx="3" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+  
+  <rect x="70" y="375" width="15" height="15" rx="2" fill="#e8f5e9" stroke="#388e3c" stroke-width="1"/>
+  <text x="90" y="387" font-size="10" fill="#333">I帧：完整编码，可独立解码</text>
+  
+  <rect x="240" y="375" width="15" height="15" rx="2" fill="#fff3e0" stroke="#f57c00" stroke-width="1"/>
+  <text x="260" y="387" font-size="10" fill="#333">P帧：参考前向帧</text>
+  
+  <rect x="380" y="375" width="15" height="15" rx="2" fill="#fff9c4" stroke="#f9a825" stroke-width="1"/>
+  <text x="400" y="387" font-size="10" fill="#333">B帧：参考前后帧，压缩率最高</text>
+  
+  <!-- 箭头定义 -->
+  <defs>
+    <marker id="arrow" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+      <polygon points="0 0, 6 2.5, 0 5" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

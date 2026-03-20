@@ -315,117 +315,394 @@ int main() {
 
 ## 4. 关键概念详解
 
-### 4.1 YUV 像素格式
+### 4.1 视频压缩原理
 
-**为什么用 YUV 而不是 RGB？**
+#### 4.1.1 为什么视频需要压缩？
 
-人眼的特性：
-- **对亮度敏感**：能看出明暗变化
-- **对色度不敏感**：看不出细微的颜色差别
+原始视频数据量巨大：
 
-**YUV 的设计：**
-- **Y**（Luma）：亮度，完整分辨率
-- **U/V**（Chroma）：色度，分辨率减半
-
-<img src="../docs/images/yuv-layout.svg" width="80%"/>
-
-**内存占用对比（1920×1080）：**
-
-| 格式 | 每帧大小 | 相比 RGB |
+| 参数 | 数值 | 计算 |
 |:---|:---|:---|
-| RGB | 6.2 MB | 100% |
-| YUV420P | **3.1 MB** | **50%** |
+| 分辨率 | 1920 × 1080 | 全高清 1080p |
+| 每像素 | 3 字节 (RGB) | 红绿蓝各 1 字节 |
+| 每帧大小 | 1920 × 1080 × 3 | **6.2 MB** |
+| 帧率 | 30 fps | 每秒 30 帧 |
+| 每秒数据 | 6.2 MB × 30 | **186 MB** |
+| 1 分钟数据 | 186 MB × 60 | **10.8 GB** |
 
-**FFmpeg 中的 YUV：**
+**实际 1 分钟 1080p 视频约 100 MB，压缩了 100 倍以上！**
+
+#### 4.1.2 空间冗余（帧内压缩）
+
+**原理**：相邻像素通常很相似。
+
+```
+原始存储（部分像素）：
+[蓝色][蓝色][蓝色][蓝色][蓝色][蓝色]...  天空区域
+[绿色][绿色][绿色][绿色][绿色][绿色]...  草地区域
+
+压缩后：
+天空: (0,0) 到 (1920,200) 颜色=RGB(135, 206, 235)
+草地: (0,200) 到 (1920, 400) 颜色=RGB(124, 252, 0)
+```
+
+**技术实现**：
+- **DCT 变换**：将空间域转换到频率域
+- **量化**：丢弃人眼不敏感的高频信息
+- **熵编码**：用更短的编码表示频繁出现的值
+
+#### 4.1.3 时间冗余（帧间压缩）
+
+**原理**：连续帧之间变化很小。
+
+```
+视频帧序列：
+帧 0 (I 帧): [完整画面]  大小: 50KB  参考: 无
+帧 1 (P 帧): [变化区域]  大小: 8KB   参考: 帧 0
+帧 2 (P 帧): [变化区域]  大小: 7KB   参考: 帧 1
+帧 3 (P 帧): [变化区域]  大小: 9KB   参考: 帧 2
+```
+
+**帧类型详解**：
+
+<img src="../docs/images/gop-structure.svg" width="100%"/>
+
+| 类型 | 名称 | 说明 | 大小 |
+|:---|:---|:---|:---|
+| **I 帧** | 关键帧 | 完整编码的帧，可独立解码 | 最大 |
+| **P 帧** | 预测帧 | 参考前一帧，编码差异 | 中等 |
+| **B 帧** | 双向预测帧 | 参考前后帧 | 最小 |
+
+**GOP（Group of Pictures）结构**：
+```
+I P P P P P P P P P P P ...
+↑                    ↑
+GOP 开始              GOP 结束
+
+典型 GOP 大小：30-120 帧（1-4 秒）
+```
+
+**为什么 I 帧很重要？**
+- 快进/快退时只能停在 I 帧
+- 网络播放时从 I 帧开始解码
+- I 帧间隔影响随机访问性能
+
+---
+
+### 4.2 颜色空间：RGB vs YUV
+
+#### 4.2.1 人眼的视觉特性
+
+人眼有两种感光细胞：
+- **视杆细胞**：感知亮度（约 1.2 亿个）
+- **视锥细胞**：感知颜色（约 600 万个）
+
+**结论**：人眼对亮度变化敏感，对颜色变化不敏感。
+
+#### 4.2.2 RGB 颜色空间
+
+```
+RGB 像素内存布局：
+┌─────────────────────────────────────────┐
+│ [R][G][B] [R][G][B] [R][G][B] [R][G][B] │  ← 每个像素 3 字节
+│ [R][G][B] [R][G][B] [R][G][B] [R][G][B] │
+└─────────────────────────────────────────┘
+
+总大小 = 宽度 × 高度 × 3
+```
+
+**缺点**：没有利用人眼特性，色度信息过多。
+
+#### 4.2.3 YUV 颜色空间
+
+**YUV 将亮度和色度分离**：
+- **Y（Luminance）**：亮度信号
+- **U（Cb）**：蓝色色度
+- **V（Cr）**：红色色度
+
+**转换公式（RGB → YUV）**：
+```
+Y = 0.299R + 0.587G + 0.114B
+U = -0.169R - 0.331G + 0.5B + 128
+V = 0.5R - 0.419G - 0.081B + 128
+```
+
+**为什么绿色系数（0.587）最大？**
+因为人眼对绿色最敏感。
+
+#### 4.2.4 YUV420P 采样
+
+**利用人眼特性，降低色度分辨率**：
+
+<img src="../docs/images/yuv-layout.svg" width="90%"/>
+
+**采样方式对比**：
+
+| 格式 | Y 分辨率 | U/V 分辨率 | 总大小 | 应用 |
+|:---|:---|:---|:---|:---|
+| YUV444 | 1920×1080 | 1920×1080 | 6.2 MB | 专业视频 |
+| YUV422 | 1920×1080 | 960×1080 | 4.1 MB | 广播 |
+| **YUV420** | **1920×1080** | **960×540** | **3.1 MB** | **网络视频** |
+
+**YUV420 的含义**：
+- 每 4 个 Y 像素共享 1 个 U 和 1 个 V
+- 水平方向 2:1 采样
+- 垂直方向 2:1 采样
+- 总采样比 4:1（省 75% 色度信息）
+
+#### 4.2.5 FFmpeg 中的 YUV 处理
 
 ```cpp
-// YUV420P 内存布局
 AVFrame* frame = av_frame_alloc();
-frame->data[0]  // Y 平面指针
-frame->data[1]  // U 平面指针
-frame->data[2]  // V 平面指针
-frame->linesize[0]  // Y 行宽（可能大于宽度，有对齐）
+
+// 访问 YUV 平面
+uint8_t* y_plane = frame->data[0];  // Y 平面
+uint8_t* u_plane = frame->data[1];  // U 平面
+uint8_t* v_plane = frame->data[2];  // V 平面
+
+// 行宽（包含对齐填充）
+int y_stride = frame->linesize[0];  // Y 行宽
+int u_stride = frame->linesize[1];  // U 行宽
+int v_stride = frame->linesize[2];  // V 行宽
+
+// ⚠️ 重要：行宽可能大于宽度！
+// 计算像素位置要用 stride，不能用 width
+// 第 y 行第 x 列的 Y 值：
+uint8_t pixel = y_plane[y * y_stride + x];
 ```
 
-⚠️ **注意 `linesize` 可能大于 `width`**：
-- 某些 CPU 要求内存 16/32 字节对齐
-- `linesize` 包含填充字节
-- 计算偏移要用 `linesize`，不要用 `width`
+**为什么 `linesize` 可能大于 `width`？**
 
-### 4.2 PTS（Presentation Time Stamp）
+CPU 内存对齐要求：
+- SSE 指令需要 16 字节对齐
+- AVX 指令需要 32 字节对齐
+- GPU 传输通常需要 256 字节对齐
 
-**视频播放的时间控制**
-
-视频帧不是越快显示越好，而是要**按正确的时间显示**。
-
-**PTS 的作用**：告诉播放器"这帧应该在什么时候显示"。
-
-```cpp
-// 假设视频是 30fps（每秒30帧）
-// 第0帧：PTS = 0ms，应该立即显示
-// 第1帧：PTS = 33ms，应该在33毫秒后显示
-// 第2帧：PTS = 66ms，应该在66毫秒后显示
+```
+实际内存布局（带填充）：
+┌────────────────────────────────────────────────────┐
+│ 有效像素 (1920 字节) │ 填充 (64 字节)               │ linesize = 1984
+├────────────────────────────────────────────────────┤
+│ 有效像素 (1920 字节) │ 填充 (64 字节)               │
+└────────────────────────────────────────────────────┘
 ```
 
-**但 PTS 的单位不一定是毫秒！**
+---
+
+### 4.3 容器格式与编码格式
+
+#### 4.3.1 容器 vs 编码
+
+**类比**：快递包裹
+- **容器（Container）** = 快递盒（MP4、FLV、AVI）
+- **编码（Codec）** = 盒内物品（H.264、HEVC、AV1）
+
+**常见组合**：
+
+| 容器 | 常用视频编码 | 常用音频编码 | 应用场景 |
+|:---|:---|:---|:---|
+| **MP4** | H.264、HEVC | AAC | 通用、兼容性好 |
+| **FLV** | H.264 | AAC | 直播流 |
+| **MKV** | H.264、HEVC、AV1 | AAC、FLAC、DTS | 高清收藏 |
+| **WebM** | VP8、VP9、AV1 | Vorbis、Opus | 网页视频 |
+
+#### 4.3.2 MP4 文件结构
+
+```
+MP4 文件层次结构：
+
+ftyp (File Type)
+  └─ 文件类型标识（isom、mp41 等）
+
+moov (Movie Metadata)
+  ├─ mvhd (Movie Header)
+  │   └─ 时长、时间刻度、创建时间等
+  ├─ trak (Track) - 视频轨
+  │   ├─ tkhd (Track Header)
+  │   │   └─ 轨道 ID、时长、分辨率
+  │   ├─ mdia (Media)
+  │   │   ├─ mdhd (Media Header)
+  │   │   │   └─ 时间基、语言
+  │   │   └─ minf (Media Information)
+  │   │       └─ stbl (Sample Table)
+  │   │           ├─ stsd (Sample Description)
+  │   │           │   └─ 编码类型（avc1 = H.264）
+  │   │           ├─ stts (Time to Sample)
+  │   │           │   └─ PTS 映射表
+  │   │           ├─ stsc (Sample to Chunk)
+  │   │           └─ stsz (Sample Size)
+  │   │               └─ 每个包的大小
+  │   └─ mdat 位置引用
+  └─ trak (Track) - 音频轨
+      └─ ...（类似结构）
+
+mdat (Media Data)
+  └─ 实际的音视频数据（H.264 NALU、AAC 帧）
+```
+
+**关键概念**：
+- **moov 在 mdat 前**：适合网络播放（先拿到元数据）
+- **moov 在 mdat 后**：适合本地录制（写完数据再算元数据）
+
+#### 4.3.3 H.264 编码基础
+
+**H.264/AVC 的核心技术**：
+
+| 技术 | 作用 | 效果 |
+|:---|:---|:---|
+| **帧内预测** | 利用空间冗余 | 压缩 I 帧 |
+| **帧间预测** | 利用时间冗余 | 压缩 P/B 帧 |
+| **变换量化** | 丢弃高频信息 | 有损压缩 |
+| **熵编码** | 统计压缩 | 无损压缩 |
+| **环路滤波** | 消除块效应 | 提升画质 |
+
+**H.264 码流结构**：
+```
+Annex B 格式（用于传输）：
+[00 00 00 01] [NALU Header] [NALU Payload]
+[00 00 00 01] [NALU Header] [NALU Payload]
+     ↑
+  起始码（4 字节）
+
+AVCC 格式（用于存储）：
+[Length: 4 bytes] [NALU Data]
+[Length: 4 bytes] [NALU Data]
+```
+
+**NALU 类型**：
+- **SPS (7)**：序列参数集（分辨率、profile 等）
+- **PPS (8)**：图像参数集（编码参数）
+- **IDR (5)**：立即刷新帧（关键帧）
+- **Non-IDR (1)**：非关键帧
+
+---
+
+### 4.4 时间同步与 PTS
+
+#### 4.4.1 为什么需要时间同步？
+
+**问题**：解码速度不等于显示速度。
+
+```
+场景 1：解码太快
+实际：每秒解码 60 帧
+目标：每秒显示 30 帧
+结果：视频快进（2 倍速）
+
+场景 2：解码太慢
+实际：每秒解码 20 帧
+目标：每秒显示 30 帧
+结果：视频慢放（卡顿）
+
+场景 3：解码不稳定
+实际：有时 40fps，有时 20fps
+目标：每秒显示 30 帧
+结果：时快时慢（不流畅）
+```
+
+#### 4.4.2 PTS 和 DTS
+
+| 时间戳 | 全称 | 含义 | 应用场景 |
+|:---|:---|:---|:---|
+| **PTS** | Presentation Time Stamp | 显示时间 | 控制何时渲染 |
+| **DTS** | Decoding Time Stamp | 解码时间 | 控制何时解码 |
+
+**为什么需要两个时间戳？**
+
+```
+B 帧需要参考后面的帧：
+显示顺序：I0 → B1 → B2 → P3
+解码顺序：I0 → P3 → B1 → B2
+
+帧:    I0    P3    B1    B2
+PTS:    0    100    33    66   <- 显示顺序
+DTS:    0     33   100   133   <- 解码顺序
+```
+
+**没有 B 帧时**：PTS == DTS
+**有 B 帧时**：PTS != DTS（解码顺序 ≠ 显示顺序）
+
+#### 4.4.3 时间基（Time Base）
+
+**问题**：不同文件的时间精度不同。
+
+**解决方案**：时间基 = 分数表示
+```
+time_base = num / den
+
+示例：
+time_base = 1/1000  →  1 单位 = 1 毫秒
+time_base = 1/90000 →  1 单位 = 1/90000 秒 ≈ 11.1 微秒
+```
+
+**FFmpeg 中的时间基**：
 
 ```cpp
-// FFmpeg 使用 "时间基"（time_base）
-// time_base = 1/1000 表示 PTS 以毫秒为单位
-// time_base = 1/90000 表示 PTS 以 1/90000 秒为单位
+AVStream* stream = ...;
+AVRational tb = stream->time_base;  // {num, den}
 
-// 转换公式：
+// 转换公式
 // 实际时间（秒）= PTS × time_base
 // 实际时间（毫秒）= PTS × time_base × 1000
 
-AVStream* st = ...;
 int64_t pts = frame->pts;
-AVRational tb = st->time_base;
-double seconds = pts * av_q2d(tb);  // av_q2d: 分数转 double
+double seconds = pts * av_q2d(tb);           // 秒
+int64_t milliseconds = pts * av_q2d(tb) * 1000;  // 毫秒
+
+// 反向转换
+// PTS = 实际时间（秒）/ time_base
+int64_t pts_from_seconds = seconds / av_q2d(tb);
 ```
 
-**同步代码实现：**
+#### 4.4.4 同步策略
 
+**1. 视频主同步（Video Master）**
 ```cpp
-auto start_time = std::chrono::steady_clock::now();
+auto start = steady_clock::now();
 
-while (running) {
+while (playing) {
     FramePtr frame = decoder.ReceiveFrame();
     
-    // 计算这帧应该显示的时间
-    auto now = std::chrono::steady_clock::now();
-    auto elapsed = now - start_time;
-    int64_t frame_ms = frame->pts * av_q2d(time_base) * 1000;
+    // 计算应该显示的时间
+    auto now = steady_clock::now();
+    auto elapsed = duration_cast<milliseconds>(now - start).count();
+    int64_t target_pts = frame->pts * av_q2d(time_base) * 1000;
     
-    // 如果还没到显示时间，等待
-    if (frame_ms > elapsed.count()) {
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(frame_ms - elapsed.count())
-        );
+    // 等待到显示时间
+    if (target_pts > elapsed) {
+        this_thread::sleep_for(milliseconds(target_pts - elapsed));
     }
     
     renderer.Render(frame.get());
 }
 ```
 
-### 4.3 RAII 内存管理
+**2. 音频主同步（Audio Master）**
+- 音频对时间更敏感（人耳能听出 20ms 的差异）
+- 视频跟随音频调整（丢帧或重复帧）
 
-**FFmpeg 的 C API 需要手动管理内存：**
+**3. 外部时钟同步**
+- 使用系统时钟
+- 适合直播（需要与发送端同步）
 
-```cpp
-// ❌ 裸指针：容易泄漏和重复释放
-void BadExample() {
-    AVPacket* pkt = av_packet_alloc();
-    
-    if (some_error) {
-        return;  // 糟糕！pkt 没释放，内存泄漏！
-    }
-    
-    av_packet_free(&pkt);
-}
-```
+---
 
-**C++ 解决方案：RAII（资源获取即初始化）**
+### 4.5 RAII 与内存管理
+
+#### 4.5.1 FFmpeg 的内存模型
+
+**FFmpeg 使用 C 语言 API，需要手动管理内存**：
+
+| 函数 | 分配 | 释放 | 常见错误 |
+|:---|:---|:---|:---|
+| `av_packet_alloc()` | AVPacket | `av_packet_free()` | 忘记释放 |
+| `av_frame_alloc()` | AVFrame | `av_frame_free()` | 忘记释放 |
+| `avcodec_alloc_context3()` | AVCodecContext | `avcodec_free_context()` | 忘记释放 |
+| `avformat_open_input()` | AVFormatContext | `avformat_close_input()` | 忘记关闭 |
+
+#### 4.5.2 C++ RAII 封装
+
+**智能指针自动管理生命周期**：
 
 ```cpp
 // 自定义删除器
@@ -435,7 +712,7 @@ struct AVPacketDeleter {
     }
 };
 
-// 智能指针类型
+// 类型别名
 using PacketPtr = std::unique_ptr<AVPacket, AVPacketDeleter>;
 
 // 工厂函数
@@ -443,103 +720,59 @@ inline PacketPtr MakePacket() {
     return PacketPtr(av_packet_alloc());
 }
 
-// ✅ 使用
-void GoodExample() {
+// 使用示例
+void ProcessPacket() {
     PacketPtr pkt = MakePacket();
     
-    if (some_error) {
-        return;  // 安全！pkt 自动释放
+    // 使用 pkt...
+    
+    // 函数返回时自动释放
+    // 即使有异常也会正确释放
+}
+```
+
+#### 4.5.3 所有权语义
+
+| 类型 | 所有权 | 使用场景 |
+|:---|:---|:---|
+| `unique_ptr` | 独占 | 一个对象只被一个所有者持有 |
+| `shared_ptr` | 共享 | 多个对象引用同一个资源 |
+| `weak_ptr` | 弱引用 | 打破循环引用 |
+
+**FFmpeg 资源使用 `unique_ptr`**：
+- 一个 Packet 只属于一个模块
+- 传递时移动所有权（`std::move`）
+- 函数参数用引用，避免复制
+
+#### 4.5.4 异常安全
+
+**强异常安全保证**：
+```cpp
+class Pipeline {
+public:
+    ErrorCode Init(const std::string& url) {
+        // 1. 分配资源（可能失败）
+        auto demuxer = std::make_unique<Demuxer>();
+        
+        // 2. 初始化（可能失败）
+        if (auto err = demuxer->Open(url); err != ErrorCode::OK) {
+            return err;  // demuxer 自动释放
+        }
+        
+        // 3. 成功，转移所有权
+        demuxer_ = std::move(demuxer);
+        return ErrorCode::OK;
     }
     
-}  // 函数结束，pkt 自动释放
-```
-
-**本章提供的完整封装：**
-
-```cpp
-// base/ffmpeg_utils.h
-#pragma once
-
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/frame.h>
-}
-
-#include <memory>
-
-namespace live {
-
-struct AVPacketDeleter {
-    void operator()(AVPacket* p) const {
-        if (p) av_packet_free(&p);
-    }
+private:
+    std::unique_ptr<Demuxer> demuxer_;
 };
-
-struct AVFrameDeleter {
-    void operator()(AVFrame* p) const {
-        if (p) av_frame_free(&p);
-    }
-};
-
-struct CodecContextDeleter {
-    void operator()(AVCodecContext* p) const {
-        if (p) avcodec_free_context(&p);
-    }
-};
-
-using PacketPtr = std::unique_ptr<AVPacket, AVPacketDeleter>;
-using FramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
-using CodecContextPtr = std::unique_ptr<AVCodecContext, CodecContextDeleter>;
-
-inline PacketPtr MakePacket() { return PacketPtr(av_packet_alloc()); }
-inline FramePtr MakeFrame() { return FramePtr(av_frame_alloc()); }
-
-} // namespace live
 ```
 
-**RAII 的好处：**
-1. **不泄漏**：析构时自动释放
-2. **异常安全**：抛出异常也会正确释放
-3. **代码简洁**：不用写 `free`/`delete`
-4. **所有权明确**：`unique_ptr` 表示独占所有权
-
-### 4.4 SDL 事件循环
-
-**为什么需要事件循环？**
-
-```cpp
-// ❌ 错误：没有事件循环
-while (playing) {
-    render_frame();
-}
-// 窗口无法响应关闭、拖动等操作
-```
-
-```cpp
-// ✅ 正确：有事件循环
-while (running) {
-    SDL_Event e;
-    while (SDL_PollEvent(&e)) {  // 处理所有待处理事件
-        if (e.type == SDL_QUIT) {  // 点击关闭按钮
-            running = false;
-        }
-        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
-            running = false;
-        }
-    }
-    
-    // 渲染一帧
-    render_frame();
-}
-```
-
-**事件循环的作用：**
-- 响应窗口操作（关闭、最小化、调整大小）
-- 响应键盘鼠标输入
-- 保持界面不卡顿
-
-**注意**：`SDL_PollEvent` 是非阻塞的，没有事件立即返回 0。
+**异常安全等级**：
+- **基本保证**：不泄漏资源，对象有效但状态不确定
+- **强保证**：操作失败时状态回滚（如事务）
+- **不抛异常**：操作绝不失败
 
 ---
 
