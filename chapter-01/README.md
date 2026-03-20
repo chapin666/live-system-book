@@ -875,33 +875,297 @@ chapter-01/
 
 ### 8.2 完整头文件
 
-（此处展示所有头文件的完整内容，每个都有详细注释）
+#### base/pipeline.h
 
-### 8.3 完整实现文件
+```cpp
+#pragma once
 
-（此处展示所有 cpp 文件的完整内容）
+#include <string>
+#include <memory>
+#include <cstdint>
 
----
+namespace live {
 
-## 9. 性能分析与优化
+/**
+ * @brief 错误码定义
+ * 
+ * 使用 enum class 提供类型安全和命名空间隔离
+ */
+enum class ErrorCode {
+    OK = 0,                    // 成功
+    INVALID_ARGUMENT,         // 参数错误
+    FILE_NOT_FOUND,           // 文件不存在
+    FORMAT_NOT_SUPPORTED,     // 格式不支持
+    CODEC_NOT_FOUND,          // 编解码器未找到
+    DECODER_ERROR,            // 解码错误
+    RENDERER_ERROR,           // 渲染错误
+    OUT_OF_MEMORY,            // 内存不足
+    NOT_INITIALIZED,          // 未初始化
+    ALREADY_RUNNING,          // 已在运行
+    UNKNOWN                   // 未知错误
+};
 
-（火焰图分析、热点优化等）
+/**
+ * @brief 性能统计结构
+ * 
+ * 实时记录播放器的性能指标
+ */
+struct PipelineStats {
+    int64_t total_frames = 0;       // 总渲染帧数
+    int64_t dropped_frames = 0;     // 丢帧数
+    double current_fps = 0.0;       // 当前帧率
+    int64_t current_pts = 0;        // 当前显示时间戳
+    int64_t decode_time_ms = 0;     // 解码耗时（毫秒）
+    int64_t render_time_ms = 0;     // 渲染耗时（毫秒）
+};
 
----
+/**
+ * @brief Pipeline 观察者接口
+ * 
+ * 使用观察者模式实现可观测性，避免侵入式修改
+ */
+class PipelineObserver {
+public:
+    virtual ~PipelineObserver() = default;
+    
+    /**
+     * @brief 发生错误时回调
+     * @param code 错误码
+     * @param message 错误描述
+     */
+    virtual void OnError(ErrorCode code, const std::string& message) = 0;
+    
+    /**
+     * @brief 每帧渲染完成时回调
+     * @param pts 帧的显示时间戳
+     */
+    virtual void OnFrameRendered(int64_t pts) = 0;
+    
+    /**
+     * @brief 统计信息更新时回调
+     * @param stats 最新统计
+     */
+    virtual void OnStatsUpdated(const PipelineStats& stats) = 0;
+};
 
-## 10. 调试技巧实战
+/**
+ * @brief Pipeline 抽象接口
+ * 
+ * 定义标准生命周期：Init -> Start -> Stop
+ * 所有实现必须保证线程安全和异常安全
+ */
+class Pipeline {
+public:
+    virtual ~Pipeline() = default;
+    
+    /**
+     * @brief 初始化 Pipeline
+     * @param url 媒体文件路径或 URL
+     * @return 错误码
+     */
+    virtual ErrorCode Init(const std::string& url) = 0;
+    
+    /**
+     * @brief 开始播放
+     * @return 错误码
+     */
+    virtual ErrorCode Start() = 0;
+    
+    /**
+     * @brief 停止播放
+     * @return 错误码
+     */
+    virtual ErrorCode Stop() = 0;
+    
+    /**
+     * @brief 获取当前统计信息
+     * @return 统计结构
+     */
+    virtual PipelineStats GetStats() const = 0;
+    
+    /**
+     * @brief 设置观察者
+     * @param observer 观察者指针（可为 nullptr 取消监听）
+     */
+    virtual void SetObserver(PipelineObserver* observer) = 0;
+};
 
-（gdb、valgrind、perf 实战）
+} // namespace live
+```
 
----
+#### base/ffmpeg_utils.h
 
-由于篇幅限制，完整版本需要分多次编写。以上是深度扩充的大纲和部分内容，预计最终将达到 **4000+ 行**，涵盖：
+```cpp
+#pragma once
 
-1. 完整的数学原理（DCT、量化、运动估计公式推导）
-2. FFmpeg 核心数据结构完全解析（每个字段的用途）
-3. 解码器内部状态机和缓冲区管理
-4. GPU 渲染原理（SDL2 底层实现）
-5. 每一行代码的详细注释
-6. 性能分析的实战案例（火焰图解读）
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/frame.h>
+#include <libavutil/imgutils.h>
+}
 
-需要我继续完成剩余内容吗？
+#include <memory>
+
+namespace live {
+
+/**
+ * @brief FFmpeg 资源删除器
+ * 
+ * 用于 std::unique_ptr 的自定义删除器，确保 RAII 管理
+ */
+
+struct AVPacketDeleter {
+    void operator()(AVPacket* p) const {
+        if (p) {
+            // 先 unref 减少引用计数，再 free 释放结构体
+            av_packet_unref(p);
+            av_packet_free(&p);
+        }
+    }
+};
+
+struct AVFrameDeleter {
+    void operator()(AVFrame* p) const {
+        if (p) {
+            av_frame_unref(p);
+            av_frame_free(&p);
+        }
+    }
+};
+
+struct CodecContextDeleter {
+    void operator()(AVCodecContext* p) const {
+        if (p) {
+            avcodec_free_context(&p);
+        }
+    }
+};
+
+struct FormatContextDeleter {
+    void operator()(AVFormatContext* p) const {
+        if (p) {
+            avformat_close_input(&p);
+        }
+    }
+};
+
+// 智能指针类型别名
+using PacketPtr = std::unique_ptr<AVPacket, AVPacketDeleter>;
+using FramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
+using CodecContextPtr = std::unique_ptr<AVCodecContext, CodecContextDeleter>;
+using FormatContextPtr = std::unique_ptr<AVFormatContext, FormatContextDeleter>;
+
+// 工厂函数
+inline PacketPtr MakePacket() {
+    AVPacket* pkt = av_packet_alloc();
+    if (!pkt) {
+        throw std::bad_alloc();
+    }
+    return PacketPtr(pkt);
+}
+
+inline FramePtr MakeFrame() {
+    AVFrame* frame = av_frame_alloc();
+    if (!frame) {
+        throw std::bad_alloc();
+    }
+    return FramePtr(frame);
+}
+
+/**
+ * @brief 错误码转换
+ * @param ret FFmpeg 返回值
+ * @return 对应的 ErrorCode
+ */
+inline ErrorCode FFmpegErrorToErrorCode(int ret) {
+    if (ret >= 0) return ErrorCode::OK;
+    
+    switch (ret) {
+        case AVERROR(ENOMEM):
+            return ErrorCode::OUT_OF_MEMORY;
+        case AVERROR(ENOENT):
+            return ErrorCode::FILE_NOT_FOUND;
+        case AVERROR_INVALIDDATA:
+            return ErrorCode::FORMAT_NOT_SUPPORTED;
+        case AVERROR_DECODER_NOT_FOUND:
+            return ErrorCode::CODEC_NOT_FOUND;
+        default:
+            return ErrorCode::UNKNOWN;
+    }
+}
+
+} // namespace live
+```
+
+#### core/demuxer.h
+
+```cpp
+#pragma once
+
+#include "live/base/ffmpeg_utils.h"
+
+namespace live {
+
+/**
+ * @brief 解封装模块
+ * 
+ * 职责：
+ * 1. 打开媒体文件
+ * 2. 解析容器格式，提取流信息
+ * 3. 读取压缩数据包（AVPacket）
+ * 
+ * 线程安全：非线程安全，应在单线程中使用
+ */
+class Demuxer {
+public:
+    Demuxer();
+    ~Demuxer();
+    
+    // 禁止拷贝，允许移动
+    Demuxer(const Demuxer&) = delete;
+    Demuxer& operator=(const Demuxer&) = delete;
+    Demuxer(Demuxer&&) = default;
+    Demuxer& operator=(Demuxer&&) = default;
+    
+    /**
+     * @brief 打开媒体文件
+     * @param url 文件路径或 URL
+     * @return 错误码
+     */
+    ErrorCode Open(const std::string& url);
+    
+    /**
+     * @brief 读取下一个数据包
+     * @param packet 输出参数，存储读取到的包
+     * @return 错误码，OK 表示成功，其他表示结束或错误
+     */
+    ErrorCode ReadPacket(PacketPtr& packet);
+    
+    /**
+     * @brief 获取视频流信息
+     * @return 视频流指针，如果无视频返回 nullptr
+     */
+    AVStream* GetVideoStream() const;
+    
+    /**
+     * @brief 获取视频流索引
+     * @return 流索引
+     */
+    int GetVideoStreamIndex() const { return video_stream_index_; }
+    
+    /**
+     * @brief 获取媒体总时长
+     * @return 时长（毫秒），未知返回 -1
+     */
+    int64_t GetDurationMs() const;
+    
+private:
+    FormatContextPtr format_ctx_;      // 格式上下文
+    int video_stream_index_ = -1;      // 视频流索引
+};
+
+} // namespace live
+```
+
+（继续添加 decoder.h, renderer.h, simple_pipeline.h...）
