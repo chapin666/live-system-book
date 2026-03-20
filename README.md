@@ -33,13 +33,34 @@
 
 **「小直播」**—— 从第 1 章到第 19 章，同一个产品不断进化：
 
-```
-第 1 章          第 9 章           第 15 章           第 19 章
-┌─────┐        ┌─────┐         ┌─────────┐        ┌─────────┐
-│播放 │   →    │开播 │    →    │ 连麦互动 │   →    │ 万人直播 │
-│本地 │        │秒开 │         │ 10 人房 │        │ 平台上线 │
-│视频 │        │低延迟│         │ SFU+MCU │        │ 生产级   │
-└─────┘        └─────┘         └─────────┘        └─────────┘
+```mermaid
+flowchart LR
+    subgraph 第1章
+        A[本地播放]
+    end
+    
+    subgraph 第9章
+        B[秒开开播]
+    end
+    
+    subgraph 第15章
+        C[连麦互动
+          10人房间
+          SFU+MCU]
+    end
+    
+    subgraph 第19章
+        D[万人直播
+          平台上线
+          生产级]
+    end
+    
+    A --> B --> C --> D
+    
+    style A fill:#e3f2fd
+    style B fill:#e8f5e9
+    style C fill:#fff3e0
+    style D fill:#fce4ec
 ```
 
 每一章在前一章**代码基础上增量开发**，不是孤立的 Demo。
@@ -81,16 +102,18 @@ PacketPtr pkt = MakePacket();        // RAII 智能指针，异常安全
 
 **目标**：成为播放器开发专家
 
-```
-第 1 章: Pipeline 架构 ──────▶ 理解数据流
-        ↓
-第 2 章: 异步化改造 ─────────▶ 播放不卡顿
-        ↓
-第 3 章: 网络基础 ───────────▶ 下载视频文件
-        ↓
-第 4 章: 流媒体协议 ─────────▶ 看 RTMP 直播
-        ↓
-第 5 章: 硬件解码 ───────────▶ 4K 流畅播放
+```mermaid
+flowchart TD
+    A[第1章 Pipeline 架构] --> B[第2章 异步化改造]
+    B --> C[第3章 网络基础]
+    C --> D[第4章 流媒体协议]
+    D --> E[第5章 硬件解码]
+    
+    style A fill:#e3f2fd
+    style B fill:#e3f2fd
+    style C fill:#e3f2fd
+    style D fill:#e3f2fd
+    style E fill:#e3f2fd
 ```
 
 **关键产出**：工业级播放器，支持 4K60fps
@@ -99,14 +122,16 @@ PacketPtr pkt = MakePacket();        // RAII 智能指针，异常安全
 
 **目标**：搭建直播推流系统
 
-```
-第 6 章: 采集与音频 3A ──────▶ 高质量音频
-        ↓
-第 7 章: 视频编码与 SVC ─────▶ 自适应画质
-        ↓
-第 8 章: RTMP 推流 ──────────▶ 成功开播
-        ↓
-第 9 章: 首屏优化 ───────────▶ 秒开体验
+```mermaid
+flowchart TD
+    F[第6章 采集与音频 3A] --> G[第7章 视频编码与 SVC]
+    G --> H[第8章 RTMP 推流]
+    H --> I[第9章 首屏优化]
+    
+    style F fill:#e8f5e9
+    style G fill:#e8f5e9
+    style H fill:#e8f5e9
+    style I fill:#e8f5e9
 ```
 
 **关键产出**：低延迟直播推流工具
@@ -115,14 +140,16 @@ PacketPtr pkt = MakePacket();        // RAII 智能指针，异常安全
 
 **目标**：实现多人实时互动
 
-```
-第 10 章: UDP 与 RTP ────────▶ 实时传输基础
-        ↓
-第 11 章: 信令与 ICE ────────▶ 连接建立
-        ↓
-第 12 章: WebRTC P2P ────────▶ 1v1 连麦
-        ↓
-第 13 章: 多人房间客户端 ────▶ 10 人音视频
+```mermaid
+flowchart TD
+    J[第10章 实时传输基础] --> K[第11章 信令与 ICE]
+    K --> L[第12章 WebRTC P2P]
+    L --> M[第13章 多人房间客户端]
+    
+    style J fill:#fff3e0
+    style K fill:#fff3e0
+    style L fill:#fff3e0
+    style M fill:#fff3e0
 ```
 
 **关键产出**：类似微信视频通话的客户端
@@ -131,12 +158,14 @@ PacketPtr pkt = MakePacket();        // RAII 智能指针，异常安全
 
 **目标**：设计高并发直播系统
 
-```
-第 14 章: SFU 转发服务器 ─────▶ 100 人房间
-        ↓
-第 15 章: MCU 与万人房间 ────▶ 1 万人观看
-        ↓
-第 16 章: 录制与时移 ────────▶ 支持回放
+```mermaid
+flowchart TD
+    N[第14章 SFU 转发服务器] --> O[第15章 MCU 与万人房间]
+    O --> P[第16章 录制与时移]
+    
+    style N fill:#fce4ec
+    style O fill:#fce4ec
+    style P fill:#fce4ec
 ```
 
 **关键产出**：可扩展的直播服务端
@@ -145,12 +174,14 @@ PacketPtr pkt = MakePacket();        // RAII 智能指针，异常安全
 
 **目标**：上线稳定可靠的直播平台
 
-```
-第 17 章: 质量监控 ───────────▶ 可观测体系
-        ↓
-第 18 章: 生产部署 ───────────▶ K8s 容器化
-        ↓
-第 19 章: 直播安全 ───────────▶ 防盗链与审核
+```mermaid
+flowchart TD
+    Q[第17章 质量监控] --> R[第18章 生产部署]
+    R --> S[第19章 直播安全]
+    
+    style Q fill:#f3e5f5
+    style R fill:#f3e5f5
+    style S fill:#f3e5f5
 ```
 
 **关键产出**：生产级直播平台

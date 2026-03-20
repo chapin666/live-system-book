@@ -20,17 +20,14 @@
 
 本书统一使用以下配色：
 
-```css
-/* 输入/输出 */
-#e3f2fd (浅蓝)
-
-/* 处理模块 */
-#fff3e0 (浅橙) - Demuxer
-#e8f5e9 (浅绿) - Decoder  
-#fce4ec (浅粉) - Renderer
-
-/* 数据流 */
-#333333 (深灰) - 连接线
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#e3f2fd', 'primaryTextColor': '#333', 'primaryBorderColor': '#333', 'lineColor': '#333', 'secondaryColor': '#fff3e0', 'tertiaryColor': '#e8f5e9'}}}%%
+pie showData
+    title 配色使用分布
+    "浅蓝 #e3f2fd (输入/输出)" : 25
+    "浅橙 #fff3e0 (Demuxer)" : 25
+    "浅绿 #e8f5e9 (Decoder)" : 25
+    "浅粉 #fce4ec (Renderer)" : 25
 ```
 
 ---
@@ -39,33 +36,56 @@
 
 ### 1. Pipeline 架构图
 
-```
-[视频文件] → [Demuxer] → [Decoder] → [Renderer] → [屏幕]
-   浅蓝        浅橙         浅绿         浅粉        浅蓝
+```mermaid
+flowchart LR
+    A[视频文件] -->|读取| B[Demuxer]
+    B -->|压缩数据| C[Decoder]
+    C -->|原始像素| D[Renderer]
+    D -->|显示| E[屏幕]
+    
+    style A fill:#e3f2fd
+    style B fill:#fff3e0
+    style C fill:#e8f5e9
+    style D fill:#fce4ec
+    style E fill:#e3f2fd
 ```
 
 ### 2. 数据流时序图
 
-参与者：
-- File (浅蓝)
-- Demuxer (浅橙)
-- Decoder (浅绿)
-- Renderer (浅粉)
-- Screen (浅蓝)
+```mermaid
+sequenceDiagram
+    participant File as 视频文件
+    participant Demuxer as Demuxer
+    participant Decoder as Decoder
+    participant Renderer as Renderer
+    participant Screen as 屏幕
+    
+    File->>Demuxer: 读取容器数据
+    Note over Demuxer: 解析 MP4/FLV 格式
+    Demuxer->>Decoder: AVPacket<br/>(压缩数据 H.264)
+    Note over Decoder: 解码运算
+    Decoder->>Renderer: AVFrame<br/>(YUV 像素)
+    Note over Renderer: 颜色转换+渲染
+    Renderer->>Screen: RGB 显示
+```
 
 ### 3. YUV 内存布局
 
-```
-┌─────────────────┐
-│   Y 平面        │  1920×1080  浅绿
-│  (完整分辨率)    │
-├─────────────────┤
-│   U 平面        │   960×540   浅黄
-│  (1/4 分辨率)    │
-├─────────────────┤
-│   V 平面        │   960×540   浅紫
-│  (1/4 分辨率)    │
-└─────────────────┘
+```mermaid
+flowchart TB
+    subgraph YUV420P布局
+        direction TB
+        Y[Y 平面<br/>1920×1080<br/>完整分辨率]
+        U[U 平面<br/>960×540<br/>1/4分辨率]
+        V[V 平面<br/>960×540<br/>1/4分辨率]
+        
+        Y --> U
+        U --> V
+    end
+    
+    style Y fill:#e8f5e9
+    style U fill:#fff9c4
+    style V fill:#e1bee7
 ```
 
 ---
