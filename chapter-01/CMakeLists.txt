@@ -24,9 +24,10 @@ include_directories(
 # 源文件
 set(SOURCES
     src/main.cpp
-    src/demuxer.cpp
-    src/decoder.cpp
-    src/renderer.cpp
+    src/core/simple_pipeline.cpp
+    src/core/demuxer.cpp
+    src/core/decoder.cpp
+    src/core/renderer.cpp
 )
 
 # 可执行文件
