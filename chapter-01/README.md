@@ -390,7 +390,117 @@ ffprobe -v error -select_streams v:0 -show_frames \
 
 **YUV420 比 RGB 节省 50% 空间**。
 
-### 3.3 FFmpeg 中的像素访问
+### 3.3 YUV 格式家族对比
+
+视频处理中常见的 YUV 格式：
+
+| 格式 | 采样方式 | Y:U:V | 字节/像素 | 特点 | 应用场景 |
+|:---|:---|:---:|:---:|:---|:---|
+| **YUV444** | 4:4:4 | 4:4:4 | 3.0 | 无压缩，质量最高 | 专业视频制作 |
+| **YUV422** | 4:2:2 | 4:2:2 | 2.0 | 水平方向减半 | 广播级视频 |
+| **YUV420** | 4:2:0 | 4:1:1 | 1.5 | 水平和垂直都减半 | **最常用**，H.264/H.265 |
+| **NV12** | 4:2:0 | - | 1.5 | Y 平面 + UV 交错 | DirectX、Android 相机 |
+| **NV21** | 4:2:0 | - | 1.5 | Y 平面 + VU 交错 | Android 相机默认 |
+
+**平面格式 vs 打包格式**：
+
+```
+平面格式（YUV420P）：
+┌──────────────┐
+│ Y 平面       │
+├──────────────┤
+│ U 平面       │
+├──────────────┤
+│ V 平面       │
+└──────────────┘
+FFmpeg 默认，易于处理
+
+打包格式（NV12）：
+┌──────────────┐
+│ Y 平面       │
+├──────────────┤
+│ UVUVUV...    │  ← U 和 V 交错存储
+└──────────────┘
+硬件友好，GPU 处理更快
+```
+
+### 3.4 YUV ↔ RGB 转换
+
+有时需要将 YUV 转换为 RGB（如截图保存为 PNG）：
+
+**转换公式**（BT.601 标准）：
+```
+R = Y + 1.402 * (V - 128)
+G = Y - 0.344 * (U - 128) - 0.714 * (V - 128)
+B = Y + 1.772 * (U - 128)
+```
+
+**FFmpeg 代码实现**：
+
+```cpp
+#include <libswscale/swscale.h>
+#include <libavutil/imgutils.h>
+
+// YUV420P 转 RGB24
+void YUV420ToRGB(AVFrame* yuvFrame, uint8_t** rgbData, int* rgbLinesize) {
+    int width = yuvFrame->width;
+    int height = yuvFrame->height;
+    
+    // 创建转换上下文
+    SwsContext* swsCtx = sws_getContext(
+        width, height, AV_PIX_FMT_YUV420P,    // 源格式
+        width, height, AV_PIX_FMT_RGB24,      // 目标格式
+        SWS_BILINEAR, nullptr, nullptr, nullptr);
+    
+    // 分配 RGB 缓冲区
+    av_image_alloc(rgbData, rgbLinesize, width, height, 
+                   AV_PIX_FMT_RGB24, 32);
+    
+    // 执行转换
+    sws_scale(swsCtx, yuvFrame->data, yuvFrame->linesize,
+              0, height, rgbData, rgbLinesize);
+    
+    // 清理
+    sws_freeContext(swsCtx);
+}
+
+// 保存为 BMP（示例）
+void SaveAsBMP(uint8_t* rgbData[], int rgbLinesize[], 
+               int width, int height, const char* filename) {
+    // BMP 文件头 + 信息头 + 像素数据
+    FILE* fp = fopen(filename, "wb");
+    if (!fp) return;
+    
+    int rowSize = ((24 * width + 31) / 32) * 4;  // 4 字节对齐
+    int dataSize = rowSize * height;
+    
+    // BMP 文件头 (14 字节)
+    uint8_t fileHeader[14] = {
+        'B', 'M', 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0
+    };
+    *(int*)&fileHeader[2] = 54 + dataSize;
+    fwrite(fileHeader, 1, 14, fp);
+    
+    // BMP 信息头 (40 字节)
+    uint8_t infoHeader[40] = {0};
+    *(int*)&infoHeader[0] = 40;
+    *(int*)&infoHeader[4] = width;
+    *(int*)&infoHeader[8] = height;
+    *(short*)&infoHeader[12] = 1;
+    *(short*)&infoHeader[14] = 24;
+    *(int*)&infoHeader[20] = dataSize;
+    fwrite(infoHeader, 1, 40, fp);
+    
+    // 像素数据（RGB24 需要翻转行）
+    for (int y = height - 1; y >= 0; y--) {
+        fwrite(rgbData[0] + y * rgbLinesize[0], 1, rowSize, fp);
+    }
+    
+    fclose(fp);
+}
+```
+
+### 3.5 FFmpeg 中的像素访问
 
 解码后的图像存储在 `AVFrame` 结构中：
 
@@ -1023,40 +1133,236 @@ sudo make install
 
 ## 8. 性能优化：让播放更流畅
 
-**本节概览**：代码能工作后，下一步是优化性能。这一节介绍如何分析性能瓶颈，以及常见的优化策略。
+**本节概览**：代码能工作后，下一步是优化性能。本节介绍如何测量性能、分析瓶颈，以及实用的优化策略。从软件优化到硬件加速，让你的播放器流畅播放 4K 视频。
 
-### 8.1 性能指标
+### 8.1 性能测量
 
-| 指标 | 目标值 | 测量方法 |
-|:---|:---|:---|
-| 解码帧率 | ≥ 30fps | 统计解码时间 |
-| CPU 占用 | < 50% | top/htop |
-| 内存占用 | < 200MB | RSS |
+**在代码中统计解码耗时**：
+
+```cpp
+#include <chrono>
+
+class PerformanceMonitor {
+public:
+    void StartDecode() {
+        decode_start_ = std::chrono::high_resolution_clock::now();
+    }
+    
+    void EndDecode() {
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+            end - decode_start_).count();
+        
+        decode_times_.push_back(duration);
+        if (decode_times_.size() > 30) decode_times_.erase(decode_times_.begin());
+        
+        // 计算平均解码时间
+        int64_t avg = 0;
+        for (auto t : decode_times_) avg += t;
+        avg /= decode_times_.size();
+        
+        printf("解码耗时: %ld μs (%.1f fps)\n", avg, 1000000.0 / avg);
+    }
+    
+private:
+    std::chrono::time_point<std::chrono::high_resolution_clock> decode_start_;
+    std::vector<int64_t> decode_times_;
+};
+
+// 使用
+PerformanceMonitor monitor;
+monitor.StartDecode();
+avcodec_receive_frame(ctx, frame);
+monitor.EndDecode();
+```
+
+**性能指标目标**：
+
+| 指标 | 目标值 | 测量方法 | 说明 |
+|:---|:---|:---|:---|
+| 解码帧率 | ≥ 30fps | 统计解码时间 | 软解 1080p 应达 60fps+ |
+| 渲染帧率 | ≥ 30fps | SDL 回调统计 | 与显示器刷新率同步 |
+| CPU 占用 | < 50% | top/htop | 单核占用 |
+| 内存占用 | < 200MB | RSS | 包括缓冲区和纹理 |
+| 延迟 | < 33ms | 解码到显示 | 30fps 下每帧预算 |
 
 ### 8.2 火焰图分析
 
-```bash
-# 记录性能
-perf record -g ./player test.mp4
+火焰图可以直观地显示性能热点：
 
-# 生成火焰图
-perf script | ./stackcollapse-perf.pl | ./flamegraph.pl > flamegraph.svg
+```bash
+# 1. 安装火焰图工具
+git clone https://github.com/brendangregg/FlameGraph.git
+
+# 2. 记录性能数据
+perf record -g --call-graph=dwarf ./player test_1080p.mp4
+
+# 3. 生成火焰图
+perf script | ./FlameGraph/stackcollapse-perf.pl | \
+    ./FlameGraph/flamegraph.pl > flamegraph.svg
+
+# 4. 浏览器查看
+firefox flamegraph.svg
 ```
 
-### 8.3 优化策略
+**典型播放器火焰图分析**：
+
+```
+解码层 (40-50%): avcodec_receive_frame 及相关函数
+├── 运动补偿
+├── IDCT 变换
+└── 环路滤波
+
+渲染层 (20-30%): SDL_UpdateYUVTexture, SDL_RenderPresent
+├── 纹理上传
+└── GPU 等待 VSync
+
+系统层 (10-20%): 驱动、内存拷贝、文件 IO
+```
+
+**优化方向判断**：
+- 解码占比 > 50% → 启用多线程或硬件解码
+- 纹理上传占比 > 20% → 使用零拷贝或硬件解码
+- VSync 等待占比高 → 正常，无需优化
+
+### 8.3 软件优化
 
 **多线程解码**：
+
 ```cpp
-codec_ctx->thread_count = 4;
+// 启用帧级多线程（推荐）
+codec_ctx->thread_count = 4;  // 4 线程，0 表示自动
 codec_ctx->thread_type = FF_THREAD_FRAME;
+
+// 效果对比（1080p H.264）：
+// 单线程：25ms/帧 → 40fps
+// 4 线程：8ms/帧  → 125fps（大幅余量）
 ```
 
-**硬件解码**（macOS 示例）：
+**内存池优化**：
+
+频繁分配释放 AVFrame 影响性能，使用内存池：
+
 ```cpp
-const AVCodec* codec = avcodec_find_decoder_by_name("h264_videotoolbox");
+class FramePool {
+public:
+    ~FramePool() {
+        for (auto f : pool_) av_frame_free(&f);
+    }
+    
+    AVFrame* Acquire() {
+        if (pool_.empty()) return av_frame_alloc();
+        AVFrame* f = pool_.back();
+        pool_.pop_back();
+        return f;
+    }
+    
+    void Release(AVFrame* f) {
+        av_frame_unref(f);  // 清除数据
+        pool_.push_back(f); // 保留结构复用
+    }
+    
+private:
+    std::vector<AVFrame*> pool_;
+};
+
+// 使用
+FramePool pool;
+AVFrame* frame = pool.Acquire();
+// ... 使用 ...
+pool.Release(frame);
 ```
 
-**本节小结**：性能优化的关键是测量先行，找到真正的瓶颈再优化。下一节将介绍调试技巧。
+### 8.4 硬件解码
+
+硬件解码可将 CPU 占用从 40-50% 降至 5-10%。
+
+**各平台硬件解码器名称**：
+
+| 平台 | API | H.264 解码器名称 | H.265 解码器名称 |
+|:---|:---|:---|:---|
+| **macOS/iOS** | VideoToolbox | `h264_videotoolbox` | `hevc_videotoolbox` |
+| **Linux (AMD)** | VAAPI | `h264_vaapi` | `hevc_vaapi` |
+| **Linux (NVIDIA)** | NVDEC | `h264_nvdec` | `hevc_nvdec` |
+| **Linux (Intel)** | VAAPI/QuickSync | `h264_qsv` | `hevc_qsv` |
+
+**macOS VideoToolbox 示例**：
+
+```cpp
+// 1. 查找硬件解码器
+const AVCodec* codec = avcodec_find_decoder_by_name("h264_videotoolbox");
+if (!codec) {
+    // 回退到软件解码
+    codec = avcodec_find_decoder(AV_CODEC_ID_H264);
+}
+
+// 2. 创建解码器上下文
+AVCodecContext* ctx = avcodec_alloc_context3(codec);
+
+// 3. 设置硬件加速（可选，VideoToolbox 通常自动处理）
+// 某些平台需要显式创建硬件设备上下文
+
+// 4. 打开解码器
+avcodec_open2(ctx, codec, nullptr);
+
+// 注意：硬件解码输出通常是 GPU 纹理格式
+// 可能需要 sws_scale 转换或直接使用 GPU 渲染
+```
+
+**Linux VAAPI 示例**：
+
+```cpp
+#include <libavutil/hwcontext.h>
+#include <libavutil/hwcontext_vaapi.h>
+
+// 1. 创建硬件设备上下文
+AVBufferRef* hw_device_ctx = nullptr;
+int ret = av_hwdevice_ctx_create(&hw_device_ctx, 
+                                  AV_HWDEVICE_TYPE_VAAPI,
+                                  "/dev/dri/renderD128",  // 设备路径
+                                  nullptr, 0);
+if (ret < 0) {
+    // 硬件解码不可用，回退软件
+}
+
+// 2. 查找解码器
+const AVCodec* codec = avcodec_find_decoder_by_name("h264_vaapi");
+AVCodecContext* ctx = avcodec_alloc_context3(codec);
+
+// 3. 关联硬件设备
+ctx->hw_device_ctx = av_buffer_ref(hw_device_ctx);
+
+// 4. 打开解码器
+avcodec_open2(ctx, codec, nullptr);
+
+// 5. 解码后的 frame->format 会是 AV_PIX_FMT_VAAPI
+// 需要使用 av_hwframe_transfer_data 转回系统内存
+// 或直接使用 VAAPI 渲染
+```
+
+**硬件解码注意事项**：
+
+1. **并非总是更快**：小分辨率视频（< 720p）软解可能更快
+2. **格式限制**：硬件解码器支持的格式有限
+3. **内存拷贝**：某些情况下 GPU→CPU 拷贝会抵消优势
+4. **兼容性**：旧设备可能不支持新编码格式
+
+### 8.5 零拷贝渲染
+
+传统流程：GPU 解码 → 系统内存 → GPU 纹理（两次拷贝）
+零拷贝：GPU 解码 → 直接渲染（无拷贝）
+
+```cpp
+// 使用 OpenGL/DirectX 直接渲染硬件解码输出
+// 需要 SDL2 + OpenGL 或直接使用平台 API
+
+// 简化的零拷贝流程（概念）：
+// 1. 硬件解码输出 GPU 纹理
+// 2. 直接使用该纹理渲染，不读回 CPU
+// 3. 省掉 SDL_UpdateYUVTexture 的上传步骤
+```
+
+**本节小结**：性能优化需要测量先行，火焰图定位瓶颈。多线程解码提升明显，硬件解码适合高分辨率视频。下一节将介绍调试技巧。
 
 ---
 
@@ -1193,6 +1499,203 @@ int64_t video_pts = frame->pts * av_q2d(stream->time_base) * 1000;
 int64_t diff = video_pts - audio_pts;
 
 if (diff > 40) av_usleep(diff * 1000);  // 视频超前，等待
+```
+
+### Q4: 播放卡顿/不流畅
+
+**可能原因与排查**：
+
+1. **解码性能不足**
+```bash
+# 检查 CPU 占用
+top -p $(pgrep player)
+
+# 如果 CPU 接近 100%，启用多线程解码
+codec_ctx->thread_count = 4;
+```
+
+2. **同步逻辑问题**
+```cpp
+// 检查 PTS 计算是否正确
+printf("PTS: %ld, elapsed: %ld, diff: %ld\n", 
+       pts_ms, elapsed_ms, pts_ms - elapsed_ms);
+
+// 如果 diff 一直是负数，说明同步逻辑有问题
+```
+
+3. **渲染帧率低于视频帧率**
+```cpp
+// 检查 SDL 渲染耗时
+auto start = std::chrono::high_resolution_clock::now();
+SDL_RenderPresent(renderer);
+auto end = std::chrono::high_resolution_clock::now();
+auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+printf("渲染耗时: %ld ms\n", duration);  // 应 < 33ms
+```
+
+### Q5: 花屏/马赛克画面
+
+**原因分析**：
+
+| 现象 | 原因 | 解决 |
+|:---|:---|:---|
+| 规律性花屏 | 丢包或文件损坏 | 检查文件完整性 |
+| 随机色块 | 解码器错误 | 检查 codec_id 是否匹配 |
+| 底部绿线 | linesize 理解错误 | 使用 frame->linesize 而非 width |
+| 画面撕裂 | 无 VSync | 启用 SDL_RENDERER_PRESENTVSYNC |
+
+**排查代码**：
+```cpp
+// 检查 packet 完整性
+if (packet->flags & AV_PKT_FLAG_CORRUPT) {
+    printf("警告：损坏的 packet\n");
+    continue;  // 跳过损坏的数据
+}
+
+// 检查解码器是否打开
+if (!codec_ctx->codec) {
+    printf("错误：编解码器未打开\n");
+}
+
+// 检查像素格式
+printf("Codec pix_fmt: %s\n", av_get_pix_fmt_name(codec_ctx->pix_fmt));
+printf("Frame pix_fmt: %s\n", av_get_pix_fmt_name((AVPixelFormat)frame->format));
+```
+
+### Q6: 某些视频无法播放
+
+**排查步骤**：
+
+```cpp
+// 1. 检查是否找到解码器
+const AVCodec* codec = avcodec_find_decoder(stream->codecpar->codec_id);
+if (!codec) {
+    printf("不支持的编解码器: %s\n", 
+           avcodec_get_name(stream->codecpar->codec_id));
+    // 尝试查找备用解码器
+}
+
+// 2. 列出系统支持的所有解码器
+void ListDecoders() {
+    const AVCodec* codec = nullptr;
+    void* iter = nullptr;
+    printf("支持的 H.264 解码器:\n");
+    while ((codec = av_codec_iterate(&iter))) {
+        if (codec->id == AV_CODEC_ID_H264 && 
+            av_codec_is_decoder(codec)) {
+            printf("  %s (%s)\n", codec->name, 
+                   codec->long_name ? codec->long_name : "");
+        }
+    }
+}
+```
+
+**常见不支持格式处理**：
+- **HEVC/H.265**：需要较新 FFmpeg 版本或硬件解码
+- **AV1**：需要 FFmpeg 4.4+ 或硬件解码
+- **10-bit 视频**：某些解码器只支持 8-bit
+
+### Q7: 网络流播放超时/卡顿
+
+**RTMP/HTTP 流超时设置**：
+
+```cpp
+AVDictionary* opts = nullptr;
+
+// 设置打开超时（微秒）
+av_dict_set(&opts, "timeout", "10000000", 0);  // 10 秒
+
+// 设置读取超时
+av_dict_set(&opts, "rw_timeout", "5000000", 0);  // 5 秒
+
+// 设置 RTMP 缓冲区
+av_dict_set(&opts, "rtmp_buffer", "1000", 0);  // 1000ms
+
+// 设置 TCP 连接超时
+av_dict_set(&opts, "tcp_nodelay", "1", 0);
+
+int ret = avformat_open_input(&ctx, url, nullptr, &opts);
+av_dict_free(&opts);
+```
+
+**网络流错误恢复**：
+```cpp
+// 网络断开时尝试重连
+int retry_count = 0;
+const int MAX_RETRY = 3;
+
+while (retry_count < MAX_RETRY) {
+    ret = av_read_frame(fmt_ctx, packet);
+    if (ret == AVERROR_EOF || ret == AVERROR_EXIT) {
+        printf("连接断开，尝试重连...\n");
+        // 重新打开流
+        avformat_close_input(&fmt_ctx);
+        ret = avformat_open_input(&fmt_ctx, url, nullptr, nullptr);
+        if (ret >= 0) {
+            retry_count = 0;
+            continue;
+        }
+        retry_count++;
+        av_usleep(1000000);  // 等待 1 秒
+    }
+}
+```
+
+### Q8: 内存占用持续增长
+
+**排查内存泄漏**：
+
+```cpp
+// 1. 确保配对释放
+AVPacket* pkt = av_packet_alloc();
+// ... 使用 ...
+av_packet_unref(pkt);  // 每次读取后必须 unref
+av_packet_free(&pkt);  // 最后释放
+
+// 2. 检查解码器刷新
+// 文件结束时需要发送空 packet 刷新
+avcodec_send_packet(ctx, nullptr);
+while (avcodec_receive_frame(ctx, frame) == 0) {
+    // 处理剩余帧
+}
+
+// 3. SDL 纹理释放
+SDL_DestroyTexture(texture);  // 程序结束前
+```
+
+**使用 Valgrind 定位**：
+```bash
+valgrind --leak-check=full --show-leak-kinds=all \
+         --track-origins=yes ./player test.mp4
+```
+
+### Q9: 编译警告处理
+
+**C++ 混合编译警告**：
+```cpp
+// FFmpeg 是 C 库，需要用 extern "C" 包裹
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+}
+
+// 或者在头文件中
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "ffmpeg_headers.h"
+
+#ifdef __cplusplus
+}
+#endif
+```
+
+**弃用 API 警告**：
+```cpp
+// 某些 API 已弃用，使用新 API
+// 旧：avcodec_decode_video2
+// 新：avcodec_send_packet + avcodec_receive_frame
 ```
 
 ---
