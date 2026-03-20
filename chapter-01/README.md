@@ -1,1171 +1,528 @@
-# 第一章：Pipeline 架构与本地播放（深度版）
+# 第一章：Pipeline 架构与本地播放
 
-> **目标**：从零开始，理解视频播放的每一个细节——从数学原理到代码实现，从 FFmpeg 源码到性能优化。
+> **目标**：从零开始，用 100 行代码实现视频播放，理解背后的原理。
 
-**预计时间**：
-- 快速开始（30 分钟）：先跑起来
-- 理论深度（3 小时）：读懂原理
-- 源码解析（2 小时）：理解实现
-- 动手实践（2 小时）：自己实现
+**预计时间**：2 小时
 
 ---
 
 ## 目录
 
-1. [快速开始](#1-快速开始) — 先看到画面
-2. [视频压缩的数学原理](#2-视频压缩的数学原理) — 从源头理解
-3. [FFmpeg 架构解析](#3-ffmpeg-架构解析) — 数据结构全解
-4. [解码器内部机制](#4-解码器内部机制) — 状态机与缓冲区
-5. [SDL2 渲染原理](#5-sdl2-渲染原理) — GPU 与显示
-6. [代码解剖](#6-代码解剖) — 逐行深入
-7. [Pipeline 架构设计](#7-pipeline-架构设计) — 工程实践
-8. [完整实现](#8-完整实现) — 每一行代码
-9. [性能分析与优化](#9-性能分析与优化) — 数据说话
-10. [调试技巧实战](#10-调试技巧实战) — 问题定位
-11. [常见问题](#11-常见问题)
-12. [掌握度检查与进阶](#12-掌握度检查与进阶)
-13. [下一步](#13-下一步)
+1. [快速开始](#1-快速开始)
+2. [视频为什么能压缩](#2-视频为什么能压缩)
+3. [FFmpeg 核心概念](#3-ffmpeg-核心概念)
+4. [代码详解](#4-代码详解)
+5. [Pipeline 架构设计](#5-pipeline-架构设计)
+6. [调试与优化](#6-调试与优化)
+7. [常见问题](#7-常见问题)
+8. [下一步](#8-下一步)
 
 ---
 
 ## 1. 快速开始
 
-### 1.1 环境要求
+### 1.1 安装依赖
 
-| 组件 | 版本 | 说明 |
-|:---|:---|:---|
-| FFmpeg | **4.4.x** | 本章基于 4.4.2 版本编写 |
-| SDL2 | 2.0.16+ | |
-| CMake | 3.16+ | |
-| 编译器 | GCC 9+ / Clang 10+ / MSVC 2019+ | 完整 C++17 支持 |
-| 系统 | macOS 11+ / Ubuntu 20.04+ / Windows 10+ | |
-
-**验证 FFmpeg 版本**：
+**macOS:**
 ```bash
-ffmpeg -version | head -3
-# 应输出类似：ffmpeg version 4.4.2
+brew install ffmpeg sdl2 cmake
 ```
 
-**macOS 安装**：
+**Ubuntu:**
 ```bash
-# 使用 Homebrew 安装指定版本
-brew install ffmpeg@4 sdl2 cmake
-
-# 如果安装了多个版本，设置路径
-export PATH="/usr/local/opt/ffmpeg@4/bin:$PATH"
-export PKG_CONFIG_PATH="/usr/local/opt/ffmpeg@4/lib/pkgconfig"
-```
-
-**Ubuntu 安装**：
-```bash
-sudo apt-get update
 sudo apt-get install -y ffmpeg libavformat-dev libavcodec-dev \
-    libavutil-dev libswscale-dev libsdl2-dev cmake gdb valgrind
-
-# 验证安装
-pkg-config --modversion libavformat  # 应输出 58.x.x (FFmpeg 4.x)
+    libavutil-dev libswscale-dev libsdl2-dev cmake
 ```
 
-**Windows (MSYS2) 安装**：
+验证安装：
 ```bash
-# 在 MSYS2 MinGW 64-bit 终端执行
-pacman -Syu
-pacman -S mingw-w64-x86_64-ffmpeg \
-          mingw-w64-x86_64-SDL2 \
-          mingw-w64-x86_64-cmake \
-          mingw-w64-x86_64-gcc \
-          mingw-w64-x86_64-gdb
-
-# 添加到环境变量（添加到 ~/.bashrc）
-export PATH="/mingw64/bin:$PATH"
+ffmpeg -version | head -1
+# ffmpeg version 4.4.2
 ```
 
-### 1.2 最简播放器（50 行）
+### 1.2 100 行播放器
 
-创建 `minimal_player.cpp`：
+创建 `player.cpp`：
 
 ```cpp
-// minimal_player.cpp - 最简视频播放器
 #include <SDL2/SDL.h>
-#include <cstdio>
-
+#include <stdio.h>
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 }
 
 int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        printf("Usage: %s <video_file>\n", argv[0]);
-        return 1;
-    }
-
-    // ========== 1. 打开文件 ==========
-    AVFormatContext* fmt_ctx = nullptr;
-    int ret = avformat_open_input(&fmt_ctx, argv[1], nullptr, nullptr);
-    if (ret < 0) {
-        fprintf(stderr, "Error: Cannot open file %s\n", argv[1]);
-        return 1;
-    }
-
-    ret = avformat_find_stream_info(fmt_ctx, nullptr);
-    if (ret < 0) {
-        fprintf(stderr, "Error: Cannot find stream info\n");
-        avformat_close_input(&fmt_ctx);
-        return 1;
-    }
-
-    // ========== 2. 找到视频流 ==========
-    int video_stream_idx = av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_VIDEO, 
-                                                -1, -1, nullptr, 0);
-    if (video_stream_idx < 0) {
-        fprintf(stderr, "Error: No video stream found\n");
-        avformat_close_input(&fmt_ctx);
-        return 1;
-    }
-    AVStream* stream = fmt_ctx->streams[video_stream_idx];
-    printf("Video: %dx%d @ %.2ffps\n", 
-           stream->codecpar->width, 
-           stream->codecpar->height,
-           av_q2d(stream->avg_frame_rate));
-
-    // ========== 3. 初始化解码器 ==========
-    const AVCodec* codec = avcodec_find_decoder(stream->codecpar->codec_id);
-    if (!codec) {
-        fprintf(stderr, "Error: Codec not found\n");
-        avformat_close_input(&fmt_ctx);
-        return 1;
-    }
-
-    AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
-    avcodec_parameters_to_context(codec_ctx, stream->codecpar);
-    ret = avcodec_open2(codec_ctx, codec, nullptr);
-    if (ret < 0) {
-        fprintf(stderr, "Error: Cannot open codec\n");
-        avcodec_free_context(&codec_ctx);
-        avformat_close_input(&fmt_ctx);
-        return 1;
-    }
-
-    // ========== 4. 创建 SDL 窗口 ==========
+    // 1. 打开文件
+    AVFormatContext* fmt = nullptr;
+    avformat_open_input(&fmt, argv[1], nullptr, nullptr);
+    avformat_find_stream_info(fmt, nullptr);
+    
+    // 2. 找视频流
+    int idx = av_find_best_stream(fmt, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+    AVStream* st = fmt->streams[idx];
+    
+    // 3. 初始化解码器
+    const AVCodec* codec = avcodec_find_decoder(st->codecpar->codec_id);
+    AVCodecContext* cc = avcodec_alloc_context3(codec);
+    avcodec_parameters_to_context(cc, st->codecpar);
+    avcodec_open2(cc, codec, nullptr);
+    
+    // 4. 创建窗口
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_Window* window = SDL_CreateWindow("Player",
+    SDL_Window* win = SDL_CreateWindow("Player",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        codec_ctx->width, codec_ctx->height, SDL_WINDOW_SHOWN);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 
-        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12,
-        SDL_TEXTUREACCESS_STREAMING, codec_ctx->width, codec_ctx->height);
-
-    // ========== 5. 解码播放循环 ==========
-    AVPacket* packet = av_packet_alloc();
-    AVFrame* frame = av_frame_alloc();
+        cc->width, cc->height, 0);
+    SDL_Renderer* rend = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Texture* tex = SDL_CreateTexture(rend, SDL_PIXELFORMAT_YV12,
+        SDL_TEXTUREACCESS_STREAMING, cc->width, cc->height);
+    
+    // 5. 解码循环
+    AVPacket* pkt = av_packet_alloc();
+    AVFrame* frm = av_frame_alloc();
     bool running = true;
-    int frame_count = 0;
-
-    while (running && av_read_frame(fmt_ctx, packet) >= 0) {
-        // 处理窗口事件
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) running = false;
-            if (event.type == SDL_KEYDOWN && 
-                event.key.keysym.sym == SDLK_ESCAPE) running = false;
+    
+    while (running && av_read_frame(fmt, pkt) >= 0) {
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) running = false;
         }
-
-        // 只处理视频包
-        if (packet->stream_index != video_stream_idx) {
-            av_packet_unref(packet);
-            continue;
+        
+        if (pkt->stream_index == idx) {
+            avcodec_send_packet(cc, pkt);
+            while (avcodec_receive_frame(cc, frm) == 0) {
+                SDL_UpdateYUVTexture(tex, nullptr,
+                    frm->data[0], frm->linesize[0],
+                    frm->data[1], frm->linesize[1],
+                    frm->data[2], frm->linesize[2]);
+                SDL_RenderCopy(rend, tex, nullptr, nullptr);
+                SDL_RenderPresent(rend);
+                SDL_Delay(33);  // 30fps
+            }
         }
-
-        // 发送到解码器
-        ret = avcodec_send_packet(codec_ctx, packet);
-        av_packet_unref(packet);
-        if (ret < 0) continue;
-
-        // 接收解码后的帧
-        while (avcodec_receive_frame(codec_ctx, frame) == 0) {
-            SDL_UpdateYUVTexture(texture, nullptr,
-                frame->data[0], frame->linesize[0],
-                frame->data[1], frame->linesize[1],
-                frame->data[2], frame->linesize[2]);
-            SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-            SDL_RenderPresent(renderer);
-            frame_count++;
-        }
+        av_packet_unref(pkt);
     }
-
-    printf("Total frames: %d\n", frame_count);
-
-    // ========== 6. 清理资源 ==========
-    av_frame_free(&frame);
-    av_packet_free(&packet);
-    SDL_DestroyTexture(texture);
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    
+    // 6. 清理
+    av_frame_free(&frm);
+    av_packet_free(&pkt);
+    avcodec_free_context(&cc);
+    avformat_close_input(&fmt);
     SDL_Quit();
-    avcodec_free_context(&codec_ctx);
-    avformat_close_input(&fmt_ctx);
-
     return 0;
 }
 ```
 
-### 1.3 编译与运行
+### 1.3 编译运行
 
 ```bash
-# 1. 创建测试视频（彩色条纹）
-ffmpeg -f lavfi -i testsrc=duration=10:size=1280x720:rate=30 \
-       -pix_fmt yuv420p -c:v libx264 -preset fast \
-       -crf 23 test_video.mp4
+# 创建测试视频
+ffmpeg -f lavfi -i testsrc=duration=5:size=640x480:rate=30 \
+       -pix_fmt yuv420p test.mp4
 
-# 2. 编译播放器
-g++ -O2 -std=c++17 minimal_player.cpp -o minimal_player \
+# 编译
+g++ -O2 player.cpp -o player \
     $(pkg-config --cflags --libs libavformat libavcodec libavutil sdl2)
 
-# 3. 运行
-./minimal_player test_video.mp4
+# 运行
+./player test.mp4
 ```
 
-**预期效果**：
-```
-Video: 1280x720 @ 30.00fps
-Total frames: 300
-```
-
-窗口显示彩色条纹，按 ESC 或关闭窗口退出。
+看到彩色条纹在滚动？成功了！🎉
 
 ---
 
-## 2. 视频压缩的数学原理
+## 2. 视频为什么能压缩
 
-### 2.1 信息论基础
+### 2.1 原始视频有多大
 
-#### 2.1.1 信息熵
-
-**香农熵（Shannon Entropy）**：衡量信息的不确定性。
-
-$$H(X) = -\sum_{i=1}^{n} p(x_i) \log_2 p(x_i)$$
-
-其中：
-- $p(x_i)$ 是符号 $x_i$ 出现的概率
-- 单位是比特（bits）
-
-**例子**：
-```
-场景 A：抛公平硬币，P(正面)=0.5, P(反面)=0.5
-H = -(0.5 × log₂0.5 + 0.5 × log₂0.5) = 1 bit
-
-场景 B：抛不公平硬币，P(正面)=0.9, P(反面)=0.1
-H = -(0.9 × log₂0.9 + 0.1 × log₂0.1) ≈ 0.47 bit
-```
-
-**结论**：概率分布越不均匀，熵越小，压缩潜力越大。
-
-#### 2.1.2 视频数据的统计特性
-
-自然视频的像素值分布：
-- **空间相关性**：相邻像素值相近
-- **时间相关性**：连续帧变化小
-- **色度相关性**：U/V 通道比 Y 通道变化小
-
-这导致视频数据的熵远低于随机数据，为压缩提供理论基础。
-
-### 2.2 离散余弦变换（DCT）
-
-#### 2.2.1 从傅里叶变换到 DCT
-
-**傅里叶变换**：将信号从时域转换到频域。
-
-**离散余弦变换（DCT）**：只使用余弦分量，更适合图像（实数、对称）。
-
-**一维 DCT-II 公式**（图像压缩使用）：
-
-$$X_k = \alpha(k) \sum_{n=0}^{N-1} x_n \cos\left[\frac{\pi}{N}\left(n + \frac{1}{2}\right)k\right]$$
-
-其中：
-- $x_n$：输入信号（像素值）
-- $X_k$：变换后的系数（频率分量）
-- $\alpha(k)$：归一化系数，$\alpha(0) = \sqrt{\frac{1}{N}}$，$\alpha(k) = \sqrt{\frac{2}{N}}$（k>0）
-
-**二维 DCT**（图像使用）：
-
-$$X_{u,v} = \alpha(u)\alpha(v) \sum_{x=0}^{N-1}\sum_{y=0}^{N-1} x_{x,y} 
-\cos\left[\frac{\pi}{N}\left(x + \frac{1}{2}\right)u\right]
-\cos\left[\frac{\pi}{N}\left(y + \frac{1}{2}\right)v\right]$$
-
-#### 2.2.2 DCT 的物理意义
-
-**例子**：8×8 块的 DCT 变换
-
-```
-原始 8×8 像素块（亮度值 0-255）：
-┌────┬────┬────┬────┬────┬────┬────┬────┐
-│140 │142 │143 │141 │139 │138 │140 │141 │
-│141 │143 │144 │142 │140 │139 │141 │142 │
-│142 │144 │145 │143 │141 │140 │142 │143 │
-│... │... │... │... │... │... │... │... │
-└────┴────┴────┴────┴────┴────┴────┴────┘
-
-DCT 变换后的系数：
-┌─────────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────┐
-│ 1145.0  │  -12.3  │    3.2  │   -0.8  │    0.5  │   -0.3  │    0.2  │   -0.1  │  ← DC 分量 + 低频 AC
-├─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┼─────────┤
-│  -15.2  │    2.1  │   -0.9  │    0.4  │   -0.2  │    0.1  │   -0.1  │    0.0  │
-│    4.8  │   -1.3  │    0.6  │   -0.3  │    0.1  │    0.0  │    0.0  │    0.0  │
-│   -2.1  │    0.8  │   -0.4  │    0.2  │   -0.1  │    0.0  │    0.0  │    0.0  │
-│    1.0  │   -0.5  │    0.3  │   -0.1  │    0.0  │    0.0  │    0.0  │    0.0  │
-│   -0.6  │    0.3  │   -0.2  │    0.1  │    0.0  │    0.0  │    0.0  │    0.0  │
-│    0.4  │   -0.2  │    0.1  │    0.0  │    0.0  │    0.0  │    0.0  │    0.0  │
-│   -0.2  │    0.1  │   -0.1  │    0.0  │    0.0  │    0.0  │    0.0  │    0.0  │
-└─────────┴─────────┴─────────┴─────────┴─────────┴─────────┴─────────┴─────────┘
-```
-
-**关键观察**：
-1. **DC 分量**（左上角）：代表块的平均亮度，值最大
-2. **低频 AC**：相邻几个值较大，代表缓慢变化
-3. **高频 AC**：右下角接近 0，代表快速变化（细节）
-
-**能量集中**：大部分能量集中在左上角，右下角可以丢弃。
-
-#### 2.2.3 H.264 中的整数 DCT
-
-为了硬件实现效率，H.264 使用**整数 DCT**近似：
-
-```
-H.264 4×4 整数变换矩阵：
-
-┌────┬────┬────┬────┐
-│ 1  │ 1  │ 1  │ 1  │
-│ 2  │ 1  │ -1 │ -2 │
-│ 1  │ -1 │ -1 │ 1  │
-│ 1  │ -2 │ 2  │ -1 │
-└────┴────┴────┴────┘
-```
-
-**优势**：
-- 只用整数加减和移位，硬件实现简单
-- 完全可逆，无浮点误差累积
-- 与量化结合，减少计算量
-
-### 2.3 量化
-
-#### 2.3.1 量化原理
-
-**量化**：将连续值映射到离散值，引入可控的信息损失。
-
-**标量量化公式**：
-
-$$Q(x) = \text{round}\left(\frac{x}{q}\right) \times q$$
-
-其中 $q$ 是量化步长。
-
-**例子**（$q=10$）：
-```
-原始值:  142  148  151  143  ...
-量化后:  140  150  150  140  ...
-误差:    -2   +2   -1   -3   ...
-```
-
-#### 2.3.2 H.264 量化矩阵
-
-H.264 使用不同的量化步长对不同频率分量：
-
-```
-H.264 默认量化矩阵（亮度）：
-
-┌────┬────┬────┬────┐
-│ 16 │ 11 │ 10 │ 16 │  ← DC 分量用较小步长（保护）
-│ 12 │ 12 │ 14 │ 19 │
-│ 14 │ 13 │ 16 │ 24 │
-│ 14 │ 17 │ 22 │ 29 │  ← 高频用较大步长（丢弃）
-└────┴────┴────┴────┘
-```
-
-**规律**：
-- 左上角（低频）：步长小，精度高
-- 右下角（高频）：步长大，精度低甚至丢弃
-
-**量化参数 QP（Quantization Parameter）**：
-- QP 增加 6 → 比特率减半
-- QP 范围：0-51，常用 20-40
-- QP=0：无损（仍有 DCT 带来的微小误差）
-
-### 2.4 运动估计与补偿
-
-#### 2.4.1 时间冗余
-
-视频帧间通常只有小部分区域变化：
-
-```
-帧 N（参考帧）          帧 N+1（当前帧）
-┌──────────────┐       ┌──────────────┐
-│              │       │              │
-│   🚗  →      │       │      🚗     │  汽车右移
-│              │       │              │
-│    ☁️        │       │       ☁️    │  云朵漂移
-│              │       │              │
-└──────────────┘       └──────────────┘
-```
-
-**不是重新编码整个帧，而是编码"差异"！**
-
-#### 2.4.2 运动向量
-
-**宏块（Macroblock）**：16×16 像素的处理单元
-
-**运动估计**：在参考帧中找到最匹配的块。
-
-```
-当前帧的宏块 (x, y) ────────┐
-                            │ 运动向量 (mv_x, mv_y)
-                            ↓
-参考帧的宏块 (x+mv_x, y+mv_y)
-```
-
-**搜索算法**：
-- **全搜索**：尝试所有可能位置，最优但慢
-- **三步搜索**：快速近似，适合实时编码
-- **钻石搜索**：H.264 常用，平衡速度与精度
-
-#### 2.4.3 运动补偿残差
-
-编码的不是原始像素，而是：
-
-$$
-\text{残差} = \text{当前块} - \text{预测块（参考帧对应位置）}$$
-
-残差通常很小（变化区域），DCT 后大部分系数为 0，极大提高压缩率。
-
-### 2.5 熵编码
-
-#### 2.5.1 变长编码（VLC）
-
-**思想**：高频符号用短编码，低频符号用长编码。
-
-**霍夫曼编码示例**：
-```
-符号频率:  A:50%  B:25%  C:15%  D:10%
-
-编码分配:
-A: 0        (1 bit)
-B: 10       (2 bits)
-C: 110      (3 bits)
-D: 111      (3 bits)
-
-平均码长 = 0.5×1 + 0.25×2 + 0.15×3 + 0.10×3 = 1.75 bits
-定长编码需要 2 bits，节省 12.5%
-```
-
-#### 2.5.2 CABAC（上下文自适应二进制算术编码）
-
-H.264 高级特性，比霍夫曼编码效率更高。
-
-**算术编码**：将整个消息编码为一个浮点数。
-
-**上下文自适应**：根据周围已编码符号调整概率模型。
-
-**压缩增益**：相比 VLC 节省 10-20% 比特率，但计算复杂度高。
-
-### 2.6 本章节的编码示例
-
-**一个 4×4 块在 H.264 中的编码流程**：
-
-```
-原始像素
-    ↓
-整数 DCT 变换 ───────→ 16 个系数 (DC + 15 AC)
-    ↓
-量化（QP=28）────────→ 大部分 AC 变为 0
-    ↓
-Zigzag 扫描 ─────────→ 一维序列 (DC 在前，高频在后)
-    ↓
-游程编码 ────────────→ (跳过0的个数, 非零值) 对
-    ↓
-熵编码 (CABAC/VLC) ──→ 最终比特流
-```
-
----
-
-## 3. FFmpeg 架构解析
-
-### 3.1 FFmpeg 整体架构
-
-```
-FFmpeg 库结构：
-
-┌─────────────────────────────────────────────────────────────┐
-│                     libavformat (封装)                       │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
-│  │   MP4      │  │   FLV      │  │   AVI      │  ...       │
-│  │  demuxer   │  │  demuxer   │  │  demuxer   │            │
-│  └────────────┘  └────────────┘  └────────────┘            │
-│  解封装：从容器格式提取音视频流                              │
-├─────────────────────────────────────────────────────────────┤
-│                     libavcodec (编解码)                      │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
-│  │   H.264    │  │   H.265    │  │    AAC     │  ...       │
-│  │  decoder   │  │  decoder   │  │  decoder   │            │
-│  └────────────┘  └────────────┘  └────────────┘            │
-│  编解码：压缩数据 ↔ 原始数据                                 │
-├─────────────────────────────────────────────────────────────┤
-│                     libavutil (工具)                         │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐            │
-│  │   内存     │  │   数学     │  │   时间     │            │
-│  │  管理      │  │  运算      │  │  处理      │            │
-│  └────────────┘  └────────────┘  └────────────┘            │
-│  通用工具函数                                                │
-├─────────────────────────────────────────────────────────────┤
-│                     libswscale (转换)                        │
-│  YUV ↔ RGB, 缩放, 格式转换                                   │
-├─────────────────────────────────────────────────────────────┤
-│                     libswresample (重采样)                   │
-│  音频采样率/格式转换                                          │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 3.2 AVFormatContext 详解
-
-#### 3.2.1 结构体定义（FFmpeg 4.4）
-
-```c
-// libavformat/avformat.h
-
-typedef struct AVFormatContext {
-    // ========== 基本属性 ==========
-    const AVClass *av_class;           // 用于日志和选项
-    struct AVInputFormat *iformat;     // 输入格式（demuxer）
-    struct AVOutputFormat *oformat;    // 输出格式（muxer）
-    
-    void *priv_data;                   // 格式的私有数据
-    
-    // ========== IO 相关 ==========
-    AVIOContext *pb;                   // IO 上下文（文件/网络）
-    int io_flags;                      // IO 标志（读取/写入）
-    
-    // ========== 流信息 ==========
-    unsigned int nb_streams;           // 流数量
-    AVStream **streams;                // 流数组指针
-    
-    // ========== 元数据 ==========
-    char *url;                         // 文件/流 URL
-    int64_t start_time;                // 第一帧的 PTS
-    int64_t duration;                  // 总时长（AV_TIME_BASE）
-    int64_t bit_rate;                  // 总码率（bits/s）
-    
-    AVDictionary *metadata;            // 元数据（标题、作者等）
-    
-    // ========== 内部状态 ==========
-    int flags;                         // 格式标志
-    int64_t data_offset;               // 数据起始偏移
-    
-    // ... 更多字段省略
-} AVFormatContext;
-```
-
-#### 3.2.2 关键字段详解
-
-| 字段 | 类型 | 用途 | 生命周期 |
+| 分辨率 | 每帧大小 | 1秒(30fps) | 1分钟 |
 |:---|:---|:---|:---|
-| `av_class` | `AVClass*` | 用于反射和日志分类 | 初始化后不变 |
-| `iformat` | `AVInputFormat*` | 指向具体的 demuxer（如 mov_demuxer） | `avformat_open_input` 设置 |
-| `pb` | `AVIOContext*` | 抽象 IO 层，支持文件/网络/内存 | 打开时创建，关闭时释放 |
-| `nb_streams` | `unsigned int` | 音视频流总数 | 打开文件后确定 |
-| `streams` | `AVStream**` | 流数组，streams[i] 是第 i 个流 | 与 fmt_ctx 同生命周期 |
-| `duration` | `int64_t` | 总时长，单位 AV_TIME_BASE（1/1,000,000 秒）| 调用 `avformat_find_stream_info` 后 |
-| `metadata` | `AVDictionary*` | 键值对形式的元数据 | 可选，可能为空 |
+| 1920×1080 | 6 MB | 180 MB | **10.8 GB** |
 
-#### 3.2.3 内存布局
+实际 1 分钟视频只有约 100 MB，压缩了 100 倍！
+
+### 2.2 三个压缩技巧
+
+**技巧 1：相邻像素差不多（空间冗余）**
 
 ```
-AVFormatContext 内存结构：
-
-┌─────────────────────────────────────┐
-│          AVFormatContext            │  ← 主结构体（约 400 字节）
-├─────────────────────────────────────┤
-│  AVInputFormat (mov_demuxer)        │  ← 指向全局的 demuxer 定义
-├─────────────────────────────────────┤
-│  AVIOContext (文件 IO)              │  ← 文件句柄、缓冲区等
-│  ├── buffer (32KB 默认)             │
-│  └── 文件描述符 / 网络 socket        │
-├─────────────────────────────────────┤
-│  AVStream[0] (视频流)               │  ← 动态分配
-│  ├── codecpar (编码参数)            │
-│  ├── time_base (时间基)             │
-│  └── metadata (流级元数据)          │
-├─────────────────────────────────────┤
-│  AVStream[1] (音频流)               │
-├─────────────────────────────────────┤
-│  AVStream[2] (字幕流，可选)         │
-└─────────────────────────────────────┘
+原始：140 141 142 141 140 139 140 141（8 字节）
+压缩：140 +0 +1 +1 -1 -1 -1 +1 +1（差分编码，更小）
 ```
 
-### 3.3 AVStream 详解
-
-```c
-typedef struct AVStream {
-    int index;                         // 流索引（0, 1, 2...）
-    int id;                            // 格式特定的流 ID
-    
-    AVCodecParameters *codecpar;       // 编码参数（新 API）
-    
-    // ========== 时间 ==========
-    AVRational time_base;              // 时间基（分数形式）
-    int64_t start_time;                // 第一帧 PTS
-    int64_t duration;                  // 流时长（以 time_base 为单位）
-    
-    // ========== 帧率 ==========
-    AVRational r_frame_rate;           // 实际帧率（最可靠）
-    AVRational avg_frame_rate;         // 平均帧率
-    AVRational sample_aspect_ratio;    // 采样宽高比（SAR）
-    
-    // ========== 显示 ==========
-    int disposition;                   // 显示属性（默认/隐藏等）
-    
-    // ========== 解码器（旧 API，已废弃）==========
-    struct AVCodecContext *codec;      // 不要直接使用！
-    
-    // ... 更多字段
-} AVStream;
-```
-
-**关键字段：time_base**
-
-```c
-typedef struct AVRational {
-    int num;  // 分子
-    int den;  // 分母
-} AVRational;
-
-// time_base = 1/1000 表示 PTS 单位为毫秒
-// time_base = 1/90000 表示 PTS 单位为 1/90000 秒（90kHz 时钟）
-
-// 转换函数
-double av_q2d(AVRational a);  // 分数转 double
-```
-
-### 3.4 AVCodecContext 详解
-
-```c
-typedef struct AVCodecContext {
-    // ========== 编解码器 ==========
-    const AVClass *av_class;
-    struct AVCodec *codec;             // 编解码器
-    void *priv_data;                   // 私有数据（如 x264 参数）
-    
-    // ========== 视频参数 ==========
-    int width, height;                 // 视频分辨率
-    AVRational sample_aspect_ratio;    // 采样宽高比
-    AVPixelFormat pix_fmt;             // 像素格式（YUV420P 等）
-    AVRational framerate;              // 帧率
-    
-    // ========== 编码参数 ==========
-    int bit_rate;                      // 目标码率
-    int rc_buffer_size;                // 码率控制缓冲区
-    float rc_max_rate;                 // 最大码率
-    
-    // ========== 解码状态 ==========
-    int thread_count;                  // 解码线程数
-    int thread_type;                   // 线程类型（帧/切片）
-    
-    // ========== 内部缓冲区 ==========
-    uint8_t *extradata;                // 编解码器额外数据（如 SPS/PPS）
-    int extradata_size;
-    
-    // ... 更多字段
-} AVCodecContext;
-```
-
-### 3.5 AVPacket 详解
-
-```c
-typedef struct AVPacket {
-    AVBufferRef *buf;                  // 数据缓冲区引用（引用计数）
-    int64_t pts;                       // 显示时间戳
-    int64_t dts;                       // 解码时间戳
-    uint8_t *data;                     // 数据指针
-    int size;                          // 数据大小（字节）
-    int stream_index;                  // 所属流索引
-    int flags;                         // 标志（关键帧等）
-    AVPacketSideData *side_data;       // 附加数据
-    int side_data_elems;
-    int64_t duration;                  // 包持续时间
-    int64_t pos;                       // 文件位置
-} AVPacket;
-```
-
-**内存管理**：
-- `buf` 使用引用计数，多个 Packet 可共享同一缓冲区
-- `av_packet_alloc()` 只分配结构体，不分配数据缓冲区
-- `av_packet_unref()` 减少引用计数，为 0 时释放
-
-### 3.6 AVFrame 详解
-
-```c
-typedef struct AVFrame {
-    // ========== 数据 ==========
-    uint8_t *data[AV_NUM_DATA_POINTERS];      // 各平面数据指针
-    int linesize[AV_NUM_DATA_POINTERS];       // 各平面行字节数
-    
-    // ========== 格式 ==========
-    int width, height;                         // 分辨率
-    int nb_samples;                            // 音频：采样数
-    AVPixelFormat format;                      // 像素/采样格式
-    
-    // ========== 时间 ==========
-    int64_t pts;                               // 显示时间戳
-    AVRational time_base;
-    int64_t best_effort_timestamp;             // 估计的 PTS
-    
-    // ========== 引用计数 ==========
-    uint8_t **extended_data;                   // 扩展数据指针
-    int nb_extended_buf;
-    AVBufferRef **extended_buf;
-    
-    // ========== 帧属性 ==========
-    int key_frame;                             // 是否关键帧
-    AVPictureType pict_type;                   // 帧类型（I/P/B）
-    AVRational sample_aspect_ratio;            // SAR
-    int64_t pkt_pos;                           // 来源 packet 位置
-    
-    // ... 更多字段
-} AVFrame;
-```
-
-**YUV420P 内存布局**：
+**技巧 2：连续帧差不多（时间冗余）**
 
 ```
-AVFrame for YUV420P 1920x1080:
+第 N 帧：[完整画面]     50 KB
+第 N+1 帧：[变化区域]   5 KB  （只存不同的部分）
+```
 
-┌─────────────────────────────────────────────────────────────┐
-│ data[0] ───────────────────────────────────────────────┐    │
-│   Y 平面: 1920 × 1080 = 2,073,600 字节                 │    │
-│   linesize[0] = 1920 (可能填充到 2048 等)              │    │
-├────────────────────────────────────────────────────────┤    │
-│ data[1] ───────────────────────────────────────────┐   │    │
-│   U 平面: 960 × 540 = 518,400 字节                 │   │    │
-│   linesize[1] = 960                                │   │    │
-├────────────────────────────────────────────────────┤   │    │
-│ data[2] ───────────────────────────────────────┐   │   │    │
-│   V 平面: 960 × 540 = 518,400 字节             │   │   │    │
-│   linesize[2] = 960                            │   │   │    │
-└────────────────────────────────────────────────┘   │   │    │
-                                                     │   │    │
-buffer (AVBufferRef) ←───────────────────────────────┘   │    │
-  ↓ 引用计数管理                                         │    │
-av_buffer_alloc() ───────────────────────────────────────┘    │
-                                                              │
-total_size = 2,073,600 + 518,400 + 518,400 = 3,110,400 字节   │
-                                                              │
-AVFrame 结构体本身只占约 200 字节，数据通过 buf 引用 ──────────┘
+**技巧 3：人眼对颜色不敏感**
+
+- 亮度（Y）：完整分辨率
+- 色度（U/V）：分辨率减半 → 省 50% 空间
+
+### 2.3 帧类型
+
+| 类型 | 名称 | 大小 | 用途 |
+|:---|:---|:---|:---|
+| I 帧 | 关键帧 | 大 | 完整画面，可独立解码 |
+| P 帧 | 预测帧 | 中 | 参考前一帧 |
+| B 帧 | 双向帧 | 小 | 参考前后两帧 |
+
+```
+视频序列：I  P  P  P  I  P  P  P
+大小：    大 小 小 小 大 小 小 小
 ```
 
 ---
 
-（由于内容过长，我将继续编写后续章节）
+## 3. FFmpeg 核心概念
 
-## 4. 解码器内部机制
-
-### 4.1 解码器状态机
-
-FFmpeg 解码器采用**异步推拉模型**：
+### 3.1 四个核心结构体
 
 ```
-解码器状态：
-
-      ┌─────────────────────────────────────────────────────────┐
-      │                                                         ↓
-┌─────────┐    SendPacket    ┌─────────────┐    ReceiveFrame    ┌─────────┐
-│  UNINIT │ ───────────────→ │  RECEIVING  │ ─────────────────→ │ OUTPUT  │
-│  未初始化│                  │  接收包中   │                    │ 输出帧  │
-└─────────┘                  └─────────────┘                    └─────────┘
-                                  │                                   │
-                                  │         SendPacket (EAGAIN)       │
-                                  │         缓冲区满                  │
-                                  │←──────────────────────────────────┘
-                                  │
-                                  │         ReceiveFrame (EAGAIN)
-                                  │         无帧可输出
-                                  ↓
-                            ┌─────────────┐
-                            │   DRAINING  │  ← 发送空包 (flush)
-                            │   冲刷中    │
-                            └─────────────┘
+┌────────────────────────────────────────────────────┐
+│  AVFormatContext  文件总控                          │
+│  ├── 打开的文件                                      │
+│  ├── 有几个流（视频/音频/字幕）                       │
+│  └── 总时长、码率等信息                               │
+├────────────────────────────────────────────────────┤
+│  AVStream         单个流信息                         │
+│  ├── 视频分辨率、帧率                                 │
+│  └── 时间基（time_base）                            │
+├────────────────────────────────────────────────────┤
+│  AVCodecContext   编解码器上下文                     │
+│  └── 解码器的配置和状态                               │
+├────────────────────────────────────────────────────┤
+│  AVPacket         压缩数据包                         │
+│  └── 从文件读出的原始压缩数据                         │
+├────────────────────────────────────────────────────┤
+│  AVFrame          解码后的帧                         │
+│  └── YUV 像素数据，可直接显示                         │
+└────────────────────────────────────────────────────┘
 ```
 
-### 4.2 内部缓冲区
+### 3.2 YUV 像素格式
+
+**为什么用 YUV 不用 RGB？**
+
+人眼特性：对亮度敏感，对颜色不敏感。
 
 ```
-解码器内部结构：
+YUV420P 内存布局（1920×1080）：
 
-┌──────────────────────────────────────────────────────────────┐
-│                     AVCodecContext                           │
-├──────────────────────────────────────────────────────────────┤
-│  Codec (H.264 decoder)                                       │
-│  ├── Parser：解析 NALU，提取 SPS/PPS/Slice 信息              │
-│  ├── DSP：解压缩，反变换，运动补偿                           │
-│  └── Frame Pool：解码后的帧缓冲池                          │
-├──────────────────────────────────────────────────────────────┤
-│  输入缓冲区（压缩数据）                                      │
-│  ┌─────────┬─────────┬─────────┬─────────┐                   │
-│  │ Packet0 │ Packet1 │ Packet2 │ Packet3 │ ...               │
-│  │ SPS+PPS │   IDR   │    P    │    P    │                   │
-│  └─────────┴─────────┴─────────┴─────────┘                   │
-│       ↑                                       ↓               │
-│   avcodec_send_packet()              avcodec_receive_frame() │
-├──────────────────────────────────────────────────────────────┤
-│  输出缓冲区（原始帧）                                        │
-│  ┌─────────┬─────────┬─────────┬─────────┐                   │
-│  │ Frame0  │ Frame1  │ Frame2  │ Frame3  │ ...               │
-│  │  YUV    │   YUV   │   YUV   │   YUV   │                   │
-│  └─────────┴─────────┴─────────┴─────────┘                   │
-└──────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│ Y 平面：1920 × 1080 = 2,073,600 字节     │  亮度（每个像素 1 字节）
+├──────────────────────────────────────────┤
+│ U 平面：960 × 540 = 518,400 字节         │  色度（1/4 大小）
+├──────────────────────────────────────────┤
+│ V 平面：960 × 540 = 518,400 字节         │  色度（1/4 大小）
+└──────────────────────────────────────────┘
+总计：3.1 MB（比 RGB 省 50%）
 ```
 
-### 4.3 多线程解码
-
-**FFmpeg 支持三种多线程模式**：
-
-| 模式 | 说明 | 适用场景 |
-|:---|:---|:---|
-| **FF_THREAD_FRAME** | 帧级并行，多个帧同时解码 | 大多数编码器 |
-| **FF_THREAD_SLICE** | 切片级并行，单帧内多线程 | H.264 支持 |
-| **FF_THREAD_NONE** | 单线程 | 调试/兼容性 |
-
-**启用多线程**：
+**FFmpeg 中的访问**：
 ```cpp
-codec_ctx->thread_count = 4;  // 使用 4 个线程
-codec_ctx->thread_type = FF_THREAD_FRAME;
-avcodec_open2(codec_ctx, codec, nullptr);
+frame->data[0]  // Y 平面指针
+frame->data[1]  // U 平面指针
+frame->data[2]  // V 平面指针
+frame->linesize[0]  // Y 行宽（包含对齐填充）
+```
+
+### 3.3 时间戳（PTS）
+
+**问题**：视频帧不是越快显示越好，要按正确时间显示。
+
+```cpp
+// 30fps 视频的 PTS
+// time_base = 1/1000（毫秒）
+帧 0：PTS = 0      → 0ms 显示
+帧 1：PTS = 33     → 33ms 显示
+帧 2：PTS = 66     → 66ms 显示
+```
+
+**转换公式**：
+```cpp
+// 实际时间 = PTS × time_base
+// 毫秒 = PTS × time_base_num / time_base_den × 1000
+int64_t ms = pts * av_q2d(time_base) * 1000;
 ```
 
 ---
 
-（继续编写更多内容...）
+## 4. 代码详解
 
-## 8. 完整实现
+### 4.1 代码流程图
 
-### 8.1 目录结构
+```
+打开文件 → 找视频流 → 初始化解码器 → 创建窗口 → 解码循环 → 清理
+   ↓          ↓           ↓            ↓          ↓        ↓
+avformat_  av_find_   avcodec_     SDL_      while    av_free
+open_input best_stream find_decoder  Create    循环      系列
+```
+
+### 4.2 关键 API 说明
+
+**打开文件**：
+```cpp
+AVFormatContext* fmt = nullptr;
+avformat_open_input(&fmt, "video.mp4", nullptr, nullptr);
+// 返回值 < 0 表示失败
+```
+
+**找视频流**：
+```cpp
+int idx = av_find_best_stream(fmt, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+// 返回流的索引，< 0 表示没有视频
+```
+
+**初始化解码器**：
+```cpp
+const AVCodec* codec = avcodec_find_decoder(stream->codecpar->codec_id);
+AVCodecContext* cc = avcodec_alloc_context3(codec);
+avcodec_parameters_to_context(cc, stream->codecpar);
+avcodec_open2(cc, codec, nullptr);
+```
+
+**解码循环**：
+```cpp
+while (av_read_frame(fmt, pkt) >= 0) {  // 读一个包
+    avcodec_send_packet(cc, pkt);       // 送入解码器
+    while (avcodec_receive_frame(cc, frm) == 0) {  // 取解码后的帧
+        // 显示
+    }
+}
+```
+
+### 4.3 内存管理
+
+**FFmpeg 是 C 库，需要手动释放**：
+
+```cpp
+// 配对使用
+av_packet_alloc() → av_packet_free()
+av_frame_alloc() → av_frame_free()
+avcodec_alloc_context3() → avcodec_free_context()
+avformat_open_input() → avformat_close_input()
+```
+
+**C++ RAII 封装（推荐）**：
+```cpp
+struct AVPacketDeleter {
+    void operator()(AVPacket* p) const {
+        if (p) av_packet_free(&p);
+    }
+};
+using PacketPtr = std::unique_ptr<AVPacket, AVPacketDeleter>;
+
+// 使用
+PacketPtr pkt(av_packet_alloc());
+// 自动释放，不会泄漏
+```
+
+---
+
+## 5. Pipeline 架构设计
+
+### 5.1 为什么需要架构
+
+**问题代码**：
+```cpp
+int main() {
+    // 300 行混乱代码
+    // 改了这里，那里出问题
+    // 不敢重构，只能继续堆
+}
+```
+
+**Pipeline 架构**：
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   Demuxer    │───→│   Decoder    │───→│   Renderer   │
+│   解封装      │    │   解码       │    │   渲染       │
+└──────────────┘    └──────────────┘    └──────────────┘
+      ↑                    ↑                   ↑
+   读文件               解压数据            显示画面
+```
+
+**好处**：
+1. 模块独立，可单独测试
+2. 修改一个模块不影响其他
+3. 易于扩展（加音频、网络等）
+
+### 5.2 接口设计
+
+```cpp
+// 错误码
+enum class ErrorCode {
+    OK = 0,
+    FILE_NOT_FOUND,
+    CODEC_NOT_FOUND,
+    // ...
+};
+
+// Pipeline 接口
+class Pipeline {
+public:
+    virtual ErrorCode Init(const std::string& url) = 0;
+    virtual ErrorCode Start() = 0;
+    virtual ErrorCode Stop() = 0;
+};
+```
+
+### 5.3 项目结构
 
 ```
 chapter-01/
 ├── CMakeLists.txt
 ├── include/
 │   └── live/
-│       ├── base/
-│       │   ├── pipeline.h
-│       │   └── ffmpeg_utils.h
-│       └── core/
-│           ├── demuxer.h
-│           ├── decoder.h
-│           ├── renderer.h
-│           └── simple_pipeline.h
+│       ├── pipeline.h
+│       └── ffmpeg_utils.h
 ├── src/
-│   ├── base/
-│   │   └── ffmpeg_utils.cpp
-│   └── core/
-│       ├── demuxer.cpp
-│       ├── decoder.cpp
-│       ├── renderer.cpp
-│       └── simple_pipeline.cpp
+│   ├── demuxer.cpp
+│   ├── decoder.cpp
+│   ├── renderer.cpp
+│   ├── simple_pipeline.cpp
 │   └── main.cpp
 └── tests/
-    └── test_pipeline.cpp
+    └── test_basic.cpp
 ```
 
-### 8.2 完整头文件
+### 5.4 CMakeLists.txt
 
-#### base/pipeline.h
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(live-player)
 
+set(CMAKE_CXX_STANDARD 14)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FFMPEG REQUIRED libavformat libavcodec libavutil)
+find_package(SDL2 REQUIRED)
+
+include_directories(${FFMPEG_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS})
+
+add_executable(player src/*.cpp)
+target_link_libraries(player ${FFMPEG_LIBRARIES} SDL2::SDL2)
+```
+
+---
+
+## 6. 调试与优化
+
+### 6.1 内存泄漏检测
+
+```bash
+valgrind --leak-check=full ./player test.mp4
+```
+
+**输出**：
+```
+All heap blocks were freed -- no leaks are possible
+```
+
+### 6.2 性能分析
+
+```bash
+# 记录性能
+perf record ./player test.mp4
+
+# 查看热点
+perf report
+```
+
+### 6.3 常见优化
+
+| 优化 | 效果 | 实现 |
+|:---|:---|:---|
+| 硬件解码 | CPU 50% → 10% | 使用 VAAPI/VideoToolbox |
+| 多线程解码 | 提升多核利用率 | FFmpeg 内置支持 |
+| 零拷贝渲染 | 减少内存拷贝 | 直接使用 GPU 纹理 |
+
+---
+
+## 7. 常见问题
+
+### Q1: 编译报错 `undefined reference to`
+
+```bash
+# 检查 pkg-config
+pkg-config --libs libavformat
+
+# 手动指定
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
+```
+
+### Q2: 运行时崩溃
+
+```bash
+# 使用 gdb
+gdb ./player
+run test.mp4
+bt  # 查看堆栈
+```
+
+### Q3: 画面是绿色的
+
+**原因**：YUV 数据没填对，或 UV 顺序反了。
+
+**检查**：
 ```cpp
-#pragma once
-
-#include <string>
-#include <memory>
-#include <cstdint>
-
-namespace live {
-
-/**
- * @brief 错误码定义
- * 
- * 使用 enum class 提供类型安全和命名空间隔离
- */
-enum class ErrorCode {
-    OK = 0,                    // 成功
-    INVALID_ARGUMENT,         // 参数错误
-    FILE_NOT_FOUND,           // 文件不存在
-    FORMAT_NOT_SUPPORTED,     // 格式不支持
-    CODEC_NOT_FOUND,          // 编解码器未找到
-    DECODER_ERROR,            // 解码错误
-    RENDERER_ERROR,           // 渲染错误
-    OUT_OF_MEMORY,            // 内存不足
-    NOT_INITIALIZED,          // 未初始化
-    ALREADY_RUNNING,          // 已在运行
-    UNKNOWN                   // 未知错误
-};
-
-/**
- * @brief 性能统计结构
- * 
- * 实时记录播放器的性能指标
- */
-struct PipelineStats {
-    int64_t total_frames = 0;       // 总渲染帧数
-    int64_t dropped_frames = 0;     // 丢帧数
-    double current_fps = 0.0;       // 当前帧率
-    int64_t current_pts = 0;        // 当前显示时间戳
-    int64_t decode_time_ms = 0;     // 解码耗时（毫秒）
-    int64_t render_time_ms = 0;     // 渲染耗时（毫秒）
-};
-
-/**
- * @brief Pipeline 观察者接口
- * 
- * 使用观察者模式实现可观测性，避免侵入式修改
- */
-class PipelineObserver {
-public:
-    virtual ~PipelineObserver() = default;
-    
-    /**
-     * @brief 发生错误时回调
-     * @param code 错误码
-     * @param message 错误描述
-     */
-    virtual void OnError(ErrorCode code, const std::string& message) = 0;
-    
-    /**
-     * @brief 每帧渲染完成时回调
-     * @param pts 帧的显示时间戳
-     */
-    virtual void OnFrameRendered(int64_t pts) = 0;
-    
-    /**
-     * @brief 统计信息更新时回调
-     * @param stats 最新统计
-     */
-    virtual void OnStatsUpdated(const PipelineStats& stats) = 0;
-};
-
-/**
- * @brief Pipeline 抽象接口
- * 
- * 定义标准生命周期：Init -> Start -> Stop
- * 所有实现必须保证线程安全和异常安全
- */
-class Pipeline {
-public:
-    virtual ~Pipeline() = default;
-    
-    /**
-     * @brief 初始化 Pipeline
-     * @param url 媒体文件路径或 URL
-     * @return 错误码
-     */
-    virtual ErrorCode Init(const std::string& url) = 0;
-    
-    /**
-     * @brief 开始播放
-     * @return 错误码
-     */
-    virtual ErrorCode Start() = 0;
-    
-    /**
-     * @brief 停止播放
-     * @return 错误码
-     */
-    virtual ErrorCode Stop() = 0;
-    
-    /**
-     * @brief 获取当前统计信息
-     * @return 统计结构
-     */
-    virtual PipelineStats GetStats() const = 0;
-    
-    /**
-     * @brief 设置观察者
-     * @param observer 观察者指针（可为 nullptr 取消监听）
-     */
-    virtual void SetObserver(PipelineObserver* observer) = 0;
-};
-
-} // namespace live
+printf("format=%d, w=%d, h=%d\n", frame->format, frame->width, frame->height);
 ```
 
-#### base/ffmpeg_utils.h
+### Q4: 视频播放太快/太慢
 
-```cpp
-#pragma once
+**原因**：`SDL_Delay(33)` 是硬编码 30fps。
 
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libavutil/frame.h>
-#include <libavutil/imgutils.h>
-}
+**解决**：根据 PTS 计算实际延迟（见源码）。
 
-#include <memory>
+---
 
-namespace live {
+## 8. 下一步
 
-/**
- * @brief FFmpeg 资源删除器
- * 
- * 用于 std::unique_ptr 的自定义删除器，确保 RAII 管理
- */
+本章是**同步单线程**实现，存在的问题：
 
-struct AVPacketDeleter {
-    void operator()(AVPacket* p) const {
-        if (p) {
-            // 先 unref 减少引用计数，再 free 释放结构体
-            av_packet_unref(p);
-            av_packet_free(&p);
-        }
-    }
-};
+```
+播放 4K 视频时：
+- 解码：25ms
+- 渲染：8ms
+- 总时间：33ms → 30fps（临界，易卡顿）
 
-struct AVFrameDeleter {
-    void operator()(AVFrame* p) const {
-        if (p) {
-            av_frame_unref(p);
-            av_frame_free(&p);
-        }
-    }
-};
-
-struct CodecContextDeleter {
-    void operator()(AVCodecContext* p) const {
-        if (p) {
-            avcodec_free_context(&p);
-        }
-    }
-};
-
-struct FormatContextDeleter {
-    void operator()(AVFormatContext* p) const {
-        if (p) {
-            avformat_close_input(&p);
-        }
-    }
-};
-
-// 智能指针类型别名
-using PacketPtr = std::unique_ptr<AVPacket, AVPacketDeleter>;
-using FramePtr = std::unique_ptr<AVFrame, AVFrameDeleter>;
-using CodecContextPtr = std::unique_ptr<AVCodecContext, CodecContextDeleter>;
-using FormatContextPtr = std::unique_ptr<AVFormatContext, FormatContextDeleter>;
-
-// 工厂函数
-inline PacketPtr MakePacket() {
-    AVPacket* pkt = av_packet_alloc();
-    if (!pkt) {
-        throw std::bad_alloc();
-    }
-    return PacketPtr(pkt);
-}
-
-inline FramePtr MakeFrame() {
-    AVFrame* frame = av_frame_alloc();
-    if (!frame) {
-        throw std::bad_alloc();
-    }
-    return FramePtr(frame);
-}
-
-/**
- * @brief 错误码转换
- * @param ret FFmpeg 返回值
- * @return 对应的 ErrorCode
- */
-inline ErrorCode FFmpegErrorToErrorCode(int ret) {
-    if (ret >= 0) return ErrorCode::OK;
-    
-    switch (ret) {
-        case AVERROR(ENOMEM):
-            return ErrorCode::OUT_OF_MEMORY;
-        case AVERROR(ENOENT):
-            return ErrorCode::FILE_NOT_FOUND;
-        case AVERROR_INVALIDDATA:
-            return ErrorCode::FORMAT_NOT_SUPPORTED;
-        case AVERROR_DECODER_NOT_FOUND:
-            return ErrorCode::CODEC_NOT_FOUND;
-        default:
-            return ErrorCode::UNKNOWN;
-    }
-}
-
-} // namespace live
+解决方案：多线程
+- 解码线程 + 渲染线程并行
+- 实际帧间隔：25ms → 40fps（流畅）
 ```
 
-#### core/demuxer.h
+**第 2 章**：异步多线程架构
+- 生产者-消费者队列
+- 线程安全设计
+- 帧队列管理
 
-```cpp
-#pragma once
+---
 
-#include "live/base/ffmpeg_utils.h"
+## 附录
 
-namespace live {
+### 术语表
 
-/**
- * @brief 解封装模块
- * 
- * 职责：
- * 1. 打开媒体文件
- * 2. 解析容器格式，提取流信息
- * 3. 读取压缩数据包（AVPacket）
- * 
- * 线程安全：非线程安全，应在单线程中使用
- */
-class Demuxer {
-public:
-    Demuxer();
-    ~Demuxer();
-    
-    // 禁止拷贝，允许移动
-    Demuxer(const Demuxer&) = delete;
-    Demuxer& operator=(const Demuxer&) = delete;
-    Demuxer(Demuxer&&) = default;
-    Demuxer& operator=(Demuxer&&) = default;
-    
-    /**
-     * @brief 打开媒体文件
-     * @param url 文件路径或 URL
-     * @return 错误码
-     */
-    ErrorCode Open(const std::string& url);
-    
-    /**
-     * @brief 读取下一个数据包
-     * @param packet 输出参数，存储读取到的包
-     * @return 错误码，OK 表示成功，其他表示结束或错误
-     */
-    ErrorCode ReadPacket(PacketPtr& packet);
-    
-    /**
-     * @brief 获取视频流信息
-     * @return 视频流指针，如果无视频返回 nullptr
-     */
-    AVStream* GetVideoStream() const;
-    
-    /**
-     * @brief 获取视频流索引
-     * @return 流索引
-     */
-    int GetVideoStreamIndex() const { return video_stream_index_; }
-    
-    /**
-     * @brief 获取媒体总时长
-     * @return 时长（毫秒），未知返回 -1
-     */
-    int64_t GetDurationMs() const;
-    
-private:
-    FormatContextPtr format_ctx_;      // 格式上下文
-    int video_stream_index_ = -1;      // 视频流索引
-};
+| 术语 | 解释 |
+|:---|:---|
+| **FFmpeg** | 开源音视频处理库 |
+| **Demuxer** | 解封装器，从文件提取压缩数据 |
+| **Decoder** | 解码器，解压数据为原始图像 |
+| **YUV** | 像素格式，比 RGB 更高效 |
+| **PTS** | 显示时间戳，控制帧显示时间 |
+| **I/P/B 帧** | 视频压缩的三种帧类型 |
+| **GOP** | 图像组，两个 I 帧之间的帧序列 |
 
-} // namespace live
-```
+### 参考
 
-（继续添加 decoder.h, renderer.h, simple_pipeline.h...）
+- FFmpeg 文档：https://ffmpeg.org/documentation.html
+- SDL2 文档：https://wiki.libsdl.org/
+
+---
+
+**本章代码仓库**：https://github.com/chapin666/live-system-book/tree/master/chapter-01
