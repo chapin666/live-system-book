@@ -1,123 +1,345 @@
-# Chapter 01: 本地播放器
+# 第一章：本地播放器
 
-## 本章目标
+> **目标**：运行 `./live-player video.mp4`，弹出窗口播放视频。
 
-理解视频播放的完整链路：**解封装 → 解码 → 渲染**
+---
 
-## 架构图
+## 1. 视频播放到底是怎么回事？
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  MP4/AVI    │     │  AVPacket   │     │   AVFrame   │     │   屏幕显示   │
-│  文件       │ ──▶ │  (压缩数据)  │ ──▶ │  (YUV420P)  │ ──▶ │   (RGB)     │
-│             │     │             │     │             │     │             │
-│ [ftyp/moov] │     │ [H.264 NAL] │     │ [Y/U/V平面] │     │ [SDL纹理]   │
-└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
-       │                   │                   │                   │
-       ▼                   ▼                   ▼                   ▼
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Demuxer    │     │   Decoder   │     │  Renderer   │     │   Window    │
-│  解封装器    │     │   解码器     │     │   渲染器     │     │    窗口     │
-│             │     │             │     │             │     │             │
-│ avformat_   │     │ avcodec_    │     │ SDL_Update  │     │ SDL_        │
-│ open_input  │     │ send_packet │     │ YUVTexture  │     │ RenderPresent│
-└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
-```
-
-## 核心概念
-
-### 1. 容器格式 (Container)
-
-视频文件是一个"包裹"，里面可能有：
-- 视频流（H.264/H.265/VP9）
-- 音频流（AAC/MP3/Opus）
-- 字幕流
-- 元数据（标题、时长等）
-
-常见容器：MP4、FLV、MKV、AVI
-
-### 2. 编码格式 (Codec)
-
-原始视频数据太大，需要压缩：
-- **H.264/AVC**: 最通用的格式，兼容性最好
-- **H.265/HEVC**: H.264 的继任者，同等质量省 50% 码率
-- **VP9**: Google 的格式，YouTube 在用
-
-压缩原理：**帧间预测**（只存变化的部分）
-
-### 3. 像素格式 (Pixel Format)
-
-- **RGB**: 红绿蓝三通道，适合屏幕显示
-- **YUV**: 亮度(Y) + 色度(UV)，适合压缩
-  - YUV420P: UV 分辨率只有 Y 的 1/4，省空间
-
-为什么用 YUV？
-> 人眼对亮度敏感，对颜色不敏感。YUV 可以对颜色降采样，省 50% 空间。
-
-## 代码结构
+想象你有一个**视频文件**，就像这样：
 
 ```
-src/
-├── main.cpp      # 程序入口，播放循环
-├── demuxer.h/cpp # 解封装：文件 → 压缩数据包
-├── decoder.h/cpp # 解码：压缩数据 → YUV帧
-└── renderer.h/cpp # 渲染：YUV → 屏幕
+video.mp4 (100MB)
 ```
 
-## 构建
+你以为里面直接存的是图片吗？**不是**。
+
+如果直接存图片（假设 1920x1080，每秒 30 帧，1 分钟）：
+- 每张图片 = 1920 × 1080 × 3 字节 ≈ 6 MB
+- 1 秒 = 30 张 = 180 MB
+- 1 分钟 = 10.8 GB ❌
+
+但实际上视频只有 100MB，**压缩了 100 倍**！
+
+### 压缩的秘密
+
+视频利用了**时间和空间的冗余**：
+- **空间冗余**：一张图里相邻像素颜色相近，可以用数学方法表示
+- **时间冗余**：相邻帧内容差不多，只存"变化的部分"
+
+### 两个关键步骤
+
+要把压缩的视频显示出来，需要：
+
+```
+MP4文件 → [解封装] → H.264压缩数据 → [解码] → YUV像素 → [渲染] → 屏幕
+```
+
+| 步骤 | 做什么 | 类比 |
+|-----|-------|------|
+| **解封装** | 从 MP4 盒子里取出视频流 | 从 ZIP 里解压出文件 |
+| **解码** | 把 H.264 还原成像素 | 解压 ZIP 里的压缩文件 |
+| **渲染** | 把像素画到屏幕上 | 用看图软件打开图片 |
+
+---
+
+## 2. 准备工作
+
+### 2.1 安装 FFmpeg
+
+FFmpeg 是音视频开发的事实标准，几乎所有播放器都在用。
+
+**macOS：**
+```bash
+brew install ffmpeg
+```
+
+**Ubuntu：**
+```bash
+sudo apt-get install ffmpeg libavformat-dev libavcodec-dev libavutil-dev libswscale-dev
+```
+
+**验证安装：**
+```bash
+ffmpeg -version
+# 应该看到版本信息
+```
+
+### 2.2 安装 SDL2
+
+SDL2 是跨平台的图形库，帮我们创建窗口和显示图像。
+
+**macOS：**
+```bash
+brew install sdl2
+```
+
+**Ubuntu：**
+```bash
+sudo apt-get install libsdl2-dev
+```
+
+### 2.3 安装 CMake
+
+CMake 是构建工具，生成 Makefile 或 Xcode/VS 项目。
+
+**macOS：**
+```bash
+brew install cmake
+```
+
+**Ubuntu：**
+```bash
+sudo apt-get install cmake
+```
+
+---
+
+## 3. 代码结构
+
+我们的播放器分为 3 个模块：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         main.cpp                             │
+│                    （拼接三个模块）                           │
+└──────────────┬────────────────────────────────┬─────────────┘
+               │                                │
+       ┌───────▼───────┐              ┌─────────▼────────┐
+       │    Demuxer    │              │     Decoder      │
+       │   解封装器     │              │      解码器       │
+       │               │              │                  │
+       │  MP4 → 压缩数据 │─────────────▶│ H.264 → YUV像素  │
+       │  (AVPacket)   │              │   (AVFrame)      │
+       └───────────────┘              └─────────┬────────┘
+                                                │
+                                       ┌────────▼────────┐
+                                       │    Renderer     │
+                                       │     渲染器       │
+                                       │                 │
+                                       │  YUV → 屏幕显示  │
+                                       │   (SDL2窗口)    │
+                                       └─────────────────┘
+```
+
+### 3.1 Demuxer（解封装器）
+
+**作用**：读取视频文件，提取压缩数据。
+
+**关键 FFmpeg 函数**：
+- `avformat_open_input()`：打开文件
+- `av_read_frame()`：读取一个数据包
+
+**代码示例**：
+```cpp
+// 打开文件
+AVFormatContext* ctx = nullptr;
+avformat_open_input(&ctx, "video.mp4", nullptr, nullptr);
+
+// 读取数据包
+AVPacket packet;
+while (av_read_frame(ctx, &packet) >= 0) {
+    // packet.data 就是压缩的视频数据
+    // packet.size 是数据大小
+}
+```
+
+### 3.2 Decoder（解码器）
+
+**作用**：把压缩数据还原成原始像素。
+
+**关键 FFmpeg 函数**：
+- `avcodec_find_decoder()`：找到解码器（如 H.264）
+- `avcodec_send_packet()`：送压缩数据
+- `avcodec_receive_frame()`：取像素帧
+
+**代码示例**：
+```cpp
+// 找到 H.264 解码器
+const AVCodec* codec = avcodec_find_decoder(AV_CODEC_ID_H264);
+AVCodecContext* dec_ctx = avcodec_alloc_context3(codec);
+avcodec_open2(dec_ctx, codec, nullptr);
+
+// 解码
+avcodec_send_packet(dec_ctx, &packet);    // 送压缩数据
+AVFrame* frame = av_frame_alloc();
+avcodec_receive_frame(dec_ctx, frame);   // 取像素帧
+
+// frame->data[0] 就是 Y 平面（亮度）
+// frame->data[1] 就是 U 平面（色度）
+// frame->data[2] 就是 V 平面（色度）
+```
+
+### 3.3 Renderer（渲染器）
+
+**作用**：把像素显示到屏幕上。
+
+**关键 SDL2 函数**：
+- `SDL_CreateWindow()`：创建窗口
+- `SDL_UpdateYUVTexture()`：更新 YUV 纹理
+- `SDL_RenderPresent()`：显示到屏幕
+
+**代码示例**：
+```cpp
+// 创建窗口
+SDL_Window* window = SDL_CreateWindow("Player", 640, 480, ...);
+SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12, ...);
+
+// 渲染
+SDL_UpdateYUVTexture(texture, ..., y_data, u_data, v_data);
+SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+SDL_RenderPresent(renderer);
+```
+
+---
+
+## 4. 完整代码
+
+### 4.1 main.cpp
+
+```cpp
+#include "demuxer.h"
+#include "decoder.h"
+#include "renderer.h"
+
+int main(int argc, char* argv[]) {
+    // 1. 解封装器：打开文件
+    Demuxer demuxer;
+    demuxer.Open(argv[1]);
+    
+    // 2. 解码器：初始化解码器
+    Decoder decoder;
+    decoder.Init(demuxer.video_stream()->codecpar);
+    
+    // 3. 渲染器：创建窗口
+    Renderer renderer;
+    renderer.Init(decoder.width(), decoder.height());
+    
+    // 4. 播放循环
+    AVPacket packet;
+    AVFrame* frame = av_frame_alloc();
+    
+    while (demuxer.ReadPacket(&packet)) {
+        decoder.SendPacket(&packet);           // 送数据
+        while (decoder.ReceiveFrame(frame)) {  // 取帧
+            renderer.RenderFrame(frame);       // 显示
+        }
+    }
+    
+    return 0;
+}
+```
+
+### 4.2 完整代码文件
+
+见 `src/` 目录下的：
+- `demuxer.h/cpp`
+- `decoder.h/cpp`
+- `renderer.h/cpp`
+
+每个文件都有详细注释。
+
+---
+
+## 5. 构建和运行
+
+### 5.1 构建
 
 ```bash
-mkdir build && cd build
+mkdir build
+cd build
 cmake ..
 make -j4
 ```
 
-## 运行
+**cmake 做了什么？**
+1. 查找 FFmpeg 库（`libavformat`, `libavcodec`, `libavutil`）
+2. 查找 SDL2 库
+3. 生成 Makefile
+4. make 编译出可执行文件 `live-player`
+
+### 5.2 运行
 
 ```bash
-./live-player ../assets/sample.mp4
+# 准备测试视频
+curl -L -o sample.mp4 "https://www.sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4"
+
+# 运行
+./live-player sample.mp4
 ```
 
-## 调试技巧
+---
 
-### 查看文件信息
+## 6. 调试技巧
+
+### 6.1 查看视频信息
+
 ```bash
 ffprobe -v quiet -print_format json -show_streams sample.mp4
 ```
 
-### 解码为原始 YUV
-```bash
-ffmpeg -i sample.mp4 -c:v rawvideo -pix_fmt yuv420p output.yuv
-# 播放
-ffplay -f rawvideo -pix_fmt yuv420p -s 1920x1080 output.yuv
+你会看到：
+```json
+{
+  "streams": [
+    {
+      "codec_name": "h264",
+      "width": 1280,
+      "height": 720,
+      "pix_fmt": "yuv420p"
+    }
+  ]
+}
 ```
 
-### 性能分析
-```bash
-# macOS
-instruments -t Time\ Profiler ./live-player sample.mp4
+### 6.2 检查 FFmpeg 调用
 
-# Linux
-perf record ./live-player sample.mp4
-perf report
+在代码里加打印：
+```cpp
+printf("读取 packet: pts=%ld, size=%d\n", packet.pts, packet.size);
+printf("解码 frame: %dx%d\n", frame->width, frame->height);
 ```
 
-## 课后思考
+### 6.3 内存泄漏检查
 
-1. **为什么解封装和解码要分开？**
-   - 思考：MP4 和 H.264 是什么关系？
+```bash
+valgrind --leak-check=full ./live-player sample.mp4
+```
 
-2. **YUV420P 的 UV 为什么是 1/4 分辨率？**
-   - 计算：1920x1080 的 YUV420P 一帧多少字节？
+---
 
-3. **如果去掉 `SDL_RenderPresent` 会怎样？**
-   - 实验：注释掉这行，观察现象
+## 7. 课后思考
 
-4. **如何实现精确的音视频同步？**
-   - 提示：用 `frame->pts` 和 `av_q2d(time_base)`
+### 问题 1：为什么需要 YUV？直接用 RGB 不行吗？
 
-## 下一章预告
+**提示**：YUV420P 的 UV 是 1/4 分辨率，RGB 是完整分辨率。
 
-**网络播放器**：把本地文件换成 RTMP 直播流
-- 新增：网络模块，TCP 连接，FLV 解封装
-- 挑战：网络延迟 vs 缓冲大小的权衡
+### 问题 2：如果一个 packet 解码不出 frame，正常吗？
+
+**提示**：B 帧需要参考后面的帧才能解码。
+
+### 问题 3：播放 4K 视频卡顿，可能是什么原因？
+
+**提示**：软解 H.264 4K60fps 需要很强的 CPU。
+
+---
+
+## 8. 下一章预告
+
+**第二章：网络播放器**
+
+把 `video.mp4` 换成 `rtmp://live.xxx.com/stream`，播放直播流。
+
+**新增内容**：
+- TCP 连接 RTMP 服务器
+- FLV 解封装
+- 网络缓冲策略（卡顿 vs 延迟）
+
+---
+
+## 参考资料
+
+- FFmpeg 官方文档：https://ffmpeg.org/documentation.html
+- SDL2 官方教程：https://wiki.libsdl.org/SDL2/Tutorials
+- H.264 白皮书：https://www.itu.int/rec/T-REC-H.264
