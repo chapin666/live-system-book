@@ -24,18 +24,43 @@
 
 ## 1. 5 分钟跑起来
 
-### 1.1 环境准备
+### 1.1 环境要求
+
+| 组件 | 版本 | 说明 |
+|:---|:---|:---|
+| FFmpeg | **4.4+** | 本章基于 4.4 版本编写，API 与 3.x/5.x 有差异 |
+| SDL2 | 2.0.10+ | |
+| CMake | 3.10+ | |
+| 编译器 | GCC 7+ / Clang 6+ / MSVC 2017+ | 支持 C++14 |
+
+**⚠️ 版本警告**：FFmpeg 的 API 经常变化，如果你使用 FFmpeg 3.x 或 5.x+，某些函数可能需要调整。建议按以下命令安装指定版本。
 
 **macOS:**
 ```bash
+# 安装指定版本（推荐 4.4）
+brew install ffmpeg@4 sdl2 cmake
+# 或最新版（可能需要微调代码）
 brew install ffmpeg sdl2 cmake
 ```
 
 **Ubuntu/Debian:**
 ```bash
+# Ubuntu 20.04+ 自带 FFmpeg 4.x
 sudo apt-get update
 sudo apt-get install -y ffmpeg libavformat-dev libavcodec-dev \
     libavutil-dev libswscale-dev libsdl2-dev cmake
+
+# 检查版本
+ffmpeg -version | head -1  # 应显示 4.x.x
+```
+
+**Windows (MSYS2):**
+```bash
+# 安装 MSYS2 后，在 MSYS2 MinGW 64-bit 终端执行
+pacman -S mingw-w64-x86_64-ffmpeg \
+          mingw-w64-x86_64-SDL2 \
+          mingw-w64-x86_64-cmake \
+          mingw-w64-x86_64-gcc
 ```
 
 ### 1.2 创建最简播放器
@@ -118,9 +143,24 @@ ffmpeg -f lavfi -i testsrc=duration=5:size=640x480:rate=30 \
 ./minimal_player sample.mp4
 ```
 
-**看到彩色条纹在动？成功了！** 🎉
+**预期效果：**
 
-但这代码有问题，下面我们来解剖它。
+```
+┌─────────────────────────────────────┐
+│  ▓▓▓▓▓▓  ░░░░░░  ▓▓▓▓▓▓  ░░░░░░  │  ← 彩色条纹滚动
+│  ▓▓▓▓▓▓  ░░░░░░  ▓▓▓▓▓▓  ░░░░░░  │     （红/绿/蓝/灰交替）
+│  ▓▓▓▓▓▓  ░░░░░░  ▓▓▓▓▓▓  ░░░░░░  │
+│  ░░░░░░  ▓▓▓▓▓▓  ░░░░░░  ▓▓▓▓▓▓  │
+│  ░░░░░░  ▓▓▓▓▓▓  ░░░░░░  ▓▓▓▓▓▓  │
+│  ░░░░░░  ▓▓▓▓▓▓  ░░░░░░  ▓▓▓▓▓▓  │
+└─────────────────────────────────────┘
+```
+
+看到彩色条纹在缓慢滚动？**成功了！** 🎉
+
+如果看到黑屏、报错或窗口闪退，查看 [常见问题](#7-常见问题)。
+
+但这代码是简化版，缺少错误处理。下面我们来解剖它。
 
 ---
 
@@ -787,7 +827,73 @@ chapter-01/
     └── test_pipeline.cpp
 ```
 
-### 5.2 接口设计
+### 5.2 完整 CMakeLists.txt
+
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(live-player VERSION 1.0.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# === 查找依赖 ===
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FFMPEG REQUIRED 
+    libavformat>=58.0      # FFmpeg 4.0+
+    libavcodec>=58.0
+    libavutil>=56.0
+    libswscale>=5.0
+)
+find_package(SDL2 REQUIRED)
+
+# === 头文件目录 ===
+include_directories(
+    ${CMAKE_SOURCE_DIR}/src
+    ${FFMPEG_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIRS}
+)
+
+# === 源文件 ===
+set(SOURCES
+    src/main.cpp
+    src/core/simple_pipeline.cpp
+    src/core/demuxer.cpp
+    src/core/decoder.cpp
+    src/core/renderer.cpp
+)
+
+# === 可执行文件 ===
+add_executable(live-player ${SOURCES})
+
+# === 链接库 ===
+target_link_libraries(live-player
+    ${FFMPEG_LIBRARIES}
+    SDL2::SDL2
+)
+
+# === 编译选项 ===
+target_compile_options(live-player PRIVATE
+    ${FFMPEG_CFLAGS_OTHER}
+    -Wall              # 显示所有警告
+    -Wextra            # 显示额外警告
+    -Werror            # 警告视为错误（生产环境建议开启）
+)
+
+# === 安装 ===
+install(TARGETS live-player DESTINATION bin)
+```
+
+**构建步骤：**
+
+```bash
+cd chapter-01
+mkdir build && cd build
+cmake ..
+make -j4
+./live-player ../../sample.mp4
+```
+
+### 5.3 接口设计
 
 **Pipeline 接口**（`base/pipeline.h`）：
 
@@ -1007,7 +1113,57 @@ perf report
 
 ## 7. 常见问题
 
-### Q1: CMake 找不到 FFmpeg
+### Q1: 编译报错 `undefined reference to SDL_...`
+
+**原因**：SDL2 库没有正确链接。
+
+**解决**：
+```bash
+# 检查 SDL2 是否安装
+pkg-config --libs sdl2
+# 应输出: -lSDL2
+
+# 如果为空，手动指定
+export SDL2_PATH=/usr/local/lib  # 根据实际路径调整
+cmake -DSDL2_DIR=$SDL2_PATH ..
+```
+
+---
+
+### Q2: 运行时报错 `Could not initialize SDL`
+
+**原因**：没有图形界面（如 SSH 远程服务器）。
+
+**解决**：
+```bash
+# 本地有显示器时运行
+./live-player sample.mp4
+
+# 远程服务器建议用 Chapter 2 的网络播放器
+# 或使用虚拟显示
+xvfb-run ./live-player sample.mp4
+```
+
+---
+
+### Q3: 窗口一闪而过 / 黑屏
+
+**排查步骤**：
+1. 检查文件路径是否正确：`./live-player $(pwd)/sample.mp4`
+2. 检查是否是纯视频文件（无音频）：`ffprobe sample.mp4`
+3. 添加调试输出：修改代码打印每帧的 pts 和 size
+
+---
+
+### Q4: 视频播放速度不对（太快/太慢）
+
+**原因**：`SDL_Delay(33)` 是硬编码的 30fps，实际视频可能是 24fps 或 60fps。
+
+**解决**：使用 PTS 同步（见 4.4 节）。
+
+---
+
+### Q5: CMake 找不到 FFmpeg
 
 ```bash
 # 检查安装
@@ -1017,7 +1173,9 @@ pkg-config --exists libavformat && echo "OK" || echo "Not found"
 cmake -DFFMPEG_ROOT=/usr/local ..
 ```
 
-### Q2: 运行时崩溃
+---
+
+### Q6: 运行时崩溃
 
 ```bash
 # 用 gdb 调试
@@ -1026,12 +1184,16 @@ run sample.mp4
 bt  # 查看堆栈
 ```
 
-### Q3: 画面撕裂或卡顿
+---
+
+### Q7: 画面撕裂或卡顿
 
 - 检查 PTS 同步逻辑
 - 尝试启用 SDL 垂直同步：`SDL_RENDERER_PRESENTVSYNC`
 
-### Q4: 内存不断增长
+---
+
+### Q8: 内存不断增长
 
 ```bash
 # 用 valgrind 定位
@@ -1041,7 +1203,42 @@ ms_print massif.out.*
 
 ---
 
-## 8. 下一步
+### Q9: Windows 下编译报错
+
+**常见问题**：
+1. **找不到头文件**：确保使用 MSYS2 MinGW 终端，不是 CMD/PowerShell
+2. **链接错误**：检查是否安装了 `mingw-w64-x86_64-ffmpeg`
+3. **运行时缺少 DLL**：将 `C:\msys64\mingw64\bin` 添加到 PATH
+
+---
+
+## 8. 本章掌握度检查
+
+学习完本章后，你应该能够：
+
+**基础能力：**
+- [ ] 在本地编译运行 `minimal_player.cpp`
+- [ ] 解释 Demuxer、Decoder、Renderer 各自的作用
+- [ ] 说出 Pipeline 架构相比「大杂烩」代码的 3 个优势
+
+**进阶能力：**
+- [ ] 画出 YUV420 的内存布局图
+- [ ] 解释为什么 YUV 比 RGB 节省空间（人眼特性）
+- [ ] 计算给定 PTS 和时间基对应的实际时间（毫秒）
+- [ ] 写出 RAII 封装 FFmpeg 资源的基本模式
+
+**工程能力：**
+- [ ] 独立配置 CMakeLists.txt 编译 FFmpeg 项目
+- [ ] 使用 `valgrind --leak-check=full` 检查内存泄漏
+- [ ] 使用 `perf` 分析性能热点
+
+**未掌握的标记：**
+- [ ] 有 1-2 项未掌握 → 正常，继续第二章
+- [ ] 有 3+ 项未掌握 → 建议重读本章节，动手实践
+
+---
+
+## 9. 下一步
 
 本章实现了**同步单线程**播放器，但有一个根本问题：
 
@@ -1069,18 +1266,50 @@ ms_print massif.out.*
 
 ### A. 关键术语表
 
-| 术语 | 解释 |
-|:---|:---|
-| **Demuxer** | 解封装器，从容器格式中提取压缩数据 |
-| **Decoder** | 解码器，将压缩数据还原为原始图像 |
-| **Renderer** | 渲染器，将图像显示到屏幕 |
-| **PTS** | Presentation Time Stamp，显示时间戳 |
-| **Time Base** | 时间基，PTS 的单位 |
-| **RAII** | Resource Acquisition Is Initialization，资源获取即初始化 |
-| **Pipeline** | 流水线架构，数据分阶段处理 |
-| **YUV** | 一种颜色编码格式，比 RGB 更高效 |
+| 术语 | 首次出现 | 解释 |
+|:---|:---|:---|
+| **[Demuxer](#21-这-10-行做了什么)** | 2.1 节 | 解封装器，从容器格式（MP4/FLV）中提取压缩数据 |
+| **[Decoder](#21-这-10-行做了什么)** | 2.1 节 | 解码器，将压缩数据（H.264）还原为原始图像（YUV）|
+| **[Renderer](#21-这-10-行做了什么)** | 2.1 节 | 渲染器，将图像显示到屏幕 |
+| **[AVFormatContext](#21-这-10-行做了什么)** | 2.1 节 | FFmpeg 结构体，文件的"总控"，包含所有流信息 |
+| **[AVCodecContext](#21-这-10-行做了什么)** | 2.1 节 | FFmpeg 结构体，解码器上下文，存储解码状态 |
+| **[AVPacket](#21-这-10-行做了什么)** | 2.1 节 | FFmpeg 结构体，存储压缩后的视频数据包 |
+| **[AVFrame](#21-这-10-行做了什么)** | 2.1 节 | FFmpeg 结构体，存储解码后的原始视频帧（YUV）|
+| **[YUV](#41-颜色空间rgb-vs-yuv)** | 4.1 节 | 一种颜色编码格式，比 RGB 更高效，利用人眼特性 |
+| **[PTS](#42-时间同步与-pts)** | 4.2 节 | Presentation Time Stamp，显示时间戳，控制帧显示时间 |
+| **[DTS](#421-pts-和-dts)** | 4.2.1 节 | Decoding Time Stamp，解码时间戳，控制帧解码顺序 |
+| **Time Base** | 4.2.3 节 | 时间基，PTS/DTS 的单位（如 1/90000 秒）|
+| **[RAII](#43-raii-与内存管理)** | 4.3 节 | Resource Acquisition Is Initialization，资源获取即初始化 |
+| **[Pipeline](#33-pipeline-架构设计)** | 3.3 节 | 流水线架构，数据像水一样分阶段流动处理 |
+| **[I/P/B 帧](#412-时间冗余帧间压缩)** | 4.1.2 节 | 视频压缩的三种帧类型：关键帧/预测帧/双向预测帧 |
+| **[GOP](#412-时间冗余帧间压缩)** | 4.1.2 节 | Group of Pictures，一组连续的帧，以 I 帧开始 |
+| **SDL** | 1.1 节 | Simple DirectMedia Layer，跨平台多媒体库 |
+| **[H.264](#433-h264-编码基础)** | 4.3.3 节 | 视频编码标准，最广泛使用的压缩格式 |
+| **NALU** | 4.3.3 节 | Network Abstraction Layer Unit，H.264 数据单元 |
+| **FFmpeg** | 1.0 节 | 开源音视频处理库，提供编解码、格式转换等功能 |
 
-### B. 参考资料
+### B. 进阶阅读
+
+按难度分级，选择适合你的深度：
+
+**📘 入门级（巩固本章）**
+- [FFmpeg 基础教程 - 雷霄骅](https://blog.csdn.net/leixiaohua1020/article/details/15811977) ⭐推荐
+- [SDL2 官方教程](https://wiki.libsdl.org/SDL2/Tutorials)
+
+**📗 进阶级（深入原理）**
+- [视频编解码学习笔记 - H.264](https://github.com/leandromoreira/digital_video_introduction)
+- [FFmpeg 源码解析 - AVFormatContext](https://zhuanlan.zhihu.com/p/339225720)
+- [YUV 格式详解](https://www.cnblogs.com/tinywan/p/6187561.html)
+
+**📕 源码级（阅读源码）**
+- [FFmpeg 源码](https://github.com/FFmpeg/FFmpeg) - 重点关注 `libavformat/demux.c`、`libavcodec/decode.c`
+- [SDL2 源码](https://github.com/libsdl-org/SDL) - 重点关注 `src/video/SDL_video.c`
+
+**📚 书籍推荐**
+- 《视频编码全角度详解》— 深入理解 H.264/H.265
+- 《FFmpeg 从入门到精通》— 实用工具书
+
+### C. 参考资料
 
 - [FFmpeg 官方文档](https://ffmpeg.org/documentation.html)
 - [SDL2 官方文档](https://wiki.libsdl.org/)
