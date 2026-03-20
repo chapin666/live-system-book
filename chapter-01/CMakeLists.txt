@@ -21,8 +21,24 @@ include_directories(
     ${SDL2_INCLUDE_DIRS}
 )
 
-# 源文件
-set(SOURCES
+# ========== 1. 简单播放器（100行核心代码）==========
+# 对应 README 第1节和第6节，适合初学者理解基础概念
+add_executable(simple_player src/simple_player.cpp)
+
+target_link_libraries(simple_player
+    ${FFMPEG_LIBRARIES}
+    SDL2::SDL2
+)
+
+target_compile_options(simple_player PRIVATE
+    ${FFMPEG_CFLAGS_OTHER}
+    -Wall
+    -Wextra
+)
+
+# ========== 2. Pipeline 播放器（工程化版本）==========
+# 对应 README 第7节，展示模块化架构设计
+set(PIPELINE_SOURCES
     src/main.cpp
     src/core/simple_pipeline.cpp
     src/core/demuxer.cpp
@@ -30,16 +46,13 @@ set(SOURCES
     src/core/renderer.cpp
 )
 
-# 可执行文件
-add_executable(live-player ${SOURCES})
+add_executable(live-player ${PIPELINE_SOURCES})
 
-# 链接库
 target_link_libraries(live-player
     ${FFMPEG_LIBRARIES}
     SDL2::SDL2
 )
 
-# 编译选项
 target_compile_options(live-player PRIVATE
     ${FFMPEG_CFLAGS_OTHER}
     -Wall
@@ -47,4 +60,4 @@ target_compile_options(live-player PRIVATE
 )
 
 # 安装
-install(TARGETS live-player DESTINATION bin)
+install(TARGETS simple_player live-player DESTINATION bin)

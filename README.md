@@ -94,7 +94,8 @@ sudo apt-get install -y ffmpeg libavformat-dev libavcodec-dev \
 ### 构建运行（第 1 章）
 
 第 1 章包含完整播放器代码、详细的 FFmpeg API 讲解、性能优化指南和调试技巧：
-- 📄 100 行核心播放器代码
+- 📄 100 行核心播放器代码 (`simple_player`)
+- 📄 Pipeline 工程化版本 (`live-player`)
 - 📊 3 个 SVG 架构图
 - 🔧 完整错误处理方案
 - 🚀 硬件解码配置（VideoToolbox/VAAPI/NVDEC）
@@ -107,13 +108,25 @@ cd live-system-book/chapter-01
 mkdir build && cd build
 cmake .. && make -j4
 
+# 生成测试视频
 ffmpeg -f lavfi -i testsrc=duration=10:size=640x480:rate=30 \
        -pix_fmt yuv420p sample.mp4
 
+# 运行简单版本（100行核心代码）
+./simple_player sample.mp4
+
+# 或运行 Pipeline 版本（工程化实现）
 ./live-player sample.mp4
 ```
 
-**预期效果**：弹出窗口播放彩色条纹，显示帧率统计，按 ESC 退出。
+**两个版本的区别**：
+
+| 版本 | 代码量 | 特点 | 适合 |
+|:---|:---:|:---|:---|
+| `simple_player` | ~180 行 | 单文件，直接易懂 | 初学者理解原理 |
+| `live_player` | ~500 行 | 模块化，接口抽象 | 学习工程化设计 |
+
+**预期效果**：弹出窗口播放彩色条纹，按 ESC 退出。
 
 ---
 
