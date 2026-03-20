@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200">
+  <!-- 背景 -->
+  <rect width="800" height="200" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="400" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">「小直播」演进路线图</text>
+  
+  <!-- 第1章 -->
+  <rect x="50" y="70" width="140" height="80" rx="8" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="120" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">第1章</text>
+  <text x="120" y="120" text-anchor="middle" font-size="12" fill="#666">播放本地视频</text>
+  <text x="120" y="140" text-anchor="middle" font-size="11" fill="#888">Pipeline架构</text>
+  
+  <!-- 箭头1 -->
+  <path d="M 190 110 L 230 110" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 第9章 -->
+  <rect x="230" y="70" width="140" height="80" rx="8" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="300" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">第9章</text>
+  <text x="300" y="120" text-anchor="middle" font-size="12" fill="#666">秒开开播</text>
+  <text x="300" y="140" text-anchor="middle" font-size="11" fill="#888">低延迟优化</text>
+  
+  <!-- 箭头2 -->
+  <path d="M 370 110 L 410 110" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 第15章 -->
+  <rect x="410" y="70" width="140" height="80" rx="8" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="480" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">第15章</text>
+  <text x="480" y="120" text-anchor="middle" font-size="12" fill="#666">连麦互动</text>
+  <text x="480" y="140" text-anchor="middle" font-size="11" fill="#888">SFU+MCU 万人房</text>
+  
+  <!-- 箭头3 -->
+  <path d="M 550 110 L 590 110" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- 第19章 -->
+  <rect x="590" y="70" width="140" height="80" rx="8" fill="#fce4ec" stroke="#c2185b" stroke-width="2"/>
+  <text x="660" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">第19章</text>
+  <text x="660" y="120" text-anchor="middle" font-size="12" fill="#666">平台上线</text>
+  <text x="660" y="140" text-anchor="middle" font-size="11" fill="#888">生产级部署</text>
+  
+  <!-- 箭头定义 -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+  
+  <!-- 底部说明 -->
+  <text x="400" y="185" text-anchor="middle" font-size="12" fill="#666">每章在前一章代码基础上增量开发</text>
+</svg>
