@@ -1370,6 +1370,52 @@ avcodec_open2(ctx, codec, nullptr);
 
 **本节概览**：开发过程中难免遇到问题，这一节介绍常用的调试工具和方法。
 
+### 9.0 统一错误处理
+
+跨章节项目中，我们使用统一的错误处理机制（`include/common/error.hpp`）：
+
+```cpp
+#include "common/error.hpp"
+
+// 返回错误
+live::Error OpenFile(const std::string& path) {
+    FILE* f = fopen(path.c_str(), "rb");
+    if (!f) {
+        return live::Error::FileNotFound(path);
+    }
+    // ...
+    return live::Error::OK();
+}
+
+// 使用错误
+auto err = OpenFile("test.mp4");
+if (err.IsError()) {
+    std::cerr << "Failed: " << err.Message() << std::endl;
+    // 分类处理
+    if (err.IsFileError()) {
+        // 文件错误处理
+    } else if (err.IsNetworkError()) {
+        // 网络错误处理
+    }
+}
+
+// 链式错误传播
+live::Error ProcessVideo(const std::string& path) {
+    RETURN_IF_ERROR(OpenFile(path));      // 如果出错直接返回
+    RETURN_IF_ERROR(DecodeVideo());       // 同上
+    RETURN_OK();                          // 返回成功
+}
+```
+
+**错误码分类**：
+- `1xx` - 文件/IO 错误
+- `2xx` - 网络错误
+- `3xx` - 解码错误
+- `4xx` - 编码错误
+- `5xx` - 渲染错误
+- `6xx` - 采集错误
+- `7xx` - 参数/状态错误
+
 ### 9.1 GDB 调试
 
 ```bash

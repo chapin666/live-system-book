@@ -604,6 +604,69 @@ int main(int argc, char* argv[]) {
 
 ---
 
+## 4.3 关键帧控制：直播流畅的关键
+
+**为什么关键帧重要？**
+
+观众加入直播时，必须从 I 帧开始解码。如果 GOP 太长（如 10 秒）：
+- 新观众需要等待最多 10 秒才能看到画面
+- 网络丢包后恢复时间变长
+
+**推荐配置**（直播场景）：
+
+```cpp
+// 1-2秒一个 GOP，平衡压缩率和恢复速度
+int gop_size = fps * 2;      // 最大 GOP：2秒（60帧@30fps）
+int keyint_min = fps / 2;    // 最小 GOP：0.5秒（15帧@30fps）
+
+// 场景切换检测
+int scene_threshold = 40;    // 0-100，越高越不容易触发
+
+// 关闭 open GOP（直播必须）
+// Open GOP 允许参考其他 GOP 的帧，压缩率高但不适合直播
+bool open_gop = false;
+
+// x264 参数映射
+AVDictionary* opts = nullptr;
+av_dict_set(&opts, "keyint", "60", 0);        // 最大关键帧间隔
+av_dict_set(&opts, "min-keyint", "15", 0);    // 最小关键帧间隔
+av_dict_set(&opts, "sc_threshold", "40", 0);  // 场景切换阈值
+av_dict_set(&opts, "open_gop", "0", 0);       // 禁用 open GOP
+```
+
+**关键帧参数说明**：
+
+| 参数 | x264 选项 | 说明 |
+|:---|:---|:---|
+| `gop_size` | `keyint` | 最大 GOP 长度，控制观众加入延迟 |
+| `keyint_min` | `min-keyint` | 最小 GOP 长度，防止关键帧过于密集 |
+| `scene_threshold` | `sc_threshold` | 场景切换检测阈值，>40 触发新关键帧 |
+| `open_gop` | `open_gop` | 直播必须禁用（0），点播可启用（1）|
+
+**B 帧控制**：
+
+```cpp
+// 直播禁用 B 帧（降低延迟、提高兼容性）
+av_dict_set(&opts, "bf", "0", 0);  // 无 B 帧
+
+// 点播可启用（提高压缩率）
+av_dict_set(&opts, "bf", "3", 0);  // 3 个连续 B 帧
+```
+
+**VBV Buffer**（码率突发控制）：
+
+```cpp
+// VBV（Video Buffering Verifier）控制码率突发
+// 直播推荐小 buffer，降低延迟
+av_dict_set(&opts, "vbv-bufsize", "4000", 0);   // buffer 大小（kbits）
+av_dict_set(&opts, "vbv-maxrate", "4000", 0);   // 最大突发码率（kbits）
+
+// 与 CBR 配合
+codec_ctx->rc_buffer_size = 4 * 1000 * 1000;  // 4 Mbit
+```
+
+---
+
 ## 5. 码率控制：CBR vs VBR vs CRF
 
 **本节概览**：详细介绍恒定码率（CBR）、可变码率（VBR）、恒定质量（CRF）三种码率控制模式的原理和适用场景。
@@ -776,7 +839,22 @@ struct EncoderConfig {
     int height = 720;
     int fps = 30;
     int bitrate = 4 * 1000 * 1000;  // bps
-    int gop_size = 30;              // I 帧间隔
+    
+    // === 关键帧控制（直播必需）===
+    int gop_size = 60;              // 最大 GOP（2秒@30fps）
+    int keyint_min = 15;            // 最小 GOP（0.5秒@30fps）
+    int scene_threshold = 40;       // 场景切换检测阈值
+    bool open_gop = false;          // 直播必须禁用 open GOP
+    
+    // === 码率控制高级选项 ===
+    int vbv_buffer = 100;           // VBV buffer (ms)
+    int vbv_maxrate = 0;            // 最大突发码率（0=与bitrate相同）
+    int rc_lookahead = 0;           // 直播推荐 0，降低延迟
+    
+    // === B帧控制 ===
+    int max_b_frames = 0;           // 直播禁用 B 帧
+    int ref_frames = 1;             // 参考帧数
+    
     int crf = 23;                   // CRF 质量（CRF 模式）
     RateControlMode rc_mode = RateControlMode::CBR;
     EncoderType type = EncoderType::X264;
@@ -1010,6 +1088,83 @@ bool VideoEncoder::Encode(AVFrame* frame) {
 ```
 
 **本节小结**：封装了统一的编码器接口，支持 CBR/VBR/CRF 码率控制，支持 x264/硬件编码切换，提供统计信息。下一节对比硬件编码性能。
+
+---
+
+## 6.2 直播时间戳生成策略
+
+**点播 vs 直播的时间戳差异**：
+
+```
+点播（文件）：
+pts 从文件中读取，单调递增，有固定基准
+
+直播（实时）：
+pts 需要实时生成，有两种策略
+```
+
+**策略1：系统时间戳（推荐）**
+
+```cpp
+// 编码器初始化时记录基准时间
+int64_t base_pts_us = av_gettime();  // 微秒
+
+// 每帧编码时计算 pts
+int64_t CalculatePTS() {
+    int64_t now_us = av_gettime();
+    int64_t elapsed_ms = (now_us - base_pts_us) / 1000;  // 转毫秒
+    
+    // 视频：90kHz 时间基
+    return elapsed_ms * 90 / 1000;
+}
+
+// 音频：按采样点计算
+int64_t CalculateAudioPTS(int64_t sample_count, int sample_rate) {
+    return sample_count * 1000 / sample_rate;  // 毫秒
+}
+```
+
+**策略2：帧计数（简单但不精确）**
+
+```cpp
+// 视频
+static int64_t frame_count = 0;
+int64_t pts = frame_count * (90000 / fps);  // 假设恒定帧率
+frame_count++;
+
+// 问题：如果实际帧率波动，音画会不同步
+```
+
+**推荐**：策略1（系统时间戳），能自动适应帧率波动。
+
+**音视频同步策略**：
+
+```cpp
+class TimestampGenerator {
+public:
+    void Init(int video_fps, int audio_sample_rate) {
+        base_us_ = av_gettime();
+        video_fps_ = video_fps;
+        audio_sample_rate_ = audio_sample_rate;
+    }
+    
+    int64_t GetVideoPTS() {
+        int64_t elapsed_ms = (av_gettime() - base_us_) / 1000;
+        return elapsed_ms * 90 / 1000;  // 90kHz
+    }
+    
+    int64_t GetAudioPTS(int samples) {
+        audio_samples_ += samples;
+        return audio_samples_ * 1000 / audio_sample_rate_;  // 毫秒
+    }
+    
+private:
+    int64_t base_us_ = 0;
+    int video_fps_ = 30;
+    int audio_sample_rate_ = 48000;
+    int64_t audio_samples_ = 0;
+};
+```
 
 ---
 

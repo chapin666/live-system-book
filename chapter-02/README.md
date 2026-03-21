@@ -808,6 +808,44 @@ while (SDL_PollEvent(&event)) {
 
 **本节小结**：异步播放器分为解码线程（生产者）和主线程（消费者+UI）。两个线程通过 FrameQueue 协作，主线程专注于渲染和响应用户操作，解码的波动被队列平滑。下一节将实现完整代码。
 
+### 5.2 异步错误处理
+
+跨线程的错误处理需要特殊机制。使用统一错误类（继承自第1章 `error.hpp`）：
+
+```cpp
+// decoder_thread.h
+#pragma once
+#include "common/error.hpp"
+#include <atomic>
+#include <string>
+
+class DecoderThread {
+public:
+    live::Error Start(const std::string& url);
+    live::Error GetLastError() const;
+    
+private:
+    void Run();
+    std::atomic<live::ErrorCode> error_code_{live::ErrorCode::OK};
+};
+
+// decoder_thread.cpp
+void DecoderThread::Run() {
+    auto err = OpenInput(url_);
+    if (err.IsError()) {
+        error_code_.store(err.Code());  // 记录错误
+        return;  // 线程结束
+    }
+    // ...
+}
+
+// main.cpp
+if (decoder.GetLastError().IsError()) {
+    std::cerr << "解码失败: " 
+              << decoder.GetLastError().Message() << std::endl;
+}
+```
+
 ---
 
 ## 6. 代码实现：完整异步播放器
