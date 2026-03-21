@@ -1028,13 +1028,15 @@ void AdjustBuffer() {
 
 ### 10.3 下一步
 
-第五章将实现**硬件解码**，让播放器支持 4K 直播。
+前四章完成了**观众端**播放器。从第五章开始构建**主播端**：
+
+第五章将实现**音视频采集与 3A 处理**，开始构建主播端：
 
 **第 5 章预告**：
-- VideoToolbox（macOS）
-- VAAPI（Linux Intel/AMD）
-- NVDEC（Linux NVIDIA）
-- 4K 流畅播放
+- 摄像头采集（YUV420P）
+- 麦克风采集（PCM）
+- 音频 3A（AEC/ANS/AGC）
+- WebRTC APM 音频处理
 
 ---
 
