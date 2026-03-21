@@ -105,6 +105,8 @@ GPU（硬件解码）：
 
 **本节概览**：介绍硬件解码的工作原理、显存管理、以及与软件解码的区别。
 
+<img src="docs/images/hw-decode-pipeline.svg" width="100%"/>
+
 ### 2.1 硬件解码管线
 
 ```

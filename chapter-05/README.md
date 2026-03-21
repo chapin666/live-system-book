@@ -38,6 +38,8 @@
 
 **本节概览**：回顾前五章内容，理解采集在直播系统中的位置和面临的挑战。
 
+<img src="docs/images/live-system-arch.svg" width="100%"/>
+
 ### 1.1 前五章回顾
 
 ```
@@ -417,6 +419,8 @@ private:
 ## 5. 音频 3A 处理原理
 
 **本节概览**：详细介绍回声消除（AEC）、降噪（ANS）、自动增益（AGC）的工作原理。
+
+<img src="docs/images/3a-processing.svg" width="100%"/>
 
 ### 5.1 回声消除（AEC）
 

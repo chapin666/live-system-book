@@ -109,6 +109,8 @@ RTMP 并非完美，它也有自己的局限：
 
 **本节概览**：RTMP 不是单一协议，而是分层设计的协议栈。本节介绍各层职责和数据流向。
 
+<img src="docs/images/rtmp-stack.svg" width="100%"/>
+
 ### 2.1 协议栈分层
 
 ```
@@ -254,6 +256,8 @@ bool SendC2(int socket, const uint8_t* s1) {
 ## 4. Chunk 分块传输机制
 
 **本节概览**：Chunk 是 RTMP 的核心机制，解决大消息阻塞问题。本节详细介绍 Chunk 格式和分块算法。
+
+<img src="docs/images/chunk-format.svg" width="100%"/>
 
 ### 4.1 为什么需要分块
 
@@ -483,6 +487,8 @@ void SendMessageInChunks(int socket, uint8_t msg_type,
 
 **本节概览**：RTMP 传输的音视频数据通常封装在 FLV 格式中。本节详细介绍 FLV 文件结构和 Tag 类型。
 
+<img src="docs/images/flv-structure.svg" width="100%"/>
+
 ### 6.1 FLV 概述
 
 FLV（Flash Video）是 Adobe 开发的格式，特点：
@@ -594,6 +600,8 @@ FLV（Flash Video）是 Adobe 开发的格式，特点：
 ## 7. RTMP 播放器架构设计
 
 **本节概览**：设计 RTMP 播放器的整体架构，包括连接管理、数据接收、解封装、解码渲染等模块。
+
+<img src="docs/images/player-arch.svg" width="100%"/>
 
 ### 7.1 架构图
 
