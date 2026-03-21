@@ -1,576 +1,1038 @@
-# 第四章：RTMP 流媒体协议与弱网对抗
+# 第四章：RTMP 流媒体协议
 
-> **本章目标**：实现 RTMP 播放器，支持直播拉流，并具备弱网环境下的抗丢包能力。
+> **本章目标**：深入理解 RTMP 协议原理，实现完整的 RTMP 播放器，支持直播拉流。
 
-第三章实现了基于 HTTP 的网络播放器，但 HTTP 协议延迟较高（3-10秒），不适合直播场景。本章将引入 **RTMP（Real-Time Messaging Protocol）**——直播行业的事实标准，延迟可控制在 1-3 秒。
+第三章实现了基于 HTTP 的网络播放器，但 HTTP 协议是为文件传输设计的，用于直播时延迟高达 5-10 秒。想象一下，主播说"大家好"，观众 10 秒后才听到——这种体验显然 unacceptable。
 
-同时，网络环境往往不稳定（弱网），本章还将介绍 **FEC（前向纠错）** 和 **JitterBuffer** 等技术，确保在丢包 20% 的情况下仍能流畅播放。
+本章将引入 **RTMP（Real-Time Messaging Protocol）**——直播行业的标准协议，延迟可控制在 1-3 秒。我们将从零实现 RTMP 握手、Chunk 分块传输、FLV 解封装，最终构建完整的直播播放器。
 
 **阅读指南**：
-- 第 1-3 节：理解 RTMP 协议原理、握手过程、Chunk 传输
-- 第 4-6 节：实现 RTMP 播放器核心、FLV 解封装
-- 第 7-8 节：弱网对抗技术（FEC、JitterBuffer）
-- 第 9 节：性能测试与优化
+- 第 1-3 节：理解为什么需要 RTMP，学习协议栈和握手过程
+- 第 4-6 节：深入 Chunk 传输机制、消息类型、FLV 封装
+- 第 7-8 节：完整实现 RTMP 播放器，包含连接、播放、数据处理
+- 第 9-10 节：性能优化、常见问题排查、本章总结
 
 ---
 
 ## 目录
 
-1. [为什么需要 RTMP：HTTP vs RTMP](#1-为什么需要-rtmphttp-vs-rtmp)
-2. [RTMP 协议基础](#2-rtmp-协议基础)
-3. [RTMP 握手与连接](#3-rtmp-握手与连接)
-4. [Chunk 分块传输](#4-chunk-分块传输)
-5. [FLV 封装格式](#5-flv-封装格式)
-6. [RTMP 播放器实现](#6-rtmp-播放器实现)
-7. [弱网对抗：FEC 前向纠错](#7-弱网对抗fec-前向纠错)
-8. [JitterBuffer：平滑网络抖动](#8-jitterbuffer平滑网络抖动)
-9. [本章总结与下一步](#9-本章总结与下一步)
+1. [为什么需要 RTMP：HTTP 直播的局限](#1-为什么需要-rtmphttp-直播的局限)
+2. [RTMP 协议栈概览](#2-rtmp-协议栈概览)
+3. [RTMP 握手：建立连接的第一步](#3-rtmp-握手建立连接的第一步)
+4. [Chunk 分块传输机制](#4-chunk-分块传输机制)
+5. [RTMP 消息类型详解](#5-rtmp-消息类型详解)
+6. [FLV 封装格式](#6-flv-封装格式)
+7. [RTMP 播放器架构设计](#7-rtmp-播放器架构设计)
+8. [代码实现：完整 RTMP 播放器](#8-代码实现完整-rtmp-播放器)
+9. [性能优化与缓冲策略](#9-性能优化与缓冲策略)
+10. [本章总结与下一步](#10-本章总结与下一步)
 
 ---
 
-## 1. 为什么需要 RTMP：HTTP vs RTMP
+## 1. 为什么需要 RTMP：HTTP 直播的局限
 
-**本节概览**：对比 HTTP 和 RTMP 在直播场景下的差异，理解为什么直播行业选择 RTMP。
+**本节概览**：通过对比 HTTP 和 RTMP，理解直播场景对低延迟的苛刻要求。
 
-### 1.1 直播的核心需求
+### 1.1 HTTP 直播的工作原理
 
-| 需求 | 说明 | HTTP 表现 | RTMP 表现 |
-|:---|:---|:---|:---|
-| **低延迟** | 主播说话到观众听到 < 3s | 5-10s（HLS）| 1-3s |
-| **实时性** | 画面实时跟随主播 | 有缓存，滞后 | 接近实时 |
-| **稳定性** | 网络波动时继续播放 | 容易卡顿 | 较好 |
+最常用的 HTTP 直播方案是 **HLS（HTTP Live Streaming）**，由 Apple 提出：
 
-### 1.2 HTTP 直播的问题
-
-**HLS（HTTP Live Streaming）流程**：
 ```
-服务器：将流切成 10 秒的 TS 片段
-客户端：下载片段 1 → 下载片段 2 → 播放
+服务器端：
+直播流 → 切片器 → [3秒片段1.ts] [3秒片段2.ts] [3秒片段3.ts] ...
 
-延迟 = 切片时长 + 下载时间 + 缓冲时间 = 10s+
+客户端：
+下载片段1 → 等待下载 → 下载片段2 → 播放
+   ↑______________↓
+        延迟 = 切片时长 + 下载时间
 ```
 
-**DASH 类似**：也是基于文件分片，延迟 3-5 秒。
+**延迟来源**：
+1. **切片等待**：服务器需要收集 3-10 秒数据才能生成一个切片
+2. **下载时间**：客户端下载切片需要时间
+3. **缓冲时间**：客户端为了流畅播放会额外缓冲 1-2 个切片
 
-### 1.3 RTMP 的优势
+**总延迟**：3-10 秒（切片）+ 下载时间 + 缓冲 = **5-15 秒**
+
+### 1.2 RTMP 的低延迟原理
 
 RTMP 是**流式协议**，不是文件传输：
 
 ```
-服务器 ──连续数据流──→ 客户端
-         （无需等待文件生成）
+HTTP 方式（文件）：
+服务器 ──生成文件──→ 客户端下载 ──播放
+    ↑需要等待文件生成↑
+
+RTMP 方式（流）：
+服务器 ──实时数据流──→ 客户端立即播放
+    ↑无需等待，收到即播↑
 ```
 
-**延迟组成**：
-- 编码延迟：100-300ms
-- 传输延迟：网络 RTT
-- 解码延迟：50-100ms
-- **总计：1-3 秒**
+**RTMP 延迟组成**：
+- 编码延迟：50-100ms（主播端编码）
+- 网络传输：RTT × N（通常 20-100ms）
+- 缓冲区：200-500ms（抗抖动）
+- 解码延迟：10-30ms
+- **总延迟：1-3 秒**
 
-### 1.4 RTMP 的缺点
+### 1.3 延迟对比实测
 
-| 缺点 | 说明 | 应对 |
+假设主播在 T0 时刻说"Hello"：
+
+| 协议 | T0+0.5s | T0+1s | T0+3s | T0+5s | T0+10s |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| **RTMP** | 编码中 | 传输中 | ✅ 播放 | - | - |
+| **HLS(6s切片)** | 切片中 | 切片中 | 切片完成 | 下载中 | ✅ 播放 |
+
+**直播场景需求**：
+- **秀场直播**：3-5 秒延迟可接受
+- **游戏直播**：1-3 秒延迟（主播与弹幕互动）
+- **连麦互动**：< 500ms 延迟（实时对话）
+
+### 1.4 RTMP 的代价
+
+RTMP 并非完美，它也有自己的局限：
+
+| 问题 | 原因 | 解决方案 |
 |:---|:---|:---|
-| **防火墙** | 使用 1935 端口，可能被封锁 | 使用 RTMPS（443端口）|
-| **浏览器** | Flash 淘汰后无原生支持 | 使用 WebRTC 或 H5 转码 |
-| **移动端** | 耗电较高 | 使用 HLS 作为备选 |
+| **防火墙阻断** | 使用 1935 端口，非标准 HTTP 端口 | 使用 RTMPS（443端口）或 HTTP 隧道 |
+| **浏览器不支持** | Flash 被淘汰，无原生支持 | 使用 WebRTC 或服务器转 HLS |
+| **移动端耗电** | TCP 长连接保持心跳 | 优化心跳间隔，使用 QUIC |
 
-**本节小结**：RTMP 适合需要低延迟的直播场景，但面临防火墙和浏览器支持问题。下一节将详细介绍 RTMP 协议。
-
----
-
-## 2. RTMP 协议基础
-
-**本节概览**：RTMP 是 Adobe 开发的二进制协议。本节介绍其消息类型、消息格式和基本流程。
-
-### 2.1 RTMP 协议栈
-
-```
-┌─────────────────────────────────┐
-│         RTMP 消息层              │  ← 命令、音视频数据
-├─────────────────────────────────┤
-│         Chunk 分块层             │  ← 分包传输
-├─────────────────────────────────┤
-│         TCP 传输层               │  ← 可靠传输
-└─────────────────────────────────┘
-```
-
-### 2.2 消息类型
-
-| 类型 ID | 名称 | 说明 |
-|:---:|:---|:---|
-| 1 | Set Chunk Size | 设置分块大小 |
-| 4 | User Control | 用户控制消息（如 Stream Begin）|
-| 5 | Window Ack Size | 窗口确认大小 |
-| 6 | Set Peer Bandwidth | 设置对端带宽 |
-| 8 | Audio | 音频数据 |
-| 9 | Video | 视频数据 |
-| 18 | AMF0 Data | 元数据（如分辨率、码率）|
-| 20 | AMF0 Command | 命令（如 connect/play）|
-
-### 2.3 基本流程
-
-```
-1. TCP 连接建立
-        ↓
-2. RTMP 握手（Handshake）
-        ↓
-3. connect 命令（连接应用）
-        ↓
-4. createStream 命令（创建流）
-        ↓
-5. play 命令（开始播放）
-        ↓
-6. 接收音视频数据
-        ↓
-7. 关闭连接
-```
-
-**本节小结**：RTMP 是分层协议，消息类型丰富，支持命令控制和数据传输。下一节将实现握手过程。
+**本节小结**：HTTP 直播延迟 5-15 秒，RTMP 延迟 1-3 秒。对于需要实时互动的直播场景，RTMP 是更好的选择。下一节将介绍 RTMP 协议栈结构。
 
 ---
 
-## 3. RTMP 握手与连接
+## 2. RTMP 协议栈概览
 
-**本节概览**：RTMP 握手是建立连接的第一步。本节介绍简单握手（Handshake）和复杂握手（带加密的握手机制）。
+**本节概览**：RTMP 不是单一协议，而是分层设计的协议栈。本节介绍各层职责和数据流向。
 
-### 3.1 简单握手（Simple Handshake）
+### 2.1 协议栈分层
 
-**流程**：
 ```
-客户端 ──C0+C1──→ 服务器
-客户端 ←──S0+S1+S2── 服务器
-客户端 ──C2──→ 服务器
+┌─────────────────────────────────────────────┐
+│              应用层（RTMP Message）          │  ← 命令、元数据、音视频
+│         - Command（connect/play）            │
+│         - Data（onMetaData）                 │
+│         - Audio/Video 数据                   │
+├─────────────────────────────────────────────┤
+│              分块层（Chunk）                 │  ← 分包、复用、优先级
+│         - Chunk Header                       │
+│         - Chunk Data                         │
+├─────────────────────────────────────────────┤
+│              传输层（TCP）                   │  ← 可靠传输、拥塞控制
+│         - 面向连接、字节流                   │
+└─────────────────────────────────────────────┘
 ```
 
-**C0/S0**：1字节，协议版本（0x03）
-**C1/S1**：1536字节，时间戳 + 随机数据
-**C2/S2**：1536字节，对端 S1/C1 的回复
+### 2.2 各层职责详解
 
-### 3.2 握手代码实现
+**传输层（TCP）**：
+- 提供可靠的字节流传输
+- 自动重传、顺序保证、拥塞控制
+- RTMP 默认端口：1935
+
+**分块层（Chunk）**：
+- 将大消息分割成小块（默认 128 字节）
+- 支持多路复用（音频、视频、命令共享连接）
+- 支持优先级（控制命令优先于音视频）
+
+**消息层（Message）**：
+- 定义消息类型（命令、数据、音视频）
+- 携带时间戳和负载长度
+- 支持自定义消息（如 AMF 格式）
+
+### 2.3 数据流向
+
+```
+发送端：
+App 数据 → Message 封装 → Chunk 分块 → TCP 发送
+
+接收端：
+TCP 接收 → Chunk 重组 → Message 解析 → App 处理
+```
+
+**本节小结**：RTMP 协议栈分三层：TCP 负责可靠传输，Chunk 层负责分包复用，Message 层负责应用语义。下一节介绍连接建立的第一步——握手。
+
+---
+
+## 3. RTMP 握手：建立连接的第一步
+
+**本节概览**：握手是 RTMP 连接建立的第一步，类似于 TCP 握手，但 RTMP 有自己的协议。本节介绍简单握手和复杂握手的区别。
+
+### 3.1 握手的作用
+
+握手完成以下目标：
+1. **协议版本协商**：确认双方支持 RTMP 1.0
+2. **时间同步**：交换时间戳，用于后续延迟计算
+3. **密钥交换**（复杂握手）：为加密通信做准备
+
+### 3.2 简单握手（Simple Handshake）
+
+简单握手使用固定格式的数据包，不进行加密：
+
+**握手流程（3 次交换）**：
+```
+客户端                    服务器
+  │                        │
+  │ ─────── C0+C1 ───────→ │
+  │                        │
+  │ ←────── S0+S1+S2 ───── │
+  │                        │
+  │ ─────── C2 ─────────→  │
+  │                        │
+  │        [握手完成]       │
+```
+
+**数据包格式**：
+
+| 包名 | 大小 | 内容 |
+|:---:|:---:|:---|
+| **C0/S0** | 1 byte | 版本号（固定 0x03）|
+| **C1/S1** | 1536 bytes | 时间戳(4B) + 零值(4B) + 随机数据(1528B) |
+| **C2/S2** | 1536 bytes | 对端 S1/C1 的拷贝 |
+
+**代码实现**：
 
 ```cpp
 // 发送 C0+C1
-uint8_t c0 = 0x03;
-send(socket, &c0, 1, 0);
-
-uint8_t c1[1536];
-memset(c1, 0, 4);  // 时间戳
-memset(c1 + 4, 0, 4);  // 零值
-// 随机填充剩余 1528 字节
-for (int i = 8; i < 1536; i++) {
-    c1[i] = rand() % 256;
+bool SendC0C1(int socket) {
+    uint8_t c0 = 0x03;  // RTMP 版本
+    if (send(socket, &c0, 1, 0) != 1) return false;
+    
+    uint8_t c1[1536];
+    // 时间戳（毫秒）
+    uint32_t timestamp = GetCurrentTimeMs();
+    c1[0] = (timestamp >> 24) & 0xFF;
+    c1[1] = (timestamp >> 16) & 0xFF;
+    c1[2] = (timestamp >> 8) & 0xFF;
+    c1[3] = timestamp & 0xFF;
+    
+    // 零值
+    memset(c1 + 4, 0, 4);
+    
+    // 随机数据
+    for (int i = 8; i < 1536; i++) {
+        c1[i] = rand() % 256;
+    }
+    
+    return send(socket, c1, 1536, 0) == 1536;
 }
-send(socket, c1, 1536, 0);
 
 // 接收 S0+S1+S2
-uint8_t s0s1s2[3073];
-recv(socket, s0s1s2, 3073, 0);
+bool ReceiveS0S1S2(int socket, uint8_t* s0s1s2) {
+    int total = 0;
+    while (total < 3073) {
+        int n = recv(socket, s0s1s2 + total, 3073 - total, 0);
+        if (n <= 0) return false;
+        total += n;
+    }
+    return true;
+}
 
 // 发送 C2（S1 的拷贝）
-send(socket, s0s1s2 + 1, 1536, 0);  // S1 从索引 1 开始
-```
-
-### 3.3 connect 命令
-
-握手成功后，发送 connect 命令：
-
-```cpp
-// AMF0 编码的 connect 命令
-void SendConnect(int socket) {
-    // 命令名 "connect"
-    // 事务 ID 1
-    // 对象 {
-    //   app: "live",
-    //   flashVer: "FMLE/3.0",
-    //   tcUrl: "rtmp://example.com/live"
-    // }
+bool SendC2(int socket, const uint8_t* s1) {
+    return send(socket, s1, 1536, 0) == 1536;
 }
 ```
 
-**本节小结**：RTMP 握手简单直接，完成后发送 connect 命令建立应用连接。下一节介绍 Chunk 分块传输。
+### 3.3 复杂握手（Complex Handshake）
+
+复杂握手增加了 Diffie-Hellman 密钥交换，用于生成加密密钥。Adobe 的 RTMPE（加密 RTMP）使用此握手。
+
+**与简单握手的区别**：
+- 时间戳后的 1528 字节不是随机数，而是 DH 参数
+- 需要计算共享密钥
+- 后续通信使用 RC4 加密
+
+**本节小结**：简单握手适用于大多数场景，3 次交换完成连接建立。复杂握手用于加密通信，实现更复杂。下一节介绍 Chunk 分块传输机制。
 
 ---
 
-## 4. Chunk 分块传输
+## 4. Chunk 分块传输机制
 
-**本节概览**：RTMP 将消息分割为 Chunk 传输，支持多路复用和优先级控制。
+**本节概览**：Chunk 是 RTMP 的核心机制，解决大消息阻塞问题。本节详细介绍 Chunk 格式和分块算法。
 
-### 4.1 为什么分块
+### 4.1 为什么需要分块
 
-**问题**：一个大视频帧（如 1MB）独占连接，阻塞控制命令。
-
-**解决**：将大消息切分成小块，交错传输：
+**问题场景**：一个 I 帧可能 100KB，如果不分块，会独占 TCP 连接：
 
 ```
-视频帧 A (1MB)    音频帧 B (4KB)    控制消息 C
-     │                 │                │
-     ↓                 ↓                ↓
-  [Chunk A1] ─→ [Chunk B1] ─→ [Chunk C] ─→ [Chunk A2] ─→ ...
+无分块：
+[==================== 大视频帧 ====================]
+                     ↑
+              控制命令被阻塞，无法发送
+
+有分块：
+[视频块1][控制命令][视频块2][音频块][视频块3]...
+    ↑        ↑         ↑
+  交错传输，控制命令及时送达
 ```
 
 ### 4.2 Chunk 格式
 
+每个 Chunk 由 Header 和 Data 组成：
+
 ```
-┌────────────────────────────────────────┐
-│  Basic Header (1-3 bytes)              │
-│  - fmt: 2 bits (消息头格式)             │
-│  - cs_id: 6-22 bits (Chunk Stream ID)  │
-├────────────────────────────────────────┤
-│  Message Header (0-11 bytes)           │
-│  - timestamp (3/4 bytes)               │
-│  - message length (3 bytes)            │
-│  - message type id (1 byte)            │
-│  - message stream id (4 bytes)         │
-├────────────────────────────────────────┤
-│  Extended Timestamp (0/4 bytes)        │
-├────────────────────────────────────────┤
-│  Chunk Data (最大 128 字节)             │
-└────────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│  Basic Header (1-3 bytes)               │
+│  ├─ fmt (2 bits): 消息头格式             │
+│  └─ cs_id (6-22 bits): Chunk Stream ID   │
+├─────────────────────────────────────────┤
+│  Message Header (0-11 bytes)            │
+│  ├─ timestamp (3 bytes)                 │
+│  ├─ message length (3 bytes)            │
+│  ├─ message type id (1 byte)            │
+│  └─ message stream id (4 bytes)         │
+├─────────────────────────────────────────┤
+│  Extended Timestamp (0-4 bytes)         │
+├─────────────────────────────────────────┤
+│  Chunk Data (最多 128 字节)              │
+└─────────────────────────────────────────┘
 ```
 
-### 4.3 Chunk Stream ID
+### 4.3 Basic Header 详解
+
+Basic Header 第一个字节决定格式：
+
+```
+┌────────────────┬────────────────┐
+│ fmt (2 bits)   │ cs_id (6 bits) │
+└────────────────┴────────────────┘
+  7   6          5   4   3   2   1   0
+```
+
+**cs_id 编码规则**：
+
+| cs_id 值 | 编码方式 | 说明 |
+|:---:|:---:|:---|
+| 0-63 | 1 字节（cs_id 直接）| 常用流 |
+| 64-319 | 2 字节（0 + 1 字节扩展）| 中等数量流 |
+| 64-65599 | 3 字节（1 + 2 字节扩展）| 大量流 |
+
+**预定义 CS ID**：
 
 | CS ID | 用途 |
 |:---:|:---|
-| 2 | 低级别控制（如 Window Ack）|
+| 2 | 低级别控制（Window Ack）|
 | 3 | 命令消息（connect/play）|
 | 4 | 音频数据 |
 | 5 | 视频数据 |
 | 6+ | 动态分配 |
 
-**本节小结**：Chunk 机制让大消息不阻塞小消息，支持优先级控制。下一节介绍 FLV 封装格式。
+### 4.4 Message Header 格式（fmt = 0）
 
----
-
-## 5. FLV 封装格式
-
-**本节概览**：RTMP 传输的音视频数据通常封装在 FLV 格式中。本节介绍 FLV 文件结构和 Tag 类型。
-
-### 5.1 FLV 结构
+当 fmt = 0 时，使用完整的 11 字节消息头：
 
 ```
-┌─────────────────┐
-│  FLV Header     │  9 bytes
-├─────────────────┤
-│  PreviousTagSize│  4 bytes (0)
-├─────────────────┤
-│  Tag 1          │  音频/视频/脚本
-├─────────────────┤
-│  PreviousTagSize│  4 bytes
-├─────────────────┤
-│  Tag 2          │
-├─────────────────┤
-│  ...            │
-└─────────────────┘
+┌─────────────────────────────────────────┐
+│  timestamp (3 bytes)                    │  相对时间戳
+├─────────────────────────────────────────┤
+│  message length (3 bytes)               │  消息总长度
+├─────────────────────────────────────────┤
+│  message type id (1 byte)               │  消息类型
+├─────────────────────────────────────────┤
+│  message stream id (4 bytes, LE)        │  消息流 ID
+└─────────────────────────────────────────┘
 ```
 
-### 5.2 Tag 格式
+**fmt 值含义**：
 
-```
-┌──────────────────────────────────┐
-│  Tag Type          │  1 byte     │
-│  Data Size         │  3 bytes    │
-│  Timestamp         │  3 bytes    │
-│  Timestamp Extended│  1 byte     │
-│  Stream ID         │  3 bytes    │
-├──────────────────────────────────┤
-│  Data              │  n bytes    │
-└──────────────────────────────────┘
-```
+| fmt | Header 大小 | 说明 |
+|:---:|:---:|:---|
+| 0 | 11 bytes | 新消息，完整头 |
+| 1 | 7 bytes | 同一流，同类型，时间戳变化 |
+| 2 | 3 bytes | 同一流，同类型，同大小，时间戳变化 |
+| 3 | 0 bytes | 完全重复上一 Chunk 的头 |
 
-**Tag Type**：
-- 8 = 音频
-- 9 = 视频
-- 18 = 脚本/元数据
-
-### 5.3 Video Tag 结构
-
-```
-第 1 字节：
-  - 高 4 位：帧类型（1=关键帧，2=非关键帧）
-  - 低 4 位：编码 ID（7=H.264）
-
-后续数据：
-  - AVC 包类型（1 byte）：0=序列头，1=NALU，2=结束
-  - Composition Time（3 bytes）
-  - NALU 数据
-```
-
-**本节小结**：FLV 是 RTMP 的常用封装格式，Tag 结构简单清晰。下一节将实现完整的 RTMP 播放器。
-
----
-
-## 6. RTMP 播放器实现
-
-**本节概览**：整合前面章节的内容，实现完整的 RTMP 拉流播放器。
-
-### 6.1 类设计
+### 4.5 分块算法
 
 ```cpp
+// 将消息分块发送
+void SendMessageInChunks(int socket, uint8_t msg_type, 
+                         const uint8_t* data, size_t len,
+                         uint32_t timestamp, uint32_t stream_id) {
+    const size_t CHUNK_SIZE = 128;
+    size_t offset = 0;
+    bool first_chunk = true;
+    
+    while (offset < len) {
+        // 计算本次发送的数据量
+        size_t chunk_len = std::min(CHUNK_SIZE, len - offset);
+        
+        // 发送 Chunk Header
+        if (first_chunk) {
+            // 第一个 Chunk：fmt = 0，完整头
+            SendChunkHeader(socket, 0, 5, timestamp, len, msg_type, stream_id);
+            first_chunk = false;
+        } else {
+            // 后续 Chunk：fmt = 3，无头
+            SendChunkHeader(socket, 3, 5, 0, 0, 0, 0);
+        }
+        
+        // 发送 Chunk Data
+        send(socket, data + offset, chunk_len, 0);
+        offset += chunk_len;
+    }
+}
+```
+
+**本节小结**：Chunk 机制将大消息分块，支持交错传输，避免阻塞。Header 使用变长编码节省带宽。下一节介绍 RTMP 消息类型。
+
+---
+
+## 5. RTMP 消息类型详解
+
+**本节概览**：RTMP 定义了多种消息类型，用于命令控制、数据传输和状态通知。本节详细介绍各类消息。
+
+### 5.1 消息类型总览
+
+| 类型 ID | 名称 | 方向 | 用途 |
+|:---:|:---|:---:|:---|
+| 1 | Set Chunk Size | C→S, S→C | 设置最大 Chunk 大小 |
+| 2 | Abort Message | C→S, S→C | 丢弃部分消息 |
+| 3 | Acknowledgement | C→S, S→C | 确认收到字节数 |
+| 4 | User Control | S→C | 用户控制事件 |
+| 5 | Window Ack Size | C→S, S→C | 设置窗口确认大小 |
+| 6 | Set Peer Bandwidth | C→S, S→C | 限制对端带宽 |
+| 8 | Audio Message | C→S, S→C | 音频数据 |
+| 9 | Video Message | C→S, S→C | 视频数据 |
+| 18 | AMF0 Data | C→S, S→C | 元数据（onMetaData）|
+| 20 | AMF0 Command | C→S, S→C | 命令（connect/play）|
+
+### 5.2 协议控制消息（1-6）
+
+**Set Chunk Size（类型 1）**：
+```
+消息体：4 bytes（大端序）
+默认值：128 bytes
+最大值：65536 bytes
+
+示例：设置 Chunk 大小为 4096
+┌────┬────┬────┬────┐
+│ 00 │ 00 │ 10 │ 00 │  = 4096
+└────┴────┴────┴────┘
+```
+
+**Window Ack Size（类型 5）**：
+```
+作用：告知对端，收到多少字节后需要发送确认
+默认：2500000 bytes
+
+示例：每收到 1MB 发送确认
+┌────┬────┬────┬────┐
+│ 00 │ 10 │ 00 │ 00 │  = 1048576
+└────┴────┴────┴────┘
+```
+
+### 5.3 命令消息（类型 20）
+
+命令消息使用 AMF0（Action Message Format）编码，类似 JSON 但二进制格式。
+
+**connect 命令**：
+```
+命令名："connect"
+事务 ID：1
+参数对象：
+{
+    app: "live",                    // 应用名
+    flashVer: "FMLE/3.0",          // Flash 版本
+    tcUrl: "rtmp://server/live",   // 服务器 URL
+    fpad: false,                   // 代理标志
+    capabilities: 15,              // 能力值
+    audioCodecs: 0x0FFF,           // 支持的音频编码
+    videoCodecs: 0x00FF,           // 支持的视频编码
+    videoFunction: 1               // 支持的视频功能
+}
+```
+
+**play 命令**：
+```
+命令名："play"
+事务 ID：0（无响应）
+参数：
+{
+    streamName: "stream123",  // 流名
+    start: -2,                // -2=从直播点播放
+    duration: -1,             // -1=播放全部
+    reset: true               // 重置之前的播放
+}
+```
+
+### 5.4 用户控制消息（类型 4）
+
+用户控制消息用于通知客户端状态变化：
+
+| 事件类型 | 值 | 说明 |
+|:---:|:---:|:---|
+| Stream Begin | 0 | 流开始，可以播放 |
+| Stream EOF | 1 | 流结束 |
+| Stream Dry | 2 | 流没有更多数据 |
+| Set Buffer Length | 3 | 设置客户端缓冲区长度 |
+| Stream Is Recorded | 4 | 流是录制文件 |
+| Ping Request | 6 | 服务器心跳请求 |
+| Ping Response | 7 | 客户端心跳响应 |
+
+**本节小结**：RTMP 消息类型丰富，涵盖协议控制、命令交互、音视频传输。AMF0 用于命令和元数据编码。下一节介绍 FLV 封装格式。
+
+---
+
+## 6. FLV 封装格式
+
+**本节概览**：RTMP 传输的音视频数据通常封装在 FLV 格式中。本节详细介绍 FLV 文件结构和 Tag 类型。
+
+### 6.1 FLV 概述
+
+FLV（Flash Video）是 Adobe 开发的格式，特点：
+- **简单**：格式清晰，易于解析
+- **通用**：几乎所有 RTMP 服务器支持
+- **流式**：可以边下载边播放
+
+### 6.2 FLV 文件结构
+
+```
+┌──────────────────────────┐
+│  FLV Header (9 bytes)    │
+│  - Signature: "FLV"      │
+│  - Version: 1            │
+│  - Flags: 音视频标志      │
+│  - Header Size: 9        │
+├──────────────────────────┤
+│  PreviousTagSize0 (4B)   │  总是 0
+├──────────────────────────┤
+│  Tag 1                   │
+├──────────────────────────┤
+│  PreviousTagSize1 (4B)   │  = Tag1 大小
+├──────────────────────────┤
+│  Tag 2                   │
+├──────────────────────────┤
+│  PreviousTagSize2 (4B)   │  = Tag2 大小
+├──────────────────────────┤
+│  ...                     │
+└──────────────────────────┘
+```
+
+### 6.3 FLV Tag 结构
+
+```
+┌─────────────────────────────────────────┐
+│  Tag Type (1 byte)                      │
+│  - 8: 音频                              │
+│  - 9: 视频                              │
+│  - 18: 脚本/元数据                       │
+├─────────────────────────────────────────┤
+│  Data Size (3 bytes, 大端)              │
+├─────────────────────────────────────────┤
+│  Timestamp (3 bytes, 毫秒)              │
+├─────────────────────────────────────────┤
+│  Timestamp Extended (1 byte)            │
+│  （高 8 位，支持 32 位时间戳）           │
+├─────────────────────────────────────────┤
+│  Stream ID (3 bytes, 总是 0)            │
+├─────────────────────────────────────────┤
+│  Data (Data Size 字节)                  │
+└─────────────────────────────────────────┘
+```
+
+### 6.4 Video Tag 详解
+
+视频 Tag 的第一字节包含重要信息：
+
+```
+┌─────────────────┬─────────────────┐
+│ 帧类型 (4 bits) │ 编码 ID (4 bits) │
+└─────────────────┴─────────────────┘
+```
+
+**帧类型**：
+
+| 值 | 类型 | 说明 |
+|:---:|:---|:---|
+| 1 | Keyframe | I 帧，可独立解码 |
+| 2 | Inter-frame | P 帧，依赖参考帧 |
+| 3 | Disposable Inter-frame | B 帧（较少使用）|
+| 5 | Video Info | 视频信息帧 |
+
+**编码 ID**：
+
+| 值 | 编码 |
+|:---:|:---|
+| 2 | H.263 |
+| 7 | AVC（H.264）|
+
+**AVC 视频数据**：
+```
+第 1 字节：帧类型 + 编码 ID（0x17 = I 帧，0x27 = P 帧）
+第 2 字节：AVC 包类型
+         - 0: AVC 序列头（SPS/PPS）
+         - 1: AVC NALU（视频数据）
+         - 2: AVC 结束
+第 3-5 字节：Composition Time（PTS - DTS）
+第 6+ 字节：实际数据
+```
+
+### 6.5 Audio Tag 详解
+
+```
+第 1 字节：声音格式（4 bits）+ 采样率（2 bits）+ 位深（1 bit）+ 声道（1 bit）
+
+格式值：
+- 0: Linear PCM
+- 10: AAC
+
+后续字节：
+- AAC 包类型（1 byte）：0=序列头，1=原始数据
+- AAC 数据
+```
+
+**本节小结**：FLV 是 RTMP 的常用封装格式，结构简单清晰。Video Tag 包含帧类型和编码信息，Audio Tag 包含格式和采样信息。下一节设计 RTMP 播放器架构。
+
+---
+
+## 7. RTMP 播放器架构设计
+
+**本节概览**：设计 RTMP 播放器的整体架构，包括连接管理、数据接收、解封装、解码渲染等模块。
+
+### 7.1 架构图
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     RTMP 播放器架构                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │   连接管理    │  │   数据接收    │  │   解封装     │          │
+│  │  Connection  │→ │   Receiver   │→ │  FLV Parser │          │
+│  │              │  │              │  │              │          │
+│  │ - TCP 连接   │  │ - Chunk 重组 │  │ - 分离音视频 │          │
+│  │ - RTMP 握手  │  │ - 消息解析   │  │ - 提取 NALU  │          │
+│  │ - 命令交互   │  │ - 缓冲管理   │  │ - 时间戳同步 │          │
+│  └──────────────┘  └──────────────┘  └──────┬───────┘          │
+│                                             │                   │
+│                                             ↓                   │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │   渲染显示    │← │   视频解码    │← │  音频解码    │          │
+│  │   SDL/OpenGL │← │  H.264 Dec   │← │  AAC Dec    │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 7.2 模块职责
+
+**Connection 模块**：
+- 建立 TCP 连接到 RTMP 服务器
+- 执行 RTMP 握手
+- 发送 connect、createStream、play 命令
+- 维护连接状态，处理重连
+
+**Receiver 模块**：
+- 从 TCP socket 读取原始数据
+- 解析 Chunk，重组消息
+- 根据消息类型分发到不同处理器
+- 处理窗口确认、流量控制
+
+**FLV Parser 模块**：
+- 解析 Audio/Video Tag
+- 分离 H.264 NALU 和 AAC 数据
+- 处理时间戳，生成 PTS/DTS
+
+**Decoder 模块**：
+- 视频：H.264 → YUV（使用 FFmpeg 或硬件解码）
+- 音频：AAC → PCM（使用 FFmpeg）
+
+**Render 模块**：
+- 视频：YUV → SDL 纹理 → 屏幕
+- 音频：PCM → SDL 音频队列 → 声卡
+
+### 7.3 数据流
+
+```
+RTMP 服务器
+    ↓
+┌─────────────────────────────────────────────────────────────┐
+│  1. TCP 接收原始数据                                          │
+│     [Chunk1][Chunk2][Chunk3]...                              │
+│                                                               │
+│  2. Chunk 解析器重组消息                                       │
+│     → Video Message (H.264 data)                             │
+│     → Audio Message (AAC data)                               │
+│                                                               │
+│  3. FLV 解封装                                                │
+│     → Video Tag → NALUs + PTS                                │
+│     → Audio Tag → AAC frames + PTS                           │
+│                                                               │
+│  4. 解码                                                      │
+│     → NALUs → YUV frames                                     │
+│     → AAC → PCM samples                                      │
+│                                                               │
+│  5. 渲染                                                      │
+│     → YUV → SDL → 屏幕                                       │
+│     → PCM → SDL → 声卡                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**本节小结**：RTMP 播放器分为连接、接收、解封装、解码、渲染五个模块。数据流从 TCP 接收，经过层层处理最终显示。下一节实现完整代码。
+
+---
+
+## 8. 代码实现：完整 RTMP 播放器
+
+**本节概览**：实现完整的 RTMP 播放器，包含连接、握手、播放命令、数据接收、解封装、解码渲染。
+
+### 8.1 项目结构
+
+```
+rtmp-player/
+├── CMakeLists.txt
+├── include/
+│   └── live/
+│       ├── rtmp_connection.h
+│       ├── rtmp_receiver.h
+│       └── flv_parser.h
+└── src/
+    ├── main.cpp
+    ├── rtmp_connection.cpp
+    ├── rtmp_receiver.cpp
+    └── flv_parser.cpp
+```
+
+### 8.2 RTMP 连接管理
+
+```cpp
+// include/live/rtmp_connection.h
 #pragma once
 #include <string>
 #include <functional>
+#include <memory>
 
 namespace live {
 
-using OnAudioCallback = std::function<void(const uint8_t* data, size_t size, uint32_t pts)>;
-using OnVideoCallback = std::function<void(const uint8_t* data, size_t size, uint32_t pts, bool keyframe)>;
+enum class ConnectionState {
+    Disconnected,
+    Connecting,
+    Handshaking,
+    Connected,
+    Playing,
+    Error
+};
 
-class RtmpPlayer {
+class RtmpConnection {
 public:
-    explicit RtmpPlayer(const std::string& url);
-    ~RtmpPlayer();
+    RtmpConnection();
+    ~RtmpConnection();
 
-    bool Connect();
+    bool Connect(const std::string& url);
     void Disconnect();
-    bool IsConnected() const { return connected_; }
-
-    void SetAudioCallback(OnAudioCallback cb) { on_audio_ = cb; }
-    void SetVideoCallback(OnVideoCallback cb) { on_video_ = cb; }
-
-    void Run();  // 主循环，接收数据
+    
+    bool Play(const std::string& stream_name);
+    void Stop();
+    
+    ConnectionState GetState() const { return state_; }
+    int GetSocket() const { return socket_; }
 
 private:
-    bool Handshake();
+    bool ParseUrl(const std::string& url);
+    bool TcpConnect();
+    bool RtmpHandshake();
     bool SendConnect();
     bool SendCreateStream();
-    bool SendPlay();
-    bool ReadChunk();
-    void ParseMessage(uint8_t msg_type, const uint8_t* data, size_t size);
-
-    std::string url_;
-    int socket_ = -1;
-    bool connected_ = false;
+    bool SendPlay(const std::string& stream_name);
     
-    OnAudioCallback on_audio_;
-    OnVideoCallback on_video_;
+    std::string host_;
+    int port_ = 1935;
+    std::string app_;
+    
+    int socket_ = -1;
+    ConnectionState state_ = ConnectionState::Disconnected;
+    uint32_t stream_id_ = 0;
 };
 
 } // namespace live
 ```
 
-### 6.2 关键实现
-
 ```cpp
-// 解析 FLV Video Tag 并回调
-void RtmpPlayer::ParseVideoTag(const uint8_t* data, size_t size) {
-    if (size < 5) return;
-    
-    uint8_t frame_type = (data[0] >> 4) & 0x0F;
-    uint8_t codec_id = data[0] & 0x0F;
-    
-    if (codec_id != 7) {  // 不是 H.264
-        return;
-    }
-    
-    uint8_t avc_packet_type = data[1];
-    // uint32_t composition_time = (data[2] << 16) | (data[3] << 8) | data[4];
-    
-    const uint8_t* nalu_data = data + 5;
-    size_t nalu_size = size - 5;
-    
-    if (avc_packet_type == 0) {
-        // AVC 序列头（SPS/PPS）
-        // 解析并保存
-    } else if (avc_packet_type == 1) {
-        // NALU 数据
-        bool keyframe = (frame_type == 1);
-        if (on_video_) {
-            on_video_(nalu_data, nalu_size, 0, keyframe);
-        }
-    }
-}
-```
+// src/rtmp_connection.cpp
+#include "live/rtmp_connection.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <cstring>
+#include <iostream>
 
-### 6.3 与 FFmpeg 整合
+namespace live {
 
-```cpp
-// 使用 FFmpeg 解码 H.264 NALU
-void OnVideoFrame(const uint8_t* data, size_t size, uint32_t pts, bool keyframe) {
-    // 构造 AVPacket
-    AVPacket* pkt = av_packet_alloc();
-    pkt->data = const_cast<uint8_t*>(data);
-    pkt->size = size;
-    pkt->pts = pts;
-    pkt->flags = keyframe ? AV_PKT_FLAG_KEY : 0;
-    
-    // 发送给解码器
-    avcodec_send_packet(codec_ctx, pkt);
-    av_packet_free(&pkt);
-    
-    // 接收解码后的帧
-    AVFrame* frame = av_frame_alloc();
-    while (avcodec_receive_frame(codec_ctx, frame) == 0) {
-        Render(frame);
-        av_frame_unref(frame);
-    }
-    av_frame_free(&frame);
-}
-```
-
-**本节小结**：RTMP 播放器通过 TCP 连接、握手、命令交互后，接收 FLV 封装的音视频数据，解封装后送入 FFmpeg 解码。下一节介绍弱网对抗技术。
-
----
-
-## 7. 弱网对抗：FEC 前向纠错
-
-**本节概览**：网络丢包会导致视频花屏。FEC（Forward Error Correction）通过发送冗余数据，让接收端在丢包时仍能恢复原始数据。
-
-### 7.1 FEC 原理
-
-**问题**：发送 10 个包，丢 2 个，需要重传，延迟增加。
-
-**FEC 解决**：发送 12 个包（10 个数据 + 2 个冗余），允许丢 2 个：
-
-```
-原始数据：D1 D2 D3 D4 D5 D6 D7 D8 D9 D10
-FEC 编码：D1 D2 D3 D4 D5 D6 D7 D8 D9 D10 R1 R2
-          └────────────────────────────┘
-                      可丢 2 个
-```
-
-### 7.2 XOR FEC（简单实现）
-
-```cpp
-// 4 个数据包生成 1 个冗余包
-// R = D1 ^ D2 ^ D3 ^ D4
-
-void GenerateFec(const std::vector<std::vector<uint8_t>>& data_packets,
-                 std::vector<uint8_t>& fec_packet) {
-    size_t size = data_packets[0].size();
-    fec_packet.resize(size, 0);
-    
-    for (const auto& pkt : data_packets) {
-        for (size_t i = 0; i < size; i++) {
-            fec_packet[i] ^= pkt[i];
-        }
-    }
+RtmpConnection::RtmpConnection() = default;
+RtmpConnection::~RtmpConnection() {
+    Disconnect();
 }
 
-// 恢复：如果丢了 D1，其他都在
-// D1 = R ^ D2 ^ D3 ^ D4
-bool RecoverPacket(std::vector<std::vector<uint8_t>>& packets,
-                   int missing_idx,
-                   const std::vector<uint8_t>& fec) {
-    packets[missing_idx] = fec;
-    for (size_t i = 0; i < packets.size(); i++) {
-        if (i != static_cast<size_t>(missing_idx)) {
-            for (size_t j = 0; j < packets[missing_idx].size(); j++) {
-                packets[missing_idx][j] ^= packets[i][j];
-            }
-        }
+bool RtmpConnection::Connect(const std::string& url) {
+    if (!ParseUrl(url)) {
+        std::cerr << "[RTMP] Failed to parse URL: " << url << std::endl;
+        return false;
     }
+    
+    state_ = ConnectionState::Connecting;
+    
+    if (!TcpConnect()) {
+        state_ = ConnectionState::Error;
+        return false;
+    }
+    
+    state_ = ConnectionState::Handshaking;
+    
+    if (!RtmpHandshake()) {
+        state_ = ConnectionState::Error;
+        return false;
+    }
+    
+    state_ = ConnectionState::Connected;
+    
+    if (!SendConnect()) {
+        state_ = ConnectionState::Error;
+        return false;
+    }
+    
+    if (!SendCreateStream()) {
+        state_ = ConnectionState::Error;
+        return false;
+    }
+    
+    std::cout << "[RTMP] Connected to " << host_ << ":" << port_ << std::endl;
     return true;
 }
+
+void RtmpConnection::Disconnect() {
+    if (socket_ >= 0) {
+        close(socket_);
+        socket_ = -1;
+    }
+    state_ = ConnectionState::Disconnected;
+}
+
+bool RtmpConnection::ParseUrl(const std::string& url) {
+    // rtmp://host:port/app/stream
+    // 简化解析，实际使用 URL 解析库
+    if (url.find("rtmp://") != 0) {
+        return false;
+    }
+    
+    size_t host_start = 7;  // skip "rtmp://"
+    size_t host_end = url.find(':', host_start);
+    if (host_end == std::string::npos) {
+        host_end = url.find('/', host_start);
+        port_ = 1935;
+    } else {
+        size_t port_end = url.find('/', host_end);
+        port_ = std::stoi(url.substr(host_end + 1, port_end - host_end - 1));
+        host_end = port_end;
+    }
+    
+    host_ = url.substr(host_start, host_end - host_start);
+    
+    size_t app_start = host_end + 1;
+    size_t app_end = url.find('/', app_start);
+    if (app_end != std::string::npos) {
+        app_ = url.substr(app_start, app_end - app_start);
+    } else {
+        app_ = url.substr(app_start);
+    }
+    
+    return true;
+}
+
+bool RtmpConnection::TcpConnect() {
+    socket_ = socket(AF_INET, SOCK_STREAM, 0);
+    if (socket_ < 0) {
+        perror("socket");
+        return false;
+    }
+    
+    struct hostent* server = gethostbyname(host_.c_str());
+    if (!server) {
+        std::cerr << "[RTMP] Failed to resolve host: " << host_ << std::endl;
+        return false;
+    }
+    
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port_);
+    memcpy(&addr.sin_addr.s_addr, server->h_addr, server->h_length);
+    
+    if (connect(socket_, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        perror("connect");
+        return false;
+    }
+    
+    return true;
+}
+
+bool RtmpConnection::RtmpHandshake() {
+    // 发送 C0
+    uint8_t c0 = 0x03;
+    if (send(socket_, &c0, 1, 0) != 1) return false;
+    
+    // 发送 C1
+    uint8_t c1[1536];
+    memset(c1, 0, 8);  // timestamp + zero
+    for (int i = 8; i < 1536; i++) {
+        c1[i] = rand() % 256;
+    }
+    if (send(socket_, c1, 1536, 0) != 1536) return false;
+    
+    // 接收 S0+S1+S2
+    uint8_t s0s1s2[3073];
+    int total = 0;
+    while (total < 3073) {
+        int n = recv(socket_, s0s1s2 + total, 3073 - total, 0);
+        if (n <= 0) return false;
+        total += n;
+    }
+    
+    // 验证 S0
+    if (s0s1s2[0] != 0x03) {
+        std::cerr << "[RTMP] Unsupported version: " << (int)s0s1s2[0] << std::endl;
+        return false;
+    }
+    
+    // 发送 C2（S1 的拷贝）
+    if (send(socket_, s0s1s2 + 1, 1536, 0) != 1536) return false;
+    
+    return true;
+}
+
+} // namespace live
 ```
 
-### 7.3 权衡
+### 8.3 CMakeLists.txt
 
-| FEC 比例 | 冗余开销 | 可恢复丢包率 | 适用场景 |
-|:---:|:---:|:---:|:---|
-| 10% | 10% | ~10% | 较好网络 |
-| 20% | 20% | ~20% | **推荐** |
-| 50% | 50% | ~50% | 极差网络 |
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(rtmp-player VERSION 4.0.0 LANGUAGES CXX)
 
-**本节小结**：FEC 通过牺牲带宽换取抗丢包能力。简单 XOR 适合入门，实际系统使用 Reed-Solomon 等更高效的编码。下一节介绍 JitterBuffer。
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FFMPEG REQUIRED
+    libavformat libavcodec libavutil)
+find_package(SDL2 REQUIRED)
+
+add_executable(rtmp-player
+    src/main.cpp
+    src/rtmp_connection.cpp
+    src/rtmp_receiver.cpp
+    src/flv_parser.cpp
+)
+
+target_include_directories(rtmp-player PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${FFMPEG_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIRS}
+)
+
+target_link_libraries(rtmp-player
+    ${FFMPEG_LIBRARIES}
+    SDL2::SDL2
+)
+```
+
+**本节小结**：实现了 RTMP 连接管理，包含 URL 解析、TCP 连接、RTMP 握手。完整播放器还需要接收器、解封装、解码渲染。下一节介绍性能优化。
 
 ---
 
-## 8. JitterBuffer：平滑网络抖动
+## 9. 性能优化与缓冲策略
 
-**本节概览**：网络延迟不是固定的，而是波动的（抖动）。JitterBuffer 通过缓冲和重排，平滑这种波动。
+**本节概览**：直播播放面临网络抖动、丢包等问题。本节介绍缓冲策略、丢包恢复等优化手段。
 
-### 8.1 网络抖动现象
+### 9.1 网络抖动与缓冲
+
+**问题**：网络延迟不是固定的，会有抖动：
 
 ```
 理想情况：包每 33ms 到达（30fps）
 实际网络：
-  时间(ms): 0   20  35  80  95  100  130
+  时间(ms): 0   15  30  80  95  100  130
   包:       P1  P2  P3  P4  P5  P6   P7
-  间隔:     -   20  15  45  15  5    30
+  间隔:     -   15  15  50  15  5    30
 
-抖动 = 最大间隔 - 最小间隔 = 45 - 5 = 40ms
+抖动 = 50 - 5 = 45ms
 ```
 
-### 8.2 JitterBuffer 工作原理
+**解决方案**：接收缓冲区
 
 ```cpp
 class JitterBuffer {
 public:
-    void InsertPacket(RtpPacket packet);
-    RtpPacket GetFrame();  // 返回完整可解码的帧
+    void InsertPacket(std::shared_ptr<VideoPacket> pkt);
+    std::shared_ptr<VideoPacket> GetFrame();
     
 private:
-    std::map<uint32_t, RtpPacket> packets_;  // 按序列号排序
+    std::map<uint32_t, std::shared_ptr<VideoPacket>> packets_;
     uint32_t last_played_seq_ = 0;
-    int64_t target_delay_ms_ = 100;  // 目标缓冲深度
+    int64_t target_delay_ms_ = 200;  // 目标缓冲 200ms
 };
+```
 
-void JitterBuffer::InsertPacket(RtpPacket packet) {
-    packets_[packet.seq] = packet;
-    
-    // 计算当前缓冲深度
-    if (!packets_.empty()) {
-        auto newest = packets_.rbegin()->first;
-        auto oldest = packets_.begin()->first;
-        int buffer_ms = (newest - oldest) * 33;  // 假设 30fps
-        
-        // 自适应调整目标延迟
-        if (buffer_ms < target_delay_ms_ / 2) {
-            target_delay_ms_ *= 0.9;  // 网络变好，降低延迟
-        } else if (buffer_ms > target_delay_ms_ * 1.5) {
-            target_delay_ms_ *= 1.1;  // 网络变差，增加延迟
-        }
+### 9.2 自适应缓冲
+
+根据网络状况动态调整缓冲深度：
+
+```cpp
+void AdjustBuffer() {
+    if (network_jitter_ < 50ms) {
+        // 网络稳定，降低延迟
+        target_buffer_ms_ = 100;
+    } else if (network_jitter_ < 200ms) {
+        // 轻度抖动
+        target_buffer_ms_ = 300;
+    } else {
+        // 严重抖动
+        target_buffer_ms_ = 500;
     }
 }
 ```
 
-### 8.3 与 RTMP 结合
-
-RTMP 基于 TCP，本身有重传机制，但延迟较高。可以改用 **RTMFP（基于 UDP）** 或 **WebRTC** 配合 JitterBuffer 实现更低延迟。
-
-**本节小结**：JitterBuffer 通过自适应缓冲深度，平衡延迟和流畅度。对于 RTMP/TCP 场景，TCP 本身处理了重传，但 JitterBuffer 仍可平滑播放节奏。
+**本节小结**：缓冲策略平衡延迟和流畅度，网络好时降低延迟，网络差时增加缓冲。下一节总结本章。
 
 ---
 
-## 9. 本章总结与下一步
+## 10. 本章总结与下一步
 
-### 9.1 本章回顾
+### 10.1 本章回顾
 
-本章实现了 RTMP 播放器：
+本章深入学习了 RTMP 协议：
 
-1. **RTMP 协议**：低延迟、流式传输，适合直播
-2. **握手与连接**：简单握手，connect/play 命令
-3. **Chunk 传输**：分块机制，避免大消息阻塞
-4. **FLV 封装**：音视频数据封装格式
-5. **播放器实现**：TCP + RTMP + FLV 解封装 + FFmpeg 解码
-6. **FEC**：前向纠错，抗丢包
-7. **JitterBuffer**：平滑网络抖动
+1. **为什么需要 RTMP**：HTTP 直播延迟 5-15 秒，RTMP 延迟 1-3 秒
+2. **协议栈**：TCP → Chunk → Message 三层架构
+3. **握手**：简单握手 3 次交换完成连接建立
+4. **Chunk 机制**：分块传输，避免大消息阻塞
+5. **消息类型**：命令、音视频、控制消息
+6. **FLV 封装**：Tag 结构，支持 H.264/AAC
+7. **播放器架构**：连接 → 接收 → 解封装 → 解码 → 渲染
 
-### 9.2 本章局限
+### 10.2 当前能力
 
-纯软件解码在 4K 等高分辨率场景下 CPU 占用过高：
-
+```bash
+./rtmp-player rtmp://server/live/stream
+# 连接 RTMP 服务器
+# 接收直播流
+# 解码播放
 ```
-1080p H.264 解码：CPU 30-50%
-4K H.264 解码：CPU 80-100%（卡顿）
-```
 
-### 9.3 下一步：硬件解码
+### 10.3 下一步
 
-第五章将引入硬件解码：
-
-- VideoToolbox（macOS/iOS）
-- MediaCodec（Android）
-- VAAPI/NVDEC（Linux）
-- DirectX Video Acceleration（Windows）
+第五章将实现**硬件解码**，让播放器支持 4K 直播。
 
 **第 5 章预告**：
-```
-./player rtmp://example.com/live/4k-stream
-# CPU 占用 < 10%，流畅播放 4K
-```
+- VideoToolbox（macOS）
+- VAAPI（Linux Intel/AMD）
+- NVDEC（Linux NVIDIA）
+- 4K 流畅播放
 
 ---
 
@@ -580,15 +1042,15 @@ RTMP 基于 TCP，本身有重传机制，但延迟较高。可以改用 **RTMFP
 
 - [RTMP Specification 1.0](https://www.adobe.com/devnet/rtmp.html)
 - [FLV Format Specification](https://www.adobe.com/devnet/f4v.html)
-- [Reed-Solomon FEC](https://en.wikipedia.org/wiki/Reed%E2%80%93Solomon_error_correction)
+- [FFmpeg RTMP Protocol](https://ffmpeg.org/ffmpeg-protocols.html#rtmp)
 
 ### 术语表
 
 | 术语 | 解释 |
 |:---|:---|
 | Chunk | RTMP 分块传输单元 |
-| CS ID | Chunk Stream ID，区分不同流 |
+| CS ID | Chunk Stream ID，流标识 |
+| AMF0 | Action Message Format，二进制数据格式 |
 | FLV | Flash Video，音视频封装格式 |
 | NALU | H.264 编码单元 |
-| FEC | 前向纠错，抗丢包 |
 | Jitter | 网络延迟波动 |

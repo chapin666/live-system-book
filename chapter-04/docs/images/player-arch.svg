@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+  <defs>
+    <style>
+      .box { fill: #f0f9ff; stroke: #0369a1; stroke-width: 2; rx: 8; }
+      .thread { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; rx: 6; }
+      .queue { fill: #fef3c7; stroke: #f59e0b; stroke-width: 2; rx: 4; }
+      .arrow { stroke: #64748b; stroke-width: 2; marker-end: url(#arrowhead); }
+      .label { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #334155; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: bold; fill: #0f172a; }
+      .small { font-size: 10px; fill: #64748b; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="500" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="450" y="25" text-anchor="middle" class="title" font-size="18">RTMP 播放器架构</text>
+  
+  <!-- Network Thread -->
+  <rect x="50" y="50" width="200" height="200" class="thread"/>
+  <text x="150" y="75" text-anchor="middle" class="title">网络线程</text>
+  
+  <rect x="70" y="90" width="160" height="35" fill="#dbeafe" stroke="#3b82f6" rx="4"/>
+  <text x="150" y="107" text-anchor="middle" class="label">RTMP 连接</text>
+  <text x="150" y="118" text-anchor="middle" class="small">握手 → 连接 → 播放</text>
+  
+  <rect x="70" y="135" width="160" height="35" fill="#dbeafe" stroke="#3b82f6" rx="4"/>
+  <text x="150" y="152" text-anchor="middle" class="label">Chunk 解析</text>
+  <text x="150" y="163" text-anchor="middle" class="small">解复用 → 重组消息</text>
+  
+  <rect x="70" y="180" width="160" height="35" fill="#dbeafe" stroke="#3b82f6" rx="4"/>
+  <text x="150" y="197" text-anchor="middle" class="label">FLV 解封装</text>
+  <text x="150" y="208" text-anchor="middle" class="small">提取 H.264/AAC</text>
+  
+  <!-- Buffer Queue -->
+  <rect x="300" y="100" width="120" height="100" class="queue"/>
+  <text x="360" y="125" text-anchor="middle" class="title">缓冲队列</text>
+  
+  <rect x="315" y="140" width="90" height="20" fill="#fff" stroke="#f59e0b" rx="2"/>
+  <text x="360" y="153" text-anchor="middle" class="label">视频包</text>
+  
+  <rect x="315" y="165" width="90" height="20" fill="#fff" stroke="#f59e0b" rx="2"/>
+  <text x="360" y="178" text-anchor="middle" class="label">音频包</text>
+  
+  <text x="360" y="195" text-anchor="middle" class="small">2-5秒缓冲</text>
+  
+  <!-- Decode Thread -->
+  <rect x="480" y="50" width="200" height="200" class="thread"/>
+  <text x="580" y="75" text-anchor="middle" class="title">解码线程</text>
+  
+  <rect x="500" y="90" width="160" height="35" fill="#dcfce7" stroke="#22c55e" rx="4"/>
+  <text x="580" y="107" text-anchor="middle" class="label">视频解码</text>
+  <text x="580" y="118" text-anchor="middle" class="small">H.264 → YUV</text>
+  
+  <rect x="500" y="135" width="160" height="35" fill="#dcfce7" stroke="#22c55e" rx="4"/>
+  <text x="580" y="152" text-anchor="middle" class="label">音频解码</text>
+  <text x="580" y="163" text-anchor="middle" class="small">AAC → PCM</text>
+  
+  <rect x="500" y="180" width="160" height="35" fill="#dcfce7" stroke="#22c55e" rx="4"/>
+  <text x="580" y="197" text-anchor="middle" class="label">音视频同步</text>
+  <text x="580" y="208" text-anchor="middle" class="small">时间戳对齐</text>
+  
+  <!-- Arrows -->
+  <line x1="250" y1="150" x2="300" y2="150" class="arrow"/>
+  <text x="275" y="140" text-anchor="middle" class="small">写入</text>
+  
+  <line x1="420" y1="150" x2="480" y2="150" class="arrow"/>
+  <text x="450" y="140" text-anchor="middle" class="small">读取</text>
+  
+  <!-- Render Thread -->
+  <rect x="730" y="50" width="120" height="200" class="thread"/>
+  <text x="790" y="75" text-anchor="middle" class="title">渲染线程</text>
+  
+  <rect x="745" y="100" width="90" height="50" fill="#fae8ff" stroke="#d946ef" rx="4"/>
+  <text x="790" y="122" text-anchor="middle" class="label">视频渲染</text>
+  <text x="790" y="138" text-anchor="middle" class="small">SDL/OpenGL</text>
+  
+  <rect x="745" y="165" width="90" height="50" fill="#fae8ff" stroke="#d946ef" rx="4"/>
+  <text x="790" y="187" text-anchor="middle" class="label">音频播放</text>
+  <text x="790" y="203" text-anchor="middle" class="small">SDL Audio</text>
+  
+  <!-- Arrow to render -->
+  <line x1="680" y1="125" x2="730" y2="125" class="arrow"/>
+  <line x1="680" y1="190" x2="730" y2="190" class="arrow"/>
+  
+  <!-- State Machine -->
+  <rect x="50" y="280" width="800" height="200" class="box"/>
+  <text x="450" y="305" text-anchor="middle" class="title">播放器状态机</text>
+  
+  <!-- States -->
+  <rect x="80" y="330" width="100" height="50" fill="#e2e8f0" stroke="#64748b" rx="4"/>
+  <text x="130" y="358" text-anchor="middle" class="label">IDLE</text>
+  
+  <rect x="220" y="330" width="100" height="50" fill="#fef3c7" stroke="#f59e0b" rx="4"/>
+  <text x="270" y="358" text-anchor="middle" class="label">CONNECTING</text>
+  
+  <rect x="360" y="330" width="100" height="50" fill="#dbeafe" stroke="#3b82f6" rx="4"/>
+  <text x="410" y="358" text-anchor="middle" class="label">BUFFERING</text>
+  
+  <rect x="500" y="330" width="100" height="50" fill="#dcfce7" stroke="#22c55e" rx="4"/>
+  <text x="550" y="358" text-anchor="middle" class="label">PLAYING</text>
+  
+  <rect x="640" y="330" width="100" height="50" fill="#fecaca" stroke="#ef4444" rx="4"/>
+  <text x="690" y="358" text-anchor="middle" class="label">ERROR</text>
+  
+  <rect x="640" y="400" width="100" height="50" fill="#e2e8f0" stroke="#64748b" rx="4"/>
+  <text x="690" y="428" text-anchor="middle" class="label">STOPPED</text>
+  
+  <!-- State transitions -->
+  <line x1="180" y1="355" x2="220" y2="355" stroke="#64748b" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <text x="200" y="345" class="small">Connect</text>
+  
+  <line x1="320" y1="355" x2="360" y2="355" stroke="#64748b" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <text x="340" y="345" class="small">Connected</text>
+  
+  <line x1="460" y1="355" x2="500" y2="355" stroke="#64748b" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <text x="480" y="345" class="small">Buffered</text>
+  
+  <line x1="600" y1="355" x2="640" y2="355" stroke="#64748b" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <text x="620" y="345" class="small">Error</text>
+  
+  <line x1="550" y1="380" x2="550" y2="400" stroke="#64748b" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <text x="560" y="393" class="small">Stop</text>
+  
+  <!-- Features box -->
+  <text x="80" y="410" class="title">关键特性：</text>
+  <text x="80" y="430" class="label">• 多线程架构：网络/解码/渲染分离</text>
+  <text x="80" y="450" class="label">• 缓冲管理：动态调整，防止卡顿</text>
+  <text x="80" y="470" class="label">• 错误处理：自动重连，优雅降级</text>
+</svg>
