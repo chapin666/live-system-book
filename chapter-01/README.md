@@ -1758,6 +1758,30 @@ extern "C" {
 4. **SDL2 渲染**：Window → Renderer → Texture
 5. **Pipeline 架构**：模块化设计，便于维护和扩展
 
+### 🎯 本章里程碑
+
+**学完本章，你能：**
+1. ✅ 播放本地视频文件（MP4、AVI、MKV 等）
+2. ✅ 理解视频压缩的基本原理
+3. ✅ 使用 FFmpeg 核心 API
+4. ✅ 用 SDL2 渲染视频画面
+
+**你的播放器能力：**
+```
+□ 本地文件播放     ✅ 已完成
+□ 异步流畅播放     → 下一章
+□ HTTP网络播放     → Ch3
+□ RTMP直播播放     → Ch4
+```
+
+**示例：你现在可以做什么？**
+```bash
+# 播放任何本地视频
+./simple_player movie.mp4
+./simple_player ~/Downloads/video.avi
+./simple_player /path/to/any/video.mkv
+```
+
 ### 11.2 本章的局限
 
 当前实现是**同步单线程**，存在性能瓶颈：
@@ -1783,9 +1807,10 @@ extern "C" {
 
 **第 2 章预告**：
 - 生产者-消费者队列设计
-- 线程安全的数据结构
+- 线程安全的数据结构（mutex、condition_variable）
 - 帧队列管理（固定大小、超时丢帧）
-- 多线程同步原语（mutex、condition_variable）
+
+💡 **前置知识**：如果你不熟悉 C++11 多线程，请先阅读[附录 A：C++11 线程速成](../appendix-a-cpp11-thread.md)
 
 ---
 
