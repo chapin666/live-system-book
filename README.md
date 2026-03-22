@@ -67,14 +67,6 @@ ffmpeg -f lavfi -i testsrc=duration=10:size=640x480:rate=30 -pix_fmt yuv420p tes
 
 ---
 
-## 📈 Part 1 统计
-
-- **教程**：1.3万行 / 30万字
-- **代码**：6767 行 C++
-- **章节**：12 章 + 3 个项目
-
----
-
 ## 🎯 学习路径
 
 ```
