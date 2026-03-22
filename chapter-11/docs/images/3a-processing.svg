@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <defs>
+    <style>
+      .box { fill: #f0f9ff; stroke: #0369a1; stroke-width: 2; rx: 6; }
+      .process { fill: #fce7f3; stroke: #ec4899; stroke-width: 2; rx: 4; }
+      .input { fill: #fef3c7; stroke: #f59e0b; stroke-width: 2; rx: 4; }
+      .output { fill: #dcfce7; stroke: #22c55e; stroke-width: 2; rx: 4; }
+      .ref { fill: #e0e7ff; stroke: #6366f1; stroke-width: 2; rx: 4; }
+      .arrow { stroke: #64748b; stroke-width: 2; marker-end: url(#arrowhead); }
+      .label { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #334155; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: bold; fill: #0f172a; }
+      .small { font-size: 10px; fill: #64748b; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="500" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="400" y="25" text-anchor="middle" class="title" font-size="18">音频 3A 处理流程</text>
+  
+  <!-- Input -->
+  <rect x="50" y="60" width="120" height="50" class="input"/>
+  <text x="110" y="82" text-anchor="middle" class="label">麦克风输入</text>
+  <text x="110" y="98" text-anchor="middle" class="small">PCM 原始音频</text>
+  
+  <!-- Reference Input -->
+  <rect x="50" y="130" width="120" height="50" class="ref"/>
+  <text x="110" y="152" text-anchor="middle" class="label">扬声器参考</text>
+  <text x="110" y="168" text-anchor="middle" class="small">远端语音信号</text>
+  
+  <!-- AEC Block -->
+  <rect x="220" y="80" width="160" height="80" class="process"/>
+  <text x="300" y="105" text-anchor="middle" class="title">AEC</text>
+  <text x="300" y="123" text-anchor="middle" class="label">回声消除</text>
+  <text x="300" y="138" text-anchor="middle" class="small">Acoustic Echo</text>
+  <text x="300" y="150" text-anchor="middle" class="small">Cancellation</text>
+  
+  <!-- Arrows to AEC -->
+  <line x1="170" y1="85" x2="220" y2="105" class="arrow"/>
+  <text x="195" y="95" class="small">mic</text>
+  
+  <line x1="170" y1="155" x2="220" y2="135" class="arrow"/>
+  <text x="195" y="150" class="small">ref</text>
+  
+  <!-- NS Block -->
+  <rect x="430" y="80" width="160" height="80" class="process"/>
+  <text x="510" y="105" text-anchor="middle" class="title">NS</text>
+  <text x="510" y="123" text-anchor="middle" class="label">降噪</text>
+  <text x="510" y="138" text-anchor="middle" class="small">Noise Suppression</text>
+  <text x="510" y="150" text-anchor="middle" class="small">键盘/空调声</text>
+  
+  <line x1="380" y1="120" x2="430" y2="120" class="arrow"/>
+  
+  <!-- AGC Block -->
+  <rect x="640" y="80" width="140" height="80" class="process"/>
+  <text x="710" y="105" text-anchor="middle" class="title">AGC</text>
+  <text x="710" y="123" text-anchor="middle" class="label">自动增益</text>
+  <text x="710" y="138" text-anchor="middle" class="small">Auto Gain Control</text>
+  <text x="710" y="150" text-anchor="middle" class="small">音量均衡</text>
+  
+  <line x1="590" y1="120" x2="640" y2="120" class="arrow"/>
+  
+  <!-- Output -->
+  <rect x="640" y="200" width="140" height="50" class="output"/>
+  <text x="710" y="222" text-anchor="middle" class="label">处理后音频</text>
+  <text x="710" y="238" text-anchor="middle" class="small">编码 → 传输</text>
+  
+  <line x1="710" y1="160" x2="710" y2="200" class="arrow"/>
+  
+  <!-- AEC Detail -->
+  <rect x="50" y="280" width="350" height="200" class="box"/>
+  <text x="225" y="305" text-anchor="middle" class="title">AEC 回声消除原理</text>
+  
+  <text x="70" y="330" class="label">问题：扬声器声音被麦克风采集，形成回声</text>
+  
+  <rect x="70" y="345" width="120" height="40" class="ref"/>
+  <text x="130" y="362" text-anchor="middle" class="label" font-size="10">参考信号</text>
+  <text x="130" y="375" text-anchor="middle" class="small">扬声器输出</text>
+  
+  <rect x="220" y="345" width="140" height="40" fill="#fae8ff" stroke="#d946ef" rx="2"/>
+  <text x="290" y="362" text-anchor="middle" class="label" font-size="10">自适应滤波器</text>
+  <text x="290" y="375" text-anchor="middle" class="small">估计回声路径</text>
+  
+  <rect x="70" y="405" width="120" height="40" class="input"/>
+  <text x="130" y="422" text-anchor="middle" class="label" font-size="10">麦克风输入</text>
+  <text x="130" y="435" text-anchor="middle" class="small">语音+回声</text>
+  
+  <text x="205" y="430" class="label">−</text>
+  
+  <rect x="240" y="405" width="140" height="40" class="ref"/>
+  <text x="310" y="422" text-anchor="middle" class="label" font-size="10">估计回声</text>
+  <text x="310" y="435" text-anchor="middle" class="small">从滤波器输出</text>
+  
+  <rect x="70" y="460" width="310" height="35" class="output"/>
+  <text x="225" y="480" text-anchor="middle" class="label">纯净语音（回声消除后）</text>
+  
+  <!-- Arrows -->
+  <line x1="130" y1="345" x2="220" y2="355" stroke="#64748b" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <line x1="130" y1="405" x2="130" y2="445" stroke="#64748b" stroke-width="1"/>
+  <line x1="360" y1="365" x2="310" y2="405" stroke="#64748b" stroke-width="1" marker-end="url(#arrowhead)"/>
+  
+  <!-- NS/AGC Detail -->
+  <rect x="420" y="280" width="360" height="200" class="box"/>
+  <text x="600" y="305" text-anchor="middle" class="title">NS + AGC 处理</text>
+  
+  <text x="440" y="330" class="label">NS 降噪：</text>
+  <text x="440" y="348" class="small">• 检测噪声频谱（无声段估计）</text>
+  <text x="440" y="363" class="small">• 频谱减法：信号 − 噪声 ≈ 语音</text>
+  <text x="440" y="378" class="small">• 抑制键盘声、风扇声等稳态噪声</text>
+  
+  <text x="440" y="405" class="label">AGC 自动增益：</text>
+  <text x="440" y="423" class="small">• 检测输入音量（RMS）</text>
+  <text x="440" y="438" class="small">• 目标：−18dB ~ −12dB（舒适范围）</text>
+  <text x="440" y="453" class="small">• 小声放大，大声压缩</text>
+  
+  <!-- WebRTC Box -->
+  <rect x="440" y="470" width="320" height="25" fill="#e0e7ff" stroke="#6366f1" rx="2"/>
+  <text x="600" y="485" text-anchor="middle" class="label" font-size="10">实现：WebRTC APM (Audio Processing Module)</text>
+</svg>

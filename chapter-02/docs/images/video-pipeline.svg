@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" style="background:#fafafa">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0288d1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#388e3c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffb74d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f57c00;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <text x="450" y="35" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">视频播放流程</text>
+  
+  <!-- 文件 -->
+  <rect x="50" y="70" width="140" height="80" rx="8" fill="url(#grad1)" filter="url(#shadow)"/>
+  <text x="120" y="105" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">MP4 文件</text>
+  <text x="120" y="130" text-anchor="middle" font-size="11" fill="#e1f5fe">压缩数据</text>
+  
+  <!-- 箭头1 -->
+  <path d="M 200 110 L 240 110" stroke="#666" stroke-width="3" marker-end="url(#arrow)"/>
+  
+  <!-- Demuxer -->
+  <rect x="250" y="70" width="140" height="80" rx="8" fill="url(#grad2)" filter="url(#shadow)"/>
+  <text x="320" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Demuxer</text>
+  <text x="320" y="120" text-anchor="middle" font-size="11" fill="#e8f5e9">解封装</text>
+  <text x="320" y="138" text-anchor="middle" font-size="10" fill="#c8e6c9">提取视频流</text>
+  
+  <!-- 箭头2 -->
+  <path d="M 400 110 L 440 110" stroke="#666" stroke-width="3" marker-end="url(#arrow)"/>
+  
+  <!-- Decoder -->
+  <rect x="450" y="70" width="140" height="80" rx="8" fill="url(#grad3)" filter="url(#shadow)"/>
+  <text x="520" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Decoder</text>
+  <text x="520" y="120" text-anchor="middle" font-size="11" fill="#fff3e0">解码</text>
+  <text x="520" y="138" text-anchor="middle" font-size="10" fill="#ffe0b2">H.264→YUV</text>
+  
+  <!-- 箭头3 -->
+  <path d="M 600 110 L 640 110" stroke="#666" stroke-width="3" marker-end="url(#arrow)"/>
+  
+  <!-- Renderer -->
+  <rect x="650" y="70" width="140" height="80" rx="8" fill="#ec407a" filter="url(#shadow)"/>
+  <text x="720" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">Renderer</text>
+  <text x="720" y="120" text-anchor="middle" font-size="11" fill="#fce4ec">渲染</text>
+  <text x="720" y="138" text-anchor="middle" font-size="10" fill="#f8bbd9">显示到屏幕</text>
+  
+  <!-- 箭头4 -->
+  <path d="M 800 110 L 840 110" stroke="#666" stroke-width="3" marker-end="url(#arrow)"/>
+  
+  <!-- 屏幕 -->
+  <rect x="850" y="70" width="40" height="80" rx="4" fill="#37474f" stroke="#263238" stroke-width="2"/>
+  <rect x="855" y="80" width="30" height="50" fill="#000"/>
+  
+  <!-- 数据结构说明 -->
+  <rect x="50" y="180" width="800" height="200" rx="8" fill="#fff" stroke="#ddd" stroke-width="1"/>
+  <text x="450" y="205" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">数据流转</text>
+  
+  <!-- 阶段1 -->
+  <rect x="70" y="225" width="180" height="55" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="1"/>
+  <text x="160" y="245" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">输入数据</text>
+  <text x="160" y="265" text-anchor="middle" font-size="10" fill="#666">AVPacket (压缩数据)</text>
+  
+  <!-- 箭头 -->
+  <text x="270" y="258" font-size="16" fill="#666">→</text>
+  
+  <!-- 阶段2 -->
+  <rect x="300" y="225" width="180" height="55" rx="6" fill="#e8f5e9" stroke="#388e3c" stroke-width="1"/>
+  <text x="390" y="245" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">解封装后</text>
+  <text x="390" y="265" text-anchor="middle" font-size="10" fill="#666">AVPacket (纯视频)</text>
+  
+  <!-- 箭头 -->
+  <text x="500" y="258" font-size="16" fill="#666">→</text>
+  
+  <!-- 阶段3 -->
+  <rect x="530" y="225" width="180" height="55" rx="6" fill="#fff3e0" stroke="#f57c00" stroke-width="1"/>
+  <text x="620" y="245" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">解码后</text>
+  <text x="620" y="265" text-anchor="middle" font-size="10" fill="#666">AVFrame (YUV像素)</text>
+  
+  <!-- 箭头 -->
+  <text x="730" y="258" font-size="16" fill="#666">→</text>
+  
+  <!-- 阶段4 -->
+  <rect x="760" y="225" width="70" height="55" rx="6" fill="#fce4ec" stroke="#c2185b" stroke-width="1"/>
+  <text x="795" y="258" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">显示</text>
+  
+  <!-- FFmpeg API 对应 -->
+  <text x="70" y="310" font-size="11" fill="#666" font-weight="bold">FFmpeg API:</text>
+  <text x="70" y="330" font-size="10" fill="#888">avformat_open_input()</text>
+  <text x="70" y="345" font-size="10" fill="#888">av_read_frame()</text>
+  
+  <text x="300" y="310" font-size="11" fill="#666" font-weight="bold">FFmpeg API:</text>
+  <text x="300" y="330" font-size="10" fill="#888">avcodec_send_packet()</text>
+  <text x="300" y="345" font-size="10" fill="#888">avcodec_receive_frame()</text>
+  
+  <text x="530" y="310" font-size="11" fill="#666" font-weight="bold">SDL API:</text>
+  <text x="530" y="330" font-size="10" fill="#888">SDL_UpdateYUVTexture()</text>
+  <text x="530" y="345" font-size="10" fill="#888">SDL_RenderPresent()</text>
+  
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#666"/>
+    </marker>
+  </defs>
+</svg>
