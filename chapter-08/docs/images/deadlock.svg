@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+    <marker id="lockarrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#d32f2f"/>
+    </marker>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="800" height="450" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#333">
+    死锁 (Deadlock) 原理演示
+  </text>
+  
+  <!-- 线程 A -->
+  <g transform="translate(50, 60)">
+    <rect x="0" y="0" width="200" height="140" fill="#e3f2fd" stroke="#2196F3" stroke-width="2" rx="5"/>
+    <text x="100" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1565C0">线程 A</text>
+    
+    <rect x="20" y="40" width="70" height="35" fill="#81C784" stroke="#4CAF50" stroke-width="2" rx="3"/>
+    <text x="55" y="62" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#fff">锁 M1</text>
+    
+    <text x="110" y="62" font-family="Arial, sans-serif" font-size="20" fill="#666">✓</text>
+    
+    <rect x="20" y="85" width="70" height="35" fill="#ef9a9a" stroke="#f44336" stroke-width="2" rx="3" stroke-dasharray="5,3"/>
+    <text x="55" y="107" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#fff">锁 M2</text>
+    
+    <text x="110" y="107" font-family="Arial, sans-serif" font-size="20" fill="#d32f2f">✗</text>
+    
+    <text x="140" y="107" font-family="Arial, sans-serif" font-size="10" fill="#d32f2f">等待中...</text>
+  </g>
+  
+  <!-- 线程 B -->
+  <g transform="translate(550, 60)">
+    <rect x="0" y="0" width="200" height="140" fill="#fff3e0" stroke="#FF9800" stroke-width="2" rx="5"/>
+    <text x="100" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#E65100">线程 B</text>
+    
+    <rect x="20" y="40" width="70" height="35" fill="#81C784" stroke="#4CAF50" stroke-width="2" rx="3"/>
+    <text x="55" y="62" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#fff">锁 M2</text>
+    
+    <text x="110" y="62" font-family="Arial, sans-serif" font-size="20" fill="#666">✓</text>
+    
+    <rect x="20" y="85" width="70" height="35" fill="#ef9a9a" stroke="#f44336" stroke-width="2" rx="3" stroke-dasharray="5,3"/>
+    <text x="55" y="107" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#fff">锁 M1</text>
+    
+    <text x="110" y="107" font-family="Arial, sans-serif" font-size="20" fill="#d32f2f">✗</text>
+    
+    <text x="140" y="107" font-family="Arial, sans-serif" font-size="10" fill="#d32f2f">等待中...</text>
+  </g>
+  
+  <!-- 死锁循环箭头 -->
+  <path d="M 270 150 Q 350 200, 430 150" fill="none" stroke="#d32f2f" stroke-width="3" marker-end="url(#lockarrow)"/>
+  <path d="M 530 150 Q 450 100, 370 150" fill="none" stroke="#d32f2f" stroke-width="3" marker-end="url(#lockarrow)"/>
+  
+  <text x="400" y="145" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#d32f2f">死锁!</text>
+  
+  <!-- 代码示例 -->
+  <g transform="translate(50, 220)">
+    <rect x="0" y="0" width="350" height="100" fill="#263238" rx="5"/>
+    <text x="10" y="20" font-family="monospace" font-size="11" fill="#fff">// 线程 A</text>
+    <text x="10" y="40" font-family="monospace" font-size="11" fill="#9CCC65">mutex1.lock();  // 获得 M1 ✓</text>
+    <text x="10" y="60" font-family="monospace" font-size="11" fill="#ef5350">mutex2.lock();  // 等待 M2...</text>
+    <text x="10" y="85" font-family="monospace" font-size="10" fill="#90a4ae">// 永远不会执行到这里</text>
+  </g>
+  
+  <g transform="translate(400, 220)">
+    <rect x="0" y="0" width="350" height="100" fill="#263238" rx="5"/>
+    <text x="10" y="20" font-family="monospace" font-size="11" fill="#fff">// 线程 B</text>
+    <text x="10" y="40" font-family="monospace" font-size="11" fill="#9CCC65">mutex2.lock();  // 获得 M2 ✓</text>
+    <text x="10" y="60" font-family="monospace" font-size="11" fill="#ef5350">mutex1.lock();  // 等待 M1...</text>
+    <text x="10" y="85" font-family="monospace" font-size="10" fill="#90a4ae">// 永远不会执行到这里</text>
+  </g>
+  
+  <!-- 解决方案 -->
+  <g transform="translate(50, 340)">
+    <rect x="0" y="0" width="700" height="95" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2" rx="5"/>
+    <text x="350" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#2e7d32">解决方案：固定加锁顺序</text>
+    
+    <text x="20" y="50" font-family="monospace" font-size="12" fill="#1b5e20">// 所有线程都按 M1 -> M2 的顺序加锁</text>
+    <text x="20" y="75" font-family="monospace" font-size="12" fill="#1b5e20">std::lock(mutex1, mutex2);  // 或 std::scoped_lock</text>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(rtmp-streamer VERSION 6.0.0 LANGUAGES CXX)
+project(async-player VERSION 2.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,45 +11,33 @@ pkg_check_modules(FFMPEG REQUIRED
     libavformat
     libavcodec
     libavutil
-    libswscale
+)
+find_package(SDL2 REQUIRED)
+
+# 可执行文件
+add_executable(async-player
+    src/main.cpp
+    src/decoder_thread.cpp
+    src/frame_queue.cpp
 )
 
-# ========== 1. 简单RTMP推流器（最小可运行代码）==========
-add_executable(simple_streamer src/simple_streamer.cpp)
-
-target_include_directories(simple_streamer PRIVATE
+target_include_directories(async-player PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${FFMPEG_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIRS}
 )
 
-target_link_libraries(simple_streamer
+target_link_libraries(async-player
     ${FFMPEG_LIBRARIES}
+    SDL2::SDL2
     pthread
 )
 
-# ========== 2. 模块化推流器（工程化版本）==========
-# add_executable(rtmp_streamer
-#     src/main.cpp
-#     src/encoder.cpp
-#     src/flv_muxer.cpp
-#     src/rtmp_sender.cpp
-# )
-# 
-# target_include_directories(rtmp_streamer PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}/include
-#     ${FFMPEG_INCLUDE_DIRS}
-# )
-# 
-# target_link_libraries(rtmp_streamer
-#     ${FFMPEG_LIBRARIES}
-#     pthread
-# )
-
-# 编译选项
-target_compile_options(simple_streamer PRIVATE
+target_compile_options(async-player PRIVATE
     ${FFMPEG_CFLAGS_OTHER}
     -Wall
     -Wextra
 )
 
 # 安装
-install(TARGETS simple_streamer DESTINATION bin)
+install(TARGETS async-player DESTINATION bin)

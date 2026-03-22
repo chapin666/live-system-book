@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+    <linearGradient id="thread1Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#81C784;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="thread2Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2196F3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#64B5F6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="800" height="400" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="400" y="30" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#333">
+    线程生命周期: join() vs detach()
+  </text>
+  
+  <!-- 主线程时间线 -->
+  <text x="50" y="80" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#333">主线程</text>
+  <line x1="120" y1="75" x2="750" y2="75" stroke="#333" stroke-width="2"/>
+  
+  <!-- join 场景 -->
+  <rect x="150" y="110" width="280" height="200" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2" rx="5"/>
+  <text x="290" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#2e7d32">join() 场景</text>
+  
+  <!-- join 子线程 -->
+  <text x="170" y="160" font-family="Arial, sans-serif" font-size="12" fill="#333">子线程</text>
+  <line x1="220" y1="155" x2="380" y2="155" stroke="#4CAF50" stroke-width="2"/>
+  
+  <!-- join 执行流程 -->
+  <rect x="230" y="170" width="60" height="25" fill="#81C784" rx="3"/>
+  <text x="260" y="187" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#fff">创建</text>
+  
+  <rect x="300" y="170" width="60" height="25" fill="#4CAF50" rx="3"/>
+  <text x="330" y="187" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#fff">运行</text>
+  
+  <rect x="230" y="230" width="130" height="30" fill="#FF9800" rx="3"/>
+  <text x="295" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#fff">主线程阻塞等待</text>
+  
+  <rect x="230" y="270" width="60" height="25" fill="#2e7d32" rx="3"/>
+  <text x="260" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#fff">结束</text>
+  
+  <!-- 箭头 -->
+  <line x1="290" y1="182" x2="300" y2="182" stroke="#333" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="330" y1="195" x2="295" y2="230" stroke="#333" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  
+  <!-- join 说明 -->
+  <text x="170" y="315" font-family="Arial, sans-serif" font-size="11" fill="#555">✓ 主线程等待子线程完成</text>
+  <text x="170" y="330" font-family="Arial, sans-serif" font-size="11" fill="#555">✓ 资源自动回收</text>
+  <text x="170" y="345" font-family="Arial, sans-serif" font-size="11" fill="#555">✗ 阻塞主线程</text>
+  
+  <!-- detach 场景 -->
+  <rect x="450" y="110" width="280" height="200" fill="#e3f2fd" stroke="#2196F3" stroke-width="2" rx="5"/>
+  <text x="590" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#1565C0">detach() 场景</text>
+  
+  <!-- detach 子线程 -->
+  <text x="470" y="160" font-family="Arial, sans-serif" font-size="12" fill="#333">子线程</text>
+  <line x1="520" y1="155" x2="700" y2="155" stroke="#2196F3" stroke-width="2"/>
+  
+  <!-- detach 执行流程 -->
+  <rect x="530" y="170" width="60" height="25" fill="#64B5F6" rx="3"/>
+  <text x="560" y="187" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#fff">创建</text>
+  
+  <rect x="600" y="170" width="60" height="25" fill="#2196F3" rx="3"/>
+  <text x="630" y="187" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#fff">detach</text>
+  
+  <rect x="530" y="230" width="130" height="30" fill="#4CAF50" rx="3"/>
+  <text x="595" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#fff">主线程继续执行</text>
+  
+  <rect x="600" y="270" width="80" height="25" fill="#1565C0" rx="3"/>
+  <text x="640" y="285" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="#fff">后台运行</text>
+  
+  <!-- 箭头 -->
+  <line x1="590" y1="182" x2="600" y2="182" stroke="#333" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <line x1="630" y1="195" x2="595" y2="230" stroke="#333" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  
+  <!-- detach 说明 -->
+  <text x="470" y="315" font-family="Arial, sans-serif" font-size="11" fill="#555">✓ 主线程不阻塞</text>
+  <text x="470" y="330" font-family="Arial, sans-serif" font-size="11" fill="#555">✓ 适合后台任务</text>
+  <text x="470" y="345" font-family="Arial, sans-serif" font-size="11" fill="#555">✗ 无法获取返回值</text>
+  <text x="470" y="360" font-family="Arial, sans-serif" font-size="11" fill="#d32f2f">✗ 小心悬空引用!</text>
+  
+  <!-- 底部提示 -->
+  <text x="400" y="390" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#666">
+    音视频场景: 播放器解码线程通常用 join，后台日志线程可用 detach
+  </text>
+</svg>

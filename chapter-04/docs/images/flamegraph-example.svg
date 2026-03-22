@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <!-- 背景 -->
+  <rect width="800" height="500" fill="#1a1a2e"/>
+  
+  <!-- 标题 -->
+  <text x="400" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#eee">
+    火焰图示例：视频播放器性能分析
+  </text>
+  <text x="400" y="50" text-anchor="middle" font-size="12" fill="#888">
+    宽度 = CPU占用比例 | 从上到下 = 调用栈
+  </text>
+  
+  <!-- 火焰图主体 -->
+  <g transform="translate(50, 70)">
+    <!-- 底层：main -->
+    <rect x="0" y="300" width="700" height="50" fill="#ff6b6b" stroke="#fff" stroke-width="0.5"/>
+    <text x="350" y="330" text-anchor="middle" font-size="12" fill="#fff">main() (100%)</text>
+    
+    <!-- 第二层：run_player -->
+    <rect x="0" y="250" width="700" height="50" fill="#4ecdc4" stroke="#fff" stroke-width="0.5"/>
+    <text x="350" y="280" text-anchor="middle" font-size="12" fill="#fff">run_player() (100%)</text>
+    
+    <!-- 第三层：三大模块 -->
+    <!-- 解码模块 (45%) -->
+    <rect x="0" y="200" width="315" height="50" fill="#45b7d1" stroke="#fff" stroke-width="0.5"/>
+    <text x="157" y="230" text-anchor="middle" font-size="12" fill="#fff">decode_frame() (45%)</text>
+    
+    <!-- 渲染模块 (25%) -->
+    <rect x="315" y="200" width="175" height="50" fill="#96ceb4" stroke="#fff" stroke-width="0.5"/>
+    <text x="402" y="230" text-anchor="middle" font-size="12" fill="#fff">render_frame() (25%)</text>
+    
+    <!-- 其他 (30%) -->
+    <rect x="490" y="200" width="210" height="50" fill="#dfe6e9" stroke="#fff" stroke-width="0.5"/>
+    <text x="595" y="230" text-anchor="middle" font-size="12" fill="#333">其他 (30%)</text>
+    
+    <!-- 解码层细分 -->
+    <!-- avcodec_receive_frame (30%) -->
+    <rect x="0" y="150" width="210" height="50" fill="#3498db" stroke="#fff" stroke-width="0.5"/>
+    <text x="105" y="180" text-anchor="middle" font-size="11" fill="#fff">avcodec_receive_frame() (30%)</text>
+    
+    <!-- 预处理 (10%) -->
+    <rect x="210" y="150" width="70" height="50" fill="#5dade2" stroke="#fff" stroke-width="0.5"/>
+    <text x="245" y="175" text-anchor="middle" font-size="10" fill="#fff">预处理</text>
+    <text x="245" y="188" text-anchor="middle" font-size="9" fill="#fff">(10%)</text>
+    
+    <!-- 其他解码 (5%) -->
+    <rect x="280" y="150" width="35" height="50" fill="#85c1e9" stroke="#fff" stroke-width="0.5"/>
+    <text x="297" y="180" text-anchor="middle" font-size="9" fill="#fff">其他</text>
+    
+    <!-- 渲染层细分 -->
+    <!-- SDL_UpdateYUVTexture (15%) -->
+    <rect x="315" y="150" width="105" height="50" fill="#58d68d" stroke="#fff" stroke-width="0.5"/>
+    <text x="367" y="180" text-anchor="middle" font-size="10" fill="#fff">SDL_UpdateYUVTexture() (15%)</text>
+    
+    <!-- SDL_RenderPresent (8%) -->
+    <rect x="420" y="150" width="56" height="50" fill="#82e0aa" stroke="#fff" stroke-width="0.5"/>
+    <text x="448" y="180" text-anchor="middle" font-size="10" fill="#333">Present (8%)</text>
+    
+    <!-- 其他渲染 (2%) -->
+    <rect x="476" y="150" width="14" height="50" fill="#abebc6" stroke="#fff" stroke-width="0.5"/>
+    
+    <!-- 最深层：解码器内部 -->
+    <!-- 运动补偿 (12%) -->
+    <rect x="0" y="100" width="84" height="50" fill="#2980b9" stroke="#fff" stroke-width="0.5"/>
+    <text x="42" y="130" text-anchor="middle" font-size="10" fill="#fff">运动补偿 (12%)</text>
+    
+    <!-- IDCT (10%) -->
+    <rect x="84" y="100" width="70" height="50" fill="#2e86c1" stroke="#fff" stroke-width="0.5"/>
+    <text x="119" y="130" text-anchor="middle" font-size="10" fill="#fff">IDCT (10%)</text>
+    
+    <!-- 环路滤波 (5%) -->
+    <rect x="154" y="100" width="35" height="50" fill="#5499c7" stroke="#fff" stroke-width="0.5"/>
+    <text x="171" y="130" text-anchor="middle" font-size="9" fill="#fff">滤波 (5%)</text>
+    
+    <!-- 熵解码 (3%) -->
+    <rect x="189" y="100" width="21" height="50" fill="#7fb3d5" stroke="#fff" stroke-width="0.5"/>
+    <text x="199" y="130" text-anchor="middle" font-size="8" fill="#fff">熵解码</text>
+    
+    <!-- 纹理上传细分 -->
+    <!-- GPU上传 (10%) -->
+    <rect x="315" y="100" width="70" height="50" fill="#27ae60" stroke="#fff" stroke-width="0.5"/>
+    <text x="350" y="130" text-anchor="middle" font-size="10" fill="#fff">GPU上传 (10%)</text>
+    
+    <!-- 格式转换 (5%) -->
+    <rect x="385" y="100" width="35" height="50" fill="#2ecc71" stroke="#fff" stroke-width="0.5"/>
+    <text x="402" y="130" text-anchor="middle" font-size="9" fill="#fff">格式转换</text>
+  </g>
+  
+  <!-- 右侧：图例 -->
+  <g transform="translate(600, 100)">
+    <text x="0" y="0" font-size="12" font-weight="bold" fill="#eee">图例</text>
+    
+    <rect x="0" y="15" width="20" height="15" fill="#ff6b6b"/>
+    <text x="28" y="27" font-size="11" fill="#ccc">主函数</text>
+    
+    <rect x="0" y="40" width="20" height="15" fill="#45b7d1"/>
+    <text x="28" y="52" font-size="11" fill="#ccc">解码相关</text>
+    
+    <rect x="0" y="65" width="20" height="15" fill="#96ceb4"/>
+    <text x="28" y="77" font-size="11" fill="#ccc">渲染相关</text>
+    
+    <rect x="0" y="90" width="20" height="15" fill="#dfe6e9"/>
+    <text x="28" y="102" font-size="11" fill="#ccc">其他</text>
+  </g>
+  
+  <!-- 底部：优化建议 -->
+  <g transform="translate(50, 420)">
+    <rect x="0" y="0" width="700" height="70" rx="4" fill="#2c3e50" stroke="#4ecdc4" stroke-width="1"/>
+    <text x="350" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#4ecdc4">优化建议</text>
+    <text x="20" y="45" font-size="11" fill="#ccc">• 解码占45% → 启用多线程解码或硬件解码</text>
+    <text x="20" y="60" font-size="11" fill="#ccc">• 纹理上传占15% → 考虑零拷贝渲染</text>
+  </g>
+</svg>

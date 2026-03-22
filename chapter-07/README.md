@@ -1,1026 +1,1122 @@
-# 第七章：硬件解码与 4K 播放
+# 第三章：网络基础
 
-> **本章目标**：实现硬件解码播放器，支持 4K@60fps 流畅播放，CPU 占用低于 15%。
+> **本章目标**：将本地播放器扩展为网络播放器，学习 HTTP 下载、断点续传、环形缓冲区等核心概念。
 
-前六章完成了完整的直播系统：
-- 前四章实现**观众端**播放器（本地播放、异步、网络、RTMP 拉流）
-- 第五章实现主播端**采集与 3A 处理**
-- 第六章实现主播端**编码与推流**
+第二章实现了异步播放器，但只能播放本地文件。本章将引入**网络下载能力**，让播放器能够从 HTTP 服务器获取视频数据。
 
-在**播放端**，软件解码在 1080p 场景下 CPU 占用 30-50%，尚可接受。但当分辨率提升到 4K（3840x2160）时：
-
-- **4K 数据量**：是 1080p 的 4 倍
-- **软件解码 CPU 占用**：80-100%，严重卡顿
-- **硬件解码 CPU 占用**：5-10%，流畅播放
-
-本章将引入**硬件解码**——利用 GPU 的专用视频解码电路，大幅降低 CPU 负担。
+网络播放与本地播放最大的区别是：**数据不是立即可得的**。我们需要等待下载、处理超时、实现断点续传。这些挑战将引出**环形缓冲区**这一重要数据结构。
 
 **阅读指南**：
-- 第 1-3 节：理解软件解码的瓶颈，硬件解码原理，各平台方案对比
-- 第 4-6 节：详细实现 macOS VideoToolbox、Linux VAAPI/NVDEC
-- 第 7-8 节：硬件解码器封装、零拷贝渲染优化
-- 第 9-10 节：性能测试、降级策略、本章总结
+- 第 1-2 节：理解 TCP/HTTP 基础，区分流式下载和分块下载
+- 第 3-5 节：学习环形缓冲区设计，实现下载线程
+- 第 6-7 节：整合网络模块到播放器，实现边下边播
+- 第 8-9 节：错误处理、性能优化、常见问题
 
 ---
 
 ## 目录
 
-1. [软件解码的瓶颈：4K 之痛](#1-软件解码的瓶颈4k-之痛)
-2. [硬件解码原理](#2-硬件解码原理)
-3. [各平台硬件解码方案](#3-各平台硬件解码方案)
-4. [macOS：VideoToolbox 详解](#4-macosvideotoolbox-详解)
-5. [Linux：VAAPI 详解](#5-linuxvaapi-详解)
-6. [Linux：NVDEC 详解](#6-linuxnvdec-详解)
-7. [统一硬件解码器封装](#7-统一硬件解码器封装)
-8. [零拷贝渲染优化](#8-零拷贝渲染优化)
-9. [性能测试与对比](#9-性能测试与对比)
-10. [降级策略与容错](#10-降级策略与容错)
-11. [本章总结](#11-本章总结)
+1. [为什么需要网络下载：从本地到网络](#1-为什么需要网络下载从本地到网络)
+2. [HTTP 协议基础](#2-http-协议基础)
+3. [下载策略：流式 vs 分块](#3-下载策略流式-vs-分块)
+4. [环形缓冲区设计](#4-环形缓冲区设计)
+5. [下载线程实现](#5-下载线程实现)
+6. [整合：网络播放器](#6-整合网络播放器)
+7. [断点续传与 seek](#7-断点续传与-seek)
+8. [性能优化](#8-性能优化)
+9. [本章总结与下一步](#9-本章总结与下一步)
 
 ---
 
-## 1. 软件解码的瓶颈：4K 之痛
+## 1. 为什么需要网络下载：从本地到网络
 
-**本节概览**：通过实测数据，展示软件解码在 4K 场景下的性能瓶颈。
+**本节概览**：对比本地文件播放和网络播放的差异，理解网络引入的新挑战。
 
-### 1.1 视频解码的计算量
+### 1.1 本地 vs 网络的本质区别
 
-视频解码是计算密集型任务，主要开销来自：
-
-| 操作 | 计算复杂度 | 说明 |
-|:---|:---:|:---|
-| **运动补偿** | O(n) | 像素块匹配、插值 |
-| **IDCT** | O(n log n) | 逆离散余弦变换 |
-| **去块滤波** | O(n) | 消除块效应 |
-| **熵解码** | O(n) | CABAC/CAVLC 解码 |
-
-### 1.2 不同分辨率的计算量
-
-假设 30fps：
-
-| 分辨率 | 像素数/帧 | 相对计算量 | 1080p 对比 |
-|:---|:---:|:---:|:---:|
-| 720p | 92万 | 1x | 1/2.25 |
-| 1080p | 207万 | 2.25x | 1x |
-| 4K | 829万 | 9x | 4x |
-| 8K | 3318万 | 36x | 16x |
-
-### 1.3 软件解码实测数据
-
-**测试环境**：Intel i7-9700K（8核 3.6GHz）
-
-| 分辨率 | 编码 | 帧率 | CPU 占用 | 解码帧率 | 是否流畅 |
-|:---|:---|:---:|:---:|:---:|:---:|
-| 1080p | H.264 | 30 | 35% | 60fps | ✅ |
-| 1080p | H.265 | 30 | 55% | 45fps | ✅ |
-| 4K | H.264 | 30 | 85% | 35fps | ❌ 卡顿 |
-| 4K | H.265 | 30 | 100% | 25fps | ❌ 严重卡顿 |
-
-**问题分析**：
-- 4K H.264 软件解码帧率（35fps）低于播放帧率（30fps），勉强能播但无缓冲余量
-- 4K H.265 解码帧率（25fps）低于播放帧率，必然卡顿
-
-### 1.4 为什么硬件解码更快
-
-GPU 有专门的视频解码单元（NVDEC/VideoToolbox/VAAPI）：
-
+**本地文件播放**（第一章）：
 ```
-CPU（软件解码）：
-通用指令 → 逐个像素计算 → 串行执行
-
-GPU（硬件解码）：
-专用电路 → 并行处理多个宏块 → 固定功能管线
+文件在磁盘 → 读取速度 100-500 MB/s → 立即可用 → 简单顺序读取
 ```
 
-**硬件解码优势**：
-- **并行度**：同时处理数十个宏块
-- **功耗**：专用电路比 CPU 省电 50-80%
-- **延迟**：硬件管线固定，延迟可预测
-
-**本节小结**：4K 软件解码不可行，必须借助硬件解码。下一节介绍硬件解码原理。
-
----
-
-## 2. 硬件解码原理
-
-**本节概览**：介绍硬件解码的工作原理、显存管理、以及与软件解码的区别。
-
-![硬件解码管线](docs/images/hw-decode-pipeline.svg)
-
-### 2.1 硬件解码管线
-
+**网络视频播放**（本章）：
 ```
-压缩数据 (H.264/H.265)
-    ↓
-┌─────────────────────────────┐
-│      GPU 视频解码单元        │
-│  ┌─────────────────────┐    │
-│  │ 1. 熵解码 (VLD)     │    │
-│  │ 2. 反量化 (IQ)      │    │
-│  │ 3. IDCT             │    │
-│  │ 4. 运动补偿 (MC)    │    │
-│  │ 5. 去块滤波 (DF)    │    │
-│  └─────────────────────┘    │
-└─────────────────────────────┘
-    ↓
-显存中的 YUV 帧 (GPU 内存)
-    ↓
-可选：
-  A. 直接渲染（零拷贝）
-  B. 读回系统内存 → CPU 处理
+文件在远程服务器 → 下载速度 1-10 MB/s → 需要等待 → 异步下载+缓冲
 ```
 
-### 2.2 显存 vs 系统内存
+**关键差异**：
 
-| 特性 | 系统内存 (RAM) | 显存 (VRAM) |
+| 维度 | 本地文件 | 网络下载 |
 |:---|:---|:---|
-| **位置** | 主板 | GPU 芯片 |
-| **容量** | 16-64 GB | 4-16 GB |
-| **CPU 访问** | 快 | 慢（需 PCIe）|
-| **GPU 访问** | 慢 | 快 |
+| **延迟** | 微秒级 | 毫秒-秒级 |
+| **速度** | 稳定快速 | 波动且慢 10-100 倍 |
+| **可靠性** | 几乎不失败 | 可能超时、断开 |
+| **随机访问** | 立即 seek | 需要重新连接/下载 |
+| **数据模型** | 完整的文件 | 流式或分块数据 |
 
-**数据拷贝代价**：
-- 1080p YUV420P 帧大小：1920 × 1080 × 1.5 = 3 MB
-- 4K YUV420P 帧大小：3840 × 2160 × 1.5 = 12 MB
-- PCIe 带宽：~16 GB/s
-- 拷贝 4K 帧耗时：12MB / 16GB/s = 0.75ms
+### 1.2 网络播放的挑战
 
-### 2.3 硬件解码 vs 软件解码对比
+**挑战一：下载速度 < 播放速度**
 
-| 维度 | 软件解码 | 硬件解码 |
+```
+视频码率：4 Mbps (0.5 MB/s)
+网络速度：1 Mbps (0.125 MB/s) - 弱网环境
+
+结果：下载跟不上播放，必须暂停等待缓冲
+```
+
+**挑战二：网络波动**
+
+```
+时间线：
+0-5s:   下载速度 10 MB/s (流畅)
+5-10s:  下载速度 0.1 MB/s (卡顿)
+10-15s: 下载速度 5 MB/s (恢复)
+
+需要：缓冲机制平滑波动
+```
+
+**挑战三：用户 seek**
+
+```
+用户拖动进度条到 50% → 
+需要：中断当前下载，从 50% 位置开始新下载
+```
+
+### 1.3 解决方案概览
+
+<img src="docs/images/network-player-arch.svg" width="100%"/>
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     网络播放器架构                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────┐  │
+│  │  下载线程    │──────→│  环形缓冲区  │──────→│  解码器  │  │
+│  │  (HTTP)      │      │  (RingBuffer)│      │          │  │
+│  └──────────────┘      └──────────────┘      └──────────┘  │
+│         ↑                                              │    │
+│         │                                              ↓    │
+│    控制命令                                       渲染显示  │
+│  (seek/暂停)                                                │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**核心组件**：
+1. **下载线程**：负责 HTTP 通信，持续拉取数据
+2. **环形缓冲区**：临时存储下载的数据，平滑速度差异
+3. **缓冲管理**：控制播放节奏（缓冲足够才播放，不足则暂停）
+
+**本节小结**：网络播放面临速度慢、波动大、不可靠等挑战。解决方案是异步下载 + 环形缓冲区 + 缓冲控制。下一节将学习 HTTP 协议基础。
+
+### 1.3 三层缓冲架构详解
+
+网络播放器需要**两层缓冲**协同工作，注意不要与第2章的 `FrameQueue` 混淆：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  应用层: 帧队列 FrameQueue (AVFrame*)                       │ ← 第2章已讲
+│  作用: 存储解码后的视频帧，平滑解码耗时波动                  │
+│  数据: 原始像素 (YUV/RGB)                                   │
+│  大小: 3-5 帧（约 100-200ms）                               │
+├─────────────────────────────────────────────────────────────┤
+│  网络层: 环形缓冲区 RingBuffer (uint8_t*)                   │ ← 本章新增
+│  作用: 存储下载的压缩数据，平滑网络速度波动                  │
+│  数据: 压缩码流 (H.264/AAC in FLV/MP4)                      │
+│  大小: 2-5 秒（由带宽和码率决定）                           │
+├─────────────────────────────────────────────────────────────┤
+│  传输层: HTTP 下载线程 (libcurl)                            │ ← 本章新增
+│  作用: 从远程服务器拉取压缩数据                              │
+│  协议: HTTP/1.1, Range 请求, 断点续传                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**关键理解**：
+- `FrameQueue`（第2章）存储的是**解码后的帧**，供渲染线程使用
+- `RingBuffer`（本章）存储的是**压缩的数据**，供解码器读取
+- 两者是**串联关系**：网络数据 → RingBuffer → 解码器 → FrameQueue → 渲染
+
+---
+
+## 2. HTTP 协议基础
+
+**本节概览**：HTTP 是视频下载的基础协议。本节介绍 HTTP 请求格式、Range 请求（断点续传）、以及响应状态码。
+
+### 2.1 HTTP 请求格式
+
+HTTP 请求是纯文本格式：
+
+```http
+GET /video.mp4 HTTP/1.1\r\n
+Host: example.com\r\n
+User-Agent: LivePlayer/1.0\r\n
+\r\n
+```
+
+**组成部分**：
+- **请求行**：方法 + 路径 + 协议版本
+- **请求头**：键值对，提供额外信息
+- **空行**：表示头部结束
+- **请求体**：GET 请求为空，POST 请求包含数据
+
+### 2.2 Range 请求：断点续传的核心
+
+标准 HTTP 下载从文件开头获取所有数据。但如果想从中间开始（如 seek 到 50%），需要使用 **Range 请求**。
+
+**请求**：
+```http
+GET /video.mp4 HTTP/1.1
+Host: example.com
+Range: bytes=1024-2047
+```
+
+**响应**：
+```http
+HTTP/1.1 206 Partial Content
+Content-Range: bytes 1024-2047/1048576
+Content-Length: 1024
+
+[二进制数据...]
+```
+
+**关键头字段**：
+
+| 头字段 | 含义 | 示例 |
 |:---|:---|:---|
-| **兼容性** | 所有格式 | 有限（需 GPU 支持）|
-| **质量** | 最高（算法灵活）| 良好（固定算法）|
-| **CPU 占用** | 高 | 低（< 15%）|
-| **功耗** | 高 | 低 |
-| **延迟** | 可变 | 固定 |
-| **错误恢复** | 好（可跳过宏块）| 差（可能整帧丢弃）|
+| `Range` | 请求的字节范围 | `bytes=0-1023` |
+| `Content-Range` | 响应的实际范围 | `bytes 0-1023/4096` |
+| `Content-Length` | 本次传输的字节数 | `1024` |
+| `206` | 状态码，表示部分内容 | - |
 
-**本节小结**：硬件解码利用 GPU 专用电路，速度快功耗低。主要局限是格式兼容性。下一节介绍各平台方案。
+### 2.3 常用状态码
 
----
+| 状态码 | 含义 | 播放器处理 |
+|:---:|:---|:---|
+| `200 OK` | 请求成功 | 正常处理 |
+| `206 Partial Content` | Range 请求成功 | 正常处理 |
+| `301/302` | 重定向 | 跟随 Location 头重新请求 |
+| `404 Not Found` | 文件不存在 | 报错提示用户 |
+| `416 Range Not Satisfiable` | Range 范围无效 | 回退到普通下载 |
 
-## 3. 各平台硬件解码方案
+### 2.4 使用 libcurl 进行 HTTP 请求
 
-**本节概览**：对比 Windows、macOS、Linux、移动端的主流硬件解码方案。
-
-### 3.1 方案总览
-
-| 平台 | API | GPU 厂商 | 支持格式 |
-|:---|:---|:---|:---|
-| **macOS/iOS** | VideoToolbox | Apple | H.264, H.265, ProRes |
-| **Windows** | D3D11VA/DXVA2 | NVIDIA/AMD/Intel | H.264, H.265, VP9, AV1 |
-| **Linux** | VAAPI | Intel/AMD | H.264, H.265, VP8/9 |
-| **Linux** | NVDEC | NVIDIA | H.264, H.265, VP9, AV1 |
-| **Android** | MediaCodec | 各厂商 | H.264, H.265, VP8/9 |
-
-### 3.2 FFmpeg 硬件解码支持
-
-FFmpeg 提供了统一的硬件解码接口：
+手动构造 HTTP 请求繁琐且容易出错。我们使用 **libcurl** 库：
 
 ```cpp
-// 硬件设备类型枚举
-typedef enum AVHWDeviceType {
-    AV_HWDEVICE_TYPE_NONE,
-    AV_HWDEVICE_TYPE_VDPAU,        // Linux NVIDIA (旧)
-    AV_HWDEVICE_TYPE_CUDA,         // NVIDIA NVDEC
-    AV_HWDEVICE_TYPE_VAAPI,        // Linux Intel/AMD
-    AV_HWDEVICE_TYPE_DXVA2,        // Windows
-    AV_HWDEVICE_TYPE_QSV,          // Intel QuickSync
-    AV_HWDEVICE_TYPE_VIDEOTOOLBOX, // macOS/iOS
-    AV_HWDEVICE_TYPE_D3D11VA,      // Windows
-    AV_HWDEVICE_TYPE_DRM,          // Linux DRM
-    AV_HWDEVICE_TYPE_OPENCL,
-    AV_HWDEVICE_TYPE_MEDIACODEC,   // Android
-} AVHWDeviceType;
-```
+#include <curl/curl.h>
 
-### 3.3 解码器名称对照
+// 下载回调：每收到一块数据就调用
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+    size_t total_size = size * nmemb;
+    auto* buffer = static_cast<RingBuffer*>(userp);
+    buffer->Write(contents, total_size);
+    return total_size;  // 返回处理的数据量
+}
 
-| 编码 | 软件解码器 | VideoToolbox | VAAPI | NVDEC |
-|:---|:---|:---|:---|:---|
-| H.264 | h264 | h264_videotoolbox | h264_vaapi | h264_nvdec |
-| H.265 | hevc | hevc_videotoolbox | hevc_vaapi | hevc_nvdec |
-| VP9 | vp9 | - | vp9_vaapi | vp9_nvdec |
-| AV1 | av1 | - | - | av1_nvdec |
-
-**本节小结**：各平台有自己的硬件解码 API，FFmpeg 提供了统一封装。Linux 上优先使用 NVDEC（NVIDIA）或 VAAPI（Intel/AMD）。下一节详细实现 VideoToolbox。
-
----
-
-## 4. macOS：VideoToolbox 详解
-
-**本节概览**：VideoToolbox 是 macOS/iOS 的原生硬件编解码框架。本节详细介绍其使用方法。
-
-### 4.1 VideoToolbox 简介
-
-VideoToolbox 提供：
-- **硬件编码**：H.264/H.265 视频编码
-- **硬件解码**：H.264/H.265/ProRes 视频解码
-- **会话管理**：编码/解码会话的生命周期管理
-- **像素格式转换**：GPU 显存与系统内存之间的数据传输
-
-### 4.2 FFmpeg 使用 VideoToolbox
-
-```cpp
-#include <libavcodec/avcodec.h>
-#include <libavutil/hwcontext.h>
-#include <libavutil/pixdesc.h>
-#include <iostream>
-
-class VideoToolboxDecoder {
-public:
-    bool Init(AVCodecID codec_id) {
-        // 1. 查找硬件解码器
-        const char* decoder_name = nullptr;
-        if (codec_id == AV_CODEC_ID_H264) {
-            decoder_name = "h264_videotoolbox";
-        } else if (codec_id == AV_CODEC_ID_HEVC) {
-            decoder_name = "hevc_videotoolbox";
-        } else {
-            std::cerr << "[VideoToolbox] Unsupported codec" << std::endl;
-            return false;
-        }
-        
-        codec_ = avcodec_find_decoder_by_name(decoder_name);
-        if (!codec_) {
-            std::cerr << "[VideoToolbox] Decoder not found: " << decoder_name << std::endl;
-            return false;
-        }
-        
-        // 2. 创建硬件设备上下文
-        int ret = av_hwdevice_ctx_create(
-            &hw_device_ctx_,
-            AV_HWDEVICE_TYPE_VIDEOTOOLBOX,
-            nullptr, nullptr, 0);
-        if (ret < 0) {
-            char errbuf[256];
-            av_strerror(ret, errbuf, sizeof(errbuf));
-            std::cerr << "[VideoToolbox] Failed to create device: " << errbuf << std::endl;
-            return false;
-        }
-        
-        // 3. 创建解码器上下文
-        ctx_ = avcodec_alloc_context3(codec_);
-        if (!ctx_) {
-            std::cerr << "[VideoToolbox] Failed to allocate context" << std::endl;
-            return false;
-        }
-        
-        ctx_>hw_device_ctx = av_buffer_ref(hw_device_ctx_);
-        
-        // 4. 打开解码器
-        ret = avcodec_open2(ctx_, codec_, nullptr);
-        if (ret < 0) {
-            char errbuf[256];
-            av_strerror(ret, errbuf, sizeof(errbuf));
-            std::cerr << "[VideoToolbox] Failed to open codec: " << errbuf << std::endl;
-            return false;
-        }
-        
-        std::cout << "[VideoToolbox] Decoder initialized: " << decoder_name << std::endl;
-        return true;
+// 发起 HTTP 请求
+void Download(const std::string& url, int64_t start_pos, RingBuffer* buffer) {
+    CURL* curl = curl_easy_init();
+    
+    // 设置 URL
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    
+    // 设置 Range
+    char range[64];
+    snprintf(range, sizeof(range), "%ld-", start_pos);
+    curl_easy_setopt(curl, CURLOPT_RANGE, range);
+    
+    // 设置回调
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, buffer);
+    
+    // 设置超时
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 0L);  // 无总超时（流式）
+    
+    // 执行请求
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        fprintf(stderr, "Download failed: %s\n", curl_easy_strerror(res));
     }
     
-    AVFrame* Decode(AVPacket* pkt) {
-        int ret = avcodec_send_packet(ctx_, pkt);
-        if (ret < 0) {
-            return nullptr;
-        }
-        
-        AVFrame* frame = av_frame_alloc();
-        ret = avcodec_receive_frame(ctx_, frame);
-        if (ret < 0) {
-            av_frame_free(&frame);
-            return nullptr;
-        }
-        
-        // frame->format 可能是 AV_PIX_FMT_VIDEOTOOLBOX
-        // 表示数据在 GPU 显存中（CVPixelBuffer）
-        return frame;
-    }
-    
-    // 将 GPU 帧转移到系统内存
-    AVFrame* TransferToSystemMemory(AVFrame* hw_frame) {
-        if (hw_frame->format != AV_PIX_FMT_VIDEOTOOLBOX) {
-            // 已经在系统内存
-            return hw_frame;
-        }
-        
-        AVFrame* sw_frame = av_frame_alloc();
-        int ret = av_hwframe_transfer_data(sw_frame, hw_frame, 0);
-        if (ret < 0) {
-            av_frame_free(&sw_frame);
-            return nullptr;
-        }
-        
-        av_frame_copy_props(sw_frame, hw_frame);
-        return sw_frame;
-    }
-    
-    ~VideoToolboxDecoder() {
-        if (ctx_) {
-            avcodec_free_context(&ctx_);
-        }
-        if (hw_device_ctx_) {
-            av_buffer_unref(&hw_device_ctx_);
-        }
-    }
-
-private:
-    const AVCodec* codec_ = nullptr;
-    AVCodecContext* ctx_ = nullptr;
-    AVBufferRef* hw_device_ctx_ = nullptr;
-};
-```
-
-### 4.3 支持的像素格式
-
-VideoToolbox 解码输出格式：
-
-| FFmpeg 格式 | 说明 | 用途 |
-|:---|:---|:---|
-| `AV_PIX_FMT_VIDEOTOOLBOX` | GPU 显存（CVPixelBuffer）| 零拷贝渲染 |
-| `AV_PIX_FMT_YUV420P` | 系统内存 YUV420P | 通用处理 |
-| `AV_PIX_FMT_NV12` | 系统内存 NV12 | 高效格式 |
-
-**本节小结**：VideoToolbox 通过 FFmpeg 的 hwcontext 接口使用。解码输出可能在 GPU 显存，需要 transfer 到系统内存才能用 SDL 渲染。下一节介绍 Linux VAAPI。
-
----
-
-## 5. Linux：VAAPI 详解
-
-**本节概览**：VAAPI（Video Acceleration API）是 Intel 主导的硬件加速接口，支持 Intel 和 AMD 显卡。
-
-### 5.1 VAAPI 简介
-
-VAAPI 特点：
-- **开源**：Linux 原生支持，无需专有驱动
-- **通用**：支持 Intel、AMD、部分 ARM 芯片
-- **功能丰富**：支持解码、编码、视频处理（去噪、缩放）
-
-### 5.2 系统要求
-
-**Intel 显卡**：
-```bash
-# 安装驱动
-sudo apt install intel-media-va-driver vainfo
-
-# 验证
-vainfo
-# 应显示 VAProfileH264High 等配置
-```
-
-**AMD 显卡**：
-```bash
-sudo apt install mesa-va-drivers vainfo
-```
-
-### 5.3 FFmpeg 使用 VAAPI
-
-```cpp
-#include <libavcodec/avcodec.h>
-#include <libavutil/hwcontext.h>
-#include <iostream>
-
-class VAAPIDecoder {
-public:
-    bool Init(AVCodecID codec_id, const std::string& device = "") {
-        // 1. 选择解码器
-        const char* decoder_name = nullptr;
-        if (codec_id == AV_CODEC_ID_H264) {
-            decoder_name = "h264_vaapi";
-        } else if (codec_id == AV_CODEC_ID_HEVC) {
-            decoder_name = "hevc_vaapi";
-        } else {
-            return false;
-        }
-        
-        codec_ = avcodec_find_decoder_by_name(decoder_name);
-        if (!codec_) {
-            std::cerr << "[VAAPI] Decoder not found: " << decoder_name << std::endl;
-            return false;
-        }
-        
-        // 2. 创建 VAAPI 设备上下文
-        // device 可以是 "/dev/dri/renderD128" 或空（自动选择）
-        int ret = av_hwdevice_ctx_create(
-            &hw_device_ctx_,
-            AV_HWDEVICE_TYPE_VAAPI,
-            device.empty() ? nullptr : device.c_str(),
-            nullptr, 0);
-        if (ret < 0) {
-            char errbuf[256];
-            av_strerror(ret, errbuf, sizeof(errbuf));
-            std::cerr << "[VAAPI] Failed to create device: " << errbuf << std::endl;
-            return false;
-        }
-        
-        // 3. 创建解码器上下文
-        ctx_ = avcodec_alloc_context3(codec_);
-        ctx_>hw_device_ctx = av_buffer_ref(hw_device_ctx_);
-        
-        // 4. 打开解码器
-        ret = avcodec_open2(ctx_, codec_, nullptr);
-        if (ret < 0) {
-            std::cerr << "[VAAPI] Failed to open codec" << std::endl;
-            return false;
-        }
-        
-        std::cout << "[VAAPI] Decoder initialized on " << 
-            (device.empty() ? "default device" : device) << std::endl;
-        return true;
-    }
-    
-    ~VAAPIDecoder() {
-        if (ctx_) avcodec_free_context(&ctx_);
-        if (hw_device_ctx_) av_buffer_unref(&hw_device_ctx_);
-    }
-
-private:
-    const AVCodec* codec_ = nullptr;
-    AVCodecContext* ctx_ = nullptr;
-    AVBufferRef* hw_device_ctx_ = nullptr;
-};
-```
-
-### 5.4 多显卡选择
-
-```cpp
-// 列出可用设备
-std::vector<std::string> ListVAAPIDevices() {
-    std::vector<std::string> devices;
-    for (int i = 0; i < 10; i++) {
-        std::string path = "/dev/dri/renderD" + std::to_string(128 + i);
-        if (access(path.c_str(), F_OK) == 0) {
-            devices.push_back(path);
-        }
-    }
-    return devices;
+    curl_easy_cleanup(curl);
 }
 ```
 
-**本节小结**：VAAPI 是 Linux 开源硬件解码方案，支持 Intel 和 AMD。通过 `/dev/dri/renderD128` 指定设备。下一节介绍 NVIDIA NVDEC。
+**本节小结**：HTTP Range 请求是实现断点续传和 seek 的基础。libcurl 提供了方便的 API 处理 HTTP 通信。下一节将讨论下载策略的选择。
 
 ---
 
-## 6. Linux：NVDEC 详解
+## 3. 下载策略：流式 vs 分块
 
-**本节概览**：NVDEC 是 NVIDIA 显卡的专用视频解码引擎，性能最强，支持格式最多。
+**本节概览**：介绍两种网络下载策略——流式下载（适合直播）和分块下载（适合点播），分析各自的适用场景。
 
-### 6.1 NVDEC 简介
+### 3.1 流式下载（Streaming）
 
-NVDEC（NVIDIA Video Decoder）：
-- **独立引擎**：GPU 内部的专用解码电路，不占用 CUDA 核心
-- **高性能**：可同时解码多路 4K/8K 视频
-- **格式最全**：支持 H.264、H.265、VP9、AV1
+**原理**：建立一个 HTTP 连接，持续接收数据直到文件结束。
 
-### 6.2 硬件代际支持
-
-| GPU 架构 | NVDEC 版本 | 4K H.265 | 8K H.265 | AV1 |
-|:---|:---:|:---:|:---:|:---:|
-| Maxwell (GTX 900) | 1st Gen | ✅ | ❌ | ❌ |
-| Pascal (GTX 10) | 2nd Gen | ✅ | ❌ | ❌ |
-| Turing (RTX 20) | 3rd Gen | ✅ | ✅ | ❌ |
-| Ampere (RTX 30) | 4th Gen | ✅ | ✅ | ✅ |
-| Ada (RTX 40) | 5th Gen | ✅ | ✅ | ✅ |
-
-### 6.3 FFmpeg 使用 NVDEC
-
-```cpp
-#include <libavcodec/avcodec.h>
-#include <libavutil/hwcontext.h>
-#include <iostream>
-
-class NVDECDecoder {
-public:
-    bool Init(AVCodecID codec_id, int gpu_id = 0) {
-        // 1. 选择解码器
-        const char* decoder_name = nullptr;
-        switch (codec_id) {
-            case AV_CODEC_ID_H264:  decoder_name = "h264_nvdec"; break;
-            case AV_CODEC_ID_HEVC:  decoder_name = "hevc_nvdec"; break;
-            case AV_CODEC_ID_VP9:   decoder_name = "vp9_nvdec"; break;
-            case AV_CODEC_ID_AV1:   decoder_name = "av1_nvdec"; break;
-            default:
-                std::cerr << "[NVDEC] Unsupported codec" << std::endl;
-                return false;
-        }
-        
-        codec_ = avcodec_find_decoder_by_name(decoder_name);
-        if (!codec_) {
-            std::cerr << "[NVDEC] Decoder not found: " << decoder_name << std::endl;
-            return false;
-        }
-        
-        // 2. 创建 CUDA 设备上下文
-        // gpu_id: 0 = 第一块 GPU, 1 = 第二块...
-        char device_str[32];
-        snprintf(device_str, sizeof(device_str), "%d", gpu_id);
-        
-        int ret = av_hwdevice_ctx_create(
-            &hw_device_ctx_,
-            AV_HWDEVICE_TYPE_CUDA,
-            device_str, nullptr, 0);
-        if (ret < 0) {
-            char errbuf[256];
-            av_strerror(ret, errbuf, sizeof(errbuf));
-            std::cerr << "[NVDEC] Failed to create CUDA device: " << errbuf << std::endl;
-            return false;
-        }
-        
-        // 3. 创建解码器上下文
-        ctx_ = avcodec_alloc_context3(codec_);
-        ctx_>hw_device_ctx = av_buffer_ref(hw_device_ctx_);
-        
-        // 4. 打开解码器
-        ret = avcodec_open2(ctx_, codec_, nullptr);
-        if (ret < 0) {
-            std::cerr << "[NVDEC] Failed to open codec" << std::endl;
-            return false;
-        }
-        
-        std::cout << "[NVDEC] Decoder initialized on GPU " << gpu_id << std::endl;
-        return true;
-    }
-    
-    ~NVDECDecoder() {
-        if (ctx_) avcodec_free_context(&ctx_);
-        if (hw_device_ctx_) av_buffer_unref(&hw_device_ctx_);
-    }
-
-private:
-    const AVCodec* codec_ = nullptr;
-    AVCodecContext* ctx_ = nullptr;
-    AVBufferRef* hw_device_ctx_ = nullptr;
-};
+```
+连接建立 → 服务器持续发送数据 → 客户端边接收边播放
+     ↑___________________________________________|
+                    (长连接)
 ```
 
-**本节小结**：NVDEC 是性能最强的硬件解码方案，支持 8K 和 AV1。通过 CUDA 设备上下文初始化。下一节封装统一的硬件解码器。
+**适用场景**：
+- 直播流（没有文件结束）
+- 小文件快速下载
+- 顺序播放不打断
+
+**代码特征**：
+```cpp
+// 发起一次请求，持续接收
+curl_easy_setopt(curl, CURLOPT_RANGE, "0-");  // 从开始到结束
+curl_easy_perform(curl);  // 阻塞直到连接断开
+```
+
+### 3.2 分块下载（Chunked）
+
+**原理**：将文件分成多个小块，分别下载。
+
+```
+请求 1: bytes=0-65535      → 接收块 1
+请求 2: bytes=65536-131071 → 接收块 2
+请求 3: bytes=131072-...   → 接收块 3
+...
+```
+
+**适用场景**：
+- 大文件点播（支持快速 seek）
+- 多线程下载加速
+- CDN 分片缓存友好
+
+**代码特征**：
+```cpp
+const int CHUNK_SIZE = 64 * 1024;  // 64KB
+
+for (int i = 0; i < num_chunks; i++) {
+    int64_t start = i * CHUNK_SIZE;
+    int64_t end = start + CHUNK_SIZE - 1;
+    
+    char range[64];
+    snprintf(range, sizeof(range), "%ld-%ld", start, end);
+    curl_easy_setopt(curl, CURLOPT_RANGE, range);
+    curl_easy_perform(curl);
+}
+```
+
+### 3.3 策略对比
+
+| 特性 | 流式下载 | 分块下载 |
+|:---|:---|:---|
+| **连接数** | 1 个长连接 | 多个短连接 |
+| **延迟** | 低（建立一次连接）| 高（频繁建连）|
+| **seek 速度** | 慢（需重连）| 快（直接请求新块）|
+| **适用场景** | 直播、小文件 | 点播、大文件 |
+| **代码复杂度** | 简单 | 较复杂 |
+
+### 3.4 本章选择：流式 + Range
+
+为了兼顾简单性和 seek 能力，本章采用**流式下载 + Range 请求**的组合：
+
+```
+正常播放：流式下载，保持一个连接
+用户 seek：关闭旧连接，发起新的 Range 请求
+```
+
+这种方式：
+- 正常播放时效率高（一个连接）
+- seek 时响应快（Range 请求）
+
+**本节小结**：流式下载适合直播，分块下载适合点播。本章采用流式+Range的组合，兼顾效率和 seek 能力。下一节将设计核心的环形缓冲区。
 
 ---
 
-## 7. 统一硬件解码器封装
+## 4. 环形缓冲区设计
 
-**本节概览**：封装跨平台的硬件解码器，自动检测平台并选择最佳方案。
+**本节概览**：环形缓冲区是网络播放器的核心组件。本节介绍其原理、设计要点，以及线程安全的实现。
 
-### 7.1 接口设计
+### 4.1 为什么需要环形缓冲区
+
+下载速度和播放速度不匹配：
+
+```
+时间线：
+下载：├─10MB/s─┤├─1MB/s──┤├─10MB/s─┤
+播放：├──4MB/s──┤├──4MB/s──┤├──4MB/s──┤
+       ↑ 下载快，缓冲增长
+                 ↓ 下载慢，消耗缓冲
+```
+
+**缓冲区的两个作用**：
+1. **平滑波动**：下载快时存储数据，慢时消耗存储
+2. **解耦生产消费**：下载线程和播放线程独立运行
+
+### 4.2 环形缓冲区原理
+
+普通缓冲区的问题：
+```
+[___________░░░░░░░░]  尾部用完，需要移动数据到头部
+ ↑          ↑
+读指针    写指针
+
+移动数据开销大：O(n)
+```
+
+环形缓冲区的解决方案：
+```
+[░░░░░_________░░░░░]  尾部用完，绕回到头部
+      ↑        ↑
+     写指针   读指针
+
+无需移动数据，指针绕环即可：O(1)
+```
+
+### 4.3 接口设计
 
 ```cpp
-// include/live/hardware_decoder.h
 #pragma once
-#include <string>
-#include <memory>
-
-extern "C" {
-#include <libavcodec/avcodec.h>
-}
+#include <cstdint.h>
+#include <stddef.h>
+#include <mutex>
+#include <condition_variable>
 
 namespace live {
 
-enum class HWDecoderType {
-    Auto,           // 自动选择
-    Software,       // 强制软件解码
-    VideoToolbox,   // macOS
-    VAAPI,          // Linux Intel/AMD
-    NVDEC,          // Linux/Windows NVIDIA
-    DXVA,           // Windows
-    MediaCodec,     // Android
-};
-
-struct HWDecoderConfig {
-    HWDecoderType type = HWDecoderType::Auto;
-    std::string device;  // VAAPI 设备路径或 GPU ID
-    int width = 1920;
-    int height = 1080;
-};
-
-class HardwareDecoder {
+class RingBuffer {
 public:
-    explicit HardwareDecoder(const HWDecoderConfig& config);
-    ~HardwareDecoder();
+    explicit RingBuffer(size_t capacity);
+    ~RingBuffer();
 
     // 禁止拷贝
-    HardwareDecoder(const HardwareDecoder&) = delete;
-    HardwareDecoder& operator=(const HardwareDecoder&) = delete;
+    RingBuffer(const RingBuffer&) = delete;
+    RingBuffer& operator=(const RingBuffer&) = delete;
 
-    // 初始化解码器
-    bool Init(AVCodecID codec_id);
+    // 写入数据（下载线程调用）
+    // 返回实际写入的字节数（可能小于请求，如果缓冲满）
+    size_t Write(const void* data, size_t len);
     
-    // 解码一帧
-    // 返回的 AVFrame 需要用 av_frame_free 释放
-    AVFrame* Decode(AVPacket* pkt);
+    // 读取数据（解码线程调用）
+    // 返回实际读取的字节数（可能小于请求，如果数据不足）
+    size_t Read(void* out, size_t len);
     
-    // 获取解码器信息
-    bool IsHardware() const { return is_hardware_; }
-    HWDecoderType GetActualType() const { return actual_type_; }
-    int GetWidth() const { return ctx_ ? ctx_>width : 0; }
-    int GetHeight() const { return ctx_ ? ctx_>height : 0; }
+    // 阻塞式读取（等待直到有足够数据）
+    size_t ReadBlocking(void* out, size_t len);
+    
+    // 查询状态
+    size_t Size() const;      // 当前已缓冲的数据量
+    size_t Capacity() const;  // 总容量
+    bool Empty() const;
+    bool Full() const;
+    
+    // 控制
+    void Clear();
+    void Stop();  // 通知等待的线程退出
+
+    // 用于 FFmpeg 的回调接口
+    static int ReadCallback(void* opaque, uint8_t* buf, int buf_size);
 
 private:
-    bool TryInitVideoToolbox(AVCodecID codec_id);
-    bool TryInitNVDEC(AVCodecID codec_id);
-    bool TryInitVAAPI(AVCodecID codec_id);
-    bool TryInitSoftware(AVCodecID codec_id);
+    uint8_t* buffer_;         // 底层缓冲区
+    const size_t capacity_;   // 容量
     
-    AVFrame* TransferHWToSW(AVFrame* hw_frame);
+    size_t read_pos_ = 0;     // 读位置
+    size_t write_pos_ = 0;    // 写位置
+    size_t size_ = 0;         // 当前数据量
+    int64_t total_read_ = 0;  // 累计读取（用于 seek）
     
-    HWDecoderConfig config_;
-    HWDecoderType actual_type_ = HWDecoderType::Software;
-    
-    const AVCodec* codec_ = nullptr;
-    AVCodecContext* ctx_ = nullptr;
-    AVBufferRef* hw_device_ctx_ = nullptr;
-    bool is_hardware_ = false;
+    mutable std::mutex mutex_;
+    std::condition_variable not_full_;
+    std::condition_variable not_empty_;
+    std::atomic<bool> stopped_{false};
 };
 
 } // namespace live
+```
+
+### 4.4 关键实现：读写指针管理
+
+```cpp
+// 写入数据
+size_t RingBuffer::Write(const void* data, size_t len) {
+    std::unique_lock<std::mutex> lock(mutex_);
+    
+    // 等待有空间（非阻塞模式直接返回）
+    if (size_ >= capacity_) {
+        return 0;  // 缓冲满
+    }
+    
+    const uint8_t* src = static_cast<const uint8_t*>(data);
+    size_t written = 0;
+    
+    while (len > 0 && size_ < capacity_) {
+        // 计算本次可写入的长度
+        size_t write_end = (write_pos_ >= read_pos_) ? capacity_ : read_pos_;
+        size_t can_write = std::min(len, write_end - write_pos_);
+        can_write = std::min(can_write, capacity_ - size_);
+        
+        if (can_write == 0) break;
+        
+        // 写入数据
+        memcpy(buffer_ + write_pos_, src + written, can_write);
+        write_pos_ = (write_pos_ + can_write) % capacity_;
+        size_ += can_write;
+        written += can_write;
+        len -= can_write;
+    }
+    
+    lock.unlock();
+    not_empty_.notify_all();
+    
+    return written;
+}
+
+// 读取数据
+size_t RingBuffer::Read(void* out, size_t len) {
+    std::unique_lock<std::mutex> lock(mutex_);
+    
+    if (size_ == 0) {
+        return 0;  // 缓冲空
+    }
+    
+    uint8_t* dst = static_cast<uint8_t*>(out);
+    size_t read = 0;
+    
+    while (len > 0 && size_ > 0) {
+        // 计算本次可读取的长度
+        size_t read_end = (read_pos_ >= write_pos_) ? capacity_ : write_pos_;
+        size_t can_read = std::min(len, read_end - read_pos_);
+        can_read = std::min(can_read, size_);
+        
+        if (can_read == 0) break;
+        
+        // 读取数据
+        memcpy(dst + read, buffer_ + read_pos_, can_read);
+        read_pos_ = (read_pos_ + can_read) % capacity_;
+        size_ -= can_read;
+        read += can_read;
+        len -= can_read;
+    }
+    
+    total_read_ += read;
+    
+    lock.unlock();
+    not_full_.notify_all();
+    
+    return read;
+}
+```
+
+### 4.5 FFmpeg 集成接口
+
+FFmpeg 的 `avformat_open_input` 支持自定义 IO：
+
+```cpp
+// FFmpeg 读取回调
+int RingBuffer::ReadCallback(void* opaque, uint8_t* buf, int buf_size) {
+    auto* ring = static_cast<RingBuffer*>(opaque);
+    return static_cast<int>(ring->ReadBlocking(buf, buf_size));
+}
+
+// 使用自定义 IO 打开网络流
+AVFormatContext* OpenNetworkStream(RingBuffer* ring) {
+    AVFormatContext* ctx = avformat_alloc_context();
+    
+    // 分配 AVIOContext
+    int buffer_size = 32768;
+    uint8_t* avio_buffer = static_cast<uint8_t*>(av_malloc(buffer_size));
+    
+    AVIOContext* avio = avio_alloc_context(
+        avio_buffer, buffer_size, 0, ring,
+        RingBuffer::ReadCallback, nullptr, nullptr);
+    
+    ctx->pb = avio;
+    
+    // 打开输入（从 RingBuffer 读取）
+    avformat_open_input(&ctx, nullptr, nullptr, nullptr);
+    
+    return ctx;
+}
+```
+
+**本节小结**：环形缓冲区平滑了下载和播放的速度差异。使用双指针（读/写）和取模运算实现 O(1) 的绕环操作。通过 FFmpeg 的 AVIOContext 可以无缝集成。下一节将实现下载线程。
+
+---
+
+## 5. 下载线程实现
+
+**本节概览**：实现独立的下载线程，负责 HTTP 通信，将数据写入环形缓冲区。
+
+### 5.1 类设计
+
+```cpp
+#pragma once
+#include "live/ring_buffer.h"
+#include <string>
+#include <thread>
+#include <atomic>
+
+namespace live {
+
+struct DownloadConfig {
+    std::string url;
+    int64_t start_pos = 0;      // 起始位置（用于 seek）
+    int connect_timeout = 10;   // 连接超时（秒）
+    int speed_limit = 0;        // 限速（KB/s，0 表示不限）
+};
+
+class DownloadThread {
+public:
+    explicit DownloadThread(RingBuffer* buffer, const DownloadConfig& config);
+    ~DownloadThread();
+
+    DownloadThread(const DownloadThread&) = delete;
+    DownloadThread& operator=(const DownloadThread&) = delete;
+
+    bool Start();
+    void Stop();
+    bool IsRunning() const { return running_.load(); }
+    
+    // 获取下载统计
+    int64_t GetDownloadedBytes() const { return downloaded_bytes_.load(); }
+    double GetCurrentSpeed() const;  // KB/s
+
+private:
+    void Run();
+    static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp);
+
+    RingBuffer* ring_buffer_;
+    DownloadConfig config_;
+    
+    std::thread thread_;
+    std::atomic<bool> running_{false};
+    std::atomic<bool> should_stop_{false};
+    
+    std::atomic<int64_t> downloaded_bytes_{0};
+    std::atomic<int64_t> current_speed_{0};  // bytes/s
+};
+
+} // namespace live
+```
+
+### 5.2 完整实现
+
+```cpp
+#include "download_thread.h"
+#include <curl/curl.h>
+#include <iostream>
+#include <chrono>
+
+namespace live {
+
+DownloadThread::DownloadThread(RingBuffer* buffer, const DownloadConfig& config)
+    : ring_buffer_(buffer)
+    , config_(config) {
+}
+
+DownloadThread::~DownloadThread() {
+    Stop();
+}
+
+bool DownloadThread::Start() {
+    if (running_.load()) return false;
+    
+    running_.store(true);
+    should_stop_.store(false);
+    thread_ = std::thread(&DownloadThread::Run, this);
+    
+    std::cout << "[Download] Thread started, url=" << config_.url << std::endl;
+    return true;
+}
+
+void DownloadThread::Stop() {
+    if (!running_.load()) return;
+    
+    std::cout << "[Download] Stopping..." << std::endl;
+    
+    should_stop_.store(true);
+    ring_buffer_->Stop();
+    
+    if (thread_.joinable()) {
+        thread_.join();
+    }
+    
+    running_.store(false);
+    std::cout << "[Download] Stopped, total=" << downloaded_bytes_.load() << " bytes" << std::endl;
+}
+
+size_t DownloadThread::WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+    auto* self = static_cast<DownloadThread*>(userp);
+    size_t total_size = size * nmemb;
+    
+    // 写入环形缓冲区
+    size_t written = 0;
+    while (written < total_size && !self->should_stop_.load()) {
+        size_t n = self->ring_buffer_->Write(
+            static_cast<uint8_t*>(contents) + written, 
+            total_size - written);
+        written += n;
+        
+        if (n == 0) {
+            // 缓冲满，等待
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    }
+    
+    self->downloaded_bytes_.fetch_add(written);
+    return written;
+}
+
+void DownloadThread::Run() {
+    CURL* curl = curl_easy_init();
+    if (!curl) {
+        std::cerr << "[Download] Failed to init curl" << std::endl;
+        running_.store(false);
+        return;
+    }
+    
+    // 设置 URL
+    curl_easy_setopt(curl, CURLOPT_URL, config_.url.c_str());
+    
+    // 设置 Range（支持断点续传/seek）
+    if (config_.start_pos > 0) {
+        char range[64];
+        snprintf(range, sizeof(range), "%ld-", config_.start_pos);
+        curl_easy_setopt(curl, CURLOPT_RANGE, range);
+        std::cout << "[Download] Range: " << range << std::endl;
+    }
+    
+    // 设置回调
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
+    
+    // 设置超时
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, config_.connect_timeout);
+    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);
+    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1000L);  // 1KB/s
+    
+    // 执行下载
+    auto start_time = std::chrono::steady_clock::now();
+    int64_t last_bytes = 0;
+    
+    CURLcode res = curl_easy_perform(curl);
+    
+    if (res != CURLE_OK) {
+        std::cerr << "[Download] Error: " << curl_easy_strerror(res) << std::endl;
+    }
+    
+    curl_easy_cleanup(curl);
+    running_.store(false);
+}
+
+double DownloadThread::GetCurrentSpeed() const {
+    return current_speed_.load() / 1024.0;  // KB/s
+}
+
+} // namespace live
+```
+
+**本节小结**：下载线程通过 libcurl 进行 HTTP 通信，将数据写入环形缓冲区。支持 Range 请求、超时控制、速度统计。下一节将整合所有组件，实现完整的网络播放器。
+
+---
+
+## 6. 整合：网络播放器
+
+**本节概览**：将下载线程、环形缓冲区、解码线程整合起来，实现完整的网络播放器。
+
+### 6.1 架构图
+
+<img src="docs/images/network-player-flow.svg" width="100%"/>
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     网络播放器数据流                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   HTTP Server                    Player                         │
+│   ┌──────────┐                   ┌──────────────┐              │
+│   │ video.mp4│ ──HTTP Range──→  │ DownloadThread│              │
+│   └──────────┘                   └──────┬───────┘              │
+│                                         │ Write()               │
+│                                         ↓                       │
+│                                  ┌──────────────┐              │
+│                                  │  RingBuffer  │              │
+│                                  └──────┬───────┘              │
+│                                         │ Read()                │
+│                                         ↓                       │
+│                                  ┌──────────────┐              │
+│                                  │ FFmpeg Demux │              │
+│                                  └──────┬───────┘              │
+│                                         │ AVPacket              │
+│                                         ↓                       │
+│                                  ┌──────────────┐              │
+│                                  │ FFmpeg Decode│              │
+│                                  └──────┬───────┘              │
+│                                         │ AVFrame               │
+│                                         ↓                       │
+│                                  ┌──────────────┐              │
+│                                  │ SDL Render   │              │
+│                                  └──────────────┘              │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 6.2 主程序实现
+
+```cpp
+// main.cpp
+#include "live/ring_buffer.h"
+#include "live/download_thread.h"
+#include <SDL2/SDL.h>
+#include <iostream>
+
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+}
+
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        std::cerr << "用法: " << argv[0] << " <URL>" << std::endl;
+        return 1;
+    }
+
+    const char* url = argv[1];
+    
+    // 1. 创建环形缓冲区 (4MB)
+    live::RingBuffer ring_buffer(4 * 1024 * 1024);
+    
+    // 2. 启动下载线程
+    live::DownloadConfig config;
+    config.url = url;
+    config.connect_timeout = 10;
+    
+    live::DownloadThread downloader(&ring_buffer, config);
+    if (!downloader.Start()) {
+        return 1;
+    }
+    
+    // 3. 等待缓冲足够数据（预缓冲）
+    std::cout << "[Main] 缓冲中..." << std::endl;
+    while (ring_buffer.Size() < 1024 * 1024 && downloader.IsRunning()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    std::cout << "[Main] 开始播放" << std::endl;
+    
+    // 4. 使用自定义 IO 打开流
+    AVFormatContext* fmt_ctx = avformat_alloc_context();
+    
+    int buffer_size = 32768;
+    uint8_t* avio_buffer = static_cast<uint8_t*>(av_malloc(buffer_size));
+    AVIOContext* avio = avio_alloc_context(
+        avio_buffer, buffer_size, 0, &ring_buffer,
+        live::RingBuffer::ReadCallback, nullptr, nullptr);
+    
+    fmt_ctx->pb = avio;
+    
+    if (avformat_open_input(&fmt_ctx, nullptr, nullptr, nullptr) < 0) {
+        std::cerr << "无法打开输入" << std::endl;
+        return 1;
+    }
+    
+    // ... 后续解码渲染与第二章相同 ...
+    
+    // 5. 清理
+    downloader.Stop();
+    avformat_close_input(&fmt_ctx);
+    av_freep(&avio_buffer);
+    
+    return 0;
+}
+```
+
+### 6.3 CMakeLists.txt
+
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(network-player VERSION 3.0.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(FFMPEG REQUIRED
+    libavformat libavcodec libavutil)
+pkg_check_modules(CURL REQUIRED libcurl)
+find_package(SDL2 REQUIRED)
+
+add_executable(network-player
+    src/main.cpp
+    src/ring_buffer.cpp
+    src/download_thread.cpp
+)
+
+target_include_directories(network-player PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${FFMPEG_INCLUDE_DIRS}
+    ${CURL_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIRS}
+)
+
+target_link_libraries(network-player
+    ${FFMPEG_LIBRARIES}
+    ${CURL_LIBRARIES}
+    SDL2::SDL2
+    pthread
+)
+```
+
+**本节小结**：网络播放器通过下载线程、环形缓冲区、FFmpeg 自定义 IO 的整合，实现了边下载边播放。预缓冲确保播放开始时数据充足。下一节将实现断点续传和 seek 功能。
+
+---
+
+## 7. 断点续传与 seek
+
+**本节概览**：实现用户拖动进度条（seek）功能，涉及 HTTP Range 请求、缓冲区清空、解码器重置。
+
+### 7.1 seek 流程
+
+```
+用户拖动进度条到 50%
+        ↓
+计算目标字节位置: file_size * 0.5
+        ↓
+停止当前下载线程
+        ↓
+清空环形缓冲区
+        ↓
+关闭当前 FFmpeg 上下文
+        ↓
+创建新的下载线程 (start_pos = 目标位置)
+        ↓
+重新打开 FFmpeg 上下文
+        ↓
+恢复播放
 ```
 
 ### 7.2 实现代码
 
 ```cpp
-// src/hardware_decoder.cpp
-#include "live/hardware_decoder.h"
-#include <iostream>
-
-namespace live {
-
-HardwareDecoder::HardwareDecoder(const HWDecoderConfig& config)
-    : config_(config) {
-}
-
-HardwareDecoder::~HardwareDecoder() {
-    if (ctx_) {
-        // 冲刷解码器
-        avcodec_send_packet(ctx_, nullptr);
-        AVFrame* frame = av_frame_alloc();
-        while (avcodec_receive_frame(ctx_, frame) >= 0) {
-            av_frame_unref(frame);
-        }
-        av_frame_free(&frame);
-        
-        avcodec_free_context(&ctx_);
-    }
-    if (hw_device_ctx_) {
-        av_buffer_unref(&hw_device_ctx_);
-    }
-}
-
-bool HardwareDecoder::Init(AVCodecID codec_id) {
-    // 如果强制软件解码
-    if (config_.type == HWDecoderType::Software) {
-        return TryInitSoftware(codec_id);
-    }
-    
-    // 尝试指定的硬件解码器
-    if (config_.type == HWDecoderType::VideoToolbox) {
-        if (TryInitVideoToolbox(codec_id)) return true;
-    } else if (config_.type == HWDecoderType::NVDEC) {
-        if (TryInitNVDEC(codec_id)) return true;
-    } else if (config_.type == HWDecoderType::VAAPI) {
-        if (TryInitVAAPI(codec_id)) return true;
-    }
-    
-    // 自动选择：按优先级尝试
-    if (config_.type == HWDecoderType::Auto) {
-        // 优先级：NVDEC > VideoToolbox > VAAPI
-        if (TryInitNVDEC(codec_id)) return true;
-        if (TryInitVideoToolbox(codec_id)) return true;
-        if (TryInitVAAPI(codec_id)) return true;
-    }
-    
-    // 所有硬件解码器失败，回退到软件解码
-    std::cout << "[HardwareDecoder] All hardware decoders failed, fallback to software" << std::endl;
-    return TryInitSoftware(codec_id);
-}
-
-bool HardwareDecoder::TryInitVideoToolbox(AVCodecID codec_id) {
-#if defined(__APPLE__)
-    const char* name = (codec_id == AV_CODEC_ID_H264) ? "h264_videotoolbox" : 
-                       (codec_id == AV_CODEC_ID_HEVC) ? "hevc_videotoolbox" : nullptr;
-    if (!name) return false;
-    
-    codec_ = avcodec_find_decoder_by_name(name);
-    if (!codec_) return false;
-    
-    if (av_hwdevice_ctx_create(&hw_device_ctx_, AV_HWDEVICE_TYPE_VIDEOTOOLBOX, 
-                               nullptr, nullptr, 0) < 0) {
-        return false;
-    }
-    
-    ctx_ = avcodec_alloc_context3(codec_);
-    ctx_>hw_device_ctx = av_buffer_ref(hw_device_ctx_);
-    
-    if (avcodec_open2(ctx_, codec_, nullptr) < 0) {
-        avcodec_free_context(&ctx_);
-        return false;
-    }
-    
-    is_hardware_ = true;
-    actual_type_ = HWDecoderType::VideoToolbox;
-    std::cout << "[HardwareDecoder] Using VideoToolbox" << std::endl;
-    return true;
-#else
-    return false;
-#endif
-}
-
-bool HardwareDecoder::TryInitNVDEC(AVCodecID codec_id) {
-    const char* name = nullptr;
-    switch (codec_id) {
-        case AV_CODEC_ID_H264: name = "h264_nvdec"; break;
-        case AV_CODEC_ID_HEVC: name = "hevc_nvdec"; break;
-        case AV_CODEC_ID_VP9:  name = "vp9_nvdec"; break;
-        case AV_CODEC_ID_AV1:  name = "av1_nvdec"; break;
-        default: return false;
-    }
-    
-    codec_ = avcodec_find_decoder_by_name(name);
-    if (!codec_) return false;
-    
-    const char* device = config_.device.empty() ? nullptr : config_.device.c_str();
-    if (av_hwdevice_ctx_create(&hw_device_ctx_, AV_HWDEVICE_TYPE_CUDA, 
-                               device, nullptr, 0) < 0) {
-        return false;
-    }
-    
-    ctx_ = avcodec_alloc_context3(codec_);
-    ctx_>hw_device_ctx = av_buffer_ref(hw_device_ctx_);
-    
-    if (avcodec_open2(ctx_, codec_, nullptr) < 0) {
-        avcodec_free_context(&ctx_);
-        return false;
-    }
-    
-    is_hardware_ = true;
-    actual_type_ = HWDecoderType::NVDEC;
-    std::cout << "[HardwareDecoder] Using NVDEC" << std::endl;
-    return true;
-}
-
-bool HardwareDecoder::TryInitVAAPI(AVCodecID codec_id) {
-    const char* name = (codec_id == AV_CODEC_ID_H264) ? "h264_vaapi" : 
-                       (codec_id == AV_CODEC_ID_HEVC) ? "hevc_vaapi" : nullptr;
-    if (!name) return false;
-    
-    codec_ = avcodec_find_decoder_by_name(name);
-    if (!codec_) return false;
-    
-    const char* device = config_.device.empty() ? nullptr : config_.device.c_str();
-    if (av_hwdevice_ctx_create(&hw_device_ctx_, AV_HWDEVICE_TYPE_VAAPI, 
-                               device, nullptr, 0) < 0) {
-        return false;
-    }
-    
-    ctx_ = avcodec_alloc_context3(codec_);
-    ctx_>hw_device_ctx = av_buffer_ref(hw_device_ctx_);
-    
-    if (avcodec_open2(ctx_, codec_, nullptr) < 0) {
-        avcodec_free_context(&ctx_);
-        return false;
-    }
-    
-    is_hardware_ = true;
-    actual_type_ = HWDecoderType::VAAPI;
-    std::cout << "[HardwareDecoder] Using VAAPI" << std::endl;
-    return true;
-}
-
-bool HardwareDecoder::TryInitSoftware(AVCodecID codec_id) {
-    codec_ = avcodec_find_decoder(codec_id);
-    if (!codec_) return false;
-    
-    ctx_ = avcodec_alloc_context3(codec_);
-    
-    // 启用多线程软解
-    ctx_>thread_count = 4;
-    ctx_>thread_type = FF_THREAD_FRAME;
-    
-    if (avcodec_open2(ctx_, codec_, nullptr) < 0) {
-        avcodec_free_context(&ctx_);
-        return false;
-    }
-    
-    is_hardware_ = false;
-    actual_type_ = HWDecoderType::Software;
-    std::cout << "[HardwareDecoder] Using software decoder" << std::endl;
-    return true;
-}
-
-AVFrame* HardwareDecoder::Decode(AVPacket* pkt) {
-    if (!ctx_) return nullptr;
-    
-    int ret = avcodec_send_packet(ctx_, pkt);
-    if (ret < 0 && ret != AVERROR_EOF) {
-        return nullptr;
-    }
-    
-    AVFrame* frame = av_frame_alloc();
-    ret = avcodec_receive_frame(ctx_, frame);
-    if (ret < 0) {
-        av_frame_free(&frame);
-        return nullptr;
-    }
-    
-    // 如果是硬件帧，转移到系统内存
-    if (is_hardware_ && frame->format != AV_PIX_FMT_YUV420P) {
-        AVFrame* sw_frame = TransferHWToSW(frame);
-        av_frame_free(&frame);
-        return sw_frame;
-    }
-    
-    return frame;
-}
-
-AVFrame* HardwareDecoder::TransferHWToSW(AVFrame* hw_frame) {
-    AVFrame* sw_frame = av_frame_alloc();
-    if (av_hwframe_transfer_data(sw_frame, hw_frame, 0) < 0) {
-        av_frame_free(&sw_frame);
-        return nullptr;
-    }
-    av_frame_copy_props(sw_frame, hw_frame);
-    return sw_frame;
-}
-
-} // namespace live
-```
-
-**本节小结**：封装了统一的硬件解码器，自动检测平台选择最佳方案。支持 VideoToolbox、NVDEC、VAAPI，失败时回退到软件解码。下一节介绍零拷贝渲染。
-
----
-
-## 8. 零拷贝渲染优化
-
-**本节概览**：传统流程需要 GPU→CPU→GPU 的数据拷贝，零拷贝直接在 GPU 内完成渲染。
-
-### 8.1 传统流程的问题
-
-```
-GPU 显存 (解码后)
-    ↓ 拷贝到系统内存 (慢！)
-CPU 内存 (YUV)
-    ↓ 上传到 GPU
-GPU 显存 (纹理)
-    ↓ 渲染
-屏幕
-
-问题：4K YUV420P = 12MB，每帧拷贝耗时 ~1ms，60fps 需要 60ms/s
-```
-
-### 8.2 零拷贝流程
-
-```
-GPU 显存 (解码后)
-    ↓ 直接作为纹理
-GPU 显存 (纹理)
-    ↓ 渲染
-屏幕
-
-优势：消除拷贝，降低延迟，减少 CPU 占用
-```
-
-### 8.3 平台实现
-
-**macOS + Metal**：
-```cpp
-// VideoToolbox 解码输出 CVPixelBuffer
-CVPixelBufferRef pixel_buffer = (CVPixelBufferRef)frame->data[3];
-
-// 创建 Metal 纹理
-CVMetalTextureRef metal_texture;
-CVMetalTextureCacheCreateTextureFromImage(
-    nullptr, texture_cache, pixel_buffer, nullptr,
-    MTLPixelFormatBGRA8Unorm, width, height, 0, &metal_texture);
-
-// 直接渲染
-```
-
-**Linux + OpenGL/VAAPI**：
-```cpp
-// VAAPI 输出 VA 表面
-VASurfaceID surface = (VASurfaceID)(uintptr_t)frame->data[3];
-
-// 使用 EGL 创建纹理
-// 需要 EGL_EXT_image_dma_buf_import 扩展
-```
-
-**本节小结**：零拷贝消除冗余 GPU↔CPU 传输，但实现复杂。本章示例代码使用传统拷贝方式，零拷贝作为进阶优化。下一节进行性能测试。
-
----
-
-## 9. 性能测试与对比
-
-**本节概览**：对比软件解码和各硬件解码方案的性能。
-
-### 9.1 测试环境
-
-- **CPU**：Intel i7-9700K @ 3.6GHz
-- **GPU**：NVIDIA RTX 2070
-- **内存**：32GB DDR4
-- **系统**：Ubuntu 20.04 / macOS 12
-
-### 9.2 4K H.264 解码测试
-
-| 解码方案 | CPU 占用 | GPU 占用 | 帧率 | 延迟 |
-|:---|:---:|:---:|:---:|:---:|
-| 软件解码 (x264) | 85% | 5% | 35fps | 高 |
-| VAAPI (Intel) | 15% | - | 60fps | 低 |
-| NVDEC (NVIDIA) | 8% | 25% | 60fps | 低 |
-| VideoToolbox | 10% | 20% | 60fps | 低 |
-
-### 9.3 多路解码测试
-
-同时解码 4 路 1080p@30fps：
-
-| 方案 | 1 路 CPU | 4 路 CPU | 是否流畅 |
-|:---|:---:|:---:|:---:|
-| 软件解码 | 35% | 100%+ | ❌ |
-| NVDEC | 8% | 15% | ✅ |
-
-**本节小结**：硬件解码 4K 视频 CPU 占用 < 15%，支持多路流畅解码。下一节介绍降级策略。
-
----
-
-## 10. 降级策略与容错
-
-**本节概览**：硬件解码可能失败，需要有策略地回退到软件解码。
-
-### 10.1 失败场景
-
-| 场景 | 原因 | 处理 |
-|:---|:---|:---|
-| 格式不支持 | 旧 GPU 不支持 HEVC/AV1 | 回退软解 |
-| 分辨率超限 | 4K 超出 GPU 能力 | 回退软解或报错 |
-| 资源耗尽 | GPU 内存不足 | 回退软解 |
-| 解码错误 | 硬件 Bug 或损坏码流 | 当前帧软解 |
-
-### 10.2 自适应降级
-
-```cpp
-class AdaptiveDecoder {
+class NetworkPlayer {
 public:
-    AVFrame* Decode(AVPacket* pkt) {
-        if (hw_decoder_ && !force_software_) {
-            AVFrame* frame = hw_decoder_>Decode(pkt);
-            if (frame) return frame;
-            
-            // 硬件解码失败
-            hardware_failures_++;
-            if (hardware_failures_ >= MAX_FAILURES) {
-                std::cout << "Switching to software decoder" << std::endl;
-                force_software_ = true;
-            }
-        }
+    // Seek 到指定位置 (0.0 - 1.0)
+    bool Seek(double position) {
+        if (!file_size_.load()) return false;
         
-        return sw_decoder_>Decode(pkt);
+        int64_t target_pos = static_cast<int64_t>(file_size_.load() * position);
+        
+        // 1. 停止当前播放
+        Pause();
+        
+        // 2. 停止下载线程
+        download_thread_->Stop();
+        
+        // 3. 清空缓冲区
+        ring_buffer_->Clear();
+        
+        // 4. 重新创建下载线程
+        DownloadConfig config;
+        config.url = url_;
+        config.start_pos = target_pos;
+        download_thread_ = std::make_unique<DownloadThread>(ring_buffer_.get(), config);
+        download_thread_->Start();
+        
+        // 5. 重置解码器上下文
+        ResetDecoder();
+        
+        // 6. 恢复播放
+        Resume();
+        
+        return true;
     }
-
+    
 private:
-    static const int MAX_FAILURES = 10;
-    int hardware_failures_ = 0;
-    bool force_software_ = false;
+    void ResetDecoder() {
+        // 关闭旧的
+        avcodec_free_context(&codec_ctx_);
+        avformat_close_input(&fmt_ctx_);
+        
+        // 创建新的（从环形缓冲区读取）
+        fmt_ctx_ = avformat_alloc_context();
+        // ... 设置 AVIOContext ...
+        avformat_open_input(&fmt_ctx_, nullptr, nullptr, nullptr);
+        // ... 重新查找流、初始化解码器 ...
+    }
 };
 ```
 
-**本节小结**：硬件解码需要完善的降级策略，确保在硬件失败时无缝切换到软件解码。下一节总结本章。
+**本节小结**：seek 功能通过停止当前下载、清空缓冲、发起新的 Range 请求实现。需要注意解码器上下文的重置。下一节将介绍性能优化。
 
 ---
 
-## 11. 本章总结
+## 8. 性能优化
 
-### 11.1 本章回顾
+**本节概览**：网络播放器面临带宽限制、延迟等挑战。本节介绍预缓冲策略、自适应码率、下载限速等优化手段。
 
-本章实现了硬件解码播放器：
+### 8.1 预缓冲策略
 
-1. **软件解码瓶颈**：4K H.264 软件解码 CPU 占用 85%，卡顿
-2. **硬件解码原理**：GPU 专用解码电路，并行处理
-3. **平台方案**：
-   - macOS: VideoToolbox
-   - Linux Intel/AMD: VAAPI
-   - Linux NVIDIA: NVDEC
-4. **统一封装**：自动检测平台，选择最佳方案
-5. **零拷贝**：GPU 内直接渲染，消除拷贝
-6. **性能**：4K 硬解 CPU < 15%，流畅播放
-7. **降级策略**：硬件失败时回退软解
+**缓冲模型**：
 
-### 11.2 当前能力
-
-```bash
-./hw-player rtmp://server/4k-stream
-# 4K 流畅播放，CPU 占用 < 15%
+```
+缓冲状态：
+[░░░░░░░░░░░░░░░░░░] 0%  - 等待
+[▓▓▓▓░░░░░░░░░░░░░░] 25% - 继续缓冲
+[▓▓▓▓▓▓▓▓▓▓░░░░░░░░] 50% - 开始播放
+[▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░] 75% - 正常播放
+[▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100%- 暂停下载
 ```
 
-### 11.3 下一步
+**代码实现**：
 
-前七章完成了完整的直播系统：
-- **观众端**：本地播放、异步、网络、RTMP 拉流、硬件解码
-- **主播端**：采集、3A 处理、编码、推流
+```cpp
+// 缓冲控制
+void BufferControl() {
+    const size_t BUFFER_MIN = 1 * 1024 * 1024;   // 1MB 开始播放
+    const size_t BUFFER_MAX = 3 * 1024 * 1024;   // 3MB 暂停下载
+    
+    size_t buffered = ring_buffer->Size();
+    
+    if (buffered < BUFFER_MIN) {
+        PausePlayback();  // 缓冲不足，暂停
+    } else if (buffered > BUFFER_MAX) {
+        PauseDownload();  // 缓冲充足，暂停下载
+    } else {
+        ResumePlayback();
+        ResumeDownload();
+    }
+}
+```
 
-后续章节将介绍进阶话题：
-- **第八章**：连麦互动（WebRTC P2P/SFU）
-- **第九章**：美颜滤镜（GPU 图像处理）
-- **第十章**：录制与回放（DVR/时移）
+### 8.2 自适应码率（ABR）
+
+当网络变差时，自动切换到低码率版本：
+
+```cpp
+// 监测下载速度
+if (download_speed < current_bitrate * 0.8) {
+    // 网络不足，切换低码率
+    SwitchToLowerBitrate();
+}
+
+void SwitchToLowerBitrate() {
+    // 假设服务器提供多码率
+    // - video_1080p.mp4
+    // - video_720p.mp4
+    // - video_480p.mp4
+    
+    current_quality--;
+    std::string new_url = GetQualityUrl(current_quality);
+    SeekToCurrentPosition(new_url);
+}
+```
+
+**本节小结**：预缓冲策略平衡了启动速度和播放流畅度。自适应码率在弱网环境下保证播放不中断。下一节总结本章内容。
+
+---
+
+## 9. 本章总结与下一步
+
+### 9.1 本章回顾
+
+本章将本地播放器扩展为网络播放器：
+
+1. **HTTP 基础**：Range 请求实现断点续传
+2. **下载策略**：流式下载适合直播，分块下载适合点播
+3. **环形缓冲区**：平滑下载和播放的速度差异
+4. **下载线程**：libcurl 实现异步 HTTP 下载
+5. **整合**：FFmpeg 自定义 IO 读取环形缓冲区
+6. **Seek**：HTTP Range + 缓冲区清空 + 解码器重置
+7. **优化**：预缓冲、自适应码率
+
+### 9.2 本章局限
+
+当前实现使用 HTTP 协议，但直播行业更常用 **RTMP** 协议：
+
+| 特性 | HTTP | RTMP |
+|:---|:---|:---|
+| 延迟 | 高（3-10秒）| 低（1-3秒）|
+| 直播支持 | 较差（HLS/DASH）| 原生支持 |
+| 防火墙穿透 | 好（80/443端口）| 较差（1935端口）|
+| 行业应用 | 点播为主 | 直播为主 |
+
+### 9.3 下一步：RTMP 流媒体协议
+
+第四章将介绍 RTMP 协议：
+
+- RTMP 握手过程
+- Chunk 分块传输
+- 推流与拉流
+- FLV 封装格式
+
+**第 4 章预告**：
+```bash
+# 第四章目标
+./player rtmp://example.com/live/stream
+```
+
+---
+
+## 10. 从点播到直播：HTTP 直播简介
+
+**本节概览**：本章实现的是"点播"（VOD, Video On Demand），即播放完整的视频文件。直播（Live Streaming）与此不同——视频数据是实时产生的。本节作为过渡，介绍 HTTP 直播方案及其局限，为第4章 RTMP 做铺垫。
+
+### 10.1 HTTP 直播方案：HLS
+
+苹果提出的 **HLS（HTTP Live Streaming）** 是最常用的 HTTP 直播方案，工作原理：
+
+```
+直播源 → 切片器 ──┬──→ [segment1.ts]  ├──┐
+                ├──→ [segment2.ts]  ──┼──→ HTTP 服务器 → 播放器
+                └──→ [segment3.ts]  ├──┘
+                     [playlist.m3u8] ←── 索引文件
+```
+
+**播放流程**：
+1. 播放器下载 `.m3u8` 索引文件（包含切片列表）
+2. 按顺序下载 `.ts` 切片文件
+3. 每个切片独立解码播放
+
+**延迟来源**：
+```
+延迟 = 切片时长 + 下载时间 + 缓冲区
+     = 3秒    + 0.5秒    + 1秒  
+     ≈ 4.5秒（最低）
+```
+
+实际生产环境通常设置 3-5 个切片缓冲，延迟可达 **9-15秒**。
+
+### 10.2 为什么需要 RTMP？
+
+| 协议 | 延迟 | 适用场景 |
+|:---|:---:|:---|
+| HLS (HTTP) | 9-15秒 | 点播、对延迟不敏感的直播（如赛事转播）|
+| RTMP | 1-3秒 | 互动直播、主播观众连麦 |
+| WebRTC | <1秒 | 实时通信、视频会议 |
+
+**RTMP 优势**：
+- 基于 TCP 的持久连接，数据持续流动而非切片
+- 无需等待切片完成，延迟更低
+- 行业生态成熟（OBS、各类直播平台）
+
+**RTMP 局限**：
+- 需要专用服务器（1935端口）
+- 防火墙/移动端支持不如 HTTP
+- 现代浏览器已不支持 RTMP 播放（需转 HLS/WebRTC）
+
+### 10.3 本章小结与下一步
+
+本章你学会了：
+- HTTP 协议基础与 Range 请求
+- 环形缓冲区设计与实现
+- 异步下载与边下边播
+- 断点续传与 Seek 实现
+
+下一章将学习 **RTMP 协议**，实现低延迟直播播放器：
+- RTMP 握手与连接建立
+- Chunk 分块传输机制
+- FLV 封装格式解析
+- 完整直播拉流实现
 
 ---
 
@@ -1028,18 +1124,16 @@ private:
 
 ### 参考资源
 
-- [VideoToolbox Programming Guide](https://developer.apple.com/documentation/videotoolbox)
-- [VAAPI Documentation](https://www.freedesktop.org/wiki/Software/vaapi/)
-- [NVIDIA Video Codec SDK](https://developer.nvidia.com/nvidia-video-codec-sdk)
-- [FFmpeg HWAccel](https://trac.ffmpeg.org/wiki/HWAccelIntro)
+- [libcurl 官方文档](https://curl.se/libcurl/c/)
+- [HTTP Range Requests (RFC 7233)](https://tools.ietf.org/html/rfc7233)
+- [FFmpeg AVIOContext 文档](https://ffmpeg.org/doxygen/trunk/structAVIOContext.html)
 
 ### 术语表
 
 | 术语 | 解释 |
 |:---|:---|
-| VAAPI | Video Acceleration API，Linux 硬件加速接口 |
-| NVDEC | NVIDIA Video Decoder，NVIDIA 视频解码引擎 |
-| VideoToolbox | macOS/iOS 硬件编解码框架 |
-| CVPixelBuffer | macOS 视频帧数据类型 |
-| VA Surface | VAAPI 视频帧数据类型 |
-| 零拷贝 | 消除 GPU↔CPU 数据传输的优化技术 |
+| Range 请求 | HTTP 请求部分内容的机制 |
+| 环形缓冲区 | 首尾相连的循环缓冲区 |
+| 预缓冲 | 播放前预先下载一定量数据 |
+| 自适应码率 | 根据网络状况切换清晰度 |
+| 流式下载 | 建立一次连接持续接收数据 |

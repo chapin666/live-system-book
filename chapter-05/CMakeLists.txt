@@ -1,64 +1,40 @@
-cmake_minimum_required(VERSION 3.10)
-project(capture-demo VERSION 5.0.0 LANGUAGES CXX)
+# 第五章：C++11 多线程基础
 
-set(CMAKE_CXX_STANDARD 14)
+cmake_minimum_required(VERSION 3.16)
+project(chapter05_threading)
+
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# 查找依赖
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(FFMPEG REQUIRED
-    libavformat
-    libavcodec
-    libavutil
-    libavdevice
-    libswscale
-)
-find_package(SDL2 REQUIRED)
+# 示例程序
+add_executable(01_thread_basics src/01_thread_basics.cpp)
+add_executable(02_mutex_demo src/02_mutex_demo.cpp)
+add_executable(03_deadlock_demo src/03_deadlock_demo.cpp)
+add_executable(04_condition_variable src/04_condition_variable.cpp)
+add_executable(05_atomic_demo src/05_atomic_demo.cpp)
+add_executable(06_threadsafe_queue src/06_threadsafe_queue.cpp)
+add_executable(07_producer_consumer src/07_producer_consumer.cpp)
 
-# ========== 1. 视频采集演示 ==========
-add_executable(video_capture_demo src/video_capture_demo.cpp)
+# 线程库
+find_package(Threads REQUIRED)
+target_link_libraries(01_thread_basics Threads::Threads)
+target_link_libraries(02_mutex_demo Threads::Threads)
+target_link_libraries(03_deadlock_demo Threads::Threads)
+target_link_libraries(04_condition_variable Threads::Threads)
+target_link_libraries(05_atomic_demo Threads::Threads)
+target_link_libraries(06_threadsafe_queue Threads::Threads)
+target_link_libraries(07_producer_consumer Threads::Threads)
 
-target_include_directories(video_capture_demo PRIVATE
-    ${FFMPEG_INCLUDE_DIRS}
-    ${SDL2_INCLUDE_DIRS}
-)
+# 添加头文件路径
+include_directories(include)
 
-target_link_libraries(video_capture_demo
-    ${FFMPEG_LIBRARIES}
-    SDL2::SDL2
-)
-
-# ========== 2. 音频采集演示 ==========
-add_executable(audio_capture_demo src/audio_capture_demo.cpp)
-
-target_include_directories(audio_capture_demo PRIVATE
-    ${FFMPEG_INCLUDE_DIRS}
-)
-
-target_link_libraries(audio_capture_demo
-    ${FFMPEG_LIBRARIES}
-)
-
-# ========== 3. 音视频同步采集 ==========
-add_executable(av_capture_demo src/av_capture_demo.cpp)
-
-target_include_directories(av_capture_demo PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${FFMPEG_INCLUDE_DIRS}
-    ${SDL2_INCLUDE_DIRS}
-)
-
-target_link_libraries(av_capture_demo
-    ${FFMPEG_LIBRARIES}
-    SDL2::SDL2
-)
-
-# 编译选项
-set(COMMON_FLAGS ${FFMPEG_CFLAGS_OTHER} -Wall -Wextra)
-target_compile_options(video_capture_demo PRIVATE ${COMMON_FLAGS})
-target_compile_options(audio_capture_demo PRIVATE ${COMMON_FLAGS})
-target_compile_options(av_capture_demo PRIVATE ${COMMON_FLAGS})
-
-# 安装
-install(TARGETS video_capture_demo audio_capture_demo av_capture_demo DESTINATION bin)
+# 打印编译信息
+message(STATUS "Chapter 5: C++11 Threading")
+message(STATUS "Build examples:")
+message(STATUS "  01_thread_basics")
+message(STATUS "  02_mutex_demo")
+message(STATUS "  03_deadlock_demo")
+message(STATUS "  04_condition_variable")
+message(STATUS "  05_atomic_demo")
+message(STATUS "  06_threadsafe_queue")
+message(STATUS "  07_producer_consumer")

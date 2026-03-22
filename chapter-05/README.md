@@ -1,870 +1,1286 @@
-# 第五章：采集与音频 3A 处理
+# 第五章：C++11 多线程基础
 
-> **本章目标**：实现音视频采集，获取摄像头和麦克风数据，并进行音频 3A（AEC/ANS/AGC）处理。
+> **本章目标**：掌握 C++11 多线程编程基础，为第六章异步播放器打下坚实基础。
 > 
-> 本章介绍 3A 处理原理并实现简化版本用于学习。生产环境可使用 **WebRTC APM** 或 **SpeexDSP** 等成熟库。
+ > **前置知识**：C++ 基础语法、面向对象编程
+> 
+> **本章代码**：所有示例均可编译运行，位于 `chapter-05/src/`
 
-前四章完成了观众端播放器（本地播放、异步、网络、RTMP 直播拉流）。从本章开始构建**主播端**。主播端的核心任务是**采集**——从硬件设备获取音视频原始数据，处理后推送到服务器。
+在音视频开发中，**多线程**是不可或缺的核心技术。播放器需要同时处理：网络数据接收、音视频解码、渲染显示——这些任务如果串行执行，画面必然卡顿。
 
-**核心挑战**：
-- 麦克风采集到扬声器回声 → 需要 **AEC（回声消除）**
-- 环境噪声干扰 → 需要 **ANS（降噪）**
-- 说话声音忽大忽小 → 需要 **AGC（自动增益）**
+本章将系统学习 C++11 引入的现代多线程库，从基础概念到线程安全队列，为后续构建高性能异步播放器做好准备。
 
-**阅读指南**：
-- 第 1-3 节：理解采集的作用，视频采集原理，FFmpeg 设备访问
-- 第 4-6 节：音频采集基础，3A 原理详解，简化实现
-- 第 7-8 节：音视频同步，采集参数优化
-- 第 9-10 节：性能优化，本章总结
+---
+
+## 🎯 本章学习路径
+
+```
+线程基础 ──┬──→ std::thread、join/detach、线程管理
+           │
+互斥同步 ──┼──→ mutex、lock_guard、死锁避免
+           │
+条件变量 ──┼──→ wait/notify、虚假唤醒、超时
+           │
+原子操作 ──┼──→ atomic、内存序基础
+           │
+队列实现 ──┴──→ 双条件变量、优雅停止
+
+调试技巧 ─────→ GDB多线程、TSan检测数据竞争
+```
 
 ---
 
 ## 目录
 
-1. [从播放到直播：采集的重要性](#1-从播放到直播采集的重要性)
-2. [视频采集原理](#2-视频采集原理)
-3. [跨平台视频采集实现](#3-跨平台视频采集实现)
-4. [音频采集基础](#4-音频采集基础)
-5. [音频 3A 处理原理](#5-音频-3a-处理原理)
-6. [WebRTC APM 集成](#6-webrtc-apm-集成)
-7. [音视频同步](#7-音视频同步)
-8. [采集参数配置](#8-采集参数配置)
-9. [性能优化](#9-性能优化)
-10. [本章总结](#10-本章总结)
+1. [线程基础](#1-线程基础)
+   - [1.1 创建线程](#11-创建线程)
+   - [1.2 线程管理](#12-线程管理)
+   - [1.3 线程ID与命名](#13-线程id与命名)
+2. [互斥与同步](#2-互斥与同步)
+   - [2.1 为什么需要互斥](#21-为什么需要互斥)
+   - [2.2 std::mutex基础](#22-stdmutex基础)
+   - [2.3 RAII锁管理](#23-raii锁管理)
+   - [2.4 死锁演示与避免](#24-死锁演示与避免)
+3. [条件变量](#3-条件变量)
+   - [3.1 生产者-消费者问题](#31-生产者-消费者问题)
+   - [3.2 wait与notify](#32-wait与notify)
+   - [3.3 虚假唤醒](#33-虚假唤醒)
+   - [3.4 超时等待](#34-超时等待)
+4. [原子操作](#4-原子操作)
+   - [4.1 std::atomic基础](#41-stdatomic基础)
+   - [4.2 内存序简介](#42-内存序简介)
+   - [4.3 无锁计数器](#43-无锁计数器)
+5. [线程安全队列](#5-线程安全队列)
+   - [5.1 设计目标](#51-设计目标)
+   - [5.2 双条件变量设计](#52-双条件变量设计)
+   - [5.3 优雅停止](#53-优雅停止)
+   - [5.4 完整实现](#54-完整实现)
+6. [多线程调试技巧](#6-多线程调试技巧)
+   - [6.1 GDB多线程调试](#61-gdb多线程调试)
+   - [6.2 ThreadSanitizer检测数据竞争](#62-threadsanitizer检测数据竞争)
+   - [6.3 常见问题排查](#63-常见问题排查)
+7. [本章总结](#7-本章总结)
 
 ---
 
-## 1. 从播放到直播：采集的重要性
+## 1. 线程基础
 
-**本节概览**：回顾前五章内容，理解采集在直播系统中的位置和面临的挑战。
+### 1.1 创建线程
 
-<img src="docs/images/live-system-arch.svg" width="100%"/>
-
-### 1.1 前五章回顾
-
-```
-前五章：播放器端（观众视角）
-├── 本地文件播放
-├── 网络下载播放
-├── RTMP 直播拉流
-└── 硬件解码
-
-    ↓
-
-第六章起：主播端（主播视角）
-├── 音视频采集  ← 本章
-├── 视频编码
-├── RTMP 推流
-└── 连麦互动
-```
-
-### 1.2 直播系统架构
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        直播系统架构                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│    主播端                        服务器           观众端     │
-│   ┌──────────┐                ┌─────────┐      ┌────────┐  │
-│   │  摄像头  │──采集──→       │  接收   │      │        │  │
-│   │  麦克风  │──采集──→       │  转码   │←─────│ 播放器 │  │
-│   └──────────┘                │  分发   │      │        │  │
-│       ↓                       └────┬────┘      └────────┘  │
-│   ┌──────────┐                     │                       │
-│   │ 3A处理   │                     ↓                       │
-│   │ AEC/ANS  │                CDN 分发                      │
-│   │ AGC      │                     │                       │
-│   └──────────┘                     ↓                       │
-│       ↓                       ┌─────────┐                  │
-│   ┌──────────┐                │ 观众 1  │                  │
-│   │ 视频编码 │──推流──→       │ 观众 2  │                  │
-│   │ H.264   │                │ 观众 N  │                  │
-│   └──────────┘                └─────────┘                  │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 1.3 采集面临的挑战
-
-| 挑战 | 影响 | 解决方案 |
-|:---|:---|:---|
-| **设备兼容性** | 不同摄像头参数差异大 | 统一抽象接口 |
-| **回声问题** | 扬声器声音被麦克风采集 | AEC 回声消除 |
-| **环境噪声** | 键盘声、空调声干扰 | ANS 降噪 |
-| **音量不均** | 说话声音忽大忽小 | AGC 自动增益 |
-| **音视频同步** | 画面和声音不同步 | 时间戳对齐 |
-| **资源占用** | 采集+编码同时运行 | 异步处理 |
-
-### 1.4 本章目标
-
-```
-原始采集数据
-    ↓
-┌──────────────┐
-│  视频采集     │  → 1280x720, 30fps, YUV420P
-│  摄像头       │
-└──────────────┘
-    ↓
-┌──────────────┐
-│  音频采集     │  → 48kHz, 16bit, 立体声
-│  麦克风       │
-└──────────────┘
-    ↓
-┌──────────────┐
-│  音频 3A      │  → 消除回声、降噪、音量均衡
-│  AEC/ANS/AGC │
-└──────────────┘
-    ↓
-处理后数据 → 编码 → 推流
-```
-
-**本节小结**：采集是主播端第一步，面临回声、噪声、同步等挑战。本章将使用 WebRTC APM 实现专业音频处理。下一节介绍视频采集原理。
-
----
-
-## 2. 视频采集原理
-
-**本节概览**：介绍摄像头的工作原理、常用像素格式、以及帧率控制。
-
-### 2.1 摄像头工作流程
-
-```
-光学镜头
-    ↓
-图像传感器 (CMOS/CCD)
-    ↓ 光电转换
-原始 Bayer 数据
-    ↓ ISP 处理
-┌─────────────────────────────┐
-│  ISP (Image Signal Processor)│
-│  - 去噪 (Denoise)            │
-│  - 白平衡 (White Balance)    │
-│  - 曝光补偿 (Exposure)       │
-│  - 色彩校正 (Color Correction)│
-│  - 锐化 (Sharpen)            │
-└─────────────────────────────┘
-    ↓
-输出图像 (YUV/RGB/MJPEG)
-```
-
-### 2.2 常用像素格式
-
-| 格式 | 采样 | 每像素字节 | 用途 |
-|:---|:---:|:---:|:---|
-| **YUY2** | 4:2:2 | 2 | 传统摄像头 |
-| **NV12** | 4:2:0 | 1.5 | 现代摄像头，硬件友好 |
-| **YUV420P** | 4:2:0 | 1.5 | 编码器标准输入 |
-| **MJPEG** | 压缩 | 可变 | 高分辨率场景 |
-| **H.264** | 压缩 | 可变 | 部分摄像头直接输出 |
-
-**格式选择建议**：
-- **优先 NV12**：现代编码器原生支持，无需转换
-- **避免 MJPEG**：需要解码，增加 CPU 负担
-
-### 2.3 帧率与分辨率
-
-| 场景 | 分辨率 | 帧率 | 码率建议 |
-|:---|:---|:---:|:---:|
-| 屏幕共享 | 1920x1080 | 15fps | 2 Mbps |
-| 标准直播 | 1280x720 | 30fps | 4 Mbps |
-| 游戏直播 | 1920x1080 | 60fps | 8 Mbps |
-| 高清访谈 | 1920x1080 | 30fps | 6 Mbps |
-
-**帧率与流畅度**：
-- 15fps：可感知卡顿，适合静态内容
-- 30fps：**标准选择**，流畅自然
-- 60fps：丝滑体验，适合游戏/运动
-
-**本节小结**：摄像头输出经过 ISP 处理，常用 NV12/YUV420P 格式。帧率选择根据场景需求。下一节实现视频采集代码。
-
----
-
-## 3. 跨平台视频采集实现
-
-**本节概览**：使用 FFmpeg 的 libavdevice 实现跨平台视频采集。
-
-### 3.1 FFmpeg 设备采集
-
-FFmpeg 封装了各平台的设备访问：
-- Linux：Video4Linux2 (V4L2) - `/dev/video0`
-- macOS：AVFoundation - `0` (默认摄像头)
-- Windows：DirectShow - `video=Camera Name`
-
-### 3.2 打开摄像头
+C++11 引入了 `std::thread` 类，让创建线程变得简单：
 
 ```cpp
-#include <libavdevice/avdevice.h>
-#include <libavformat/avformat.h>
+#include <thread>
 #include <iostream>
 
-class VideoCapture {
-public:
-    bool Open(const std::string& device, int width, int height, int fps) {
-        // 注册设备
-        avdevice_register_all();
-        
-        // 选择输入格式
-        const AVInputFormat* input_format = nullptr;
-        std::string dev = device;
-        
-#if defined(__APPLE__)
-        input_format = av_find_input_format("avfoundation");
-        if (device.empty()) dev = "0";
-#elif defined(__linux__)
-        input_format = av_find_input_format("v4l2");
-        if (device.empty()) dev = "/dev/video0";
-#endif
-        
-        // 设置参数
-        AVDictionary* options = nullptr;
-        char video_size[32];
-        snprintf(video_size, sizeof(video_size), "%dx%d", width, height);
-        av_dict_set(&options, "video_size", video_size, 0);
-        
-        char framerate[16];
-        snprintf(framerate, sizeof(framerate), "%d", fps);
-        av_dict_set(&options, "framerate", framerate, 0);
-        
-        // 优先尝试 NV12，其次是 YUY2
-        av_dict_set(&options, "pixel_format", "nv12", 0);
-        
-        // 打开设备
-        int ret = avformat_open_input(&ctx_, dev.c_str(), input_format, &options);
-        av_dict_free(&options);
-        
-        if (ret < 0) {
-            char errbuf[256];
-            av_strerror(ret, errbuf, sizeof(errbuf));
-            std::cerr << "Failed to open camera: " << errbuf << std::endl;
-            return false;
-        }
-        
-        // 获取流信息
-        ret = avformat_find_stream_info(ctx_, nullptr);
-        if (ret < 0) {
-            std::cerr << "Failed to find stream info" << std::endl;
-            return false;
-        }
-        
-        // 查找视频流
-        video_idx_ = av_find_best_stream(ctx_, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
-        if (video_idx_ < 0) {
-            std::cerr << "No video stream found" << std::endl;
-            return false;
-        }
-        
-        AVStream* stream = ctx_>streams[video_idx_];
-        width_ = stream->codecpar->width;
-        height_ = stream->codecpar->height;
-        
-        std::cout << "Camera opened: " << width_ << "x" << height_ << std::endl;
-        return true;
-    }
-    
-    AVFrame* ReadFrame() {
-        AVPacket* pkt = av_packet_alloc();
-        
-        if (av_read_frame(ctx_, pkt) < 0) {
-            av_packet_free(&pkt);
-            return nullptr;
-        }
-        
-        if (pkt->stream_index != video_idx_) {
-            av_packet_unref(pkt);
-            av_packet_free(&pkt);
-            return nullptr;
-        }
-        
-        // 解码（如果是 MJPEG）
-        // 简化处理，实际需要初始化解码器
-        AVFrame* frame = av_frame_alloc();
-        // ... 解码逻辑
-        
-        av_packet_unref(pkt);
-        av_packet_free(&pkt);
-        return frame;
-    }
-    
-    void Close() {
-        if (ctx_) {
-            avformat_close_input(&ctx_);
-        }
-    }
-    
-    int GetWidth() const { return width_; }
-    int GetHeight() const { return height_; }
+void hello_world() {
+    std::cout << "Hello from thread!\n";
+}
 
-private:
-    AVFormatContext* ctx_ = nullptr;
-    int video_idx_ = -1;
-    int width_ = 0;
-    int height_ = 0;
-};
+int main() {
+    // 创建线程
+    std::thread t(hello_world);
+    
+    // 等待线程结束
+    t.join();
+    
+    std::cout << "Main thread done\n";
+    return 0;
+}
 ```
 
-### 3.3 设备列表
+**编译运行**：
+```bash
+g++ -std=c++11 -pthread 01_hello_thread.cpp -o hello_thread
+./hello_thread
+```
+
+**输出**：
+```
+Hello from thread!
+Main thread done
+```
+
+**关键点**：
+- 必须链接 pthread 库（`-pthread`）
+- `join()` 等待线程完成，否则程序会崩溃
+
+#### 传递参数
 
 ```cpp
-// 列出可用摄像头（Linux）
-std::vector<std::string> ListCameras() {
-    std::vector<std::string> cameras;
+#include <thread>
+#include <string>
+#include <iostream>
+
+void print_message(const std::string& msg, int times) {
+    for (int i = 0; i < times; i++) {
+        std::cout << msg << " " << i << "\n";
+    }
+}
+
+int main() {
+    // 传递参数给线程函数
+    std::thread t(print_message, "Hello", 3);
+    t.join();
+    return 0;
+}
+```
+
+**⚠️ 注意**：默认情况下参数会被**复制**到线程。如果要用引用，需用 `std::ref`：
+
+```cpp
+void modify_value(int& x) {
+    x *= 2;
+}
+
+int main() {
+    int value = 21;
+    // 错误：值被复制，原value不变
+    // std::thread t(modify_value, value);
+    
+    // 正确：使用std::ref传递引用
+    std::thread t(modify_value, std::ref(value));
+    t.join();
+    
+    std::cout << value << "\n";  // 输出 42
+    return 0;
+}
+```
+
+#### Lambda 表达式
+
+更常见的用法是用 lambda 捕获局部变量：
+
+```cpp
+#include <thread>
+#include <vector>
+#include <iostream>
+
+int main() {
+    std::vector<std::thread> threads;
+    
+    for (int i = 0; i < 5; i++) {
+        // Lambda 捕获 i 的值
+        threads.emplace_back([i]() {
+            std::cout << "Thread " << i << " running\n";
+        });
+    }
+    
+    // 等待所有线程
+    for (auto& t : threads) {
+        t.join();
+    }
+    
+    return 0;
+}
+```
+
+**输出**（顺序可能不同）：
+```
+Thread 0 running
+Thread 1 running
+Thread 2 running
+Thread 3 running
+Thread 4 running
+```
+
+### 1.2 线程管理
+
+#### join vs detach
+
+```cpp
+std::thread t(func);
+
+// 方式1：等待线程完成（推荐）
+t.join();
+
+// 方式2：分离线程，让它独立运行
+t.detach();
+// 分离后不能再join，线程会在后台运行直到结束
+```
+
+**何时使用 detach**？
+- 守护线程（后台日志写入）
+- 长期运行的服务线程
+- 明确不需要等待的任务
+
+**⚠️ 危险示例**：
+
+```cpp
+void dangerous_detach() {
+    int local_var = 42;
+    
+    std::thread t([&]() {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // 危险！函数返回后 local_var 已不存在
+        std::cout << local_var << "\n";  // 未定义行为！
+    });
+    
+    t.detach();  // 不要这样做！
+    // 函数返回，local_var 被销毁
+}
+```
+
+#### 线程生命周期
+
+```
+创建线程 ──→ 运行 ──→ 结束
+    │           │
+    │           ├── join() ──→ 主线程等待
+    │           │
+    └── detach() ─→ 后台运行
+```
+
+### 1.3 线程ID与命名
+
+C++ 标准没有提供线程命名功能，但我们可以自己实现：
+
+```cpp
+#include <thread>
+#include <mutex>
+#include <map>
+#include <string>
+#include <sstream>
+
+class ThreadNamer {
+public:
+    static void set_name(const std::string& name) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        names_[std::this_thread::get_id()] = name;
+    }
+    
+    static std::string get_name() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto it = names_.find(std::this_thread::get_id());
+        if (it != names_.end()) {
+            return it->second;
+        }
+        return thread_id_to_string();
+    }
+    
+    static std::string get_name(std::thread::id id) {
+        std::lock_guard<std::mutex> lock(mutex_);
+        auto it = names_.find(id);
+        if (it != names_.end()) {
+            return it->second;
+        }
+        std::ostringstream oss;
+        oss << id;
+        return oss.str();
+    }
+
+private:
+    static std::string thread_id_to_string() {
+        std::ostringstream oss;
+        oss << std::this_thread::get_id();
+        return oss.str();
+    }
+    
+    static std::mutex mutex_;
+    static std::map<std::thread::id, std::string> names_;
+};
+
+// 静态成员定义
+std::mutex ThreadNamer::mutex_;
+std::map<std::thread::id, std::string> ThreadNamer::names_;
+
+// 使用示例
+void worker_thread() {
+    ThreadNamer::set_name("Worker-1");
+    std::cout << "Running in: " << ThreadNamer::get_name() << "\n";
+}
+
+int main() {
+    std::thread t(worker_thread);
+    std::cout << "Main thread ID: " << ThreadNamer::get_name() << "\n";
+    std::cout << "Worker thread ID: " << ThreadNamer::get_name(t.get_id()) << "\n";
+    t.join();
+    return 0;
+}
+```
+
+---
+
+## 2. 互斥与同步
+
+### 2.1 为什么需要互斥
+
+多个线程同时读写共享数据会导致**数据竞争**：
+
+```cpp
+#include <thread>
+#include <iostream>
+
+int counter = 0;
+
+void increment() {
+    for (int i = 0; i < 100000; i++) {
+        counter++;  // 非原子操作！
+    }
+}
+
+int main() {
+    std::thread t1(increment);
+    std::thread t2(increment);
+    
+    t1.join();
+    t2.join();
+    
+    std::cout << "Counter: " << counter << "\n";  // 应该是 200000
+    return 0;
+}
+```
+
+**输出**（每次运行结果不同）：
+```
+Counter: 143882  // 错误！
+Counter: 156234  // 错误！
+```
+
+**问题分析**：
+`counter++` 实际上包含三步操作：
+1. 读取 counter 的值
+2. 值加 1
+3. 写回 counter
+
+当两个线程同时执行时，可能发生：
+```
+线程A 读取 counter = 100
+线程B 读取 counter = 100  (同时！)
+线程A 写入 counter = 101
+线程B 写入 counter = 101  (覆盖了A的结果！)
+```
+
+### 2.2 std::mutex 基础
+
+使用互斥锁保护共享数据：
+
+```cpp
+#include <thread>
+#include <mutex>
+#include <iostream>
+
+int counter = 0;
+std::mutex mtx;  // 互斥锁
+
+void increment() {
+    for (int i = 0; i < 100000; i++) {
+        mtx.lock();    // 获取锁
+        counter++;     // 临界区
+        mtx.unlock();  // 释放锁
+    }
+}
+
+int main() {
+    std::thread t1(increment);
+    std::thread t2(increment);
+    
+    t1.join();
+    t2.join();
+    
+    std::cout << "Counter: " << counter << "\n";  // 正确：200000
+    return 0;
+}
+```
+
+### 2.3 RAII 锁管理
+
+手动 `lock/unlock` 容易出错（异常时可能忘记 unlock）。使用 RAII 类自动管理：
+
+#### std::lock_guard
+
+最简单的 RAII 锁，构造时加锁，析构时解锁：
+
+```cpp
+void increment() {
+    for (int i = 0; i < 100000; i++) {
+        std::lock_guard<std::mutex> lock(mtx);  // 构造时加锁
+        counter++;                               // 临界区
+    }  // 析构时自动解锁
+}
+```
+
+#### std::unique_lock
+
+更灵活的锁，支持延迟加锁、手动解锁等：
+
+```cpp
+#include <mutex>
+#include <thread>
+
+std::mutex mtx;
+int data = 0;
+bool ready = false;
+
+void producer() {
+    std::unique_lock<std::mutex> lock(mtx);  // 立即加锁
+    data = 42;
+    ready = true;
+    lock.unlock();  // 手动解锁（可选，析构时也会解锁）
+}
+
+void consumer() {
+    std::unique_lock<std::mutex> lock(mtx, std::defer_lock);  // 延迟加锁
+    // ... 做一些不需要锁的工作
+    lock.lock();  // 现在加锁
+    if (ready) {
+        std::cout << data << "\n";
+    }
+}
+```
+
+**lock_guard vs unique_lock**：
+
+| 特性 | lock_guard | unique_lock |
+|:---|:---:|:---:|
+| 自动加锁/解锁 | ✅ | ✅ |
+| 延迟加锁 | ❌ | ✅ |
+| 手动解锁 | ❌ | ✅ |
+| 可移动 | ❌ | ✅ |
+| 条件变量 | ❌ | ✅ |
+| 性能 | 更快 | 稍慢 |
+
+### 2.4 死锁演示与避免
+
+**死锁**：两个线程互相等待对方释放锁，导致永久阻塞。
+
+```cpp
+#include <thread>
+#include <mutex>
+#include <iostream>
+
+std::mutex mtx1;
+std::mutex mtx2;
+
+void thread_a() {
+    std::lock_guard<std::mutex> lock1(mtx1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::lock_guard<std::mutex> lock2(mtx2);  // 等待 mtx2
+    std::cout << "Thread A got both locks\n";
+}
+
+void thread_b() {
+    std::lock_guard<std::mutex> lock1(mtx2);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::lock_guard<std::mutex> lock2(mtx1);  // 等待 mtx1
+    std::cout << "Thread B got both locks\n";
+}
+
+int main() {
+    std::thread t1(thread_a);
+    std::thread t2(thread_b);
+    
+    t1.join();  // 永远不会结束！
+    t2.join();
+    return 0;
+}
+```
+
+**死锁示意图**：
+
+```
+线程A          线程B
+  │              │
+  ▼              ▼
+锁定 mtx1     锁定 mtx2
+  │              │
+  ▼              ▼
+等待 mtx2 ◄─── 等待 mtx1
+ (阻塞)         (阻塞)
+   └─────────────┘
+      互相等待
+```
+
+**避免死锁的原则**：
+
+1. **固定加锁顺序**：所有线程按相同顺序获取锁
+2. **使用 std::lock**：同时获取多个锁
+3. **避免嵌套锁**：一个线程不要同时持有多个锁
+
+**正确示例 1：固定顺序**：
+
+```cpp
+void thread_a() {
+    std::lock_guard<std::mutex> lock1(mtx1);
+    std::lock_guard<std::mutex> lock2(mtx2);
+    // ...
+}
+
+void thread_b() {
+    std::lock_guard<std::mutex> lock1(mtx1);  // 和A相同顺序
+    std::lock_guard<std::mutex> lock2(mtx2);
+    // ...
+}
+```
+
+**正确示例 2：使用 std::lock**：
+
+```cpp
+void safe_thread() {
+    std::unique_lock<std::mutex> lock1(mtx1, std::defer_lock);
+    std::unique_lock<std::mutex> lock2(mtx2, std::defer_lock);
+    
+    // 同时获取两个锁，避免死锁
+    std::lock(lock1, lock2);
+    // ...
+}
+```
+
+---
+
+## 3. 条件变量
+
+### 3.1 生产者-消费者问题
+
+经典的多线程问题：一个线程生产数据，一个线程消费数据。
+
+**朴素实现（有缺陷）**：
+
+```cpp
+#include <queue>
+#include <thread>
+#include <mutex>
+
+std::queue<int> queue;
+std::mutex mtx;
+
+void producer() {
+    for (int i = 0; i < 100; i++) {
+        std::lock_guard<std::mutex> lock(mtx);
+        queue.push(i);
+    }
+}
+
+void consumer() {
+    while (true) {
+        std::lock_guard<std::mutex> lock(mtx);
+        if (!queue.empty()) {
+            int val = queue.front();
+            queue.pop();
+            // 处理 val
+        }
+        // 问题：队列为空时不断循环检查，浪费CPU（忙等待）
+    }
+}
+```
+
+### 3.2 wait 与 notify
+
+使用条件变量解决忙等待问题：
+
+```cpp
+#include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <iostream>
+
+std::queue<int> queue;
+std::mutex mtx;
+std::condition_variable cv;
+bool done = false;
+
+void producer() {
     for (int i = 0; i < 10; i++) {
-        std::string dev = "/dev/video" + std::to_string(i);
-        if (access(dev.c_str(), F_OK) == 0) {
-            cameras.push_back(dev);
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            queue.push(i);
+            std::cout << "Produced: " << i << "\n";
+        }
+        cv.notify_one();  // 通知消费者
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        done = true;
+    }
+    cv.notify_all();  // 通知所有消费者结束
+}
+
+void consumer() {
+    while (true) {
+        std::unique_lock<std::mutex> lock(mtx);
+        
+        // 等待条件（自动释放锁，被唤醒后重新获取锁）
+        cv.wait(lock, []() { return !queue.empty() || done; });
+        
+        if (!queue.empty()) {
+            int val = queue.front();
+            queue.pop();
+            lock.unlock();  // 提前解锁，处理数据时不需要锁
+            
+            std::cout << "Consumed: " << val << "\n";
+        } else if (done) {
+            break;
         }
     }
-    return cameras;
+}
+
+int main() {
+    std::thread p(producer);
+    std::thread c(consumer);
+    
+    p.join();
+    c.join();
+    return 0;
 }
 ```
 
-**本节小结**：FFmpeg libavdevice 提供跨平台设备采集。Linux 使用 V4L2，macOS 使用 AVFoundation。优先选择 NV12 格式。下一节介绍音频采集。
+**条件变量工作流程**：
 
----
-
-## 4. 音频采集基础
-
-**本节概览**：介绍音频采集的基本概念：采样率、位深、声道数，以及 FFmpeg 音频采集实现。
-
-### 4.1 音频三要素
-
-| 参数 | 常见值 | 说明 |
-|:---|:---|:---|
-| **采样率** | 44100 Hz, 48000 Hz | 每秒采样次数 |
-| **位深** | 16-bit, 32-bit | 采样精度 |
-| **声道数** | 1 (单声道), 2 (立体声) | 音频通道数 |
-
-**数据量计算**：
 ```
-48000 Hz × 16-bit × 2 声道 = 1536 kbps = 192 KB/s
-1 分钟原始音频：192 KB/s × 60 = 11.25 MB
+生产者                    消费者
+   │                        │
+   ▼                        ▼
+锁定 mtx                 锁定 mtx
+   │                        │
+   ▼                        ▼
+放入数据              cv.wait() 检查条件
+   │                   - 条件满足：继续
+   ▼                   - 条件不满足：解锁，阻塞
+notify_one() ◄───────────┘
+   │                     (被唤醒)
+   │                        │
+   ▼                        ▼
+解锁 mtx                 重新锁定 mtx
+                          继续执行
 ```
 
-### 4.2 音频帧
+### 3.3 虚假唤醒
 
-音频数据以帧为单位处理：
-```
-10ms 音频帧 @ 48000Hz:
-- 采样数：48000 × 0.01 = 480 个采样
-- 字节数：480 × 2 声道 × 2 字节 = 1920 字节
-```
-
-常用帧长：
-- 10ms：低延迟，适合实时通信
-- 20ms：**标准选择**，平衡延迟和效率
-- 40ms：高压缩率，适合语音
-
-### 4.3 FFmpeg 音频采集
+**虚假唤醒**：条件变量的 `wait` 可能在没有 `notify` 的情况下返回。
 
 ```cpp
-#include <libavdevice/avdevice.h>
+// 错误：使用 if 判断
+if (!queue.empty()) {  // 可能被虚假唤醒，此时队列为空
+    cv.wait(lock);
+}
 
-class AudioCapture {
-public:
-    bool Open(const std::string& device, int sample_rate, int channels) {
-        avdevice_register_all();
+// 正确：使用 while 循环
+while (!queue.empty()) {  // 唤醒后再次检查条件
+    cv.wait(lock);
+}
+```
+
+**C++11 推荐写法**：使用 Predicate 版本
+
+```cpp
+// 使用 Lambda 自动处理循环
+cv.wait(lock, []() { return !queue.empty() || done; });
+
+// 等价于：
+while (!(!queue.empty() || done)) {
+    cv.wait(lock);
+}
+```
+
+### 3.4 超时等待
+
+有时需要限制等待时间，避免永久阻塞：
+
+```cpp
+#include <chrono>
+
+void consumer_with_timeout() {
+    while (true) {
+        std::unique_lock<std::mutex> lock(mtx);
         
-        const AVInputFormat* input_format = nullptr;
-        std::string dev = device;
+        // 等待最多 1 秒
+        bool has_data = cv.wait_for(lock, 
+                                     std::chrono::seconds(1),
+                                     []() { return !queue.empty() || done; });
         
-#if defined(__APPLE__)
-        input_format = av_find_input_format("avfoundation");
-        if (device.empty()) dev = ":0";  // 默认音频输入
-#elif defined(__linux__)
-        input_format = av_find_input_format("alsa");
-        if (device.empty()) dev = "default";
-#endif
-        
-        AVDictionary* options = nullptr;
-        char sample_rate_str[16];
-        snprintf(sample_rate_str, sizeof(sample_rate_str), "%d", sample_rate);
-        av_dict_set(&options, "sample_rate", sample_rate_str, 0);
-        
-        char channels_str[8];
-        snprintf(channels_str, sizeof(channels_str), "%d", channels);
-        av_dict_set(&options, "channels", channels_str, 0);
-        
-        int ret = avformat_open_input(&ctx_, dev.c_str(), input_format, &options);
-        av_dict_free(&options);
-        
-        if (ret < 0) {
-            std::cerr << "Failed to open audio device" << std::endl;
-            return false;
+        if (has_data) {
+            // 成功获取数据
+            int val = queue.front();
+            queue.pop();
+            lock.unlock();
+            std::cout << "Got: " << val << "\n";
+        } else {
+            // 超时
+            std::cout << "Timeout, no data\n";
         }
         
-        audio_idx_ = av_find_best_stream(ctx_, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
-        if (audio_idx_ < 0) {
-            std::cerr << "No audio stream found" << std::endl;
-            return false;
-        }
-        
-        sample_rate_ = sample_rate;
-        channels_ = channels;
-        return true;
+        if (done && queue.empty()) break;
     }
-
-private:
-    AVFormatContext* ctx_ = nullptr;
-    int audio_idx_ = -1;
-    int sample_rate_ = 48000;
-    int channels_ = 2;
-};
+}
 ```
 
-**本节小结**：音频采集关注采样率（48kHz）、位深（16bit）、声道数（2）。原始数据量约 192KB/s。下一节介绍 3A 处理。
+**常用超时函数**：
+
+| 函数 | 说明 |
+|:---|:---|
+| `wait_for` | 等待指定时长 |
+| `wait_until` | 等待到指定时间点 |
 
 ---
 
-## 5. 音频 3A 处理原理
+## 4. 原子操作
 
-**本节概览**：详细介绍回声消除（AEC）、降噪（ANS）、自动增益（AGC）的工作原理。
+### 4.1 std::atomic 基础
 
-<img src="docs/images/3a-processing.svg" width="100%"/>
-
-### 5.1 回声消除（AEC）
-
-**问题场景**：
-```
-远端语音 → 扬声器 → [房间混响] → 麦克风 → 回声
-                ↑_____________________|
-                        
-主播听到观众的声音，又被自己的麦克风采集，
-观众会听到自己的回声（延迟 100-500ms）
-```
-
-**AEC 原理**：
-```
-参考信号（扬声器输出）
-    ↓
-自适应滤波器 → 估计回声
-    ↓
-麦克风输入 - 估计回声 = 纯净语音
-```
-
-**关键算法**：
-- **NLMS**（归一化最小均方）：自适应滤波
-- **双端检测**：判断是单讲（只有远端/近端）还是双讲（同时说话）
-- **非线性处理**：消除残余回声
-
-### 5.2 降噪（ANS）
-
-**问题场景**：
-```
-麦克风采集：
-[主播语音] + [键盘敲击声] + [空调声] + [风扇声]
-                    ↓
-                ANS 处理
-                    ↓
-        [主播语音]（噪声被抑制）
-```
-
-**ANS 原理**：
-1. **噪声估计**：检测无声段，估计噪声频谱
-2. **频谱减法**：从带噪语音减去噪声频谱
-3. **音乐噪声抑制**：平滑处理，减少失真
-
-### 5.3 自动增益（AGC）
-
-**问题场景**：
-```
-主播说话音量变化：
-0-5s:   大声说话  ──→ 音量过大，刺耳
-5-10s:  小声说话  ──→ 音量太小，听不清
-10-15s: 正常说话  ──→ 理想音量
-
-AGC 目标：将所有音量调整到舒适范围
-```
-
-**AGC 原理**：
-```
-输入音量检测 → 与目标音量比较 → 计算增益系数 → 应用增益
-
-目标电平：-3dB ~ -1dB（峰值）
-          -18dB ~ -12dB（RMS 平均）
-```
-
-**压缩特性**：
-- 小声：放大增益（提升 10-20dB）
-- 大声：降低增益（衰减 5-10dB）
-- 防止削波：限制最大增益
-
-### 5.4 3A 处理流程
-
-```
-麦克风输入
-    ↓
-┌─────────────────────────────────────┐
-│ 1. AEC（回声消除）                    │
-│    - 消除扬声器回声                   │
-│    - 需要参考信号（扬声器输出）        │
-└─────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────┐
-│ 2. NS（降噪）                        │
-│    - 抑制键盘、风扇等稳态噪声          │
-│    - 保留语音清晰度                   │
-└─────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────┐
-│ 3. AGC（自动增益）                    │
-│    - 调整音量到目标范围               │
-│    - 防止忽大忽小                     │
-└─────────────────────────────────────┘
-    ↓
-处理后音频 → 编码 → 传输
-```
-
-**本节小结**：3A 处理是直播音频质量的关键。AEC 消除回声，ANS 抑制噪声，AGC 均衡音量。下一节实现简化版 3A 处理。
-
----
-
-## 6. 3A 处理实现
-
-**本节概览**：本节实现**简化版**的 3A 处理，用于理解原理。实际项目中可选用：
-- **WebRTC APM**：功能最完整，但集成复杂（需编译 WebRTC 或单独提取 APM 模块）
-- **SpeexDSP**：轻量级，易于集成，适合嵌入式和简单场景
-- **自研**：根据场景定制，如简单降噪可用高通滤波器
-
-### 6.1 简化实现思路
-
-APM（Audio Processing Module）包含：
-- **AEC3**：第三代回声消除，效果更好
-- **NS**：噪声抑制
-- **AGC2**：第二代自动增益
-- **VAD**：语音活动检测
-- **High Pass Filter**：高通滤波
-
-### 6.2 集成步骤
+对于简单的计数器等场景，使用原子操作比互斥锁更高效：
 
 ```cpp
-// include/live/audio_processor.h
-#pragma once
-#include <stdint.h>
-#include <stddef.h>
-#include <memory>
-
-namespace live {
-
-struct AudioConfig {
-    int sample_rate = 48000;
-    int channels = 2;
-    int frame_duration_ms = 10;
-};
-
-class AudioProcessor {
-public:
-    explicit AudioProcessor(const AudioConfig& config);
-    ~AudioProcessor();
-
-    bool Init();
-    
-    // 处理音频帧
-    // mic: 麦克风输入（interleaved PCM）
-    // speaker: 扬声器参考信号（用于 AEC）
-    // out: 处理后输出
-    void Process(const int16_t* mic, const int16_t* speaker, int16_t* out);
-    
-    // 设置处理开关
-    void EnableAEC(bool enable);
-    void EnableNS(bool enable);
-    void EnableAGC(bool enable);
-
-private:
-    class Impl;
-    std::unique_ptr<Impl> impl_;
-    AudioConfig config_;
-};
-
-} // namespace live
-```
-
-### 6.3 简化实现（基于 WebRTC）
-
-```cpp
-// src/audio_processor.cpp
-#include "live/audio_processor.h"
+#include <atomic>
+#include <thread>
 #include <iostream>
 
-// 简化的 3A 处理实现
-// 实际生产环境应使用 WebRTC APM
+std::atomic<int> counter{0};
+
+void increment() {
+    for (int i = 0; i < 100000; i++) {
+        counter++;  // 原子操作，无需锁
+    }
+}
+
+int main() {
+    std::thread t1(increment);
+    std::thread t2(increment);
+    
+    t1.join();
+    t2.join();
+    
+    std::cout << "Counter: " << counter << "\n";  // 正确：200000
+    return 0;
+}
+```
+
+**支持的类型**：
+- 整数类型：`int`, `long`, `size_t` 等
+- 指针类型：`T*`
+- 布尔类型：`bool`
+- 自定义类型（需满足 trivially copyable）
+
+**原子操作**：
+
+```cpp
+std::atomic<int> val{0};
+
+// 读
+int x = val.load();
+
+// 写
+val.store(42);
+
+// 自增/自减
+val++;
+val--;
+++val;
+--val;
+
+// 加/减
+val += 10;
+val -= 5;
+
+// 交换
+int old = val.exchange(100);  // 设置新值，返回旧值
+
+// 比较并交换（CAS）
+int expected = 0;
+bool success = val.compare_exchange_strong(expected, 42);
+// 如果 val == expected，设置为 42，返回 true
+// 否则 expected = val，返回 false
+```
+
+### 4.2 内存序简介
+
+C++11 原子操作允许指定**内存序**，控制编译器和 CPU 的指令重排：
+
+```cpp
+// 默认：顺序一致性（最严格，最慢）
+val.store(42);
+val.store(42, std::memory_order_seq_cst);
+
+// 其他内存序
+val.store(42, std::memory_order_relaxed);  // 最宽松，最快
+val.store(42, std::memory_order_release);
+val.load(std::memory_order_acquire);
+```
+
+**内存序类型**：
+
+| 内存序 | 说明 | 使用场景 |
+|:---|:---|:---|
+| `memory_order_relaxed` | 无同步保证 | 单纯计数器 |
+| `memory_order_acquire` | 读取屏障 | 配合 release 使用 |
+| `memory_order_release` | 写入屏障 | 发布数据 |
+| `memory_order_acq_rel` | 读写屏障 | 读-修改-写操作 |
+| `memory_order_seq_cst` | 全局顺序 | 默认，最安全 |
+
+**简单规则**：
+- 如果不懂内存序，用默认的 `seq_cst`
+- 对于简单计数器，可以用 `relaxed` 获得更好性能
+
+### 4.3 无锁计数器
+
+实现高性能的无锁计数器：
+
+```cpp
+#include <atomic>
+#include <thread>
+#include <vector>
+#include <iostream>
+
+class AtomicCounter {
+public:
+    void increment() {
+        // relaxed 足够用于简单计数
+        count_.fetch_add(1, std::memory_order_relaxed);
+    }
+    
+    int get() const {
+        return count_.load(std::memory_order_relaxed);
+    }
+    
+private:
+    std::atomic<int> count_{0};
+};
+
+int main() {
+    AtomicCounter counter;
+    std::vector<std::thread> threads;
+    
+    for (int i = 0; i < 4; i++) {
+        threads.emplace_back([&counter]() {
+            for (int j = 0; j < 100000; j++) {
+                counter.increment();
+            }
+        });
+    }
+    
+    for (auto& t : threads) {
+        t.join();
+    }
+    
+    std::cout << "Final count: " << counter.get() << "\n";
+    return 0;
+}
+```
+
+---
+
+## 5. 线程安全队列
+
+### 5.1 设计目标
+
+为音视频播放器设计一个线程安全的队列：
+
+1. **多生产者-多消费者**：多个线程可以并发 push/pop
+2. **阻塞等待**：队列为空时消费者阻塞，而非忙等待
+3. **优雅停止**：支持安全地停止队列操作
+4. **有界队列**：防止内存无限增长
+
+### 5.2 双条件变量设计
+
+使用两个条件变量分别处理**队列非空**和**队列非满**：
+
+```
+┌─────────────────────────────────────┐
+│         ThreadSafeQueue             │
+├─────────────────────────────────────┤
+│  std::queue<T> queue_               │
+│  std::mutex mtx_                    │
+│  std::condition_variable not_empty_ │  ← 消费者等待
+│  std::condition_variable not_full_  │  ← 生产者等待
+│  bool stop_ = false                 │
+│  size_t max_size_                   │
+└─────────────────────────────────────┘
+```
+
+### 5.3 优雅停止
+
+支持两种停止方式：
+1. **立即停止**：清空队列，拒绝新任务
+2. **优雅停止**：处理完队列中剩余的任务再停止
+
+### 5.4 完整实现
+
+```cpp
+// include/live/threadsafe_queue.h
+#pragma once
+
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+#include <optional>
+#include <chrono>
 
 namespace live {
 
-class AudioProcessor::Impl {
+template<typename T>
+class ThreadSafeQueue {
 public:
-    Impl(const AudioConfig& cfg) : config_(cfg) {
-        samples_per_frame_ = config_.sample_rate * config_.frame_duration_ms / 1000;
+    explicit ThreadSafeQueue(size_t max_size = 0) 
+        : max_size_(max_size), stop_(false) {}
+    
+    ~ThreadSafeQueue() {
+        stop();
     }
     
-    bool Init() {
-        // 初始化 AEC、NS、AGC
-        std::cout << "[AudioProcessor] Initialized: " 
-                  <> config_.sample_rate <> "Hz, " 
-                  <> config_.channels <> " channels" <> std::endl;
+    // 禁止拷贝和移动
+    ThreadSafeQueue(const ThreadSafeQueue&) = delete;
+    ThreadSafeQueue& operator=(const ThreadSafeQueue&) = delete;
+    ThreadSafeQueue(ThreadSafeQueue&&) = delete;
+    ThreadSafeQueue& operator=(ThreadSafeQueue&&) = delete;
+    
+    // 入队，如果队列满则阻塞
+    bool push(const T& value) {
+        std::unique_lock<std::mutex> lock(mtx_);
+        
+        // 等待队列非满
+        not_full_.wait(lock, [this]() {
+            return stop_ || max_size_ == 0 || queue_.size() < max_size_;
+        });
+        
+        if (stop_) return false;
+        
+        queue_.push(value);
+        not_empty_.notify_one();
         return true;
     }
     
-    void Process(const int16_t* mic, const int16_t* speaker, int16_t* out) {
-        size_t samples = samples_per_frame_ * config_.channels;
+    // 入队（移动语义）
+    bool push(T&& value) {
+        std::unique_lock<std::mutex> lock(mtx_);
         
-        // 1. AEC：简单实现（实际用 WebRTC）
-        if (aec_enabled_ && speaker) {
-            for (size_t i = 0; i < samples; i++) {
-                // 简单回声消除：减去参考信号的一部分
-                int32_t val = mic[i] - (speaker[i] >> 2);  // 减去 25%
-                out[i] = static_cast<int16_t>(std::max(-32768, std::min(32767, val)));
-            }
-        } else {
-            memcpy(out, mic, samples * sizeof(int16_t));
+        not_full_.wait(lock, [this]() {
+            return stop_ || max_size_ == 0 || queue_.size() < max_size_;
+        });
+        
+        if (stop_) return false;
+        
+        queue_.push(std::move(value));
+        not_empty_.notify_one();
+        return true;
+    }
+    
+    // 非阻塞入队
+    bool try_push(const T& value) {
+        std::lock_guard<std::mutex> lock(mtx_);
+        
+        if (stop_) return false;
+        if (max_size_ > 0 && queue_.size() >= max_size_) {
+            return false;  // 队列满
         }
         
-        // 2. NS：简单降噪（实际用频谱减法）
-        if (ns_enabled_) {
-            for (size_t i = 0; i < samples; i++) {
-                // 简单门限降噪
-                if (abs(out[i]) < 500) {
-                    out[i] = 0;
-                }
-            }
+        queue_.push(value);
+        not_empty_.notify_one();
+        return true;
+    }
+    
+    // 出队，如果队列空则阻塞
+    std::optional<T> pop() {
+        std::unique_lock<std::mutex> lock(mtx_);
+        
+        // 等待队列非空
+        not_empty_.wait(lock, [this]() {
+            return stop_ || !queue_.empty();
+        });
+        
+        if (stop_ && queue_.empty()) {
+            return std::nullopt;
         }
         
-        // 3. AGC：简单增益（实际用压缩器）
-        if (agc_enabled_) {
-            // 计算 RMS
-            int64_t sum = 0;
-            for (size_t i = 0; i < samples; i++) {
-                sum += out[i] * out[i];
-            }
-            int rms = static_cast<int>(sqrt(sum / samples));
-            
-            // 目标 RMS：3000
-            if (rms > 0 && rms < 3000) {
-                int gain = std::min(3000 / rms, 10);  // 最大增益 10x
-                for (size_t i = 0; i < samples; i++) {
-                    int32_t val = out[i] * gain;
-                    out[i] = static_cast<int16_t>(std::max(-32768, std::min(32767, val)));
-                }
-            }
+        T value = std::move(queue_.front());
+        queue_.pop();
+        not_full_.notify_one();
+        return value;
+    }
+    
+    // 超时出队
+    template<typename Rep, typename Period>
+    std::optional<T> pop_for(const std::chrono::duration<Rep, Period>& timeout) {
+        std::unique_lock<std::mutex> lock(mtx_);
+        
+        bool has_data = not_empty_.wait_for(lock, timeout, [this]() {
+            return stop_ || !queue_.empty();
+        });
+        
+        if (!has_data || (stop_ && queue_.empty())) {
+            return std::nullopt;
+        }
+        
+        T value = std::move(queue_.front());
+        queue_.pop();
+        not_full_.notify_one();
+        return value;
+    }
+    
+    // 非阻塞出队
+    std::optional<T> try_pop() {
+        std::lock_guard<std::mutex> lock(mtx_);
+        
+        if (queue_.empty()) {
+            return std::nullopt;
+        }
+        
+        T value = std::move(queue_.front());
+        queue_.pop();
+        not_full_.notify_one();
+        return value;
+    }
+    
+    // 停止队列，唤醒所有等待的线程
+    void stop() {
+        {
+            std::lock_guard<std::mutex> lock(mtx_);
+            stop_ = true;
+        }
+        not_empty_.notify_all();
+        not_full_.notify_all();
+    }
+    
+    // 重置队列状态
+    void reset() {
+        std::lock_guard<std::mutex> lock(mtx_);
+        stop_ = false;
+        // 清空队列
+        while (!queue_.empty()) {
+            queue_.pop();
         }
     }
+    
+    // 获取当前大小
+    size_t size() const {
+        std::lock_guard<std::mutex> lock(mtx_);
+        return queue_.size();
+    }
+    
+    // 检查是否为空
+    bool empty() const {
+        std::lock_guard<std::mutex> lock(mtx_);
+        return queue_.empty();
+    }
 
-    bool aec_enabled_ = true;
-    bool ns_enabled_ = true;
-    bool agc_enabled_ = true;
-    AudioConfig config_;
-    int samples_per_frame_;
+private:
+    mutable std::mutex mtx_;
+    std::condition_variable not_empty_;
+    std::condition_variable not_full_;
+    std::queue<T> queue_;
+    size_t max_size_;
+    bool stop_;
 };
-
-AudioProcessor::AudioProcessor(const AudioConfig& config)
-    : impl_(std::make_unique<Impl>(config))
-    , config_(config) {
-}
-
-AudioProcessor::~AudioProcessor() = default;
-
-bool AudioProcessor::Init() {
-    return impl_>Init();
-}
-
-void AudioProcessor::Process(const int16_t* mic, const int16_t* speaker, int16_t* out) {
-    impl_>Process(mic, speaker, out);
-}
-
-void AudioProcessor::EnableAEC(bool enable) {
-    impl_>aec_enabled_ = enable;
-}
-
-void AudioProcessor::EnableNS(bool enable) {
-    impl_>ns_enabled_ = enable;
-}
-
-void AudioProcessor::EnableAGC(bool enable) {
-    impl_>agc_enabled_ = enable;
-}
 
 } // namespace live
 ```
 
-**本节小结**：WebRTC APM 是工业级 3A 处理库。本章使用简化实现演示原理，生产环境应集成完整 APM。下一节介绍音视频同步。
-
 ---
 
-## 7. 音视频同步
+## 6. 多线程调试技巧
 
-**本节概览**：音视频采集可能产生时间差，需要通过时间戳对齐实现同步。
+### 6.1 GDB 多线程调试
 
-### 7.1 同步问题
+#### 基本命令
 
+```bash
+# 编译时添加调试信息
+g++ -g -pthread thread_test.cpp -o thread_test
+
+# 启动 GDB
+gdb ./thread_test
+
+# 常用命令
+(gdb) run                    # 运行程序
+(gdb) info threads           # 查看所有线程
+(gdb) thread 2               # 切换到线程 2
+(gdb) bt                     # 查看当前线程调用栈
+(gdb) thread apply all bt    # 查看所有线程调用栈
+(gdb) break main thread 1    # 在 main 线程设置断点
+(gdb) set scheduler-locking on  # 锁定调度，只运行当前线程
+(gdb) set scheduler-locking off # 恢复所有线程
 ```
-理想情况：
-视频帧 ────────┬────────┬────────┬────────
-               ↓        ↓        ↓
-音频帧 ────────┴────────┴────────┴────────
-               T0       T1       T2
 
-实际情况：
-视频帧 ───────────┬────────┬────────┬──────── (延迟 50ms)
-                  ↓
-音频帧 ────────┬──┴────────┴────────┴────────
-               ↑
-           音视频不同步！
+#### 实际调试示例
+
+```bash
+$ gdb ./thread_test
+(gdb) run
+^C  # 按 Ctrl+C 中断
+Program received signal SIGINT, Interrupt.
+[Switching to Thread 0x7ffff6ffd700 (LWP 12345)]
+
+(gdb) info threads
+  Id   Target Id              Frame
+* 1    Thread 0x7ffff7fe8740  main () at thread_test.cpp:45
+  2    Thread 0x7ffff6ffd700  std::mutex::lock (this=0x6010c0) at mutex.cpp:123
+  3    Thread 0x7ffff67fc700  pthread_cond_wait () at pthread_cond_wait.c:234
+
+(gdb) thread 2
+[Switching to thread 2]
+(gdb) bt
+#0  std::mutex::lock (this=0x6010c0) at mutex.cpp:123
+#1  0x0000000000401a2b in worker_thread () at thread_test.cpp:23
+#2  0x00007ffff7bc16ba in start_thread () from /libpthread.so.0
+
+(gdb) thread apply all bt
+# 查看所有线程的调用栈，找出死锁
 ```
 
-### 7.2 时间戳方案
+### 6.2 ThreadSanitizer 检测数据竞争
+
+ThreadSanitizer (TSan) 是编译器内置的工具，可以自动检测数据竞争。
+
+#### 使用方法
+
+```bash
+# 使用 Clang 或 GCC 编译（推荐 Clang，报告更详细）
+clang++ -fsanitize=thread -g -O1 thread_test.cpp -o thread_test
+
+# 运行程序，TSan 会自动检测问题
+./thread_test
+```
+
+#### 检测示例
+
+**问题代码**：
 
 ```cpp
-class AVSynchronizer {
-public:
-    // 获取当前系统时间（微秒）
-    int64_t GetCurrentTime() {
-        struct timeval tv;
-        gettimeofday(&tv, nullptr);
-        return tv.tv_sec * 1000000LL + tv.tv_usec;
+#include <thread>
+
+int shared_data = 0;
+
+void increment() {
+    for (int i = 0; i < 10000; i++) {
+        shared_data++;  // 数据竞争！
     }
-    
-    // 视频帧打时间戳
-    void TimestampVideoFrame(AVFrame* frame) {
-        frame->pts = GetCurrentTime();
+}
+
+int main() {
+    std::thread t1(increment);
+    std::thread t2(increment);
+    t1.join();
+    t2.join();
+    return 0;
+}
+```
+
+**TSan 报告**：
+
+```
+$ ./thread_test
+==================
+WARNING: ThreadSanitizer: data race (pid=12345)
+  Write of size 4 at 0x0000014bc0a0 by thread T1:
+    #0 increment() thread_test.cpp:7:9
+    #1 decltype(std::declval<void (*)()>()) std::thread::_Invoker<...>::_M_invoke<...>
+
+  Previous write of size 4 at 0x0000014bc0a0 by thread T2:
+    #0 increment() thread_test.cpp:7:9
+    #1 decltype(std::declval<void (*)()>()) std::thread::_Invoker<...>::_M_invoke<...>
+
+  Location is global 'shared_data' of size 4 at 0x0000014bc0a0
+
+SUMMARY: ThreadSanitizer: data race thread_test.cpp:7:9 in increment()
+==================
+```
+
+**修复后**：
+
+```cpp
+#include <thread>
+#include <atomic>
+
+std::atomic<int> shared_data{0};  // 使用原子变量
+
+void increment() {
+    for (int i = 0; i < 10000; i++) {
+        shared_data++;
     }
-    
-    // 音频帧打时间戳
-    void TimestampAudioFrame(AudioFrame* frame) {
-        frame->pts = GetCurrentTime();
-    }
-    
-    // 同步检查
-    bool CheckSync(int64_t video_pts, int64_t audio_pts) {
-        int64_t diff = video_pts - audio_pts;
-        if (diff > 40000 || diff < -40000) {  // > 40ms
-            std::cout << "AV sync drift: " <> diff <> " us" <> std::endl;
-            return false;
-        }
-        return true;
-    }
-};
+}
+// ...
 ```
 
-### 7.3 同步策略
+### 6.3 常见问题排查
 
-| 策略 | 说明 | 适用 |
-|:---|:---|:---|
-| **视频同步到音频** | 调整视频播放速度 | 音乐直播 |
-| **音频同步到视频** | 调整音频播放速度 | 口型要求高 |
-| **外部时钟** | 两者都同步到独立时钟 | 专业场景 |
+#### 死锁排查清单
 
-**本节小结**：音视频同步通过时间戳实现，容忍度约 ±40ms。视频通常同步到音频（人耳对音频更敏感）。下一节介绍采集参数配置。
+1. **检查锁的顺序**：所有线程是否按相同顺序获取锁？
+2. **检查回调函数**：锁内是否调用了可能获取其他锁的函数？
+3. **检查异常安全**：异常时锁是否正确释放？
+4. **使用 `std::lock`**：同时获取多个锁时使用
 
----
+#### 性能问题排查
 
-## 8. 采集参数配置
+```bash
+# 使用 perf 分析线程性能
+perf record -g ./thread_test
+perf report
 
-**本节概览**：介绍采集参数的配置策略，以及不同场景的推荐设置。
-
-### 8.1 分辨率与帧率选择
-
-| 场景 | 分辨率 | 帧率 | 码率 |
-|:---|:---|:---:|:---:|
-| 屏幕共享 | 1920x1080 | 15fps | 2 Mbps |
-| 标准直播 | 1280x720 | 30fps | 4 Mbps |
-| 游戏直播 | 1920x1080 | 60fps | 8 Mbps |
-| 高清访谈 | 1920x1080 | 30fps | 6 Mbps |
-
-### 8.2 音频参数选择
-
-| 参数 | 推荐值 | 说明 |
-|:---|:---:|:---|
-| 采样率 | 48000 Hz | 与视频行业一致 |
-| 位深 | 16-bit | 足够动态范围 |
-| 声道 | 立体声 | 空间感 |
-| 帧长 | 20ms | 平衡延迟和效率 |
-
-**本节小结**：采集参数根据场景选择。标准直播推荐 720p@30fps + 48kHz 音频。下一节介绍性能优化。
-
----
-
-## 9. 性能优化
-
-**本节概览**：采集+编码同时运行，需要优化 CPU 使用。
-
-### 9.1 异步处理架构
-
-```
-采集线程
-    ↓ 原始帧
-┌─────────────────────────────────────┐
-│  帧队列（生产者-消费者）              │
-└─────────────────────────────────────┘
-    ↓
-处理线程（3A + 编码）
-    ↓ 编码后数据
-推流线程
+# 使用 strace 查看系统调用
+strace -f -e futex ./thread_test
 ```
 
-### 9.2 优化建议
+#### 调试技巧总结
 
-1. **使用硬件编码**：减轻 CPU 负担
-2. **降低预览分辨率**：采集高分辨率，预览低分辨率
-3. **帧率自适应**：网络差时降低帧率
-4. **CPU 亲和性**：绑定采集线程到特定核心
-
-**本节小结**：异步架构和硬件编码是性能优化的关键。下一节总结本章。
-
----
-
-## 10. 本章总结
-
-### 10.1 本章回顾
-
-本章实现了音视频采集和 3A 处理：
-
-1. **视频采集**：FFmpeg libavdevice，跨平台支持
-2. **音频采集**：48kHz, 16-bit, 立体声
-3. **音频 3A**：
-   - AEC：消除扬声器回声
-   - ANS：抑制环境噪声
-   - AGC：自动调整音量
-4. **WebRTC APM**：工业级 3A 处理库
-5. **音视频同步**：时间戳对齐，±40ms 容忍度
-6. **性能优化**：异步处理，硬件编码
-
-### 10.2 当前能力
-
-```
-摄像头采集 → YUV420P
-              ↓
-麦克风采集 → PCM ─→ 3A处理 ─→ 纯净音频
-              ↓                    ↓
-           时间戳对齐 → 编码 → 推流
-```
-
-### 10.3 下一步
-
-第六章将实现**视频编码与 RTMP 推流**，将原始数据编码压缩，并推送到 RTMP 服务器。
-
-**第 6 章预告**：
-- H.264 编码原理与 x264 使用
-- CBR/VBR 码率控制策略
-- RTMP 推流协议实现
-- 完整直播推流系统
-
----
-
-## 附录
-
-### 参考资源
-
-- [FFmpeg Device Documentation](https://ffmpeg.org/ffmpeg-devices.html)
-- [WebRTC Audio Processing](https://webrtc.googlesource.com/src/+/refs/heads/main/modules/audio_processing/)
-- [Video4Linux2 API](https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/v4l2.html)
-
-### 术语表
-
-| 术语 | 解释 |
+| 问题 | 工具/方法 |
 |:---|:---|
-| AEC | Acoustic Echo Cancellation，回声消除 |
-| ANS/NS | Noise Suppression，降噪 |
-| AGC | Automatic Gain Control，自动增益控制 |
-| VAD | Voice Activity Detection，语音活动检测 |
-| Interleaved | 交错采样（LR LR LR）|
-| PCM | Pulse Code Modulation，脉冲编码调制 |
+| 死锁 | GDB `info threads` + `bt` |
+| 数据竞争 | ThreadSanitizer |
+| 锁竞争 | perf, Intel VTune |
+| 内存问题 | AddressSanitizer, Valgrind |
+
+---
+
+## 7. 本章总结
+
+### 知识点回顾
+
+| 主题 | 核心内容 |
+|:---|:---|
+| **线程基础** | `std::thread`、join/detach、线程ID |
+| **互斥锁** | `std::mutex`、`lock_guard`、`unique_lock` |
+| **条件变量** | `wait`/`notify`、虚假唤醒、超时等待 |
+| **原子操作** | `std::atomic`、内存序基础 |
+| **线程安全队列** | 双条件变量、优雅停止 |
+| **调试技巧** | GDB多线程、TSan检测 |
+
+### 最佳实践
+
+1. **优先使用高阶抽象**：
+   - `lock_guard` 比手动 `lock/unlock` 更安全
+   - `std::atomic` 比 `mutex` 更高效（简单场景）
+
+2. **避免常见陷阱**：
+   - 不要在锁内调用外部函数
+   - 总是使用 while 循环检查条件变量
+   - 注意 lambda 捕获的生命周期
+
+3. **调试优先**：
+   - 开发时用 TSan 检测数据竞争
+   - 掌握 GDB 多线程调试技巧
+
+### 下一步
+
+第六章将使用本章学到的多线程技术，构建**异步播放器**：
+- 使用线程安全队列在解码线程和渲染线程间传递数据
+- 使用条件变量实现平滑的帧同步
+- 使用原子操作管理播放状态
+
+---
+
+## 附录：示例代码索引
+
+| 文件名 | 说明 |
+|:---|:---|
+| `01_hello_thread.cpp` | 基础线程创建 |
+| `02_mutex_basics.cpp` | 互斥锁基础 |
+| `03_deadlock_demo.cpp` | 死锁演示 |
+| `04_condition_variable.cpp` | 条件变量使用 |
+| `05_atomic_counter.cpp` | 原子操作示例 |
+| `06_threadsafe_queue_demo.cpp` | 线程安全队列使用 |
+| `07_data_race_tsan.cpp` | TSan 检测示例 |
+
+**编译所有示例**：
+
+```bash
+cd chapter-05
+mkdir build && cd build
+cmake ..
+make
+```
+
+---
+
+**本章完** 🎉
