@@ -1,0 +1,91 @@
+<svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="900" height="400" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="450" y="35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#333">HLS 时移回放 (DVR) 原理</text>
+  
+  <!-- ============== 时间轴 ============== -->
+  <rect x="20" y="60" width="860" height="150" rx="8" fill="#e3f2fd" stroke="#1976d2" stroke-width="1"/>
+  <text x="450" y="85" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1565c0">直播流时间轴与切片窗口</text>
+  
+  <!-- 时间轴主线 -->
+  <line x1="60" y1="120" x2="840" y2="120" stroke="#1976d2" stroke-width="2"/>
+  
+  <!-- 时间点 -->
+  <circle cx="100" cy="120" r="5" fill="#e53935"/>
+  <circle cx="200" cy="120" r="5" fill="#e53935"/>
+  <circle cx="300" cy="120" r="5" fill="#e53935"/>
+  <circle cx="400" cy="120" r="5" fill="#e53935"/>
+  <circle cx="500" cy="120" r="5" fill="#43a047"/>
+  <circle cx="600" cy="120" r="5" fill="#43a047"/>
+  <circle cx="700" cy="120" r="5" fill="#43a047"/>
+  <circle cx="800" cy="120" r="5" fill="#43a047"/>
+  
+  <!-- 切片 -->
+  <rect x="80" y="140" width="40" height="30" rx="2" fill="#ffcdd2" stroke="#e53935" stroke-width="1"/>
+  <text x="100" y="160" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333">000</text>
+  
+  <rect x="180" y="140" width="40" height="30" rx="2" fill="#ffcdd2" stroke="#e53935" stroke-width="1"/>
+  <text x="200" y="160" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333">001</text>
+  
+  <rect x="280" y="140" width="40" height="30" rx="2" fill="#ffcdd2" stroke="#e53935" stroke-width="1"/>
+  <text x="300" y="160" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333">002</text>
+  
+  <rect x="380" y="140" width="40" height="30" rx="2" fill="#ffcdd2" stroke="#e53935" stroke-width="1"/>
+  <text x="400" y="160" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333">003</text>
+  
+  <rect x="480" y="140" width="40" height="30" rx="2" fill="#c8e6c9" stroke="#43a047" stroke-width="1"/>
+  <text x="500" y="160" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333">004</text>
+  
+  <rect x="580" y="140" width="40" height="30" rx="2" fill="#c8e6c9" stroke="#43a047" stroke-width="1"/>
+  <text x="600" y="160" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333">005</text>
+  
+  <rect x="680" y="140" width="40" height="30" rx="2" fill="#c8e6c9" stroke="#43a047" stroke-width="1"/>
+  <text x="700" y="160" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333">006</text>
+  
+  <rect x="780" y="140" width="40" height="30" rx="2" fill="#c8e6c9" stroke="#43a047" stroke-width="1"/>
+  <text x="800" y="160" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#333">007</text>
+  
+  <!-- 时移窗口标注 -->
+  <rect x="380" y="100" width="440" height="85" rx="4" fill="none" stroke="#1976d2" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="600" y="95" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#1976d2" font-weight="bold">时移窗口 (Time-Shift Window)</text>
+  
+  <!-- 过期切片 -->
+  <rect x="80" y="175" width="300" height="20" rx="2" fill="#ffcdd2" opacity="0.5"/>
+  <text x="230" y="190" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#e53935">已过期 (从m3u8移除)</text>
+  
+  <!-- 可回放切片 -->
+  <rect x="380" y="175" width="440" height="20" rx="2" fill="#c8e6c9" opacity="0.5"/>
+  <text x="600" y="190" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#43a047">当前在m3u8中，支持时移回放</text>
+  
+  <!-- ============== 下方：时移实现方式 ============== -->
+  <rect x="20" y="230" width="420" height="150" rx="8" fill="#fff3e0" stroke="#f57c00" stroke-width="1"/>
+  <text x="230" y="255" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ef6c00">m3u8 索引更新</text>
+  
+  <rect x="40" y="275" width="380" height="90" rx="4" fill="#fff" stroke="#ffcc80" stroke-width="1"/>
+  
+  <text x="50" y="295" font-family="monospace" font-size="10" fill="#333">#EXTM3U</text>
+  <text x="50" y="312" font-family="monospace" font-size="10" fill="#333">#EXT-X-TARGETDURATION:6</text>
+  <text x="50" y="329" font-family="monospace" font-size="10" fill="#e53935">#EXT-X-MEDIA-SEQUENCE:4  ← 滑动窗口起始</text>
+  <text x="50" y="346" font-family="monospace" font-size="10" fill="#333">#EXTINF:6.000, live004.ts</text>
+  <text x="50" y="363" font-family="monospace" font-size="10" fill="#333">#EXTINF:6.000, live005.ts</text>
+  
+  <!-- 说明 -->
+  <rect x="460" y="230" width="420" height="150" rx="8" fill="#e8f5e9" stroke="#43a047" stroke-width="1"/>
+  <text x="670" y="255" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#2e7d32">时移回放机制</text>
+  
+  <rect x="480" y="275" width="380" height="90" rx="4" fill="#fff" stroke="#a5d6a7" stroke-width="1"/>
+  
+  <text x="490" y="300" font-family="Arial, sans-serif" font-size="11" fill="#333">1. 播放器加载 m3u8，获取当前切片列表</text>
+  <text x="490" y="325" font-family="Arial, sans-serif" font-size="11" fill="#333">2. 用户拖动进度条选择历史时间点</text>
+  <text x="490" y="350" font-family="Arial, sans-serif" font-size="11" fill="#333">3. 播放器计算对应切片，从该点开始播放</text>
+  
+  <!-- 窗口大小说明 -->
+  <rect x="20" y="385" width="860" height="55" rx="8" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="1"/>
+  <text x="450" y="410" font-family="Arial, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#6a1b9a">时移窗口配置</text>
+  
+  <text x="50" y="435" font-family="Arial, sans-serif" font-size="11" fill="#333">• 典型窗口大小: 4-24 小时 (取决于存储成本)</text>
+  <text x="400" y="435" font-family="Arial, sans-serif" font-size="11" fill="#333">• 切片时长: 2-10 秒 (影响时移精度和m3u8大小)</text>
+  <text x="700" y="435" font-family="Arial, sans-serif" font-size="11" fill="#333">• #EXT-X-PLAYLIST-TYPE:EVENT 禁止滑动</text>
+</svg>

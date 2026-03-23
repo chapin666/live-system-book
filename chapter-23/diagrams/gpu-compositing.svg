@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+  <!-- Background -->
+  <rect width="900" height="500" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">GPU加速视频合屏</text>
+  
+  <!-- CPU Processing --
+  <rect x="50" y="60" width="380" height="200" fill="#ffebee" stroke="#c62828" stroke-width="2" rx="8"/>
+  <text x="240" y="85" text-anchor="middle" font-size="16" font-weight="bold" fill="#c62828">CPU合屏 (慢)</text>
+  
+  <!-- CPU Flow --
+  <rect x="70" y="100" width="60" height="40" fill="#ef5350" rx="4"/>
+  <text x="100" y="125" text-anchor="middle" font-size="10" fill="white">输入1</text>
+  
+  <rect x="140" y="100" width="60" height="40" fill="#ef5350" rx="4"/>
+  <text x="170" y="125" text-anchor="middle" font-size="10" fill="white">输入2</text>
+  
+  <rect x="210" y="100" width="60" height="40" fill="#ef5350" rx="4"/>
+  <text x="240" y="125" text-anchor="middle" font-size="10" fill="white">输入3</text>
+  
+  <rect x="280" y="100" width="60" height="40" fill="#ef5350" rx="4"/>
+  <text x="310" y="125" text-anchor="middle" font-size="10" fill="white">输入4</text>
+  
+  <!-- CPU Processing Steps --
+  <rect x="70" y="155" width="70" height="40" fill="#e57373" rx="4"/>
+  <text x="105" y="180" text-anchor="middle" font-size="9" fill="white">解码</text>
+  
+  <rect x="150" y="155" width="70" height="40" fill="#e57373" rx="4"/>
+  <text x="185" y="180" text-anchor="middle" font-size="9" fill="white">缩放</text>
+  
+  <rect x="230" y="155" width="70" height="40" fill="#e57373" rx="4"/>
+  <text x="265" y="180" text-anchor="middle" font-size="9" fill="white">复制</text>
+  
+  <rect x="310" y="155" width="70" height="40" fill="#e57373" rx="4"/>
+  <text x="345" y="180" text-anchor="middle" font-size="9" fill="white">编码</text>
+  
+  <!-- CPU Arrows --
+  <path d="M100 140 L105 155" stroke="#c62828" stroke-width="1.5"/>
+  <path d="M170 140 L185 155" stroke="#c62828" stroke-width="1.5"/>
+  <path d="M240 140 L265 155" stroke="#c62828" stroke-width="1.5"/>
+  <path d="M310 140 L345 155" stroke="#c62828" stroke-width="1.5"/>
+  
+  <path d="M140 175 L150 175" stroke="#c62828" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <path d="M220 175 L230 175" stroke="#c62828" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <path d="M300 175 L310 175" stroke="#c62828" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  
+  <!-- CPU Output --
+  <rect x="180" y="210" width="120" height="35" fill="#c62828" rx="4"/>
+  <text x="240" y="232" text-anchor="middle" font-size="11" fill="white">输出帧</text>
+  
+  <path d="M345 195 L300 210" stroke="#c62828" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  
+  <!-- CPU Stats --
+  <rect x="70" y="255" width="330" height="50" fill="#ffcdd2" rx="4"/>
+  <text x="235" y="275" text-anchor="middle" font-size="11" fill="#c62828">CPU性能 (1080p@30fps)</text>
+  <text x="235" y="295" text-anchor="middle" font-size="10" fill="#555">4路合屏: ~80% CPU占用 | 延迟: 50-100ms | 可处理: 1-2路输出</text>
+  
+  <!-- GPU Processing --
+  <rect x="470" y="60" width="380" height="200" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2" rx="8"/>
+  <text x="660" y="85" text-anchor="middle" font-size="16" font-weight="bold" fill="#2e7d32">GPU合屏 (快)</text>
+  
+  <!-- GPU Texture Upload --
+  <rect x="490" y="100" width="60" height="40" fill="#66bb6a" rx="4"/>
+  <text x="520" y="120" text-anchor="middle" font-size="9" fill="white">输入1</text>
+  <text x="520" y="133" text-anchor="middle" font-size="8" fill="#c8e6c9">→纹理</text>
+  
+  <rect x="560" y="100" width="60" height="40" fill="#66bb6a" rx="4"/>
+  <text x="590" y="120" text-anchor="middle" font-size="9" fill="white">输入2</text>
+  <text x="590" y="133" text-anchor="middle" font-size="8" fill="#c8e6c9">→纹理</text>
+  
+  <rect x="630" y="100" width="60" height="40" fill="#66bb6a" rx="4"/>
+  <text x="660" y="120" text-anchor="middle" font-size="9" fill="white">输入3</text>
+  <text x="660" y="133" text-anchor="middle" font-size="8" fill="#c8e6c9">→纹理</text>
+  
+  <rect x="700" y="100" width="60" height="40" fill="#66bb6a" rx="4"/>
+  <text x="730" y="120" text-anchor="middle" font-size="9" fill="white">输入4</text>
+  <text x="730" y="133" text-anchor="middle" font-size="8" fill="#c8e6c9">→纹理</text>
+  
+  <!-- GPU Shader Processing --
+  <rect x="520" y="155" width="280" height="70" fill="#43a047" rx="4"/>
+  <text x="660" y="178" text-anchor="middle" font-size="12" fill="white" font-weight="bold">GPU Shader并行处理</text>
+  
+  <!-- GPU operations --
+  <rect x="535" y="190" width="60" height="25" fill="#2e7d32" rx="3"/>
+  <text x="565" y="207" text-anchor="middle" font-size="9" fill="white">解码</text>
+  
+  <rect x="605" y="190" width="60" height="25" fill="#2e7d32" rx="3"/>
+  <text x="635" y="207" text-anchor="middle" font-size="9" fill="white">缩放</text>
+  
+  <rect x="675" y="190" width="60" height="25" fill="#2e7d32" rx="3"/>
+  <text x="705" y="207" text-anchor="middle" font-size="9" fill="white">合屏</text>
+  
+  <rect x="745" y="190" width="40" height="25" fill="#2e7d32" rx="3"/>
+  <text x="765" y="207" text-anchor="middle" font-size="9" fill="white">编码</text>
+  
+  <!-- GPU Arrows to Shader --
+  <path d="M520 140 L600 155" stroke="#2e7d32" stroke-width="1.5"/>
+  <path d="M590 140 L620 155" stroke="#2e7d32" stroke-width="1.5"/>
+  <path d="M660 140 L660 155" stroke="#2e7d32" stroke-width="1.5"/>
+  <path d="M730 140 L700 155" stroke="#2e7d32" stroke-width="1.5"/>
+  
+  <!-- GPU Output --
+  <rect x="600" y="240" width="120" height="35" fill="#1b5e20" rx="4"/>
+  <text x="660" y="262" text-anchor="middle" font-size="11" fill="white">输出帧</text>
+  
+  <path d="M660 225 L660 240" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arrowhead2)"/>
+  
+  <!-- GPU Stats --
+  <rect x="490" y="255" width="330" height="50" fill="#c8e6c9" rx="4"/>
+  <text x="655" y="275" text-anchor="middle" font-size="11" fill="#2e7d32">GPU性能 (1080p@30fps)</text>
+  <text x="655" y="295" text-anchor="middle" font-size="10" fill="#555">4路合屏: ~20% GPU占用 | 延迟: 10-20ms | 可处理: 8-16路输出</text>
+  
+  <!-- Comparison Table --
+  <rect x="50" y="330" width="800" height="150" fill="white" stroke="#ccc" stroke-width="1" rx="5"/>
+  <text x="450" y="355" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">CPU vs GPU 合屏对比</text>
+  
+  <!-- Table Header --
+  <rect x="70" y="370" width="150" height="30" fill="#e0e0e0"/>
+  <rect x="220" y="370" width="280" height="30" fill="#ffcdd2"/>
+  <rect x="500" y="370" width="280" height="30" fill="#c8e6c9"/>
+  
+  <text x="145" y="390" text-anchor="middle" font-size="11" fill="#333">指标</text>
+  <text x="360" y="390" text-anchor="middle" font-size="11" fill="#c62828">CPU</text>
+  <text x="640" y="390" text-anchor="middle" font-size="11" fill="#2e7d32">GPU</text>
+  
+  <!-- Table Rows --
+  <text x="75" y="415" font-size="10" fill="#333">4路合屏延迟</text>
+  <text x="225" y="415" font-size="10" fill="#555">50-100ms</text>
+  <text x="505" y="415" font-size="10" fill="#555">10-20ms</text>
+  
+  <text x="75" y="435" font-size="10" fill="#333">资源占用</text>
+  <text x="225" y="435" font-size="10" fill="#555">~80% 单核CPU</text>
+  <text x="505" y="435" font-size="10" fill="#555">~20% GPU</text>
+  
+  <text x="75" y="455" font-size="10" fill="#333">最大并发路数</text>
+  <text x="225" y="455" font-size="10" fill="#555">1-2路输出/核</text>
+  <text x="505" y="455" font-size="10" fill="#555">8-16路输出/卡</text>
+  
+  <text x="75" y="475" font-size="10" fill="#333">功耗</text>
+  <text x="225" y="475" font-size="10" fill="#555">高 (CPU满载)</text>
+  <text x="505" y="475" font-size="10" fill="#555">中 (GPU专用)</text>
+  
+  <!-- GPU Technologies --
+  <rect x="870" y="60" width="120" height="420" fill="#f5f5f5" stroke="#999" stroke-width="1" rx="5"/>
+  <text x="930" y="85" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">GPU技术</text>
+  
+  <rect x="885" y="100" width="90" height="60" fill="#76ff03" rx="4"/>
+  <text x="930" y="130" text-anchor="middle" font-size="11" fill="#1b5e20" font-weight="bold">CUDA</text>
+  <text x="930" y="148" text-anchor="middle" font-size="9" fill="#33691e">NVIDIA</text>
+  
+  <rect x="885" y="170" width="90" height="60" fill="#ff6d00" rx="4"/>
+  <text x="930" y="200" text-anchor="middle" font-size="11" fill="white" font-weight="bold">OpenCL</text>
+  <text x="930" y="218" text-anchor="middle" font-size="9" fill="#ffe0b2">通用</text>
+  
+  <rect x="885" y="240" width="90" height="60" fill="#2979ff" rx="4"/>
+  <text x="930" y="270" text-anchor="middle" font-size="11" fill="white" font-weight="bold">DirectX</text>
+  <text x="930" y="288" text-anchor="middle" font-size="9" fill="#bbdefb">Windows</text>
+  
+  <rect x="885" y="310" width="90" height="60" fill="#d500f9" rx="4"/>
+  <text x="930" y="340" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Vulkan</text>
+  <text x="930" y="358" text-anchor="middle" font-size="9" fill="#e1bee7">现代API</text>
+  
+  <rect x="885" y="380" width="90" height="60" fill="#00bfa5" rx="4"/>
+  <text x="930" y="405" text-anchor="middle" font-size="10" fill="white" font-weight="bold">OpenGL</text>
+  <text x="930" y="420" text-anchor="middle" font-size="9" fill="#e0f2f1">ES</text>
+  
+  <!-- Arrow Markers --
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c62828"/>
+    </marker>
+    <marker id="arrowhead2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2e7d32"/>
+    </marker>
+  </defs>
+  
+  <!-- Recommendation --
+  <text x="450" y="495" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">💡 建议: 生产环境MCU建议使用GPU加速，可提升5-10倍处理能力</text>
+</svg>

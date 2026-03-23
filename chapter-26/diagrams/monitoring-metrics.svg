@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 550">
+  <!-- Background --
+  <rect width="900" height="550" fill="#f8f9fa"/>
+  
+  <!-- Title --
+  <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">监控指标体系</text>
+  
+  
+  <!-- Three Pillars --
+  <g transform="translate(50, 60)">
+    <!-- Media Quality --
+    <rect width="250" height="400" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    
+    <text x="125" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">音视频质量指标</text>
+    
+    <!-- Video Metrics --
+    <rect x="15" y="50" width="220" height="160" fill="#64b5f6" rx="5"/>
+    
+    <text x="125" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="white">视频指标</text>
+    
+    <text x="25" y="100" font-size="10" fill="white">• 码率 (Bitrate)</text>
+    <text x="25" y="120" font-size="10" fill="white">• 帧率 (FPS)</text>
+    <text x="25" y="140" font-size="10" fill="white">• 分辨率 (Resolution)</text>
+    <text x="25" y="160" font-size="10" fill="white">• 编码耗时 (Encode Time)</text>
+    <text x="25" y="180" font-size="10" fill="white">• QP值 (Quantization)</text>
+    <text x="25" y="200" font-size="10" fill="#ffcdd2">• 卡顿次数 (Freeze)</text>
+    
+    <!-- Audio Metrics --
+    <rect x="15" y="220" width="220" height="80" fill="#42a5f5" rx="5"/>
+    
+    <text x="125" y="245" text-anchor="middle" font-size="12" font-weight="bold" fill="white">音频指标</text>
+    
+    <text x="25" y="270" font-size="10" fill="white">• 音量 (Audio Level)</text>
+    <text x="25" y="290" font-size="10" fill="white">• 丢包隐藏 (PLC Count)</text>
+    
+    <!-- MOS Score --
+    <rect x="15" y="310" width="220" height="75" fill="#1e88e5" rx="5"/>
+    
+    <text x="125" y="335" text-anchor="middle" font-size="12" font-weight="bold" fill="white">综合评分</text>
+    
+    <text x="25" y="360" font-size="10" fill="white">• MOS (Mean Opinion Score)</text>
+    <text x="25" y="380" font-size="10" fill="white">• VMAF (Video Quality)</text>
+  </g>
+  
+  
+  <!-- Network Quality --
+  <g transform="translate(325, 60)">
+    <rect width="250" height="400" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
+    
+    <text x="125" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#f57c00">网络质量指标</text>
+    
+    <!-- Latency --
+    <rect x="15" y="50" width="220" height="100" fill="#ffb74d" rx="5"/>
+    
+    <text x="125" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="white">延迟指标</text>
+    
+    <text x="25" y="100" font-size="10" fill="#5d4037">• RTT (往返时间)</text>
+    <text x="25" y="120" font-size="10" fill="#5d4037">• 端到端延迟 (E2E)</text>
+    <text x="25" y="140" font-size="10" fill="#5d4037">• 抖动 (Jitter)</text>
+    
+    <!-- Loss --
+    <rect x="15" y="160" width="220" height="100" fill="#ffa726" rx="5"/>
+    
+    <text x="125" y="185" text-anchor="middle" font-size="12" font-weight="bold" fill="white">丢包指标</text>
+    
+    <text x="25" y="210" font-size="10" fill="#5d4037">• 丢包率 (Loss Rate)</text>
+    <text x="25" y="230" font-size="10" fill="#5d4037">• 丢包数 (Packets Lost)</text>
+    <text x="25" y="250" font-size="10" fill="#5d4037">• 乱序包 (Out of Order)</text>
+    
+    <!-- Bandwidth --
+    <rect x="15" y="270" width="220" height="115" fill="#ff9800" rx="5"/>
+    
+    <text x="125" y="295" text-anchor="middle" font-size="12" font-weight="bold" fill="white">带宽指标</text>
+    
+    <text x="25" y="320" font-size="10" fill="#5d4037">• 发送带宽 (Send BPS)</text>
+    <text x="25" y="340" font-size="10" fill="#5d4037">• 接收带宽 (Recv BPS)</text>
+    <text x="25" y="360" font-size="10" fill="#5d4037">• 可用带宽 (Available)</text>
+    <text x="25" y="380" font-size="10" fill="#5d4037">• ICE类型 (Host/Srflx/Relay)</text>
+  </g>
+  
+  
+  <!-- Device Status --
+  <g transform="translate(600, 60)">
+    <rect width="250" height="400" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
+    
+    <text x="125" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">设备状态指标</text>
+    
+    <!-- CPU/Memory --
+    <rect x="15" y="50" width="220" height="100" fill="#81c784" rx="5"/>
+    
+    <text x="125" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="white">系统资源</text>
+    
+    <text x="25" y="100" font-size="10" fill="#1b5e20">• CPU使用率 (%)</text>
+    <text x="25" y="120" font-size="10" fill="#1b5e20">• 内存使用 (MB)</text>
+    <text x="25" y="140" font-size="10" fill="#1b5e20">• 线程数 (Threads)</text>
+    
+    <!-- Mobile --
+    <rect x="15" y="160" width="220" height="100" fill="#66bb6a" rx="5"/>
+    
+    <text x="125" y="185" text-anchor="middle" font-size="12" font-weight="bold" fill="white">移动端指标</text>
+    
+    <text x="25" y="210" font-size="10" fill="#1b5e20">• 电量 (Battery Level)</text>
+    <text x="25" y="230" font-size="10" fill="#1b5e20">• 充电状态 (Charging)</text>
+    <text x="25" y="250" font-size="10" fill="#1b5e20">• 温度 (Temperature)</text>
+    
+    <!-- Device Info --
+    <rect x="15" y="270" width="220" height="115" fill="#4caf50" rx="5"/>
+    
+    <text x="125" y="295" text-anchor="middle" font-size="12" font-weight="bold" fill="white">设备信息</text>
+    
+    <text x="25" y="320" font-size="10" fill="#e8f5e9">• 操作系统 (OS)</text>
+    <text x="25" y="340" font-size="10" fill="#e8f5e9">• 设备型号 (Model)</text>
+    <text x="25" y="360" font-size="10" fill="#e8f5e9">• 浏览器版本 (Browser)</text>
+    <text x="25" y="380" font-size="10" fill="#e8f5e9">• SDK版本 (SDK Ver)</text>
+  </g>
+  
+  
+  <!-- Data Flow --
+  <g transform="translate(50, 480)">
+    <rect width="800" height="60" fill="#fafafa" stroke="#ddd" stroke-width="1" rx="5"/>
+    
+    <text x="20" y="25" font-size="12" font-weight="bold" fill="#333">数据采集流程:</text>
+    
+    <rect x="150" y="10" width="100" height="40" fill="#e3f2fd" rx="3"/>
+    <text x="200" y="35" text-anchor="middle" font-size="10" fill="#1976d2">客户端采集</text>
+    
+    <text x="260" y="35" font-size="14" fill="#666">→</text>
+    
+    <rect x="280" y="10" width="100" height="40" fill="#fff3e0" rx="3"/>
+    <text x="330" y="35" text-anchor="middle" font-size="10" fill="#f57c00">聚合上报</text>
+    
+    <text x="390" y="35" font-size="14" fill="#666">→</text>
+    
+    <rect x="410" y="10" width="100" height="40" fill="#e8f5e9" rx="3"/>
+    <text x="460" y="35" text-anchor="middle" font-size="10" fill="#388e3c">存储分析</text>
+    
+    <text x="520" y="35" font-size="14" fill="#666">→</text>
+    
+    <rect x="540" y="10" width="100" height="40" fill="#f3e5f5" rx="3"/>
+    <text x="590" y="35" text-anchor="middle" font-size="10" fill="#7b1fa2">可视化/告警</text>
+    
+    <text x="650" y="35" font-size="14" fill="#666">→</text>
+    
+    <rect x="670" y="10" width="110" height="40" fill="#ffebee" rx="3"/>
+    <text x="725" y="35" text-anchor="middle" font-size="10" fill="#c62828">自动优化</text>
+  </g>
+</svg>

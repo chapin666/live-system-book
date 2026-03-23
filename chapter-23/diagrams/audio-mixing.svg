@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 550">
+  <!-- Background -->
+  <rect width="900" height="550" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">音频混音流程</text>
+  
+  <!-- Input Streams --
+  <g transform="translate(50, 70)">
+    <rect width="180" height="400" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    <text x="90" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">输入流</text>
+    
+    <!-- User A --
+    <rect x="15" y="40" width="150" height="75" fill="#64b5f6" rx="5"/>
+    <text x="90" y="60" text-anchor="middle" font-size="12" fill="white" font-weight="bold">用户A</text>
+    <text x="90" y="78" text-anchor="middle" font-size="10" fill="#e3f2fd">PCM 16bit 48kHz</text>
+    <text x="90" y="95" text-anchor="middle" font-size="10" fill="#81c784">🎤 说话中</text>
+    
+    <!-- User B --
+    <rect x="15" y="125" width="150" height="75" fill="#64b5f6" rx="5"/>
+    <text x="90" y="145" text-anchor="middle" font-size="12" fill="white" font-weight="bold">用户B</text>
+    <text x="90" y="163" text-anchor="middle" font-size="10" fill="#e3f2fd">PCM 16bit 48kHz</text>
+    <text x="90" y="180" text-anchor="middle" font-size="10" fill="#e57373">🔇 静音</text>
+    
+    <!-- User C --
+    <rect x="15" y="210" width="150" height="75" fill="#64b5f6" rx="5"/>
+    <text x="90" y="230" text-anchor="middle" font-size="12" fill="white" font-weight="bold">用户C</text>
+    <text x="90" y="248" text-anchor="middle" font-size="10" fill="#e3f2fd">PCM 16bit 48kHz</text>
+    <text x="90" y="265" text-anchor="middle" font-size="10" fill="#81c784">🎤 说话中</text>
+    
+    <!-- User D --
+    <rect x="15" y="295" width="150" height="75" fill="#64b5f6" rx="5"/>
+    <text x="90" y="315" text-anchor="middle" font-size="12" fill="white" font-weight="bold">用户D</text>
+    <text x="90" y="333" text-anchor="middle" font-size="10" fill="#e3f2fd">PCM 16bit 48kHz</text>
+    <text x="90" y="350" text-anchor="middle" font-size="10" fill="#e57373">🔇 静音</text>
+  </g>
+  
+  <!-- Arrows to VAD --
+  <path d="M230 127 L280 127" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M230 200 L280 200" stroke="#999" stroke-width="2" marker-end="url(#arrowhead2)" stroke-dasharray="4"/>
+  <path d="M230 280 L280 280" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M230 365 L280 365" stroke="#999" stroke-width="2" marker-end="url(#arrowhead2)" stroke-dasharray="4"/>
+  
+  <!-- VAD Stage --
+  <g transform="translate(290, 70)">
+    <rect width="140" height="400" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
+    <text x="70" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">VAD检测</text>
+    
+    <rect x="15" y="40" width="110" height="75" fill="#ba68c8" rx="5"/>
+    <text x="70" y="65" text-anchor="middle" font-size="11" fill="white">能量检测</text>
+    <text x="70" y="85" text-anchor="middle" font-size="9" fill="#f3e5f5">阈值: 500</text>
+    <text x="70" y="102" text-anchor="middle" font-size="10" fill="#81c784" font-weight="bold">✓ 通过</text>
+    
+    <rect x="15" y="125" width="110" height="75" fill="#ce93d8" rx="5"/>
+    <text x="70" y="150" text-anchor="middle" font-size="11" fill="white">能量检测</text>
+    <text x="70" y="170" text-anchor="middle" font-size="9" fill="#f3e5f5">阈值: 500</text>
+    <text x="70" y="187" text-anchor="middle" font-size="10" fill="#e57373" font-weight="bold">✗ 静音</text>
+    
+    <rect x="15" y="210" width="110" height="75" fill="#ba68c8" rx="5"/>
+    <text x="70" y="235" text-anchor="middle" font-size="11" fill="white">能量检测</text>
+    <text x="70" y="255" text-anchor="middle" font-size="9" fill="#f3e5f5">阈值: 500</text>
+    <text x="70" y="272" text-anchor="middle" font-size="10" fill="#81c784" font-weight="bold">✓ 通过</text>
+    
+    <rect x="15" y="295" width="110" height="75" fill="#ce93d8" rx="5"/>
+    <text x="70" y="320" text-anchor="middle" font-size="11" fill="white">能量检测</text>
+    <text x="70" y="340" text-anchor="middle" font-size="9" fill="#f3e5f5">阈值: 500</text>
+    <text x="70" y="357" text-anchor="middle" font-size="10" fill="#e57373" font-weight="bold">✗ 静音</text>
+  </g>
+  
+  <!-- Arrows to Sync --
+  <path d="M430 127 L480 150" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <path d="M430 280 L480 210" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Sync Buffer --
+  <g transform="translate(490, 120)">
+    <rect width="120" height="130" fill="#fff8e1" stroke="#ffa000" stroke-width="2" rx="8"/>
+    <text x="60" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffa000">同步缓冲区</text>
+    
+    <rect x="15" y="40" width="90" height="30" fill="#ffcc80" rx="3"/>
+    <text x="60" y="60" text-anchor="middle" font-size="10" fill="#5d4037">用户A帧</text>
+    
+    <rect x="15" y="80" width="90" height="30" fill="#ffcc80" rx="3"/>
+    <text x="60" y="100" text-anchor="middle" font-size="10" fill="#5d4037">用户C帧</text>
+  </g>
+  
+  <!-- Arrow to Mixing --
+  <path d="M610 185 L660 220" stroke="#ffa000" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Mixing Engine --
+  <g transform="translate(670, 140)">
+    <rect width="180" height="200" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
+    <text x="90" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">混音引擎</text>
+    
+    <rect x="15" y="40" width="150" height="50" fill="#81c784" rx="5"/>
+    <text x="90" y="60" text-anchor="middle" font-size="11" fill="white">加权求和</text>
+    <text x="90" y="78" text-anchor="middle" font-size="10" fill="#e8f5e9">weight = 1/√2</text>
+    
+    <rect x="15" y="100" width="150" height="50" fill="#66bb6a" rx="5"/>
+    <text x="90" y="120" text-anchor="middle" font-size="11" fill="white">溢出处理</text>
+    <text x="90" y="138" text-anchor="middle" font-size="10" fill="#e8f5e9">clamp(-32768, 32767)</text>
+    
+    <rect x="15" y="160" width="150" height="25" fill="#4caf50" rx="3"/>
+    <text x="90" y="177" text-anchor="middle" font-size="10" fill="white">输出混合PCM</text>
+  </g>
+  
+  <!-- Arrow to Encoding --
+  <path d="M760 340 L760 380" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Audio Encoding --
+  <g transform="translate(670, 390)">
+    <rect width="180" height="80" fill="#e1f5fe" stroke="#0288d1" stroke-width="2" rx="8"/>
+    <text x="90" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#0288d1">音频编码</text>
+    
+    <text x="90" y="50" text-anchor="middle" font-size="11" fill="#555">PCM → Opus</text>
+    <text x="90" y="70" text-anchor="middle" font-size="11" fill="#555">48kHz → 64kbps</text>
+  </g>
+  
+  <!-- Formula Box --
+  <g transform="translate(490, 390)">
+    <rect width="160" height="130" fill="#fafafa" stroke="#999" stroke-width="1" rx="5"/>
+    <text x="80" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">混音公式</text>
+    
+    <text x="15" y="50" font-size="11" fill="#555">输入: A, C (2路)</text>
+    <text x="15" y="75" font-size="11" fill="#333">Mix = (A + C) / √2</text>
+    <text x="15" y="100" font-size="11" fill="#555">输出范围:</text>
+    <text x="15" y="120" font-size="11" fill="#555">[-32768, 32767]</text>
+  </g>
+  
+  <!-- Arrow Markers --
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+    </marker>
+    <marker id="arrowhead2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#999"/>
+    </marker>
+  </defs>
+  
+  <!-- Legend --
+  <g transform="translate(50, 480)">
+    <rect width="400" height="60" fill="white" stroke="#ddd" stroke-width="1" rx="5"/>
+    <text x="10" y="20" font-size="11" fill="#333" font-weight="bold">图例:</text>
+    
+    <rect x="10" y="30" width="15" height="15" fill="#64b5f6"/>
+    <text x="30" y="42" font-size="10" fill="#555">PCM输入</text>
+    
+    <rect x="100" y="30" width="15" height="15" fill="#ba68c8"/>
+    <text x="120" y="42" font-size="10" fill="#555">VAD通过</text>
+    
+    <rect x="190" y="30" width="15" height="15" fill="#ffcc80"/>
+    <text x="210" y="42" font-size="10" fill="#555">同步缓冲</text>
+    
+    <rect x="290" y="30" width="15" height="15" fill="#81c784"/>
+    <text x="310" y="42" font-size="10" fill="#555">混音处理</text>
+  </g>
+  
+  <!-- Process Info --
+  <g transform="translate(520, 480)">
+    <rect width="400" height="60" fill="#f5f5f5" stroke="#ddd" stroke-width="1" rx="5"/>
+    <text x="10" y="20" font-size="11" fill="#333" font-weight="bold">性能指标:</text>
+    <text x="10" y="40" font-size="10" fill="#555">• VAD过滤: 减少50%无效混音</text>
+    <text x="200" y="40" font-size="10" fill="#555">• 同步窗口: 200ms</text>
+    <text x="10" y="55" font-size="10" fill="#555">• 混音延迟: 10ms@48kHz</text>
+    <text x="200" y="55" font-size="10" fill="#555">• CPU占用: ~5%每路</text>
+  </g>
+</svg>

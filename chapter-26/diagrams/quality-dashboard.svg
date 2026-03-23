@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400">
+  <!-- Background --
+  <rect width="900" height="400" fill="#f8f9fa"/>
+  
+  <!-- Title --
+  <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">质量监控 Dashboard 架构</text>
+  
+  
+  <!-- Data Collection Layer --
+  <g transform="translate(50, 60)">
+    <rect width="200" height="280" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    
+    <text x="100" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#1976d2">数据采集层</text>
+    
+    <rect x="15" y="45" width="170" height="50" fill="#64b5f6" rx="5"/>
+    <text x="100" y="68" text-anchor="middle" font-size="10" fill="white">客户端SDK</text>
+    <text x="100" y="85" text-anchor="middle" font-size="9" fill="#e3f2fd">浏览器/移动端</text>
+    
+    <rect x="15" y="105" width="170" height="50" fill="#42a5f5" rx="5"/>
+    <text x="100" y="128" text-anchor="middle" font-size="10" fill="white">服务端采集</text>
+    <text x="100" y="145" text-anchor="middle" font-size="9" fill="#e3f2fd">SFU/MCU日志</text>
+    
+    <rect x="15" y="165" width="170" height="50" fill="#1e88e5" rx="5"/>
+    <text x="100" y="188" text-anchor="middle" font-size="10" fill="white">网络探针</text>
+    <text x="100" y="205" text-anchor="middle" font-size="9" fill="#e3f2fd">RTCP Reporter</text>
+  </g>
+  
+  
+  <!-- Arrow to Storage --
+  <path d="M250 200 L290 200" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  
+  <!-- Storage Layer --
+  <g transform="translate(300, 60)">
+    <rect width="200" height="280" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
+    
+    <text x="100" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#388e3c">数据存储层</text>
+    
+    <rect x="15" y="45" width="170" height="50" fill="#81c784" rx="5"/>
+    <text x="100" y="68" text-anchor="middle" font-size="10" fill="white">时序数据库</text>
+    <text x="100" y="85" text-anchor="middle" font-size="9" fill="#e8f5e9">InfluxDB/TDengine</text>
+    
+    <rect x="15" y="105" width="170" height="50" fill="#66bb6a" rx="5"/>
+    <text x="100" y="128" text-anchor="middle" font-size="10" fill="white">消息队列</text>
+    <text x="100" y="145" text-anchor="middle" font-size="9" fill="#e8f5e9">Kafka/Redis</text>
+    
+    <rect x="15" y="165" width="170" height="50" fill="#4caf50" rx="5"/>
+    <text x="100" y="188" text-anchor="middle" font-size="10" fill="white">关系数据库</text>
+    <text x="100" y="205" text-anchor="middle" font-size="9" fill="#e8f5e9">PostgreSQL</text>
+  </g>
+  
+  
+  <!-- Arrow to Processing --
+  <path d="M500 200 L540 200" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  
+  <!-- Processing Layer --
+  <g transform="translate(550, 60)">
+    <rect width="150" height="280" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
+    
+    <text x="75" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#f57c00">处理层</text>
+    
+    <rect x="15" y="50" width="120" height="50" fill="#ffb74d" rx="5"/>
+    <text x="75" y="72" text-anchor="middle" font-size="10" fill="white">实时聚合</text>
+    
+    <rect x="15" y="110" width="120" height="50" fill="#ffa726" rx="5"/>
+    <text x="75" y="132" text-anchor="middle" font-size="10" fill="white">异常检测</text>
+    
+    <rect x="15" y="170" width="120" height="50" fill="#ff9800" rx="5"/>
+    <text x="75" y="192" text-anchor="middle" font-size="10" fill="white">告警触发</text>
+  </g>
+  
+  
+  <!-- Arrow to Visualization --
+  <path d="M700 200 L740 200" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  
+  <!-- Visualization Layer --
+  <g transform="translate(750, 60)">
+    <rect width="120" height="280" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
+    
+    <text x="60" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#7b1fa2">展示层</text>
+    
+    <rect x="15" y="50" width="90" height="50" fill="#ba68c8" rx="5"/>
+    <text x="60" y="78" text-anchor="middle" font-size="10" fill="white">Grafana</text>
+    
+    <rect x="15" y="110" width="90" height="50" fill="#ab47bc" rx="5"/>
+    <text x="60" y="138" text-anchor="middle" font-size="10" fill="white">Dashboard</text>
+    
+    <rect x="15" y="170" width="90" height="50" fill="#9c27b0" rx="5"/>
+    <text x="60" y="198" text-anchor="middle" font-size="10" fill="white">告警通知</text>
+  </g>
+  
+  
+  <!-- Metrics Examples --
+  <g transform="translate(50, 360)">
+    <rect width="800" height="30" fill="#fafafa" stroke="#ddd" stroke-width="1" rx="5"/>
+    
+    <text x="20" y="20" font-size="10" fill="#666">关键指标: MOS评分 | 端到端延迟 | 丢包率 | 码率 | 帧率 | CPU/内存使用率</text>
+  </g>
+  
+  
+  <!-- Arrow Marker --
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>
