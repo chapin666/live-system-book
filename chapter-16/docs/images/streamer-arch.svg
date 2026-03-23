@@ -92,11 +92,11 @@
     
     <text x="180" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">关键指标</text>
     
-    <text x="15" y="50" font-size="11" fill="#666">端到端延迟：< 500ms</text>
-    <text x="15" y="70" font-size="11" fill="#666">CPU 占用：< 50% (1080p@30fps)</text>
-    <text x="15" y="90" font-size="11" fill="#666">丢帧率：< 1% (网络正常时)</text>
+    <text x="15" y="50" font-size="11" fill="#666">端到端延迟：&lt; 500ms</text>
+    <text x="15" y="70" font-size="11" fill="#666">CPU 占用：&lt; 50% (1080p@30fps)</text>
+    <text x="15" y="90" font-size="11" fill="#666">丢帧率：&lt; 1% (网络正常时)</text>
     
-    <text x="200" y="60" font-size="11" fill="#666">内存：< 500MB</text>
+    <text x="200" y="60" font-size="11" fill="#666">内存：&lt; 500MB</text>
     <text x="200" y="80" font-size="11" fill="#666">码率：2-4 Mbps</text>
   </g>
   
