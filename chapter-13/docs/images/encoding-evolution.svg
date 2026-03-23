@@ -1,0 +1,52 @@
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="400" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="400" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">视频编码标准演进</text>
+  
+  <!-- Timeline arrow -->
+  <line x1="100" y1="200" x2="700" y2="200" stroke="#666" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <!-- H.264 Block -->
+  <rect x="120" y="140" width="140" height="100" rx="8" fill="#4a90d9" stroke="#357abd" stroke-width="2"/>
+  <text x="190" y="175" text-anchor="middle" font-size="18" font-weight="bold" fill="white">H.264</text>
+  <text x="190" y="200" text-anchor="middle" font-size="14" fill="white">2003年</text>
+  <text x="190" y="220" text-anchor="middle" font-size="12" fill="#e0e0e0">基准</text>
+  
+  <!-- H.265 Block -->
+  <rect x="320" y="140" width="140" height="100" rx="8" fill="#5cb85c" stroke="#4cae4c" stroke-width="2"/>
+  <text x="390" y="175" text-anchor="middle" font-size="18" font-weight="bold" fill="white">H.265</text>
+  <text x="390" y="200" text-anchor="middle" font-size="14" fill="white">2013年</text>
+  <text x="390" y="220" text-anchor="middle" font-size="12" fill="#e0f2e0">省50%码率</text>
+  
+  <!-- AV1 Block -->
+  <rect x="520" y="140" width="140" height="100" rx="8" fill="#f0ad4e" stroke="#ec971f" stroke-width="2"/>
+  <text x="590" y="175" text-anchor="middle" font-size="18" font-weight="bold" fill="white">AV1</text>
+  <text x="590" y="200" text-anchor="middle" font-size="14" fill="white">2018年</text>
+  <text x="590" y="220" text-anchor="middle" font-size="12" fill="#fff3e0">免版税</text>
+  
+  <!-- Efficiency comparison bars -->
+  <text x="190" y="300" text-anchor="middle" font-size="12" fill="#666">压缩效率</text>
+  <rect x="150" y="310" width="80" height="20" fill="#4a90d9" opacity="0.7"/>
+  
+  <text x="390" y="300" text-anchor="middle" font-size="12" fill="#666">压缩效率</text>
+  <rect x="330" y="310" width="120" height="20" fill="#5cb85c" opacity="0.7"/>
+  <text x="390" y="325" text-anchor="middle" font-size="11" fill="#5cb85c" font-weight="bold">+40%</text>
+  
+  <text x="590" y="300" text-anchor="middle" font-size="12" fill="#666">压缩效率</text>
+  <rect x="530" y="310" width="120" height="20" fill="#f0ad4e" opacity="0.7"/>
+  <text x="590" y="325" text-anchor="middle" font-size="11" fill="#f0ad4e" font-weight="bold">+50%</text>
+  
+  <!-- Patent info -->
+  <text x="190" y="360" text-anchor="middle" font-size="11" fill="#d9534f">● 有专利费</text>
+  <text x="390" y="360" text-anchor="middle" font-size="11" fill="#d9534f">● 有专利费</text>
+  <text x="590" y="360" text-anchor="middle" font-size="11" fill="#5cb85c">● 免版税</text>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

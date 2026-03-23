@@ -1,0 +1,70 @@
+<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="700" height="400" fill="#f8f9fa"/>
+  
+  <text x="350" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">滤镜链架构设计</text>
+  
+  <!-- Filter chain diagram -->
+  <g transform="translate(50, 70)">
+    <!-- Interface -->
+    <rect x="0" y="0" width="600" height="70" fill="#e3f2fd" stroke="#4a90d9" stroke-width="2" rx="5"/>
+    <text x="300" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">IFilter 接口</text>
+    <text x="300" y="55" text-anchor="middle" font-size="11" fill="#666">virtual Process(input, output) = 0</text>
+  </g>
+  
+  <!-- Concrete filters -->
+  <g transform="translate(50, 160)">
+    <!-- Bilateral -->
+    <rect x="0" y="0" width="130" height="80" fill="#9c27b0" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+    <text x="65" y="35" text-anchor="middle" font-size="12" fill="white" font-weight="bold">双边滤波</text>
+    <text x="65" y="55" text-anchor="middle" font-size="10" fill="#e1bee7">磨皮</text>
+    <text x="65" y="70" text-anchor="middle" font-size="10" fill="#e1bee7">param: strength</text>
+    
+    <!-- Brightness -->
+    <rect x="160" y="0" width="130" height="80" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="5"/>
+    <text x="225" y="35" text-anchor="middle" font-size="12" fill="white" font-weight="bold">亮度调节</text>
+    <text x="225" y="55" text-anchor="middle" font-size="10" fill="#fff3e0">美白</text>
+    <text x="225" y="70" text-anchor="middle" font-size="10" fill="#fff3e0">param: level</text>
+    
+    <!-- Contrast -->
+    <rect x="320" y="0" width="130" height="80" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="385" y="35" text-anchor="middle" font-size="12" fill="white" font-weight="bold">对比度</text>
+    <text x="385" y="55" text-anchor="middle" font-size="10" fill="#e8f5e9">增强</text>
+    <text x="385" y="70" text-anchor="middle" font-size="10" fill="#e8f5e9">param: contrast</text>
+    
+    <!-- LUT -->
+    <rect x="480" y="0" width="130" height="80" fill="#607d8b" stroke="#455a64" stroke-width="2" rx="5"/>
+    <text x="545" y="35" text-anchor="middle" font-size="12" fill="white" font-weight="bold">LUT 滤镜</text>
+    <text x="545" y="55" text-anchor="middle" font-size="10" fill="#cfd8dc">风格化</text>
+    <text x="545" y="70" text-anchor="middle" font-size="10" fill="#cfd8dc">param: lut_id</text>
+  </g>
+  
+  <!-- Arrows showing chain -->
+  <g transform="translate(50, 255)">
+    <line x1="65" y1="0" x2="65" y2="30" stroke="#666" stroke-width="2"/>
+    <line x1="65" y1="30" x2="225" y2="30" stroke="#666" stroke-width="2"/>
+    <line x1="225" y1="0" x2="225" y2="30" stroke="#666" stroke-width="2"/>
+    <line x1="225" y1="30" x2="385" y2="30" stroke="#666" stroke-width="2"/>
+    <line x1="385" y1="0" x2="385" y2="30" stroke="#666" stroke-width="2"/>
+    <line x1="385" y1="30" x2="545" y2="30" stroke="#666" stroke-width="2"/>
+    <line x1="545" y1="0" x2="545" y2="30" stroke="#666" stroke-width="2"/>
+    
+    <text x="300" y="25" text-anchor="middle" font-size="11" fill="#666">滤镜链执行顺序</text>
+  </g>
+  
+  <!-- Filter manager -->
+  <g transform="translate(50, 300)">
+    <rect x="0" y="0" width="600" height="80" fill="#f5f5f5" stroke="#ddd" stroke-width="1" rx="5"/>
+    
+    <text x="300" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">FilterChain 管理器</text>
+    
+    <text x="20" y="50" font-size="11" fill="#666">• 动态添加/删除滤镜</text>
+    <text x="200" y="50" font-size="11" fill="#666">• 运行时调整参数</text>
+    <text x="380" y="50" font-size="11" fill="#666">• 跳过未启用的滤镜（性能优化）</text>
+  </g>
+  
+  <!-- Code example box -->
+  <g transform="translate(50, 150)">
+    <rect x="0" y="200" width="600" height="40" fill="#fff" stroke="#e0e0e0" rx="3"/>
+    <text x="10" y="225" font-family="monospace" font-size="10" fill="#333">chain.AddFilter(new BilateralFilter(strength: 0.5));</text>
+  </g>
+</svg>

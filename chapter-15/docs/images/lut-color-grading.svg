@@ -1,0 +1,78 @@
+<svg viewBox="0 0 600 350" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="350" fill="#f8f9fa"/>
+  
+  <text x="300" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">LUT 调色原理</text>
+  
+  <!-- Input color -->
+  <g transform="translate(50, 80)">
+    <text x="75" y="0" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">输入颜色</text>
+    
+    <rect x="25" y="20" width="100" height="100" fill="#ff6b6b" stroke="#333" stroke-width="2" rx="3"/>
+    <text x="75" y="70" text-anchor="middle" font-size="14" fill="white" font-weight="bold">RGB</text>
+    <text x="75" y="90" text-anchor="middle" font-size="11" fill="white">(255, 107, 107)</text>
+  </g>
+  
+  <!-- Arrow -->
+  <g transform="translate(180, 120)">
+    <line x1="0" y1="30" x2="60" y2="30" stroke="#666" stroke-width="2" marker-end="url(#arrlut)"/>
+    <text x="30" y="20" text-anchor="middle" font-size="11" fill="#666">LUT</text>
+    <text x="30" y="55" text-anchor="middle" font-size="10" fill="#999">查找</text>
+  </g>
+  
+  <!-- LUT table -->
+  <g transform="translate(260, 80)">
+    <text x="75" y="0" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">查找表</text>
+    
+    <!-- Table grid -->
+    <rect x="0" y="20" width="150" height="120" fill="#fff" stroke="#333" stroke-width="1" rx="3"/>
+    
+    <line x1="0" y1="50" x2="150" y2="50" stroke="#ddd"/>
+    <line x1="0" y1="80" x2="150" y2="80" stroke="#ddd"/>
+    <line x1="0" y1="110" x2="150" y2="110" stroke="#ddd"/>
+    
+    <line x1="75" y1="20" x2="75" y2="140" stroke="#ddd"/>
+    
+    <text x="37" y="40" text-anchor="middle" font-size="10" fill="#333">输入值</text>
+    <text x="112" y="40" text-anchor="middle" font-size="10" fill="#333">输出值</text>
+    
+    <text x="37" y="70" text-anchor="middle" font-size="10" fill="#666">#ff6b6b</text>
+    <rect x="95" y="58" width="35" height="18" fill="#ff9f43" stroke="#333" stroke-width="1"/>
+    
+    <text x="37" y="100" text-anchor="middle" font-size="10" fill="#666">#4ecdc4</text>
+    <text x="112" y="100" text-anchor="middle" font-size="10" fill="#666">#26de81</text>
+    
+    <text x="37" y="130" text-anchor="middle" font-size="10" fill="#666">...</text>
+    <text x="112" y="130" text-anchor="middle" font-size="10" fill="#666">...</text>
+  </g>
+  
+  <!-- Arrow -->
+  <line x1="430" y1="150" x2="460" y2="150" stroke="#666" stroke-width="2" marker-end="url(#arrlut)"/>
+  
+  <!-- Output color -->
+  <g transform="translate(480, 80)">
+    <text x="60" y="0" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">输出颜色</text>
+    
+    <rect x="10" y="20" width="100" height="100" fill="#ff9f43" stroke="#333" stroke-width="2" rx="3"/>
+    <text x="60" y="70" text-anchor="middle" font-size="14" fill="white" font-weight="bold">暖色调</text>
+    <text x="60" y="90" text-anchor="middle" font-size="11" fill="white">#ff9f43</text>
+  </g>
+  
+  <!-- Benefits -->
+  <g transform="translate(50, 250)">
+    <rect x="0" y="0" width="500" height="80" fill="#e8f5e9" stroke="#a5d6a7" rx="5"/>
+    
+    <text x="250" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">LUT 的优势</text>
+    
+    <text x="20" y="50" font-size="11" fill="#333">• 速度快：O(1) 查找，无实时计算</text>
+    <text x="20" y="70" font-size="11" fill="#333">• 效果一致：同样的 LUT 文件在任何平台效果相同</text>
+    
+    <text x="280" y="50" font-size="11" fill="#333">• 风格化：电影级调色预设</text>
+    <text x="280" y="70" font-size="11" fill="#333">• 可替换：换 LUT 文件 = 换滤镜风格</text>
+  </g>
+  
+  <defs>
+    <marker id="arrlut" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

@@ -9,24 +9,22 @@
 - **采集优化**：分辨率适配、帧率控制
 
 **阅读指南**：
-- 第 1-2 节：屏幕采集原理与实现
-- 第 3-4 节：窗口采集、区域采集
-- 第 5-6 节：多摄像头管理、画中画
-- 第 7-8 节：采集参数优化、性能调优
+- 第 1-2 节：屏幕采集原理与 GPU 优化
+- 第 3-4 节：窗口采集、画中画合成
+- 第 5-6 节：多摄像头管理、同步问题
+- 第 7-8 节：性能优化、本章总结
 
 ---
 
 ## 目录
 
 1. [屏幕采集原理](#1-屏幕采集原理)
-2. [跨平台屏幕采集实现](#2-跨平台屏幕采集实现)
-3. [窗口采集与区域采集](#3-窗口采集与区域采集)
-4. [采集光标与叠加层](#4-采集光标与叠加层)
+2. [GPU 纹理共享优化](#2-gpu-纹理共享优化)
+3. [窗口与区域采集](#3-窗口与区域采集)
+4. [画中画合成](#4-画中画合成)
 5. [多摄像头管理](#5-多摄像头管理)
-6. [画中画与多路合成](#6-画中画与多路合成)
-7. [采集参数动态调整](#7-采集参数动态调整)
-8. [性能优化](#8-性能优化)
-9. [本章总结](#9-本章总结)
+6. [采集参数与性能](#6-采集参数与性能)
+7. [本章总结](#7-本章总结)
 
 ---
 
@@ -34,701 +32,309 @@
 
 ### 1.1 屏幕采集 vs 摄像头采集
 
+<img src="docs/images/capture-arch.svg" width="100%"/>
+
 | 特性 | 摄像头采集 | 屏幕采集 |
 |:---|:---|:---|
-| 数据源 | 摄像头设备 | 显卡帧缓冲 |
-| 分辨率 | 固定（1920x1080 等） | 随显示器变化 |
-| 帧率 | 30/60fps | 与显示器刷新率同步 |
-| 延迟 | 10-50ms | 1-5ms |
-| CPU 占用 | 低 | 高（需要拷贝数据） |
+| **数据源** | 摄像头设备驱动 | 显卡帧缓冲 |
+| **分辨率** | 固定（1920×1080 等） | 随显示器变化 |
+| **帧率** | 30/60fps | 与显示器刷新率同步 |
+| **数据量** | 较低 | 极高（4K = 12MB/帧） |
+| **延迟** | 10-50ms | 1-5ms |
+| **CPU 占用** | 低 | 高（需要优化） |
 
 ### 1.2 屏幕采集的挑战
 
-**分辨率高**：
-- 4K 显示器：3840x2160 = 829万像素
+**数据量巨大**：
+- 4K 显示器：3840×2160 = 829 万像素
 - 每帧原始数据：12 MB（RGB24）
-- 60fps 时：720 MB/s 的数据量
+- 60fps 时：**720 MB/s** 的数据量
 
-**性能优化方向**：
-- 使用 GPU 纹理共享，避免 CPU 拷贝
-- 降低采集分辨率（如 1080p）
-- 限制采集帧率（如 30fps）
+**性能瓶颈**：
+传统方式下，数据需要从 GPU 显存拷贝到 CPU 内存，经过处理后再传回 GPU 编码。这种"CPU 拷贝"是主要瓶颈。
+
+### 1.3 FFmpeg 屏幕采集
+
+Linux（使用 x11grab）：
+```bash
+# 采集整个屏幕
+ffmpeg -f x11grab -r 30 -s 1920x1080 -i :0.0 -c:v libx264 output.mp4
+
+# 采集指定区域
+ffmpeg -f x11grab -r 30 -s 1280x720 -i :0.0+100,200 -c:v libx264 output.mp4
+```
+
+macOS（使用 avfoundation）：
+```bash
+# 采集屏幕（设备索引 0 通常是屏幕）
+ffmpeg -f avfoundation -r 30 -i "0:0" -c:v libx264 output.mp4
+```
+
+**参数说明**：
+- `-f x11grab`：使用 X11 屏幕采集
+- `-s 1920x1080`：采集分辨率
+- `-i :0.0+100,200`：从屏幕左上角偏移 (100,200) 开始采集
 
 ---
 
-## 2. 跨平台屏幕采集实现
+## 2. GPU 纹理共享优化
 
-### 2.1 macOS 屏幕采集
+### 2.1 为什么要用 GPU 处理
 
-使用 `CGDisplayStream` API：
+<img src="docs/images/gpu-texture-sharing.svg" width="100%"/>
 
-```cpp
-#include <CoreGraphics/CoreGraphics.h>
-#include <CoreVideo/CoreVideo.h>
-
-class MacOSScreenCapture {
-public:
-    bool Init(int display_id = kCGDirectMainDisplay) {
-        display_id_ = display_id;
-        
-        // 获取显示器尺寸
-        CGRect bounds = CGDisplayBounds(display_id);
-        width_ = CGRectGetWidth(bounds);
-        height_ = CGRectGetHeight(bounds);
-        
-        // 创建显示流
-        CGDisplayStreamFrameAvailableHandler handler = 
-            ^(CGDisplayStreamFrameStatus status,
-              uint64_t display_time,
-              IOSurfaceRef frame_surface,
-              CGDisplayStreamUpdateRef update_ref) {
-            if (status == kCGDisplayStreamFrameStatusFrameComplete && frame_surface) {
-                OnFrame(frame_surface);
-            }
-        };
-        
-        display_stream_ = CGDisplayStreamCreate(
-            display_id,
-            width_, height_,
-            kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
-            nullptr,  // options
-            handler
-        );
-        
-        return display_stream_ != nullptr;
-    }
-    
-    bool Start() {
-        CGError err = CGDisplayStreamStart(display_stream_);
-        return err == kCGErrorSuccess;
-    }
-    
-    void Stop() {
-        if (display_stream_) {
-            CGDisplayStreamStop(display_stream_);
-        }
-    }
-    
-private:
-    void OnFrame(IOSurfaceRef surface) {
-        // 获取 YUV 数据
-        IOSurfaceLock(surface, kIOSurfaceLockReadOnly, nullptr);
-        
-        size_t plane_count = IOSurfaceGetPlaneCount(surface);
-        for (size_t i = 0; i < plane_count; i++) {
-            void* base = IOSurfaceGetBaseAddressOfPlane(surface, i);
-            size_t width = IOSurfaceGetWidthOfPlane(surface, i);
-            size_t height = IOSurfaceGetHeightOfPlane(surface, i);
-            size_t stride = IOSurfaceGetBytesPerRowOfPlane(surface, i);
-            
-            // 拷贝数据或直接使用
-            // ...
-        }
-        
-        IOSurfaceUnlock(surface, kIOSurfaceLockReadOnly, nullptr);
-    }
-    
-    CGDisplayStreamRef display_stream_ = nullptr;
-    CGDirectDisplayID display_id_;
-    int width_, height_;
-};
+**传统方式的问题**：
+```
+GPU 显存 → PCIe 拷贝 → CPU 内存 → 处理 → PCIe 拷贝 → GPU 显存 → 编码
+         ↑____________瓶颈____________↑
 ```
 
-### 2.2 Linux 屏幕采集
+4K 屏幕每秒 720MB 数据，PCIe 带宽被占满，CPU 处理延迟高。
 
-使用 FFmpeg `x11grab`：
-
-```cpp
-class LinuxScreenCapture {
-public:
-    bool Init(const char* display = ":0.0", int x = 0, int y = 0, 
-              int width = 1920, int height = 1080) {
-        // 使用 FFmpeg x11grab
-        AVInputFormat* ifmt = av_find_input_format("x11grab");
-        if (!ifmt) {
-            std::cerr << "x11grab 不可用" << std::endl;
-            return false;
-        }
-        
-        // 构造输入字符串：:0.0+100,200
-        char input_str[256];
-        snprintf(input_str, sizeof(input_str), "%s+%d,%d", display, x, y);
-        
-        AVFormatContext* fmt_ctx = nullptr;
-        AVDictionary* opts = nullptr;
-        av_dict_set(&opts, "video_size", 
-                    (std::to_string(width) + "x" + std::to_string(height)).c_str(), 0);
-        av_dict_set(&opts, "framerate", "30", 0);
-        av_dict_set(&opts, "draw_mouse", "1", 0);  // 采集光标
-        
-        int ret = avformat_open_input(&fmt_ctx, input_str, ifmt, &opts);
-        av_dict_free(&opts);
-        
-        if (ret < 0) {
-            char errbuf[256];
-            av_strerror(ret, errbuf, sizeof(errbuf));
-            std::cerr << "打开屏幕失败: " << errbuf << std::endl;
-            return false;
-        }
-        
-        fmt_ctx_ = fmt_ctx;
-        return true;
-    }
-    
-    bool ReadFrame(AVFrame* frame) {
-        AVPacket packet;
-        int ret = av_read_frame(fmt_ctx_, &packet);
-        if (ret < 0) return false;
-        
-        // 解码为 AVFrame
-        // ...
-        
-        av_packet_unref(&packet);
-        return true;
-    }
-    
-private:
-    AVFormatContext* fmt_ctx_ = nullptr;
-};
+**GPU 纹理共享方案**：
+```
+GPU 显存 → 纹理共享 → GPU 编码器 → 输出
+   （零拷贝，直接在显存处理）
 ```
 
-**Wayland 支持**：
-- Wayland 使用 `pipewire` 或 `wlroots` screencopy 协议
-- 需要 compositor 支持
+### 2.2 平台实现
 
-### 2.3 性能优化：降低采集负载
+**macOS（CoreGraphics + VideoToolbox）**：
+- 使用 `CGDisplayStream` 获取 `IOSurface`
+- `IOSurface` 可直接传给 VideoToolbox 硬件编码器
+- 全程 GPU 处理，零 CPU 拷贝
 
+**Linux（DMA-BUF + VAAPI）**：
+- 使用 `DMA-BUF` 机制共享 GPU buffer
+- VAAPI 硬件编码器直接读取
+- 需要较新的内核和驱动支持
+
+**关键接口设计**：
 ```cpp
-class OptimizedScreenCapture {
+// 抽象的 GPU 纹理接口
+class IGpuTexture {
 public:
-    // 限制采集区域
-    void SetCaptureRegion(int x, int y, int w, int h) {
-        capture_x_ = x;
-        capture_y_ = y;
-        capture_width_ = w;
-        capture_height_ = h;
-    }
-    
-    // 降低采集帧率
-    void SetTargetFPS(int fps) {
-        target_fps_ = fps;
-        frame_interval_ms_ = 1000 / fps;
-    }
-    
-    // 降低输出分辨率
-    void SetOutputResolution(int width, int height) {
-        output_width_ = width;
-        output_height_ = height;
-        // 后续使用 libswscale 缩放
-    }
-    
-private:
-    int capture_x_ = 0, capture_y_ = 0;
-    int capture_width_ = 1920, capture_height_ = 1080;
-    int output_width_ = 1280, output_height_ = 720;
-    int target_fps_ = 30;
-    int frame_interval_ms_ = 33;
+    virtual ~IGpuTexture() = default;
+    virtual int GetWidth() const = 0;
+    virtual int GetHeight() const = 0;
+    // 获取原生句柄（platform-specific）
+    virtual void* GetNativeHandle() = 0;
+};
+
+// 硬件编码器直接消费 GPU 纹理
+class IHardwareEncoder {
+public:
+    virtual bool Encode(IGpuTexture* texture) = 0;
 };
 ```
 
 ---
 
-## 3. 窗口采集与区域采集
+## 3. 窗口与区域采集
 
-### 3.1 窗口采集
+### 3.1 窗口采集原理
 
-只采集特定应用窗口，而非整个屏幕：
+屏幕采集采集的是整个显示器，而窗口采集只采集特定应用的窗口：
 
-**macOS 窗口采集**：
+**macOS**：
+```bash
+# 需要知道窗口 ID
+ffmpeg -f avfoundation -i "0:0" -vf "crop=800:600:100:100" output.mp4
+```
+
+**Linux**：
+```bash
+# 使用 xwininfo 获取窗口位置，然后区域采集
+xwininfo  # 点击窗口获取坐标
+ffmpeg -f x11grab -s 800x600 -i :0.0+100,200 -c:v libx264 output.mp4
+```
+
+### 3.2 区域采集的使用场景
+
+1. **隐私保护**：只采集应用窗口，不采集桌面其他内容
+2. **性能优化**：采集区域比全屏数据量少
+3. **多路采集**：同时采集多个小区域（如画中画的素材）
+
+---
+
+## 4. 画中画合成
+
+### 4.1 画中画（PiP）原理
+
+<img src="docs/images/pip-composition.svg" width="100%"/>
+
+**合成流程**：
+1. 主视频作为底层（全尺寸）
+2. 小窗视频缩放到合适尺寸
+3. 将小窗叠加到主视频的角落
+4. 使用 Alpha 混合处理边缘
+
+### 4.2 GPU 合成实现
+
 ```cpp
-// 使用 CGWindowListCreateImage
-CGImageRef CaptureWindow(CGWindowID window_id) {
-    CGRect bounds;
-    bounds.origin = CGPointZero;
-    bounds.size = CGDisplayBounds(kCGDirectMainDisplay).size;
+// 伪代码：GPU 画中画合成
+void ComposePip(IGpuTexture* main, IGpuTexture* pip, 
+                int pip_x, int pip_y, int pip_w, int pip_h) {
+    // 1. 绑定主画面为渲染目标
+    BindRenderTarget(main);
     
-    CGImageRef image = CGWindowListCreateImage(
-        bounds,
-        kCGWindowListOptionIncludingWindow,
-        window_id,
-        kCGWindowImageBoundsIgnoreFraming
-    );
+    // 2. 绘制主画面（全屏）
+    DrawFullscreenQuad(main);
     
-    return image;
+    // 3. 设置小窗位置和大小
+    SetViewport(pip_x, pip_y, pip_w, pip_h);
+    
+    // 4. 绘制小窗（缩放后的pip）
+    DrawScaledQuad(pip);
 }
 ```
 
-**Linux 窗口采集（X11）**：
-```cpp
-// 获取窗口 ID
-Window GetWindowByName(Display* display, const char* name) {
-    // 遍历窗口树，匹配窗口名称
-    // ...
-}
+### 4.3 常见布局
 
-// FFmpeg 采集特定窗口
-char input_str[256];
-snprintf(input_str, sizeof(input_str), ":0.0+%d,%d", window_x, window_y);
-```
-
-### 3.2 区域采集
-
-采集屏幕的某个矩形区域：
-
-```cpp
-class RegionCapture {
-public:
-    bool Init(int screen_x, int screen_y, int width, int height) {
-        // Linux: x11grab 支持偏移
-        // macOS: 需要裁剪采集后的图像
-        // Windows: DXGI 支持指定输出区域
-        
-        region_x_ = screen_x;
-        region_y_ = screen_y;
-        region_width_ = width;
-        region_height_ = height;
-        
-        return true;
-    }
-    
-private:
-    int region_x_, region_y_;
-    int region_width_, region_height_;
-};
-```
-
----
-
-## 4. 采集光标与叠加层
-
-### 4.1 光标采集
-
-**方案 1：系统采集光标**（推荐）
-```cpp
-// FFmpeg x11grab draw_mouse=1
-av_dict_set(&opts, "draw_mouse", "1", 0);
-```
-
-**方案 2：手动绘制光标**
-```cpp
-class CursorOverlay {
-public:
-    void DrawCursor(uint8_t* frame_data, int x, int y) {
-        // 获取光标图像
-        Cursor cursor = XCreateFontCursor(display_, XC_arrow);
-        XImage* image = XGetImage(display_, cursor, ...);
-        
-        // 叠加到帧
-        OverlayImage(frame_data, image, x, y);
-    }
-};
-```
-
-### 4.2 叠加层（Watermark）
-
-在采集画面上叠加文字或图片：
-
-```cpp
-class FrameOverlay {
-public:
-    void OverlayText(uint8_t* yuv_data, const char* text, int x, int y) {
-        // 使用 FreeType 渲染文字到 RGB
-        // 转换为 YUV
-        // 叠加到目标位置
-    }
-    
-    void OverlayImage(uint8_t* yuv_data, const uint8_t* rgba_overlay,
-                      int overlay_x, int overlay_y, int overlay_w, int overlay_h) {
-        // RGBA → YUV
-        // Alpha 混合
-        for (int row = 0; row < overlay_h; row++) {
-            for (int col = 0; col < overlay_w; col++) {
-                int src_idx = (row * overlay_w + col) * 4;
-                float alpha = rgba_overlay[src_idx + 3] / 255.0f;
-                
-                // Y 通道混合
-                int dst_y = ((overlay_y + row) * frame_width_ + (overlay_x + col));
-                yuv_data[dst_y] = Blend(yuv_data[dst_y], rgba_overlay[src_idx], alpha);
-            }
-        }
-    }
-    
-private:
-    uint8_t Blend(uint8_t bg, uint8_t fg, float alpha) {
-        return static_cast<uint8_t>(bg * (1 - alpha) + fg * alpha);
-    }
-    
-    int frame_width_, frame_height_;
-};
-```
+| 布局 | 主画面 | 小窗位置 | 适用场景 |
+|:---|:---|:---|:---|
+| 游戏直播 | 游戏画面 | 右下角 | 展示游戏 + 主播 |
+| 在线教学 | PPT/屏幕 | 左/右下角 | 展示课件 + 讲师 |
+| 视频会议 | 共享屏幕 | 右上角 | 演示 + 发言人 |
+| 画中画反转 | 主播 | 全屏 | 主播为主，展示反应 |
 
 ---
 
 ## 5. 多摄像头管理
 
-### 5.1 枚举摄像头设备
+### 5.1 多摄像头架构
 
+<img src="docs/images/multi-camera.svg" width="100%"/>
+
+**核心组件**：
+1. **设备管理器**：枚举、打开、关闭摄像头设备
+2. **帧队列**：每个摄像头独立的缓冲队列
+3. **同步器**：时间戳对齐，确保多路视频同步
+4. **切换器**：主副画面切换、画中画合成
+
+### 5.2 设备枚举
+
+Linux 使用 V4L2 枚举：
 ```cpp
-class CameraManager {
-public:
-    struct DeviceInfo {
-        std::string id;
-        std::string name;
-        std::vector<std::pair<int, int>> resolutions;
-    };
-    
-    std::vector<DeviceInfo> ListDevices() {
-        std::vector<DeviceInfo> devices;
-        
-        // macOS: AVFoundation
-        // Linux: v4l2
-        // Windows: DirectShow/MediaFoundation
-        
-#if defined(__APPLE__)
-        devices = ListAVFoundationDevices();
-#elif defined(__linux__)
-        devices = ListV4L2Devices();
-#endif
-        
-        return devices;
+// 枚举所有视频设备
+for (int i = 0; i < 10; i++) {
+    std::string device = "/dev/video" + std::to_string(i);
+    int fd = open(device.c_str(), O_RDWR);
+    if (fd >= 0) {
+        // 查询设备能力
+        struct v4l2_capability cap;
+        ioctl(fd, VIDIOC_QUERYCAP, &cap);
+        printf("设备 %s: %s\n", device.c_str(), cap.card);
+        close(fd);
     }
-    
-private:
-#if defined(__APPLE__)
-    std::vector<DeviceInfo> ListAVFoundationDevices() {
-        std::vector<DeviceInfo> devices;
-        
-        AVCaptureDeviceDiscoverySession* session =
-            [AVCaptureDeviceDiscoverySession 
-                discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInWideAngleCamera]
-                mediaType:AVMediaTypeVideo
-                position:AVCaptureDevicePositionUnspecified];
-        
-        for (AVCaptureDevice* device in session.devices) {
-            DeviceInfo info;
-            info.id = [[device uniqueID] UTF8String];
-            info.name = [[device localizedName] UTF8String];
-            
-            // 获取支持的分辨率
-            for (AVCaptureDeviceFormat* format in device.formats) {
-                CMVideoDimensions dims = CMVideoFormatDescriptionGetDimensions(format.formatDescription);
-                info.resolutions.push_back({dims.width, dims.height});
-            }
-            
-            devices.push_back(info);
-        }
-        
-        return devices;
-    }
-#endif
-};
+}
 ```
 
-### 5.2 多摄像头切换
+### 5.3 多摄像头同步问题
 
+**问题**：每个摄像头有独立的硬件时钟，帧率可能有微小差异。
+
+**解决方案**：
 ```cpp
-class MultiCameraCapture {
+// 使用时间戳对齐
+class CameraSync {
 public:
-    bool AddCamera(const std::string& device_id) {
-        auto capture = std::make_unique<CameraCapture>();
-        if (!capture->Init(device_id)) {
-            return false;
+    void OnFrame(int camera_id, VideoFrame frame) {
+        // 记录到达时间
+        frame.recv_time = GetTimestampMs();
+        
+        // 等待同步窗口内的所有帧
+        buffers_[camera_id].push(frame);
+        
+        // 检查是否可以输出同步帧组
+        if (CheckSyncReady()) {
+            OutputSyncedFrames();
         }
-        cameras_.push_back(std::move(capture));
-        return true;
-    }
-    
-    void SwitchToCamera(size_t index) {
-        if (index < cameras_.size()) {
-            active_camera_ = index;
-        }
-    }
-    
-    bool ReadFrame(AVFrame* frame) {
-        if (active_camera_ >= cameras_.size()) return false;
-        return cameras_[active_camera_]->ReadFrame(frame);
     }
     
 private:
-    std::vector<std::unique_ptr<CameraCapture>> cameras_;
-    size_t active_camera_ = 0;
+    // 允许的最大时间差：33ms（1帧@30fps）
+    static constexpr int kMaxSyncDiffMs = 33;
 };
 ```
 
 ---
 
-## 6. 画中画与多路合成
+## 6. 采集参数与性能
 
-### 6.1 画中画（Picture-in-Picture）
+### 6.1 采集 Pipeline 完整数据流
 
-主画面 + 小窗口（通常是摄像头）：
+<img src="docs/images/capture-pipeline.svg" width="100%"/>
 
+**多线程设计**：
+- 采集线程：从设备读取原始帧
+- 处理线程：美颜、滤镜、格式转换
+- 编码线程：视频/音频编码
+- 封装线程：混合、封装为 FLV/TS
+- 推流线程：网络发送
+
+### 6.2 性能优化策略
+
+**1. 降低采集分辨率**：
 ```cpp
-class PictureInPicture {
-public:
-    void SetLayout(int main_width, int main_height,
-                   int pip_width, int pip_height,
-                   int pip_x, int pip_y) {
-        main_width_ = main_width;
-        main_height_ = main_height;
-        pip_width_ = pip_width;
-        pip_height_ = pip_height;
-        pip_x_ = pip_x;
-        pip_y_ = pip_y;
-    }
-    
-    void Compose(uint8_t* output, 
-                 const uint8_t* main_frame,
-                 const uint8_t* pip_frame) {
-        // 1. 拷贝主画面
-        memcpy(output, main_frame, main_width_ * main_height_ * 3 / 2);
-        
-        // 2. 缩放并叠加小窗口
-        SwsContext* sws = sws_getContext(
-            pip_width_, pip_height_, AV_PIX_FMT_YUV420P,
-            pip_width_, pip_height_, AV_PIX_FMT_YUV420P,
-            SWS_BILINEAR, nullptr, nullptr, nullptr
-        );
-        
-        // 叠加到指定位置
-        OverlayYUV(output, main_width_, main_height_,
-                   pip_frame, pip_width_, pip_height_,
-                   pip_x_, pip_y_);
-        
-        sws_freeContext(sws);
-    }
-    
-private:
-    void OverlayYUV(uint8_t* dst, int dst_w, int dst_h,
-                    const uint8_t* src, int src_w, int src_h,
-                    int x, int y) {
-        // Y 平面
-        for (int row = 0; row < src_h && (y + row) < dst_h; row++) {
-            memcpy(dst + (y + row) * dst_w + x,
-                   src + row * src_w,
-                   std::min(src_w, dst_w - x));
-        }
-        
-        // UV 平面（半分辨率）
-        // ...
-    }
-    
-    int main_width_, main_height_;
-    int pip_width_, pip_height_;
-    int pip_x_, pip_y_;
-};
+// 4K 显示器采集 1080p
+// 数据量减少 75%，视觉差异不大
+capture_config.width = 1920;
+capture_config.height = 1080;
 ```
 
-### 6.2 多路画面合成
-
-视频会议布局：
-
+**2. 限制采集帧率**：
 ```cpp
-class MultiViewComposer {
-public:
-    enum Layout {
-        GRID_2x2,    // 2x2 网格
-        GRID_3x3,    // 3x3 网格
-        SPEAKER,     // 主讲人大，其他小
-        FILMSTRIP    // 底部胶片条
-    };
-    
-    void SetLayout(Layout layout) { layout_ = layout; }
-    
-    void Compose(uint8_t* output,
-                 const std::vector<const uint8_t*>& input_frames,
-                 const std::vector<std::pair<int, int>>& input_sizes) {
-        switch (layout_) {
-            case GRID_2x2:
-                ComposeGrid2x2(output, input_frames, input_sizes);
-                break;
-            case SPEAKER:
-                ComposeSpeaker(output, input_frames, input_sizes);
-                break;
-            // ...
-        }
-    }
-    
-private:
-    void ComposeGrid2x2(uint8_t* output,
-                        const std::vector<const uint8_t*>& frames,
-                        const std::vector<std::pair<int, int>>& sizes) {
-        // 每个画面 960x540（1920x1080 的四分之一）
-        int cell_w = 960;
-        int cell_h = 540;
-        
-        for (size_t i = 0; i < frames.size() && i < 4; i++) {
-            int x = (i % 2) * cell_w;
-            int y = (i / 2) * cell_h;
-            
-            // 缩放并放置到对应位置
-            ScaleAndPlace(output, 1920, 1080, x, y, cell_w, cell_h,
-                          frames[i], sizes[i].first, sizes[i].second);
-        }
-    }
-    
-    Layout layout_ = GRID_2x2;
-};
+// 显示器 144Hz，但直播只需要 30fps
+// 跳过不必要的帧
+capture_config.fps = 30;
 ```
+
+**3. 使用硬件编码**：
+```cpp
+// 避免 CPU 编码占用
+encoder_config.codec = "h264_nvenc";  // NVIDIA
+// 或
+encoder_config.codec = "h264_videotoolbox";  // macOS
+```
+
+### 6.3 性能指标参考
+
+| 场景 | 目标 CPU | 目标延迟 | 优化要点 |
+|:---|:---:|:---:|:---|
+| 1080p 摄像头采集 | < 10% | 30ms | 硬件编码 |
+| 1080p 屏幕采集 | < 20% | 50ms | GPU 纹理共享 |
+| 4K 屏幕采集 | < 30% | 100ms | 降低采集分辨率 |
+| 多摄像头 (2路) | < 25% | 50ms | 异步采集、统一编码 |
 
 ---
 
-## 7. 采集参数动态调整
+## 7. 本章总结
 
-### 7.1 分辨率切换
+### 核心概念
 
-根据性能/网络动态调整采集分辨率：
-
-```cpp
-class AdaptiveCapture {
-public:
-    void OnCPULoadHigh() {
-        // CPU 负载高，降低分辨率
-        if (current_resolution_idx_ > 0) {
-            current_resolution_idx_--;
-            ApplyResolution();
-        }
-    }
-    
-    void OnNetworkImproved() {
-        // 网络变好，提高分辨率
-        if (current_resolution_idx_ < resolutions_.size() - 1) {
-            current_resolution_idx_++;
-            ApplyResolution();
-        }
-    }
-    
-private:
-    void ApplyResolution() {
-        auto [width, height] = resolutions_[current_resolution_idx_];
-        capture_>SetResolution(width, height);
-    }
-    
-    std::vector<std::pair<int, int>> resolutions_ = {
-        {640, 360},   // 360p
-        {854, 480},   // 480p
-        {1280, 720},  // 720p
-        {1920, 1080}  // 1080p
-    };
-    size_t current_resolution_idx_ = 2;  // 默认 720p
-};
-```
-
-### 7.2 帧率自适应
-
-```cpp
-class AdaptiveFrameRate {
-public:
-    void SetTargetFPS(int fps) {
-        target_fps_ = fps;
-        frame_interval_us_ = 1000000 / fps;
-    }
-    
-    bool ShouldCaptureFrame() {
-        auto now = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
-            now - last_capture_time_
-        ).count();
-        
-        if (elapsed >= frame_interval_us_) {
-            last_capture_time_ = now;
-            return true;
-        }
-        return false;
-    }
-    
-private:
-    int target_fps_ = 30;
-    int64_t frame_interval_us_ = 33333;
-    std::chrono::steady_clock::time_point last_capture_time_;
-};
-```
-
----
-
-## 8. 性能优化
-
-### 8.1 GPU 零拷贝
-
-使用 GPU 纹理避免 CPU 拷贝：
-
-```cpp
-// macOS: IOSurface / CVPixelBuffer
-// Linux: DMA-BUF / GBM
-// Windows: DXGI Shared Handle
-
-class GPUZeroCopy {
-public:
-    // 获取 GPU 纹理句柄，不拷贝到 CPU
-    void* GetGPUTexture() {
-#if defined(__APPLE__)
-        return iosurface_ref_;
-#elif defined(__linux__)
-        return dma_buf_fd_;
-#endif
-    }
-    
-private:
-#if defined(__APPLE__)
-    IOSurfaceRef iosurface_ref_ = nullptr;
-#elif defined(__linux__)
-    int dma_buf_fd_ = -1;
-#endif
-};
-```
-
-### 8.2 采集性能监控
-
-```cpp
-class CaptureStats {
-public:
-    void OnFrameCaptured() {
-        auto now = std::chrono::steady_clock::now();
-        frame_count_++;
-        
-        auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(
-            now - start_time_
-        ).count();
-        
-        if (elapsed >= 5) {  // 每 5 秒输出统计
-            float fps = frame_count_ / elapsed;
-            std::cout << "采集 FPS: " << fps << std::endl;
-            
-            frame_count_ = 0;
-            start_time_ = now;
-        }
-    }
-    
-private:
-    int frame_count_ = 0;
-    std::chrono::steady_clock::time_point start_time_ = 
-        std::chrono::steady_clock::now();
-};
-```
-
----
-
-## 9. 本章总结
-
-### 核心技能
-
-| 技能 | 实现要点 |
+| 概念 | 一句话解释 |
 |:---|:---|
-| 屏幕采集 | CGDisplayStream (macOS), x11grab (Linux) |
-| 窗口采集 | CGWindowListCreateImage, X11 窗口 ID |
-| 多摄像头 | 设备枚举、动态切换 |
-| 画中画 | YUV 层叠、缩放放置 |
-| 性能优化 | 分辨率/帧率自适应、GPU 零拷贝 |
+| GPU 纹理共享 | 屏幕数据不经过 CPU，直接在 GPU 处理 |
+| 画中画（PiP） | 将小视频叠加到主视频角落 |
+| 多摄像头同步 | 用时间戳对齐多路视频的时序 |
+| 区域采集 | 只采集屏幕的一部分，减少数据量 |
 
-### 关键参数
+### 关键技能
 
-| 参数 | 建议值 | 说明 |
-|:---|:---|:---|
-| 屏幕采集分辨率 | 1080p 或更低 | 4K 采集 CPU 占用高 |
-| 屏幕采集帧率 | 30fps | 60fps 数据量翻倍 |
-| 画中画大小 | 240x180 ~ 320x240 | 不遮挡主画面 |
-| 分辨率切换阈值 | CPU > 80% 降级 | 平滑过渡 |
+- 使用 FFmpeg 进行屏幕采集
+- 理解 GPU 纹理共享原理
+- 实现画中画合成功能
+- 管理多摄像头设备
 
-### 下一步
+### 性能优化清单
 
-**项目4：采集与预览工具** —— 整合 Ch10-Ch14，实现专业级采集预览工具。
+- [ ] 屏幕采集使用 GPU 纹理共享
+- [ ] 降低采集分辨率（4K→1080p）
+- [ ] 限制采集帧率（匹配输出需求）
+- [ ] 使用硬件编码
+- [ ] 多摄像头异步采集 + 同步输出
+
+---
+
+**下一步**：第十五章将学习**美颜与滤镜**——GPU 图像处理、磨皮算法、滤镜链设计。

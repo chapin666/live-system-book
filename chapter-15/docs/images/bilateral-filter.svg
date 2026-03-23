@@ -1,0 +1,109 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="500" fill="#f8f9fa"/>
+  
+  <text x="400" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">双边滤波：保边磨皮原理</text>
+  
+  <text x="400" y="65" text-anchor="middle" font-size="14" fill="#666">磨皮的同时保留边缘（眼睛、嘴巴轮廓）</text>
+  
+  <!-- Original image -->
+  <g transform="translate(50, 100)">
+    <text x="100" y="0" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">原始图像</text>
+    
+    <rect x="0" y="15" width="200" height="200" fill="#f5e6d3" stroke="#ddd" rx="3"/>
+    
+    <!-- Face outline -->
+    <ellipse cx="100" cy="115" rx="70" ry="80" fill="#ffdbac" stroke="#d4a574" stroke-width="2"/>
+    
+    <!-- Eyes (sharp edges to preserve) -->
+    <ellipse cx="75" cy="100" rx="12" ry="8" fill="#fff" stroke="#333" stroke-width="1.5"/>
+    <circle cx="75" cy="100" r="5" fill="#4a3728"/>
+    <ellipse cx="125" cy="100" rx="12" ry="8" fill="#fff" stroke="#333" stroke-width="1.5"/>
+    <circle cx="125" cy="100" r="5" fill="#4a3728"/>
+    
+    <!-- Mouth -->
+    <path d="M85 140 Q100 150 115 140" fill="none" stroke="#c44536" stroke-width="2"/>
+    
+    <!-- Skin with blemishes (dots) -->
+    <circle cx="90" cy="120" r="3" fill="#d4a574" opacity="0.6"/>
+    <circle cx="110" cy="125" r="2" fill="#d4a574" opacity="0.6"/>
+    <circle cx="95" cy="135" r="2.5" fill="#d4a574" opacity="0.6"/>
+    <circle cx="60" cy="110" r="2" fill="#d4a574" opacity="0.6"/>
+    <circle cx="140" cy="115" r="2" fill="#d4a574" opacity="0.6"/>
+    
+    <text x="100" y="230" text-anchor="middle" font-size="11" fill="#666">有瑕疵，但边缘清晰</text>
+  </g>
+  
+  <!-- Arrow -->
+  <line x1="280" y1="200" x2="320" y2="200" stroke="#666" stroke-width="2" marker-end="url(#arrbil)"/>
+  <text x="300" y="190" text-anchor="middle" font-size="11" fill="#666">双边滤波</text>
+  
+  <!-- After bilateral filter -->
+  <g transform="translate(350, 100)">
+    <text x="100" y="0" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">处理后</text>
+    
+    <rect x="0" y="15" width="200" height="200" fill="#f5e6d3" stroke="#ddd" rx="3"/>
+    
+    <!-- Smoothed face -->
+    <ellipse cx="100" cy="115" rx="70" ry="80" fill="#ffdbac" stroke="#d4a574" stroke-width="1"/>
+    
+    <!-- Eyes (still sharp!) -->
+    <ellipse cx="75" cy="100" rx="12" ry="8" fill="#fff" stroke="#333" stroke-width="1.5"/>
+    <circle cx="75" cy="100" r="5" fill="#4a3728"/>
+    <ellipse cx="125" cy="100" rx="12" ry="8" fill="#fff" stroke="#333" stroke-width="1.5"/>
+    <circle cx="125" cy="100" r="5" fill="#4a3728"/>
+    
+    <!-- Mouth (still sharp!) -->
+    <path d="M85 140 Q100 150 115 140" fill="none" stroke="#c44536" stroke-width="2"/>
+    
+    <!-- Smooth skin (no blemishes) -->
+    <text x="100" y="230" text-anchor="middle" font-size="11" fill="#2e7d32">皮肤平滑，边缘保留</text>
+  </g>
+  
+  <!-- Comparison: Gaussian blur -->
+  <g transform="translate="570," 100)">
+    <text x="100" y="0" text-anchor="middle" font-size="13" font-weight="bold" fill="#d32f2f">高斯滤波（对比）</text>
+    
+    <rect x="0" y="15" width="200" height="200" fill="#f5e6d3" stroke="#ddd" rx="3"/>
+    
+    <!-- Blurred face -->
+    <ellipse cx="100" cy="115" rx="70" ry="80" fill="#ffdbac" stroke="#d4a574" stroke-width="1" opacity="0.9"/>
+    
+    <!-- Blurred eyes (BAD) -->
+    <ellipse cx="75" cy="100" rx="14" ry="10" fill="#fff" stroke="#999" stroke-width="1" opacity="0.7"/>
+    <circle cx="75" cy="100" r="4" fill="#6b5b4f" opacity="0.8"/>
+    <ellipse cx="125" cy="100" rx="14" ry="10" fill="#fff" stroke="#999" stroke-width="1" opacity="0.7"/>
+    <circle cx="125" cy="100" r="4" fill="#6b5b4f" opacity="0.8"/>
+    
+    <!-- Blurred mouth -->
+    <path d="M85 140 Q100 145 115 140" fill="none" stroke="#c44536" stroke-width="1.5" opacity="0.6"/>
+    
+    <text x="100" y="230" text-anchor="middle" font-size="11" fill="#d32f2f">整体模糊，边缘丢失</text>
+  </g>
+  
+  <!-- Bilateral principle -->
+  <g transform="translate(50, 340)">
+    <rect x="0" y="0" width="350" height="140" fill="#e3f2fd" stroke="#4a90d9" stroke-width="1" rx="5"/>
+    
+    <text x="175" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">双边滤波的核心思想</text>
+    
+    <text x="15" y="50" font-size="11" fill="#333">1. 空间权重：距离越近影响越大（和高斯一样）</text>
+    <text x="15" y="72" font-size="11" fill="#333">2. 颜色权重：颜色越相似影响越大（关键！）</text>
+    <text x="15" y="100" font-size="11" fill="#2e7d32">效果：皮肤区域（颜色相似）被平滑，边缘（颜色差异大）被保留</text>
+  </g>
+  
+  <g transform="translate(420, 340)">
+    <rect x="0" y="0" width="350" height="140" fill="#fff3e0" stroke="#f0ad4e" stroke-width="1" rx="5"/>
+    <text x="175" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">磨皮算法演进</text>
+    
+    <text x="15" y="50" font-size="11" fill="#666">均值滤波 → 高斯滤波 → 双边滤波</text>
+    <text x="15" y="72" font-size="11" fill="#666">• 均值：太粗糙，边缘全糊</text>
+    <text x="15" y="92" font-size="11" fill="#666">• 高斯：好一些，但边缘仍模糊</text>
+    <text x="15" y="112" font-size="11" fill="#2e7d32">• 双边：磨皮 + 保边，最佳选择</text>
+  </g>
+  
+  <defs>
+    <marker id="arrbil" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

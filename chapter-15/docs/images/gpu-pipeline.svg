@@ -1,0 +1,73 @@
+<svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="350" fill="#f8f9fa"/>
+  
+  <text x="400" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">GPU 图像处理管线</text>
+  
+  <!-- Input -->
+  <g transform="translate(50, 100)">
+    <rect x="0" y="0" width="100" height="80" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="5"/>
+    <text x="50" y="35" text-anchor="middle" font-size="13" fill="white" font-weight="bold">输入</text>
+    <text x="50" y="58" text-anchor="middle" font-size="10" fill="#e3f2fd">YUV/RGB</text>
+  </g>
+  
+  <line x1="150" y1="140" x2="180" y2="140" stroke="#666" stroke-width="2" marker-end="url(#arrpipe)"/>
+  
+  <!-- Filter 1 -->
+  <g transform="translate(180, 100)">
+    <rect x="0" y="0" width="100" height="80" fill="#9c27b0" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+    <text x="50" y="35" text-anchor="middle" font-size="13" fill="white" font-weight="bold">滤镜1</text>
+    <text x="50" y="58" text-anchor="middle" font-size="10" fill="#e1bee7">磨皮</text>
+  </g>
+  
+  <line x1="280" y1="140" x2="310" y2="140" stroke="#666" stroke-width="2" marker-end="url(#arrpipe)"/>
+  
+  <!-- Filter 2 -->
+  <g transform="translate(310, 100)">
+    <rect x="0" y="0" width="100" height="80" fill="#9c27b0" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+    <text x="50" y="35" text-anchor="middle" font-size="13" fill="white" font-weight="bold">滤镜2</text>
+    <text x="50" y="58" text-anchor="middle" font-size="10" fill="#e1bee7">美白</text>
+  </g>
+  
+  <line x1="410" y1="140" x2="440" y2="140" stroke="#666" stroke-width="2" marker-end="url(#arrpipe)"/>
+  
+  <!-- Filter 3 -->
+  <g transform="translate(440, 100)">
+    <rect x="0" y="0" width="100" height="80" fill="#9c27b0" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+    <text x="50" y="35" text-anchor="middle" font-size="13" fill="white" font-weight="bold">滤镜3</text>
+    <text x="50" y="58" text-anchor="middle" font-size="10" fill="#e1bee7">调色</text>
+  </g>
+  
+  <line x1="540" y1="140" x2="570" y2="140" stroke="#666" stroke-width="2" marker-end="url(#arrpipe)"/>
+  
+  <!-- Output -->
+  <g transform="translate(570, 100)">
+    <rect x="0" y="0" width="100" height="80" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="50" y="35" text-anchor="middle" font-size="13" fill="white" font-weight="bold">输出</text>
+    <text x="50" y="58" text-anchor="middle" font-size="10" fill="#e8f5e9">YUV/RGB</text>
+  </g>
+  
+  <!-- Framebuffer arrows -->
+  <path d="M230 180 L230 210 L530 210 L530 180" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
+  <text x="380" y="230" text-anchor="middle" font-size="11" fill="#666">离屏渲染：每个滤镜输出到纹理，作为下一级输入</text>
+  
+  <!-- Performance comparison -->
+  <g transform="translate(50, 260)">
+    <rect x="0" y="0" width="350" height="70" fill="#ffebee" stroke="#ef9a9a" rx="5"/>
+    <text x="175" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#d32f2f">CPU 处理（慢）</text>
+    <text x="20" y="45" font-size="11" fill="#666">1080p 美颜：50-100ms/帧</text>
+    <text x="20" y="60" font-size="11" fill="#666">CPU 串行处理，无法实时</text>
+  </g>
+  
+  <g transform="translate(420, 260)">
+    <rect x="0" y="0" width="350" height="70" fill="#e8f5e9" stroke="#a5d6a7" rx="5"/>
+    <text x="175" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">GPU 处理（快）</text>
+    <text x="20" y="45" font-size="11" fill="#666">1080p 美颜：1-2ms/帧</text>
+    <text x="20" y="60" font-size="11" fill="#666">GPU 并行，数千核心同时处理</text>
+  </g>
+  
+  <defs>
+    <marker id="arrpipe" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

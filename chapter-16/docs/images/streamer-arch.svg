@@ -1,0 +1,108 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="500" fill="#f8f9fa"/>
+  
+  <text x="400" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">主播端整体架构</text>
+  
+  <!-- Video path -->
+  <text x="30" y="75" font-size="13" font-weight="bold" fill="#4a90d9">视频路径</text>
+  
+  <g transform="translate(30, 85)">
+    <rect x="0" y="0" width="90" height="60" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="5"/>
+    <text x="45" y="28" text-anchor="middle" font-size="11" fill="white" font-weight="bold">视频采集</text>
+    <text x="45" y="45" text-anchor="middle" font-size="9" fill="#e3f2fd">摄像头</text>
+    
+    <line x1="90" y1="30" x2="120" y2="30" stroke="#666" stroke-width="2" marker-end="url(#arrarch)"/>
+    
+    <rect x="120" y="0" width="90" height="60" fill="#9c27b0" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+    <text x="165" y="28" text-anchor="middle" font-size="11" fill="white" font-weight="bold">美颜滤镜</text>
+    <text x="165" y="45" text-anchor="middle" font-size="9" fill="#e1bee7">GPU处理</text>
+    
+    <line x1="210" y1="30" x2="240" y2="30" stroke="#666" stroke-width="2" marker-end="url(#arrarch)"/>
+    
+    <rect x="240" y="0" width="90" height="60" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="285" y="28" text-anchor="middle" font-size="11" fill="white" font-weight="bold">视频编码</text>
+    <text x="285" y="45" text-anchor="middle" font-size="9" fill="#e8f5e9">H.264</text>
+  </g>
+  
+  <!-- Audio path -->
+  <text x="30" y="180" font-size="13" font-weight="bold" fill="#f0ad4e">音频路径</text>
+  
+  <g transform="translate(30, 190)">
+    <rect x="0" y="0" width="90" height="60" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="5"/>
+    <text x="45" y="28" text-anchor="middle" font-size="11" fill="white" font-weight="bold">音频采集</text>
+    <text x="45" y="45" text-anchor="middle" font-size="9" fill="#fff3e0">麦克风</text>
+    
+    <line x1="90" y1="30" x2="120" y2="30" stroke="#666" stroke-width="2" marker-end="url(#arrarch)"/>
+    
+    <rect x="120" y="0" width="90" height="60" fill="#ff5722" stroke="#d84315" stroke-width="2" rx="5"/>
+    <text x="165" y="28" text-anchor="middle" font-size="11" fill="white" font-weight="bold">3A处理</text>
+    <text x="165" y="45" text-anchor="middle" font-size="9" fill="#ffccbc">AEC/ANS</text>
+    
+    <line x1="210" y1="30" x2="240" y2="30" stroke="#666" stroke-width="2" marker-end="url(#arrarch)"/>
+    
+    <rect x="240" y="0" width="90" height="60" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="285" y="28" text-anchor="middle" font-size="11" fill="white" font-weight="bold">音频编码</text>
+    <text x="285" y="45" text-anchor="middle" font-size="9" fill="#e8f5e9">AAC</text>
+  </g>
+  
+  <!-- Merge -->
+  <g transform="translate(360, 110)">
+    <polygon points="0,0 50,50 0,100" fill="#607d8b" stroke="#455a64" stroke-width="2"/>
+    <text x="-35" y="55" text-anchor="middle" font-size="11" fill="#333">混合</text>
+  </g>
+  
+  <line x1="330" y1="115" x2="360" y2="135" stroke="#666" stroke-width="2"/>
+  <line x1="330" y1="220" x2="360" y2="185" stroke="#666" stroke-width="2"/>
+  
+  <!-- Muxer -->
+  <g transform="translate(420, 130)">
+    <rect x="0" y="0" width="100" height="80" fill="#607d8b" stroke="#455a64" stroke-width="2" rx="5"/>
+    <text x="50" y="35" text-anchor="middle" font-size="13" fill="white" font-weight="bold">封装器</text>
+    <text x="50" y="58" text-anchor="middle" font-size="10" fill="#cfd8dc">FLV</text>
+  </g>
+  
+  <line x1="520" y1="170" x2="550" y2="170" stroke="#666" stroke-width="2" marker-end="url(#arrarch)"/>
+  
+  <!-- Pusher -->
+  <g transform="translate(550, 130)">
+    <rect x="0" y="0" width="100" height="80" fill="#795548" stroke="#5d4037" stroke-width="2" rx="5"/>
+    <text x="50" y="35" text-anchor="middle" font-size="13" fill="white" font-weight="bold">推流器</text>
+    <text x="50" y="58" text-anchor="middle" font-size="10" fill="#d7ccc8">RTMP</text>
+  </g>
+  
+  <line x1="650" y1="170" x2="680" y2="170" stroke="#666" stroke-width="2" marker-end="url(#arrarch)"/>
+  
+  <!-- Server -->
+  <rect x="680" y="130" width="100" height="80" fill="#e91e63" stroke="#c2185b" stroke-width="2" rx="5"/>
+  <text x="730" y="165" text-anchor="middle" font-size="13" fill="white" font-weight="bold">CDN服务器</text>
+  
+  <!-- Screen capture optional -->
+  <g transform="translate(30, 280)">
+    <rect x="0" y="0" width="90" height="50" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="5" opacity="0.7"/>
+    <text x="45" y="22" text-anchor="middle" font-size="10" fill="white" font-weight="bold">屏幕采集</text>
+    <text x="45" y="38" text-anchor="middle" font-size="9" fill="#fff3e0">(可选)</text>
+    
+    <line x1="90" y1="25" x2="150" y2="-25" stroke="#f0ad4e" stroke-width="1" stroke-dasharray="4,2"/>
+    <text x="130" y="15" font-size="9" fill="#666">画中画合成</text>
+  </g>
+  
+  <!-- Key metrics -->
+  <g transform="translate(420, 260)">
+    <rect x="0" y="0" width="360" height="100" fill="#fff" stroke="#ddd" rx="5"/>
+    
+    <text x="180" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">关键指标</text>
+    
+    <text x="15" y="50" font-size="11" fill="#666">端到端延迟：< 500ms</text>
+    <text x="15" y="70" font-size="11" fill="#666">CPU 占用：< 50% (1080p@30fps)</text>
+    <text x="15" y="90" font-size="11" fill="#666">丢帧率：< 1% (网络正常时)</text>
+    
+    <text x="200" y="60" font-size="11" fill="#666">内存：< 500MB</text>
+    <text x="200" y="80" font-size="11" fill="#666">码率：2-4 Mbps</text>
+  </g>
+  
+  <defs>
+    <marker id="arrarch" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

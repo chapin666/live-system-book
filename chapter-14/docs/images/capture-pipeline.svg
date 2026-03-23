@@ -1,0 +1,119 @@
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="400" fill="#f8f9fa"/>
+  
+  <text x="400" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">采集 Pipeline 完整数据流</text>
+  
+  <!-- Video track -->
+  <text x="50" y="80" font-size="14" font-weight="bold" fill="#4a90d9">视频流</text>
+  
+  <g transform="translate(50, 95)">
+    <!-- Video capture -->
+    <rect x="0" y="0" width="100" height="60" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="5"/>
+    <text x="50" y="25" text-anchor="middle" font-size="12" fill="white" font-weight="bold">视频采集</text>
+    <text x="50" y="45" text-anchor="middle" font-size="10" fill="#e3f2fd">摄像头/屏幕</text>
+    
+    <!-- Arrow -->
+    <line x1="100" y1="30" x2="130" y2="30" stroke="#666" stroke-width="2" marker-end="url(#arrowflow)"/>
+    
+    <!-- Beauty filter -->
+    <rect x="130" y="0" width="100" height="60" fill="#9c27b0" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+    <text x="180" y="25" text-anchor="middle" font-size="12" fill="white" font-weight="bold">美颜滤镜</text>
+    <text x="180" y="45" text-anchor="middle" font-size="10" fill="#e1bee7">GPU 处理</text>
+    
+    <!-- Arrow -->
+    <line x1="230" y1="30" x2="260" y2="30" stroke="#666" stroke-width="2" marker-end="url(#arrowflow)"/>
+    
+    <!-- Encoder -->
+    <rect x="260" y="0" width="100" height="60" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="310" y="25" text-anchor="middle" font-size="12" fill="white" font-weight="bold">视频编码</text>
+    <text x="310" y="45" text-anchor="middle" font-size="10" fill="#e8f5e9">H.264/H.265</text>
+  </g>
+  
+  <!-- Audio track -->
+  <text x="50" y="200" font-size="14" font-weight="bold" fill="#f0ad4e">音频流</text>
+  
+  <g transform="translate(50, 215)">
+    <!-- Audio capture -->
+    <rect x="0" y="0" width="100" height="60" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="5"/>
+    <text x="50" y="25" text-anchor="middle" font-size="12" fill="white" font-weight="bold">音频采集</text>
+    <text x="50" y="45" text-anchor="middle" font-size="10" fill="#fff3e0">麦克风</text>
+    
+    <!-- Arrow -->
+    <line x1="100" y1="30" x2="130" y2="30" stroke="#666" stroke-width="2" marker-end="url(#arrowflow)"/>
+    
+    <!-- 3A processing -->
+    <rect x="130" y="0" width="100" height="60" fill="#ff5722" stroke="#d84315" stroke-width="2" rx="5"/>
+    <text x="180" y="25" text-anchor="middle" font-size="12" fill="white" font-weight="bold">3A 处理</text>
+    <text x="180" y="45" text-anchor="middle" font-size="10" fill="#ffccbc">AEC/ANS/AGC</text>
+    
+    <!-- Arrow -->
+    <line x1="230" y1="30" x2="260" y2="30" stroke="#666" stroke-width="2" marker-end="url(#arrowflow)"/>
+    
+    <!-- Audio encoder -->
+    <rect x="260" y="0" width="100" height="60" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="310" y="25" text-anchor="middle" font-size="12" fill="white" font-weight="bold">音频编码</text>
+    <text x="310" y="45" text-anchor="middle" font-size="10" fill="#e8f5e9">AAC</text>
+  </g>
+  
+  <!-- Merge -->
+  <g transform="translate(400, 150)">
+    <polygon points="0,0 40,40 0,80" fill="#607d8b" stroke="#455a64" stroke-width="2"/>
+    <text x="-30" y="45" text-anchor="middle" font-size="12" fill="#333">混合</text>
+    <text x="-30" y="60" text-anchor="middle" font-size="10" fill="#666">封装</text>
+  </g>
+  
+  <!-- Arrows to merge -->
+  <line x1="360" y1="125" x2="400" y2="170" stroke="#666" stroke-width="2"/>
+  <line x1="360" y1="275" x2="400" y2="210" stroke="#666" stroke-width="2"/>
+  
+  <!-- Muxer -->
+  <g transform="translate(450, 150)">
+    <rect x="0" y="0" width="100" height="80" fill="#607d8b" stroke="#455a64" stroke-width="2" rx="5"/>
+    <text x="50" y="30" text-anchor="middle" font-size="12" fill="white" font-weight="bold">封装器</text>
+    <text x="50" y="55" text-anchor="middle" font-size="10" fill="#cfd8dc">FLV/TS</text>
+  </g>
+  
+  <!-- Arrow -->
+  <line x1="550" y1="190" x2="580" y2="190" stroke="#666" stroke-width="2" marker-end="url(#arrowflow)"/>
+  
+  <!-- Pusher -->
+  <g transform="translate(580, 150)">
+    <rect x="0" y="0" width="100" height="80" fill="#795548" stroke="#5d4037" stroke-width="2" rx="5"/>
+    <text x="50" y="30" text-anchor="middle" font-size="12" fill="white" font-weight="bold">推流器</text>
+    <text x="50" y="55" text-anchor="middle" font-size="10" fill="#d7ccc8">RTMP</text>
+  </g>
+  
+  <!-- Arrow -->
+  <line x1="680" y1="190" x2="720" y2="190" stroke="#666" stroke-width="2" marker-end="url(#arrowflow)"/>
+  
+  <!-- Server -->
+  <rect x="720" y="150" width="60" height="80" fill="#e91e63" stroke="#c2185b" stroke-width="2" rx="5"/>
+  <text x="750" y="195" text-anchor="middle" font-size="11" fill="white" font-weight="bold">CDN</text>
+  
+  <!-- Thread model -->
+  <g transform="translate(50, 320)">
+    <rect x="0" y="0" width="700" height="60" fill="#fff" stroke="#ddd" rx="5"/>
+    <text x="350" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">线程模型</text>
+    
+    <rect x="20" y="35" width="100" height="18" fill="#4a90d9" rx="3"/>
+    <text x="70" y="48" text-anchor="middle" font-size="10" fill="white">采集线程</text>
+    
+    <rect x="140" y="35" width="100" height="18" fill="#9c27b0" rx="3"/>
+    <text x="190" y="48" text-anchor="middle" font-size="10" fill="white">处理线程</text>
+    
+    <rect x="260" y="35" width="100" height="18" fill="#5cb85c" rx="3"/>
+    <text x="310" y="48" text-anchor="middle" font-size="10" fill="white">编码线程</text>
+    
+    <rect x="380" y="35" width="100" height="18" fill="#607d8b" rx="3"/>
+    <text x="430" y="48" text-anchor="middle" font-size="10" fill="white">封装线程</text>
+    
+    <rect x="500" y="35" width="100" height="18" fill="#795548" rx="3"/>
+    <text x="550" y="48" text-anchor="middle" font-size="10" fill="white">推流线程</text>
+  </g>
+  
+  <defs>
+    <marker id="arrowflow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>
