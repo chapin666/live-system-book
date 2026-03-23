@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450">
+  <!-- Background -->
+  <rect width="900" height="450" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">端到端加密 (E2EE) 架构</text>
+  
+  
+  <!-- Client A -->
+  <g transform="translate(50, 70)">
+    <rect width="180" height="350" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    
+    
+    <text x="90" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565c0">客户端 A</text>
+    
+    
+    <rect x="20" y="60" width="140" height="80" fill="#bbdefb" rx="5"/>
+    
+    <text x="90" y="85" text-anchor="middle" font-size="10" fill="#333">本地生成密钥对</text>
+    
+    <text x="90" y="105" text-anchor="middle" font-size="9" fill="#666">(Public/Private Key)</text>
+    
+    <text x="90" y="125" text-anchor="middle" font-size="9" fill="#1565c0" font-weight="bold">仅A知道私钥</text>
+    
+    
+    <rect x="20" y="160" width="140" height="80" fill="#e8f5e9" rx="5"/>
+    
+    <text x="90" y="185" text-anchor="middle" font-size="10" fill="#333">加密发送</text>
+    
+    <text x="90" y="205" text-anchor="middle" font-size="9" fill="#666">用B的公钥加密</text>
+    
+    <text x="90" y="225" text-anchor="middle" font-size="9" fill="#666">(只有B能解密)</text>
+    
+    
+    <rect x="20" y="260" width="140" height="70" fill="#fff3e0" rx="5"/>
+    
+    <text x="90" y="285" text-anchor="middle" font-size="10" fill="#333">解密接收</text>
+    
+    <text x="90" y="305" text-anchor="middle" font-size="9" fill="#666">用自己的私钥解密</text>
+  </g>
+  
+  
+  <!-- Server / Relay -->
+  <g transform="translate(350, 70)">
+    
+    <rect width="200" height="350" fill="#f5f5f5" stroke="#9e9e9e" stroke-width="2" stroke-dasharray="5,3" rx="8"/>
+    
+    
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#666">服务器 / 中继</text>
+    
+    
+    <rect x="30" y="60" width="140" height="60" fill="#eee" rx="5"/>
+    
+    <text x="100" y="85" text-anchor="middle" font-size="10" fill="#666">转发加密数据</text>
+    
+    <text x="100" y="105" text-anchor="middle" font-size="9" fill="#999">(无法解密内容)</text>
+    
+    
+    <rect x="30" y="140" width="140" height="100" fill="#ffebee" stroke="#f44336" stroke-width="1" rx="5"/>
+    
+    <text x="100" y="165" text-anchor="middle" font-size="10" fill="#c62828" font-weight="bold">⚠ 服务器被攻击</text>
+    
+    <text x="100" y="190" text-anchor="middle" font-size="9" fill="#666">获取的是密文</text>
+    
+    <text x="100" y="210" text-anchor="middle" font-size="9" fill="#666">没有私钥无法解密</text>
+    
+    
+    <text x="100" y="280" text-anchor="middle" font-size="12" fill="#4caf50" font-weight="bold">安全保证</text>
+    
+    <text x="100" y="300" text-anchor="middle" font-size="10" fill="#333">即使服务器被攻破</text>
+    
+    <text x="100" y="318" text-anchor="middle" font-size="10" fill="#333">通信内容仍然安全</text>
+  </g>
+  
+  
+  <!-- Client B -->
+  <g transform="translate(670, 70)">
+    <rect width="180" height="350" fill="#fce4ec" stroke="#e91e63" stroke-width="2" rx="8"/>
+    
+    
+    <text x="90" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2185b">客户端 B</text>
+    
+    
+    <rect x="20" y="60" width="140" height="80" fill="#f8bbd0" rx="5"/>
+    
+    <text x="90" y="85" text-anchor="middle" font-size="10" fill="#333">本地生成密钥对</text>
+    
+    <text x="90" y="105" text-anchor="middle" font-size="9" fill="#666">(Public/Private Key)</text>
+    
+    <text x="90" y="125" text-anchor="middle" font-size="9" fill="#c2185b" font-weight="bold">仅B知道私钥</text>
+    
+    
+    <rect x="20" y="160" width="140" height="80" fill="#e8f5e9" rx="5"/>
+    
+    <text x="90" y="185" text-anchor="middle" font-size="10" fill="#333">解密接收</text>
+    
+    <text x="90" y="205" text-anchor="middle" font-size="9" fill="#666">用自己的私钥解密</text>
+    
+    <text x="90" y="225" text-anchor="middle" font-size="9" fill="#666">(只有B能解密)</text>
+    
+    
+    <rect x="20" y="260" width="140" height="70" fill="#fff3e0" rx="5"/>
+    
+    <text x="90" y="285" text-anchor="middle" font-size="10" fill="#333">加密发送</text>
+    
+    <text x="90" y="305" text-anchor="middle" font-size="9" fill="#666">用A的公钥加密</text>
+  </g>
+  
+  
+  <!-- Arrows -->
+  <g>
+    <!-- Public key exchange -->
+    
+    <path d="M 230 120 Q 290 100 350 120" stroke="#4caf50" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+    
+    <text x="290" y="95" text-anchor="middle" font-size="9" fill="#4caf50">交换公钥</text>
+    
+    
+    <path d="M 670 120 Q 610 100 550 120" stroke="#4caf50" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+    
+    
+    
+    <!-- Encrypted data A -> B -->
+    
+    <path d="M 230 200 L 350 200" stroke="#1976d2" stroke-width="3" fill="none" marker-end="url(#arrow-blue)"/>
+    
+    <text x="290" y="190" text-anchor="middle" font-size="9" fill="#1976d2">加密数据</text>
+    
+    
+    <path d="M 550 200 L 670 200" stroke="#1976d2" stroke-width="3" fill="none" marker-end="url(#arrow-blue)"/>
+    
+    
+    
+    <!-- Encrypted data B -> A -->
+    
+    
+    <path d="M 670 290 L 550 290" stroke="#e91e63" stroke-width="3" fill="none" marker-end="url(#arrow-red)"/>
+    
+    <text x="610" y="310" text-anchor="middle" font-size="9" fill="#e91e63">加密数据</text>
+    
+    
+    <path d="M 350 290 L 230 290" stroke="#e91e63" stroke-width="3" fill="none" marker-end="url(#arrow-red)"/>
+  </g>
+  
+  <!-- Key comparison -->
+  <g transform="translate(50, 400)">
+    
+003ctext x="0" y="15" font-size="11" font-weight="bold" fill="#333">对比:</text>
+    
+    <text x="50" y="15" font-size="10" fill="#666">• 普通加密: 服务器持有密钥，可解密内容</text>
+    
+    <text x="400" y="15" font-size="10" fill="#2e7d32" font-weight="bold">• E2EE: 只有通信双方持有私钥，服务器无法解密</text>
+  </g>
+  
+  <defs>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#4caf50"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1976d2"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#e91e63"/>
+    </marker>
+  </defs>
+</svg>

@@ -1,0 +1,18 @@
+sfu:
+  bind_address: 0.0.0.0
+  rtp_port_range: [10000, 20000]
+  max_bitrate_kbps: 4000
+  
+room:
+  max_participants: 10
+  max_publishers: 10
+  idle_timeout_minutes: 30
+  
+routing:
+  audio_mixer_enabled: true
+  simulcast_enabled: true
+  svc_enabled: false
+  
+logging:
+  level: info
+  file: /var/log/sfu.log

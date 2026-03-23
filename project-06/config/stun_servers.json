@@ -1,0 +1,14 @@
+{
+  "stun_servers": [
+    "stun.l.google.com:19302",
+    "stun1.l.google.com:19302",
+    "stun2.l.google.com:19302"
+  ],
+  "turn_servers": [
+    {
+      "url": "turn:turn.example.com:3478",
+      "username": "user",
+      "credential": "pass"
+    }
+  ]
+}

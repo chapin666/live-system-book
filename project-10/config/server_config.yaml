@@ -1,0 +1,36 @@
+server:
+  bind_address: 0.0.0.0
+  http_port: 8080
+  websocket_port: 8081
+  grpc_port: 50051
+  
+modules:
+  signaling:
+    enabled: true
+    websocket_path: /ws
+    
+  sfu:
+    enabled: true
+    rtp_port_range: [10000, 20000]
+    enable_twcc: true
+    
+  mcu:
+    enabled: true
+    output_dir: /recordings
+    enable_hls: true
+
+storage:
+  redis:
+    host: localhost
+    port: 6379
+    db: 0
+  postgres:
+    host: localhost
+    port: 5432
+    database: live
+    username: live_user
+    password: ${DB_PASSWORD}
+
+logging:
+  level: info
+  format: json

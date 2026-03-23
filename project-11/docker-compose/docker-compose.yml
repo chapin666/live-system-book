@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  sfu:
+    build:
+      context: ../project-10
+      dockerfile: Dockerfile
+    image: live-system/sfu:latest
+    container_name: live-sfu
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "3478:3478/tcp"
+      - "3478:3478/udp"
+      - "10000-10100:10000-10100/udp"
+    environment:
+      - SERVICE_TYPE=sfu
+      - LOG_LEVEL=info
+    volumes:
+      - ../project-10/config:/app/config:ro
+    networks:
+      - live-net
+
+  signaling:
+    build:
+      context: ../project-10
+      dockerfile: Dockerfile
+    image: live-system/signaling:latest
+    container_name: live-signaling
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - SERVICE_TYPE=signaling
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - live-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: live-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - live-net
+
+volumes:
+  redis-data:
+
+networks:
+  live-net:
+    driver: bridge

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300">
+  <!-- Background -->
+  <rect width="900" height="300" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">网络抖动来源分析</text>
+  
+  
+  <!-- Jitter Source 1: Network Congestion -->
+  <g transform="translate(50, 70)">
+    <rect width="250" height="200" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="8"/>
+    
+    
+    <text x="125" y="30" text-anchor="middle" font-size="13" font-weight="bold" fill="#e65100">网络拥塞</text>
+    
+    
+    <rect x="20" y="50" width="210" height="60" fill="#ffe0b2" rx="5"/>
+    
+    <text x="125" y="75" text-anchor="middle" font-size="10" fill="#333">路由器缓存队列</text>
+    
+    <text x="125" y="95" text-anchor="middle" font-size="9" fill="#666">排队延迟变化导致抖动</text>
+    
+    
+    <rect x="20" y="120" width="210" height="60" fill="#fff" stroke="#ff9800" stroke-width="1" rx="5"/>
+    
+    <text x="125" y="145" text-anchor="middle" font-size="10" fill="#333">解决方案</text>
+    
+    <text x="125" y="165" text-anchor="middle" font-size="9" fill="#2e7d32">拥塞控制、自适应码率</text>
+  </g>
+  
+  
+  <!-- Jitter Source 2: Route Change -->
+  <g transform="translate(325, 70)">
+    
+    <rect width="250" height="200" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    
+    
+    <text x="125" y="30" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565c0">路由变化</text>
+    
+    
+    <rect x="20" y="50" width="210" height="60" fill="#bbdefb" rx="5"/>
+    
+    <text x="125" y="75" text-anchor="middle" font-size="10" fill="#333">BGP路由重收敛</text>
+    
+    <text x="125" y="95" text-anchor="middle" font-size="9" fill="#666">不同路径延迟差异</text>
+    
+    
+    <rect x="20" y="120" width="210" height="60" fill="#fff" stroke="#1976d2" stroke-width="1" rx="5"/>
+    
+    <text x="125" y="145" text-anchor="middle" font-size="10" fill="#333">解决方案</text>
+    
+    <text x="125" y="165" text-anchor="middle" font-size="9" fill="#2e7d32">JitterBuffer自适应</text>
+  </g>
+  
+  
+  <!-- Jitter Source 3: Wireless Network -->
+  <g transform="translate(600, 70)">
+    <rect width="250" height="200" fill="#fce4ec" stroke="#e91e63" stroke-width="2" rx="8"/>
+    
+    
+    <text x="125" y="30" text-anchor="middle" font-size="13" font-weight="bold" fill="#c2185b">无线网络</text>
+    
+    
+    <rect x="20" y="50" width="210" height="60" fill="#f8bbd0" rx="5"/>
+    
+    <text x="125" y="75" text-anchor="middle" font-size="10" fill="#333">WiFi/4G/5G</text>
+    
+    <text x="125" y="95" text-anchor="middle" font-size="9" fill="#666">信号强度变化、干扰</text>
+    
+    
+    <rect x="20" y="120" width="210" height="60" fill="#fff" stroke="#e91e63" stroke-width="1" rx="5"/>
+    
+    <text x="125" y="145" text-anchor="middle" font-size="10" fill="#333">解决方案</text>
+    
+    <text x="125" y="165" text-anchor="middle" font-size="9" fill="#2e7d32">前向纠错(FEC)、重传</text>
+  </g>
+  
+  
+  <!-- Bottom note -->
+  <g transform="translate(50, 285)">
+    <text x="400" y="0" text-anchor="middle" font-size="11" fill="#666">抖动 = |实际到达时间 - 期望到达时间|，JitterBuffer通过自适应缓冲吸收抖动</text>
+  </g>
+</svg>

@@ -1,0 +1,21 @@
+recorder:
+  output_dir: /recordings
+  format: hls
+  segment_duration_sec: 6
+  max_segments: 1000
+  
+mcu:
+  layout: grid  # grid / speaker
+  resolution: 1280x720
+  fps: 30
+  video_codec: h264
+  audio_codec: aac
+  
+timeshift:
+  enabled: true
+  buffer_duration_minutes: 120
+  
+storage:
+  type: local  # local / s3
+  s3_bucket: live-recordings
+  s3_region: us-east-1

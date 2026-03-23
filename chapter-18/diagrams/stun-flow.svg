@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 550">
+  <!-- Background -->
+  <rect width="900" height="550" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">STUN协议流程</text>
+  
+  <!-- Client A -->
+  <g transform="translate(50, 80)">
+    <rect width="160" height="200" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    <text x="80" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">客户端 A</text>
+    
+    <rect x="20" y="50" width="120" height="50" fill="#64b5f6" rx="5"/>
+    <text x="80" y="72" text-anchor="middle" font-size="11" fill="white">内网地址</text>
+    <text x="80" y="90" text-anchor="middle" font-size="10" fill="#e3f2fd">192.168.1.2:5000</text>
+    
+    <rect x="20" y="110" width="120" height="50" fill="#4caf50" rx="5" opacity="0.9"/>
+    <text x="80" y="132" text-anchor="middle" font-size="11" fill="white">公网映射</text>
+    <text x="80" y="150" text-anchor="middle" font-size="10" fill="#e8f5e9">203.0.113.1:8001</text>
+    
+    <!-- NAT Box -->
+    <rect x="20" y="170" width="120" height="20" fill="#ff9800" rx="3"/>
+    <text x="80" y="184" text-anchor="middle" font-size="10" fill="white">NAT A</text>
+  </g>
+  
+  <!-- Client B -->
+  <g transform="translate(690, 80)">
+    <rect width="160" height="200" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
+    <text x="80" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">客户端 B</text>
+    
+    <rect x="20" y="50" width="120" height="50" fill="#ba68c8" rx="5"/>
+    <text x="80" y="72" text-anchor="middle" font-size="11" fill="white">内网地址</text>
+    <text x="80" y="90" text-anchor="middle" font-size="10" fill="#f3e5f5">192.168.2.3:6000</text>
+    
+    <rect x="20" y="110" width="120" height="50" fill="#4caf50" rx="5" opacity="0.9"/>
+    <text x="80" y="132" text-anchor="middle" font-size="11" fill="white">公网映射</text>
+    <text x="80" y="150" text-anchor="middle" font-size="10" fill="#e8f5e9">198.51.100.2:9001</text>
+    
+    <!-- NAT Box -->
+    <rect x="20" y="170" width="120" height="20" fill="#ff9800" rx="3"/>
+    <text x="80" y="184" text-anchor="middle" font-size="10" fill="white">NAT B</text>
+  </g>
+  
+  <!-- STUN Server -->
+  <g transform="translate(350, 80)">
+    <rect width="200" height="120" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">STUN服务器</text>
+    
+    <rect x="20" y="45" width="160" height="30" fill="#81c784" rx="4"/>
+    <text x="100" y="65" text-anchor="middle" font-size="11" fill="white">绑定请求处理</text>
+    
+    <rect x="20" y="80" width="160" height="30" fill="#66bb6a" rx="4"/>
+    <text x="100" y="100" text-anchor="middle" font-size="11" fill="white">公网地址发现</text>
+  </g>
+  
+  <!-- Signaling Server -->
+  <g transform="translate(350, 220)">
+    <rect width="200" height="100" fill="#fff8e1" stroke="#ffa000" stroke-width="2" rx="8"/>
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#e65100">信令服务器</text>
+    
+    <rect x="20" y="45" width="160" height="45" fill="#ffcc80" rx="4"/>
+    <text x="100" y="65" text-anchor="middle" font-size="11" fill="#5d4037">交换公网地址</text>
+    <text x="100" y="82" text-anchor="middle" font-size="10" fill="#795548">SDP / Candidate</text>
+  </g>
+  
+  <!-- Flow Arrows - Step 1: A to STUN -->
+  <g>
+    <path d="M210 140 L350 130" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow1)"/>
+    <text x="280" y="120" text-anchor="middle" font-size="10" fill="#1976d2" font-weight="bold">① Binding Request</text>
+    <text x="280" y="135" text-anchor="middle" font-size="9" fill="#666">查询公网地址</text>
+  </g>
+  
+  <!-- Step 2: STUN to A -->
+  <g>
+    <path d="M350 150 L210 160" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow2)"/>
+    <text x="280" y="175" text-anchor="middle" font-size="10" fill="#4caf50" font-weight="bold">② Binding Response</text>
+    <text x="280" y="190" text-anchor="middle" font-size="9" fill="#666">返回: 203.0.113.1:8001</text>
+  </g>
+  
+  <!-- Step 3: B to STUN -->
+  <g>
+    <path d="M690 140 L550 130" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrow3)"/>
+    <text x="620" y="120" text-anchor="middle" font-size="10" fill="#7b1fa2" font-weight="bold">③ Binding Request</text>
+    <text x="620" y="135" text-anchor="middle" font-size="9" fill="#666">查询公网地址</text>
+  </g>
+  
+  <!-- Step 4: STUN to B -->
+  <g>
+    <path d="M550 150 L690 160" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow4)"/>
+    <text x="620" y="175" text-anchor="middle" font-size="10" fill="#4caf50" font-weight="bold">④ Binding Response</text>
+    <text x="620" y="190" text-anchor="middle" font-size="9" fill="#666">返回: 198.51.100.2:9001</text>
+  </g>
+  
+  <!-- Step 5: A to Signaling -->
+  <g>
+    <path d="M210 200 L350 250" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow5)"/>
+    <text x="270" y="235" text-anchor="middle" font-size="10" fill="#ff9800" font-weight="bold">⑤ 发送Candidate</text>
+  </g>
+  
+  <!-- Step 6: B to Signaling -->
+  <g>
+    <path d="M690 200 L550 250" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow5)"/>
+    <text x="620" y="235" text-anchor="middle" font-size="10" fill="#ff9800" font-weight="bold">⑥ 发送Candidate</text>
+  </g>
+  
+  <!-- Step 7: Signaling exchange -->
+  <g>
+    <path d="M400 320 L400 350" stroke="#ff5722" stroke-width="2" marker-end="url(#arrow6)"/>
+    <text x="480" y="340" font-size="10" fill="#ff5722" font-weight="bold">⑦ 交换地址信息</text>
+  </g>
+  
+  <!-- Step 8: P2P Connection -->
+  <g transform="translate(50, 380)">
+    <rect width="800" height="140" fill="#e1f5fe" stroke="#0288d1" stroke-width="2" rx="8"/>
+    <text x="400" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#01579b">P2P连接尝试阶段</text>
+    
+    <!-- A side -->
+    <rect x="20" y="50" width="180" height="75" fill="#4fc3f7" rx="5"/>
+    <text x="110" y="72" text-anchor="middle" font-size="11" fill="white" font-weight="bold">客户端 A</text>
+    <text x="110" y="92" text-anchor="middle" font-size="10" fill="#e1f5fe">尝试连接 198.51.100.2:9001</text>
+    <text x="110" y="112" text-anchor="middle" font-size="9" fill="#81c784">发送 STUN Binding</text>
+    
+    <!-- B side -->
+    <rect x="600" y="50" width="180" height="75" fill="#4fc3f7" rx="5"/>
+    <text x="690" y="72" text-anchor="middle" font-size="11" fill="white" font-weight="bold">客户端 B</text>
+    <text x="690" y="92" text-anchor="middle" font-size="10" fill="#e1f5fe">尝试连接 203.0.113.1:8001</text>
+    <text x="690" y="112" text-anchor="middle" font-size="9" fill="#81c784">发送 STUN Binding</text>
+    
+    <!-- P2P Arrow -->
+    <path d="M200 87 L600 87" stroke="#0288d1" stroke-width="3" marker-end="url(#arrow7)" marker-start="url(#arrow8)"/>
+    <text x="400" y="75" text-anchor="middle" font-size="12" fill="#01579b" font-weight="bold">⑧ 双向穿透</text>
+    <text x="400" y="105" text-anchor="middle" font-size="10" fill="#666">Hole Punching</text>
+    
+    <!-- Success -->
+    <rect x="300" y="120" width="200" height="25" fill="#81c784" rx="3"/>
+    <text x="400" y="137" text-anchor="middle" font-size="11" fill="white" font-weight="bold">✓ P2P连接建立成功</text>
+  </g>
+  
+  <!-- Legend -->
+  <g transform="translate(50, 530)">
+    <rect width="800" height="20" fill="white" stroke="#ddd" stroke-width="1" rx="3"/>
+    <text x="10" y="14" font-size="10" fill="#555">
+      STUN (Session Traversal Utilities for NAT): RFC 5389/8489 | 标准端口: 3478 (UDP/TCP) | 支持TLS: 5349
+    </text>
+  </g>
+  
+  <!-- Arrow Markers -->
+  <defs>
+    <marker id="arrow1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+    </marker>
+    <marker id="arrow2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+    </marker>
+    <marker id="arrow3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7b1fa2"/>
+    </marker>
+    <marker id="arrow4" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+    </marker>
+    <marker id="arrow5" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ff9800"/>
+    </marker>
+    <marker id="arrow6" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ff5722"/>
+    </marker>
+    <marker id="arrow7" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0288d1"/>
+    </marker>
+    <marker id="arrow8" markerWidth="10" markerHeight="7" refX="1" refY="3.5" orient="auto">
+      <polygon points="10 0, 0 3.5, 10 7" fill="#0288d1"/>
+    </marker>
+  </defs>
+</svg>

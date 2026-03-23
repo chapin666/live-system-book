@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
+  <!-- Background -->
+  <rect width="900" height="600" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">ICE候选地址收集</text>
+  
+  <!-- Client Side -->
+  <g transform="translate(50, 60)">
+    <rect width="250" height="520" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    <text x="125" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1976d2">客户端 (主机)</text>
+    
+    <!-- Host Interface -->
+    <rect x="15" y="50" width="220" height="120" fill="#bbdefb" stroke="#1976d2" stroke-width="1" rx="5"/>
+    <text x="125" y="70" text-anchor="middle" font-size="12" font-weight="bold" fill="#0d47a1">主机候选 (Host)</text>
+    <text x="125" y="88" text-anchor="middle" font-size="10" fill="#666">本地网络接口地址</text>
+    
+    <!-- Ethernet -->
+    <rect x="25" y="100" width="90" height="60" fill="#64b5f6" rx="4"/>
+    <text x="70" y="120" text-anchor="middle" font-size="10" fill="white">以太网</text>
+    <text x="70" y="138" text-anchor="middle" font-size="9" fill="#e3f2fd">192.168.1.2</text>
+    <text x="70" y="152" text-anchor="middle" font-size="9" fill="#81c784">优先级: 高</text>
+    
+    <!-- WiFi -->
+    <rect x="135" y="100" width="90" height="60" fill="#64b5f6" rx="4"/>
+    <text x="180" y="120" text-anchor="middle" font-size="10" fill="white">WiFi</text>
+    <text x="180" y="138" text-anchor="middle" font-size="9" fill="#e3f2fd">192.168.1.3</text>
+    <text x="180" y="152" text-anchor="middle" font-size="9" fill="#81c784">优先级: 高</text>
+  </g>
+  
+  <!-- STUN Gathering -->
+  <g transform="translate(50, 190)">
+    <rect x="15" y="0" width="220" height="140" fill="#c8e6c9" stroke="#4caf50" stroke-width="1" rx="5"/>
+    <text x="125" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#1b5e20">服务器反射候选 (Server Reflexive)</text>
+    <text x="125" y="38" text-anchor="middle" font-size="10" fill="#666">STUN发现公网映射地址</text>
+    
+    <!-- STUN Request -->
+    <rect x="25" y="50" width="90" height="40" fill="#81c784" rx="4"/>
+    <text x="70" y="68" text-anchor="middle" font-size="9" fill="white">Binding Request</text>
+    <text x="70" y="82" text-anchor="middle" font-size="8" fill="#e8f5e9">→ STUN服务器</text>
+    
+    <!-- STUN Response -->
+    <rect x="135" y="50" width="90" height="40" fill="#66bb6a" rx="4"/>
+    <text x="180" y="68" text-anchor="middle" font-size="9" fill="white">公网地址</text>
+    <text x="180" y="82" text-anchor="middle" font-size="8" fill="#e8f5e9">203.0.113.1:8001</text>
+    
+    <!-- Result -->
+    <rect x="25" y="100" width="200" height="30" fill="#a5d6a7" rx="4"/>
+    <text x="125" y="120" text-anchor="middle" font-size="10" fill="#1b5e20">srflx: 203.0.113.1:8001</text>
+  </g>
+  
+  <!-- TURN Gathering -->
+  <g transform="translate(50, 340)">
+    <rect x="15" y="0" width="220" height="140" fill="#fff8e1" stroke="#ffa000" stroke-width="1" rx="5"/>
+    <text x="125" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#e65100">中继候选 (Relay)</text>
+    <text x="125" y="38" text-anchor="middle" font-size="10" fill="#666">TURN分配中继地址</text>
+    
+    <!-- TURN Request -->
+    <rect x="25" y="50" width="90" height="40" fill="#ffcc80" rx="4"/>
+    <text x="70" y="68" text-anchor="middle" font-size="9" fill="#5d4037">Allocate Req</text>
+    <text x="70" y="82" text-anchor="middle" font-size="8" fill="#795548">→ TURN服务器</text>
+    
+    <!-- TURN Response -->
+    <rect x="135" y="50" width="90" height="40" fill="#ffb74d" rx="4"/>
+    <text x="180" y="68" text-anchor="middle" font-size="9" fill="#5d4037">中继地址</text>
+    <text x="180" y="82" text-anchor="middle" font-size="8" fill="#795548">198.51.100.5:10001</text>
+    
+    <!-- Result -->
+    <rect x="25" y="100" width="200" height="30" fill="#ffe0b2" rx="4"/>
+    <text x="125" y="120" text-anchor="middle" font-size="10" fill="#e65100">relay: 198.51.100.5:10001</text>
+  </g>
+  
+  <!-- NAT Box -->
+  <g transform="translate(320, 200)">
+    <rect width="100" height="120" fill="#ff9800" stroke="#e65100" stroke-width="2" rx="8"/>
+    <text x="50" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="white">NAT</text>
+    <text x="50" y="50" text-anchor="middle" font-size="10" fill="#fff3e0">地址转换</text>
+    <text x="50" y="70" text-anchor="middle" font-size="9" fill="#fff3e0">192.168.x.x</text>
+    <text x="50" y="85" text-anchor="middle" font-size="9" fill="#fff3e0">↓</text>
+    <text x="50" y="100" text-anchor="middle" font-size="9" fill="#fff3e0">203.0.113.x</text>
+  </g>
+  
+  <!-- Internet Cloud -->
+  <g transform="translate(450, 100)">
+    <ellipse cx="100" cy="80" rx="120" ry="60" fill="#e1f5fe" stroke="#0288d1" stroke-width="2" opacity="0.5"/>
+    <text x="100" y="70" text-anchor="middle" font-size="16" font-weight="bold" fill="#01579b">Internet</text>
+    <text x="100" y="90" text-anchor="middle" font-size="11" fill="#0277bd">公网</text>
+  </g>
+  
+  <!-- STUN Server -->
+  <g transform="translate(620, 60)">
+    <rect width="230" height="100" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
+    <text x="115" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#2e7d32">STUN服务器</text>
+    <text x="115" y="50" text-anchor="middle" font-size="10" fill="#555">stun.example.com</text>
+    <rect x="15" y="60" width="200" height="30" fill="#81c784" rx="4"/>
+    <text x="115" y="80" text-anchor="middle" font-size="10" fill="white">返回客户端公网映射地址</text>
+  </g>
+  
+  <!-- TURN Server -->
+  <g transform="translate(620, 180)">
+    <rect width="230" height="100" fill="#fff8e1" stroke="#ffa000" stroke-width="2" rx="8"/>
+    <text x="115" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#e65100">TURN服务器</text>
+    <text x="115" y="50" text-anchor="middle" font-size="10" fill="#555">turn.example.com</text>
+    <rect x="15" y="60" width="200" height="30" fill="#ffcc80" rx="4"/>
+    <text x="115" y="80" text-anchor="middle" font-size="10" fill="#5d4037">分配中继地址并转发数据</text>
+  </g>
+  
+  <!-- Priority Table -->
+  <g transform="translate(620, 300)">
+    <rect width="230" height="280" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
+    <text x="115" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">候选优先级排序</text>
+    
+    <!-- Priority Formula -->
+    <rect x="15" y="45" width="200" height="50" fill="#e1bee7" rx="4"/>
+    <text x="115" y="62" text-anchor="middle" font-size="10" fill="#4a148c">优先级计算 (RFC 5245)</text>
+    <text x="115" y="82" text-anchor="middle" font-size="11" fill="#6a1b9a" font-weight="bold">prio = (2^24)*type + (2^8)*local</text>
+    
+    <!-- Priority List -->
+    <rect x="15" y="105" width="200" height="160" fill="white" stroke="#ce93d8" stroke-width="1" rx="4"/>
+    
+    <!-- Row 1: Host -->
+    <rect x="20" y="110" width="190" height="35" fill="#e8f5e9" rx="3"/>
+    <text x="30" y="130" font-size="11" fill="#2e7d32" font-weight="bold">1. Host</text>
+    <text x="115" y="130" font-size="10" fill="#555">type=126</text>
+    <text x="180" y="130" font-size="10" fill="#4caf50" font-weight="bold">最高</text>
+    
+    <!-- Row 2: srflx -->
+    <rect x="20" y="150" width="190" height="35" fill="#fff8e1" rx="3"/>
+    <text x="30" y="170" font-size="11" fill="#e65100" font-weight="bold">2. Server Reflexive</text>
+    <text x="140" y="170" font-size="10" fill="#555">type=100</text>
+    <text x="195" y="170" font-size="10" fill="#ff9800" font-weight="bold">中</text>
+    
+    <!-- Row 3: prflx -->
+    <rect x="20" y="190" width="190" height="35" fill="#e3f2fd" rx="3"/>
+    <text x="30" y="210" font-size="11" fill="#1565c0" font-weight="bold">3. Peer Reflexive</text>
+    <text x="140" y="210" font-size="10" fill="#555">type=110</text>
+    <text x="195" y="210" font-size="10" fill="#2196f3" font-weight="bold">中</text>
+    
+    <!-- Row 4: relay -->
+    <rect x="20" y="230" width="190" height="30" fill="#ffebee" rx="3"/>
+    <text x="30" y="250" font-size="11" fill="#c62828" font-weight="bold">4. Relay</text>
+    <text x="115" y="250" font-size="10" fill="#555">type=0</text>
+    <text x="180" y="250" font-size="10" fill="#e53935" font-weight="bold">保底</text>
+  </g>
+  
+  <!-- Arrows -->
+  <!-- Host to NAT -->
+  <path d="M270 150 L320 250" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow1)"/>
+  
+  <!-- NAT to Internet -->
+  <path d="M420 260 L500 160" stroke="#0288d1" stroke-width="2" marker-end="url(#arrow2)"/>
+  
+  <!-- To STUN -->
+  <path d="M550 110 L620 110" stroke="#388e3c" stroke-width="2" marker-end="url(#arrow3)"/>
+  
+  <!-- To TURN -->
+  <path d="M550 230 L620 230" stroke="#ffa000" stroke-width="2" marker-end="url(#arrow4)"/>
+  
+  <!-- Arrow Markers -->
+  <defs>
+    <marker id="arrow1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+    </marker>
+    <marker id="arrow2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0288d1"/>
+    </marker>
+    <marker id="arrow3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#388e3c"/>
+    </marker>
+    <marker id="arrow4" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ffa000"/>
+    </marker>
+  </defs>
+</svg>

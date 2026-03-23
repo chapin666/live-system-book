@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450">
+  <!-- Background -->
+  <rect width="900" height="450" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">Token 鉴权流程</text>
+  
+  
+  <!-- Client -->
+  <g transform="translate(50, 70)">
+    <rect width="160" height="350" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    
+    <text x="80" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565c0">客户端</text>
+    
+    
+    <rect x="20" y="60" width="120" height="80" fill="#bbdefb" rx="5"/>
+    
+    <text x="80" y="85" text-anchor="middle" font-size="10" fill="#333">1. 请求Token</text>
+    
+    <text x="80" y="105" text-anchor="middle" font-size="9" fill="#666">携带用户凭证</text>
+    
+    <text x="80" y="122" text-anchor="middle" font-size="9" fill="#666">(room_id, user_id)</text>
+    
+    
+    <rect x="20" y="240" width="120" height="80" fill="#e8f5e9" stroke="#4caf50" stroke-width="1" rx="5"/>
+    
+    <text x="80" y="265" text-anchor="middle" font-size="10" fill="#333">4. 连接SFU</text>
+    
+    <text x="80" y="285" text-anchor="middle" font-size="9" fill="#666">携带Token</text>
+    
+    <text x="80" y="305" text-anchor="middle" font-size="9" fill="#2e7d32">在Header或URL中</text>
+  </g>
+  
+  
+  <!-- Auth Server -->
+  <g transform="translate(350, 70)">
+    
+    <rect width="200" height="350" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="8"/>
+    
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#e65100">鉴权服务器</text>
+    
+    
+    <rect x="20" y="60" width="160" height="100" fill="#ffe0b2" rx="5"/>
+    
+    <text x="100" y="85" text-anchor="middle" font-size="10" fill="#333">2. 验证身份</text>
+    
+    <text x="100" y="105" text-anchor="middle" font-size="9" fill="#666">• 检查用户权限</text>
+    
+    <text x="100" y="122" text-anchor="middle" font-size="9" fill="#666">• 验证房间权限</text>
+    
+    <text x="100" y="139" text-anchor="middle" font-size="9" fill="#666">• 检查Token有效期</text>
+    
+    
+    <rect x="20" y="180" width="160" height="80" fill="#e8f5e9" rx="5"/>
+    
+    <text x="100" y="205" text-anchor="middle" font-size="10" fill="#333">3. 生成Token</text>
+    
+    <text x="100" y="225" text-anchor="middle" font-size="9" fill="#666">JWT格式</text>
+    
+    <text x="100" y="242" text-anchor="middle" font-size="9" fill="#666">签名返回</text>
+  </g>
+  
+  
+  <!-- SFU Server -->
+  <g transform="translate(650, 70)">
+    <rect width="200" height="350" fill="#fce4ec" stroke="#e91e63" stroke-width="2" rx="8"/>
+    
+    
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2185b">SFU服务器</text>
+    
+    
+    <rect x="20" y="240" width="160" height="80" fill="#f8bbd0" rx="5"/>
+    
+    <text x="100" y="265" text-anchor="middle" font-size="10" fill="#333">5. 验证Token</text>
+    
+    <text x="100" y="285" text-anchor="middle" font-size="9" fill="#666">• 验签</text>
+    
+    <text x="100" y="302" text-anchor="middle" font-size="9" fill="#666">• 检查过期时间</text>
+    
+    
+    <rect x="20" y="330" width="160" height="40" fill="#c8e6c9" rx="5"/>
+    
+    <text x="100" y="355" text-anchor="middle" font-size="11" font-weight="bold" fill="#2e7d32">6. 允许/拒绝连接</text>
+  </g>
+  
+  
+  <!-- Arrows -->
+  <g>
+    <!-- 1. Request Token -->
+    
+    <path d="M 210 120 L 350 120" stroke="#1976d2" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+    
+    <text x="280" y="110" text-anchor="middle" font-size="9" fill="#1976d2">HTTP POST</text>
+    
+    
+    <!-- 3. Return Token -->
+    
+    
+    <path d="M 350 200 L 210 200" stroke="#4caf50" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+    
+    <text x="280" y="225" text-anchor="middle" font-size="9" fill="#4caf50">Token Response</text>
+    
+    
+    <!-- 4. Connect SFU -->
+    
+    
+    <path d="M 210 280 L 650 280" stroke="#e91e63" stroke-width="2" fill="none" marker-end="url(#arrow-red)"/>
+    
+    <text x="430" y="270" text-anchor="middle" font-size="9" fill="#e91e63">WebSocket/WebRTC</text>
+    
+    <text x="430" y="300" text-anchor="middle" font-size="9" fill="#666">Authorization: Bearer <Token></text>
+  </g>
+  
+  
+  <!-- Token Structure -->
+  <g transform="translate(350, 330)">
+    
+    <text x="0" y="0" font-size="10" font-weight="bold" fill="#333">Token结构 (JWT):</text>
+    
+    <rect x="80" y="-15" width="300" height="30" fill="#f5f5f5" stroke="#ddd" stroke-width="1" rx="3"/>
+    
+    <text x="100" y="5" font-size="9" fill="#1565c0" font-family="monospace">Header.Payload.Signature</text>
+    
+    <text x="260" y="5" font-size="8" fill="#666">(包含room_id, user_id, exp)</text>
+  </g>
+  
+  <defs>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1976d2"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#4caf50"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#e91e63"/>
+    </marker>
+  </defs>
+</svg>
