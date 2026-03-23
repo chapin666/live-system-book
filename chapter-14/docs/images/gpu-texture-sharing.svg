@@ -33,7 +33,7 @@
   </g>
   
   <!-- GPU texture sharing -->
-  <g transform="translate="380," 80)">
+  <g transform="translate(380, 80)">
     <text x="150" y="0" text-anchor="middle" font-size="14" font-weight="bold" fill="#2e7d32">GPU 纹理共享（快）</text>
     
     <!-- GPU -->

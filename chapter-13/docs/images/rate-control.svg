@@ -25,7 +25,7 @@
   </g>
   
   <!-- VBR Section -->
-  <g transform="translate="250," 80)">
+  <g transform="translate(250, 80)">
     <rect x="0" y="0" width="200" height="280" fill="#fff" stroke="#5cb85c" stroke-width="2" rx="5"/>
     <text x="100" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#5cb85c">VBR</text>
     <text x="100" y="50" text-anchor="middle" font-size="12" fill="#666">可变码率</text>

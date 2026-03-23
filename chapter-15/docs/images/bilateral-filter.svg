@@ -60,7 +60,7 @@
   </g>
   
   <!-- Comparison: Gaussian blur -->
-  <g transform="translate="570," 100)">
+  <g transform="translate(570, 100)">>
     <text x="100" y="0" text-anchor="middle" font-size="13" font-weight="bold" fill="#d32f2f">高斯滤波（对比）</text>
     
     <rect x="0" y="15" width="200" height="200" fill="#f5e6d3" stroke="#ddd" rx="3"/>
