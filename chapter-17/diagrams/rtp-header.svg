@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="900" height="500" fill="#FAFAFA"/>
+  
+  <!-- 标题 -->
+  <text x="450" y="30" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#333">RTP 头部详解与工作流程</text>
+  
+  <!-- 头部详细分解 -->
+  <g transform="translate(30, 50)">
+    <text x="420" y="15" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1565C0">RTP Header 12 字节结构</text>
+    
+    <!-- 字节0 -->
+    <g transform="translate(0, 30)">
+      <rect x="0" y="0" width="200" height="50" fill="#E3F2FD" stroke="#2196F3" stroke-width="1"/>
+      <text x="100" y="20" font-family="monospace" font-size="11" text-anchor="middle" fill="#333">Byte 0</text>
+      
+      <!-- V -->
+      <rect x="5" y="28" width="40" height="18" fill="#FFCDD2" stroke="#E57373"/>
+      <text x="25" y="40" font-family="monospace" font-size="9" text-anchor="middle" fill="#C62828">V=2</text>
+      
+      <!-- P -->
+      <rect x="50" y="28" width="35" height="18" fill="#F8BBD9" stroke="#F06292"/>
+      <text x="67" y="40" font-family="monospace" font-size="9" text-anchor="middle" fill="#C2185B">P</text>
+      
+      <!-- X -->
+      <rect x="90" y="28" width="35" height="18" fill="#E1BEE7" stroke="#BA68C8"/>
+      <text x="107" y="40" font-family="monospace" font-size="9" text-anchor="middle" fill="#8E24AA">X</text>
+      
+      <!-- CC -->
+      <rect x="130" y="28" width="65" height="18" fill="#D1C4E9" stroke="#9575CD"/>
+      <text x="162" y="40" font-family="monospace" font-size="9" text-anchor="middle" fill="#5E35B1">CC(4)</text>
+    </g>
+    
+    <!-- 字节1 -->
+    <g transform="translate(210, 30)">
+      <rect x="0" y="0" width="200" height="50" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1"/>
+      <text x="100" y="20" font-family="monospace" font-size="11" text-anchor="middle" fill="#333">Byte 1</text>
+      
+      <!-- M -->
+      <rect x="5" y="28" width="50" height="18" fill="#C5CAE9" stroke="#7986CB"/>
+      <text x="30" y="40" font-family="monospace" font-size="9" text-anchor="middle" fill="#3949AB">M</text>
+      
+      <!-- PT -->
+      <rect x="60" y="28" width="135" height="18" fill="#BBDEFB" stroke="#64B5F6"/>
+      <text x="127" y="40" font-family="monospace" font-size="9" text-anchor="middle" fill="#1976D2">PT (7 bits)</text>
+    </g>
+    
+    <!-- 字节2-3 -->
+    <g transform="translate(420, 30)">
+      <rect x="0" y="0" width="200" height="50" fill="#FFF3E0" stroke="#FF9800" stroke-width="1"/>
+      <text x="100" y="20" font-family="monospace" font-size="11" text-anchor="middle" fill="#333">Bytes 2-3</text>
+      <rect x="5" y="28" width="190" height="18" fill="#FFE0B2" stroke="#FFB74D"/>
+      <text x="100" y="40" font-family="monospace" font-size="9" text-anchor="middle" fill="#E65100">Sequence Number (16 bits)</text>
+    </g>
+    
+    <!-- 字节4-7 -->
+    <g transform="translate(0, 90)">
+      <rect x="0" y="0" width="300" height="50" fill="#F3E5F5" stroke="#9C27B0" stroke-width="1"/>
+      <text x="150" y="20" font-family="monospace" font-size="11" text-anchor="middle" fill="#333">Bytes 4-7</text>
+      <rect x="5" y="28" width="290" height="18" fill="#E1BEE7" stroke="#BA68C8"/>
+      <text x="150" y="40" font-family="monospace" font-size="9" text-anchor="middle" fill="#7B1FA2">Timestamp (32 bits)</text>
+    </g>
+    
+    <!-- 字节8-11 -->
+    <g transform="translate(310, 90)">
+      <rect x="0" y="0" width="310" height="50" fill="#E0F7FA" stroke="#00BCD4" stroke-width="1"/>
+      <text x="155" y="20" font-family="monospace" font-size="11" text-anchor="middle" fill="#333">Bytes 8-11</text>
+      <rect x="5" y="28" width="300" height="18" fill="#B2EBF2" stroke="#4DD0E1"/>
+      <text x="155" y="40" font-family="monospace" font-size="9" text-anchor="middle" fill="#00838F">SSRC (Synchronization Source Identifier)</text>
+    </g>
+  </g>
+  
+  <!-- 字段详细说明 -->
+  <g transform="translate(30, 160)">
+    <rect x="0" y="0" width="400" height="320" rx="8" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <text x="200" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#333">关键字段详解</text>
+    
+    <!-- Sequence Number -->
+    <g transform="translate(10, 40)">
+      <rect x="0" y="0" width="380" height="60" rx="4" fill="#FFF8E1" stroke="#FFC107"/>
+      <text x="10" y="18" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#FF6F00">Sequence Number (16 bits)</text>
+      <text x="10" y="35" font-family="Arial, sans-serif" font-size="10" fill="#333">• 每发送一个 RTP 包递增 1，用于检测丢包和排序</text>
+      <text x="10" y="50" font-family="Arial, sans-serif" font-size="10" fill="#333">• 溢出后从 0 开始（模 65536）</text>
+    </g>
+    
+    <!-- Timestamp -->
+    <g transform="translate(10, 110)">
+      <rect x="0" y="0" width="380" height="75" rx="4" fill="#E8F5E9" stroke="#4CAF50"/>
+      <text x="10" y="18" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#2E7D32">Timestamp (32 bits)</text>
+      <text x="10" y="35" font-family="Arial, sans-serif" font-size="10" fill="#333">• 反映采样时刻，用于同步和抖动计算</text>
+      <text x="10" y="50" font-family="Arial, sans-serif" font-size="10" fill="#333">• 视频：通常 90kHz (H.264/265)</text>
+      <text x="10" y="65" font-family="Arial, sans-serif" font-size="10" fill="#333">• 音频：采样率（如 48kHz for Opus）</text>
+    </g>
+    
+    <!-- SSRC -->
+    <g transform="translate(10, 195)">
+      <rect x="0" y="0" width="380" height="55" rx="4" fill="#E3F2FD" stroke="#2196F3"/>
+      <text x="10" y="18" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1565C0">SSRC (32 bits)</text>
+      <text x="10" y="35" font-family="Arial, sans-serif" font-size="10" fill="#333">• 随机生成的唯一标识符，区分不同媒体流</text>
+      <text x="10" y="48" font-family="Arial, sans-serif" font-size="10" fill="#333">• 同一会话中 SSRC 应唯一</text>
+    </g>
+    
+    <!-- Payload Type -->
+    <g transform="translate(10, 260)">
+      <rect x="0" y="0" width="380" height="50" rx="4" fill="#F3E5F5" stroke="#9C27B0"/>
+      <text x="10" y="18" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#7B1FA2">Payload Type (7 bits)</text>
+      <text x="10" y="35" font-family="Arial, sans-serif" font-size="10" fill="#333">• 96-127: 动态分配 (H.264=96, Opus=111)</text>
+    </g>
+  </g>
+  
+  <!-- 工作流程图 -->
+  <g transform="translate(450, 160)">
+    <rect x="0" y="0" width="420" height="320" rx="8" fill="#fff" stroke="#ddd" stroke-width="1"/>
+    <text x="210" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#333">RTP 工作流程</text>
+    
+    <!-- 发送端 -->
+    <g transform="translate(20, 50)">
+      <rect x="0" y="0" width="170" height="250" rx="5" fill="#E3F2FD" stroke="#2196F3" stroke-width="1"/>
+      <text x="85" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#1565C0">发送端</text>
+      
+      <!-- 步骤1 -->
+      <rect x="10" y="35" width="150" height="40" rx="3" fill="#fff" stroke="#90CAF9"/>
+      <text x="85" y="55" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#333">1. 采集视频帧</text>
+      <text x="85" y="68" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666">获取 H.264 NALU</text>
+      
+      <!-- 步骤2 -->
+      <rect x="10" y="85" width="150" height="50" rx="3" fill="#fff" stroke="#90CAF9"/>
+      <text x="85" y="105" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#333">2. 构建 RTP 头</text>
+      <text x="85" y="118" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666">序列号+1, 设置时间戳</text>
+      <text x="85" y="128" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666">SSRC 保持不变</text>
+      
+      <!-- 步骤3 -->
+      <rect x="10" y="145" width="150" height="40" rx="3" fill="#fff" stroke="#90CAF9"/>
+      <text x="85" y="165" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#333">3. 分片打包</text>
+      <text x="85" y="178" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666">大帧拆分为多个 RTP 包</text>
+      
+      <!-- 步骤4 -->
+      <rect x="10" y="195" width="150" height="40" rx="3" fill="#BBDEFB" stroke="#1976D2"/>
+      <text x="85" y="215" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#1565C0">4. UDP 发送</text>
+      <text x="85" y="228" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666">通过 socket 发送</text>
+    </g>
+    
+    <!-- 网络 -->
+    <g transform="translate(200, 150)">
+      <text x="10" y="0" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#666" transform="rotate(-90, 10, 0)">UDP/IP</text>
+      <line x1="15" y1="-60" x2="15" y2="60" stroke="#999" stroke-width="2" stroke-dasharray="5,3"/>
+      <polygon points="15,-60 10,-50 20,-50" fill="#999"/>
+      <polygon points="15,60 10,50 20,50" fill="#999"/>
+    </g>
+    
+    <!-- 接收端 -->
+    <g transform="translate(230, 50)">
+      <rect x="0" y="0" width="170" height="250" rx="5" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1"/>
+      <text x="85" y="20" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#2E7D32">接收端</text>
+      
+      <!-- 步骤1 -->
+      <rect x="10" y="35" width="150" height="40" rx="3" fill="#fff" stroke="#A5D6A7"/>
+      <text x="85" y="55" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#333">1. UDP 接收</text>
+      <text x="85" y="68" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666">从 socket 读取数据</text>
+      
+      <!-- 步骤2 -->
+      <rect x="10" y="85" width="150" height="50" rx="3" fill="#fff" stroke="#A5D6A7"/>
+      <text x="85" y="105" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#333">2. 解析 RTP 头</text>
+      <text x="85" y="118" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666">检查序列号、时间戳</text>
+      <text x="85" y="128" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666">检测丢包和乱序</text>
+      
+      <!-- 步骤3 -->
+      <rect x="10" y="145" width="150" height="40" rx="3" fill="#fff" stroke="#A5D6A7"/>
+      <text x="85" y="165" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#333">3. 重组帧</text>
+      <text x="85" y="178" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666">合并分片还原完整帧</text>
+      
+      <!-- 步骤4 -->
+      <rect x="10" y="195" width="150" height="40" rx="3" fill="#C8E6C9" stroke="#388E3C"/>
+      <text x="85" y="215" font-family="Arial, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" fill="#2E7D32">4. 送入解码器</text>
+      <text x="85" y="228" font-family="Arial, sans-serif" font-size="9" text-anchor="middle" fill="#666">H.264 解码显示</text>
+    </g>
+  </g>
+</svg>

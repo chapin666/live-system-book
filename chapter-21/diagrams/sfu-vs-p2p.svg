@@ -1,0 +1,263 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 750">
+  <defs>
+    <linearGradient id="meshGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffebee"/>
+      <stop offset="100%" stop-color="#ffcdd2"/>
+    </linearGradient>
+    
+    <linearGradient id="mcuGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff3e0"/>
+      <stop offset="100%" stop-color="#ffe0b2"/>
+    </linearGradient>
+    
+    <linearGradient id="sfuGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e8f5e9"/>
+      <stop offset="100%" stop-color="#c8e6c9"/>
+    </linearGradient>
+    
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+    
+    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#d32f2f"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="950" height="750" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="475" y="30" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="#333">
+    SFU vs MCU vs Mesh (4-person conference)
+  </text>
+  
+  <!-- MESH (P2P) Section -->
+  <rect x="30" y="50" width="280" height="280" rx="8" fill="url(#meshGrad)" stroke="#e57373" stroke-width="2"/>
+  <text x="170" y="75" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#c62828">
+    Mesh (P2P)
+  </text>
+  
+  <!-- Nodes -->
+  <circle cx="100" cy="120" r="25" fill="white" stroke="#c62828" stroke-width="2"/>
+  <text x="100" y="126" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">A</text>
+  
+  <circle cx="240" cy="120" r="25" fill="white" stroke="#c62828" stroke-width="2"/>
+  <text x="240" y="126" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">B</text>
+  
+  <circle cx="100" cy="260" r="25" fill="white" stroke="#c62828" stroke-width="2"/>
+  <text x="100" y="266" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">C</text>
+  
+  <circle cx="240" cy="260" r="25" fill="white" stroke="#c62828" stroke-width="2"/>
+  <text x="240" y="266" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">D</text>
+  
+  <!-- Connections -->
+  <line x1="125" y1="120" x2="215" y2="120" stroke="#d32f2f" stroke-width="1.5" marker-end="url(#arrow-red)" marker-start="url(#arrow-red)"/>
+  <line x1="100" y1="145" x2="100" y2="235" stroke="#d32f2f" stroke-width="1.5" marker-end="url(#arrow-red)" marker-start="url(#arrow-red)"/>
+  <line x1="240" y1="145" x2="240" y2="235" stroke="#d32f2f" stroke-width="1.5" marker-end="url(#arrow-red)" marker-start="url(#arrow-red)"/>
+  <line x1="125" y1="260" x2="215" y2="260" stroke="#d32f2f" stroke-width="1.5" marker-end="url(#arrow-red)" marker-start="url(#arrow-red)"/>
+  <line x1="120" y1="140" x2="220" y2="240" stroke="#d32f2f" stroke-width="1.5" marker-end="url(#arrow-red)" marker-start="url(#arrow-red)"/>
+  <line x1="220" y1="140" x2="120" y2="240" stroke="#d32f2f" stroke-width="1.5" marker-end="url(#arrow-red)" marker-start="url(#arrow-red)"/>
+  
+  <!-- Stats -->
+  <rect x="50" y="300" width="240" height="20" fill="white" rx="2"/>
+  <text x="170" y="314" text-anchor="middle" font-family="Arial" font-size="9" fill="#d32f2f">Bandwidth: 6 Mbps up/down per user</text>
+  
+  <!-- MCU Section -->
+  <rect x="335" y="50" width="280" height="280" rx="8" fill="url(#mcuGrad)" stroke="#fb8c00" stroke-width="2"/>
+  <text x="475" y="75" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#e65100">
+    MCU (Mixing)
+  </text>
+  
+  <!-- Server -->
+  <rect x="400" y="150" width="150" height="80" rx="8" fill="white" stroke="#e65100" stroke-width="2"/>
+  <text x="475" y="175" text-anchor="middle" font-family="Arial" font-size="12" fill="#333">MCU Server</text>
+  <text x="475" y="195" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">Mix & Composite</text>
+  <text x="475" y="210" text-anchor="middle" font-family="Arial" font-size="8" fill="#999">Decode+Encode</text>
+  
+  <!-- Nodes -->
+  <circle cx="370" cy="110" r="20" fill="white" stroke="#e65100" stroke-width="2"/>
+  <text x="370" y="115" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">A</text>
+  
+  <circle cx="580" cy="110" r="20" fill="white" stroke="#e65100" stroke-width="2"/>
+  <text x="580" y="115" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">B</text>
+  
+  <circle cx="370" cy="270" r="20" fill="white" stroke="#e65100" stroke-width="2"/>
+  <text x="370" y="275" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">C</text>
+  
+  <circle cx="580" cy="270" r="20" fill="white" stroke="#e65100" stroke-width="2"/>
+  <text x="580" y="275" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">D</text>
+  
+  <!-- Connections to Server -->
+  <line x1="390" y1="115" x2="405" y2="150" stroke="#fb8c00" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="560" y1="150" x2="575" y2="130" stroke="#fb8c00" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="390" y1="265" x2="405" y2="230" stroke="#fb8c00" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="560" y1="230" x2="575" y2="250" stroke="#fb8c00" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Composed stream out -->
+  <line x1="405" y1="190" x2="390" y2="250" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="545" y1="190" x2="560" y2="250" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="475" y1="150" x2="475" y2="110" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Stats -->
+  <rect x="355" y="300" width="240" height="20" fill="white" rx="2"/>
+  <text x="475" y="314" text-anchor="middle" font-family="Arial" font-size="9" fill="#e65100">Bandwidth: 1 Mbps up/down per user</text>
+  
+  <!-- SFU Section -->
+  <rect x="640" y="50" width="280" height="280" rx="8" fill="url(#sfuGrad)" stroke="#43a047" stroke-width="2"/>
+  <text x="780" y="75" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#2e7d32">
+    SFU (Forwarding)
+  </text>
+  
+  <!-- Server -->
+  <rect x="705" y="150" width="150" height="80" rx="8" fill="white" stroke="#43a047" stroke-width="2"/>
+  <text x="780" y="175" text-anchor="middle" font-family="Arial" font-size="12" fill="#333">SFU Server</text>
+  <text x="780" y="195" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">Route RTP</text>
+  <text x="780" y="210" text-anchor="middle" font-family="Arial" font-size="8" fill="#999">No Decode/Encode</text>
+  
+  <!-- Nodes -->
+  <circle cx="675" cy="110" r="20" fill="white" stroke="#43a047" stroke-width="2"/>
+  <text x="675" y="115" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">A</text>
+  
+  <circle cx="885" cy="110" r="20" fill="white" stroke="#43a047" stroke-width="2"/>
+  <text x="885" y="115" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">B</text>
+  
+  <circle cx="675" cy="270" r="20" fill="white" stroke="#43a047" stroke-width="2"/>
+  <text x="675" y="275" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">C</text>
+  
+  <circle cx="885" cy="270" r="20" fill="white" stroke="#43a047" stroke-width="2"/>
+  <text x="885" y="275" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">D</text>
+  
+  <!-- Connections to Server -->
+  <line x1="695" y1="115" x2="710" y2="150" stroke="#43a047" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="850" y1="150" x2="865" y2="130" stroke="#43a047" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="695" y1="265" x2="710" y2="230" stroke="#43a047" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="850" y1="230" x2="865" y2="250" stroke="#43a047" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Forwarded streams -->
+  <line x1="710" y1="190" x2="695" y2="250" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="850" y1="190" x2="865" y2="250" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="780" y1="150" x2="780" y2="110" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Stats -->
+  <rect x="660" y="300" width="240" height="20" fill="white" rx="2"/>
+  <text x="780" y="314" text-anchor="middle" font-family="Arial" font-size="9" fill="#2e7d32">Bandwidth: 1 Mbps up, 3 Mbps down</text>
+  
+  <!-- Comparison Table -->
+  <rect x="30" y="350" width="890" height="380" rx="8" fill="white" stroke="#ddd" stroke-width="1"/>
+  
+  <text x="475" y="375" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#333">Detailed Comparison</text>
+  
+  <!-- Table Header -->
+  <rect x="50" y="390" width="200" height="30" fill="#f5f5f5" stroke="#ddd"/>
+  <text x="150" y="410" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#333">Feature</text>
+  
+  <rect x="250" y="390" width="200" height="30" fill="#ffebee" stroke="#ddd"/>
+  <text x="350" y="410" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#c62828">Mesh (P2P)</text>
+  
+  <rect x="450" y="390" width="200" height="30" fill="#fff3e0" stroke="#ddd"/>
+  <text x="550" y="410" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#e65100">MCU</text>
+  
+  <rect x="650" y="390" width="250" height="30" fill="#e8f5e9" stroke="#ddd"/>
+  <text x="775" y="410" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#2e7d32">SFU (Recommended)</text>
+  
+  <!-- Row 1: Server Role -->
+  <rect x="50" y="420" width="200" height="30" fill="#fafafa" stroke="#ddd"/>
+  <text x="60" y="440" font-family="Arial" font-size="10" fill="#333">Server Role</text>
+  
+  <rect x="250" y="420" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="350" y="440" text-anchor="middle" font-family="Arial" font-size="10" fill="#666">Signaling only</text>
+  
+  <rect x="450" y="420" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="550" y="440" text-anchor="middle" font-family="Arial" font-size="10" fill="#666">Mixing/Compositing</text>
+  
+  <rect x="650" y="420" width="250" height="30" fill="white" stroke="#ddd"/>
+  <text x="775" y="440" text-anchor="middle" font-family="Arial" font-size="10" fill="#666">Forwarding only</text>
+  
+  <!-- Row 2: Server CPU -->
+  <rect x="50" y="450" width="200" height="30" fill="#fafafa" stroke="#ddd"/>
+  <text x="60" y="470" font-family="Arial" font-size="10" fill="#333">Server CPU</text>
+  
+  <rect x="250" y="450" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="350" y="470" text-anchor="middle" font-family="Arial" font-size="10" fill="#4caf50">Low ✓</text>
+  
+  <rect x="450" y="450" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="550" y="470" text-anchor="middle" font-family="Arial" font-size="10" fill="#f44336">Very High ✗</text>
+  
+  <rect x="650" y="450" width="250" height="30" fill="white" stroke="#ddd"/>
+  <text x="775" y="470" text-anchor="middle" font-family="Arial" font-size="10" fill="#4caf50">Low ✓</text>
+  
+  <!-- Row 3: Client Bandwidth -->
+  <rect x="50" y="480" width="200" height="30" fill="#fafafa" stroke="#ddd"/>
+  <text x="60" y="500" font-family="Arial" font-size="10" fill="#333">Client Bandwidth</text>
+  
+  <rect x="250" y="480" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="350" y="500" text-anchor="middle" font-family="Arial" font-size="10" fill="#f44336">Very High ✗</text>
+  
+  <rect x="450" y="480" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="550" y="500" text-anchor="middle" font-family="Arial" font-size="10" fill="#4caf50">Very Low ✓</text>
+  
+  <rect x="650" y="480" width="250" height="30" fill="white" stroke="#ddd"/>
+  <text x="775" y="500" text-anchor="middle" font-family="Arial" font-size="10" fill="#ff9800">Moderate</text>
+  
+  <!-- Row 4: Latency -->
+  <rect x="50" y="510" width="200" height="30" fill="#fafafa" stroke="#ddd"/>
+  <text x="60" y="530" font-family="Arial" font-size="10" fill="#333">Latency</text>
+  
+  <rect x="250" y="510" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="350" y="530" text-anchor="middle" font-family="Arial" font-size="10" fill="#4caf50">Low ✓</text>
+  
+  <rect x="450" y="510" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="550" y="530" text-anchor="middle" font-family="Arial" font-size="10" fill="#f44336">High (100-500ms) ✗</text>
+  
+  <rect x="650" y="510" width="250" height="30" fill="white" stroke="#ddd"/>
+  <text x="775" y="530" text-anchor="middle" font-family="Arial" font-size="10" fill="#4caf50">Low (10-50ms) ✓</text>
+  
+  <!-- Row 5: Layout Flexibility -->
+  <rect x="50" y="540" width="200" height="30" fill="#fafafa" stroke="#ddd"/>
+  <text x="60" y="560" font-family="Arial" font-size="10" fill="#333">Layout Flexibility</text>
+  
+  <rect x="250" y="540" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="350" y="560" text-anchor="middle" font-family="Arial" font-size="10" fill="#4caf50">High ✓</text>
+  
+  <rect x="450" y="540" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="550" y="560" text-anchor="middle" font-family="Arial" font-size="10" fill="#f44336">Low (Fixed) ✗</text>
+  
+  <rect x="650" y="540" width="250" height="30" fill="white" stroke="#ddd"/>
+  <text x="775" y="560" text-anchor="middle" font-family="Arial" font-size="10" fill="#4caf50">High ✓</text>
+  
+  <!-- Row 6: Max Participants -->
+  <rect x="50" y="570" width="200" height="30" fill="#fafafa" stroke="#ddd"/>
+  <text x="60" y="590" font-family="Arial" font-size="10" fill="#333">Max Participants</text>
+  
+  <rect x="250" y="570" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="350" y="590" text-anchor="middle" font-family="Arial" font-size="10" fill="#f44336">3-4 people</text>
+  
+  <rect x="450" y="570" width="200" height="30" fill="white" stroke="#ddd"/>
+  <text x="550" y="590" text-anchor="middle" font-family="Arial" font-size="10" fill="#4caf50">100+ people</text>
+  
+  <rect x="650" y="570" width="250" height="30" fill="white" stroke="#ddd"/>
+  <text x="775" y="590" text-anchor="middle" font-family="Arial" font-size="10" fill="#4caf50">50+ people</text>
+  
+  <!-- Row 7: Use Cases -->
+  <rect x="50" y="600" width="200" height="50" fill="#fafafa" stroke="#ddd"/>
+  <text x="60" y="625" font-family="Arial" font-size="10" fill="#333">Best For</text>
+  
+  <rect x="250" y="600" width="200" height="50" fill="white" stroke="#ddd"/>
+  <text x="350" y="620" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">Small calls, privacy</text>
+  <text x="350" y="635" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">concerns</text>
+  
+  <rect x="450" y="600" width="200" height="50" fill="white" stroke="#ddd"/>
+  <text x="550" y="620" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">Webinars, broadcasts,</text>
+  <text x="550" y="635" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">recordings</text>
+  
+  <rect x="650" y="600" width="250" height="50" fill="#c8e6c9" stroke="#ddd"/>
+  <text x="775" y="620" text-anchor="middle" font-family="Arial" font-size="9" fill="#2e7d32" font-weight="bold">Video conferences,</text>
+  <text x="775" y="635" text-anchor="middle" font-family="Arial" font-size="9" fill="#2e7d32" font-weight="bold">group calls (Recommended)</text>
+  
+  <!-- Summary Box -->
+  <rect x="50" y="660" width="850" height="55" rx="4" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+  <text x="60" y="678" font-family="Arial" font-size="10" font-weight="bold" fill="#2e7d32">Summary: SFU is the modern standard for multi-party video conferencing</text>
+  <text x="60" y="695" font-family="Arial" font-size="9" fill="#666">• Combines low latency of P2P with scalability of server-based architectures</text>
+  <text x="460" y="695" font-family="Arial" font-size="9" fill="#666">• Supports flexible layouts and adaptive quality via Simulcast</text>
+</svg>

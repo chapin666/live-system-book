@@ -1,0 +1,130 @@
+<svg viewBox="0 0 850 480" xmlns="http://www.w3.org/2000/svg">
+  <rect width="850" height="480" fill="#fafafa"/>
+  
+  <text x="425" y="35" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="22" font-weight="bold" fill="#333">动态订阅模型</text>
+  
+  <!-- SFU -->
+  <g transform="translate(375, 70)">
+    <rect x="0" y="0" width="100" height="80" rx="8" fill="#e3f2fd" stroke="#2196f3" stroke-width="2"/>
+    <text x="50" y="30" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="bold" fill="#1976d2">SFU</text>
+    <text x="50" y="50" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">转发服务器</text>
+    <text x="50" y="65" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#999">Simulcast</text>
+  </g>
+  
+  <!-- Publisher A -->
+  <g transform="translate(50, 70)">
+    <rect x="0" y="0" width="140" height="200" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="70" y="25" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="bold" fill="#2e7d32">用户 A（发布）</text>
+    
+    <!-- 三层编码 -->
+    <rect x="15" y="45" width="110" height="40" rx="4" fill="#c8e6c9" stroke="#4caf50" stroke-width="1"/>
+    <text x="70" y="62" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#333">高清层 (1080p)</text>
+    <text x="70" y="76" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">2.0 Mbps</text>
+    
+    <rect x="15" y="95" width="110" height="40" rx="4" fill="#c8e6c9" stroke="#4caf50" stroke-width="1"/>
+    <text x="70" y="112" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#333">标清层 (720p)</text>
+    <text x="70" y="126" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">1.0 Mbps</text>
+    
+    <rect x="15" y="145" width="110" height="40" rx="4" fill="#c8e6c9" stroke="#4caf50" stroke-width="1"/>
+    <text x="70" y="162" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#333">低清层 (360p)</text>
+    <text x="70" y="176" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">0.5 Mbps</text>
+  </g>
+  
+  <!-- 发布箭头 -->
+  <g>
+    <path d="M 200 120 L 360 110" stroke="#4caf50" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+    <path d="M 200 150 L 360 120" stroke="#4caf50" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+    <path d="M 200 180 L 360 130" stroke="#4caf50" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+  </g>
+  
+  <!-- Subscriber B -->
+  <g transform="translate(660, 70)">
+    <rect x="0" y="0" width="140" height="180" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2"/>
+    <text x="70" y="25" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="bold" fill="#e65100">用户 B（订阅）</text>
+    
+    <text x="70" y="50" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#333">带宽: 1.5 Mbps</text>
+    
+    <!-- 选择层 -->
+    <rect x="15" y="65" width="110" height="100" rx="4" fill="white" stroke="#ff9800" stroke-width="1"/>
+    <text x="70" y="85" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#333">订阅决策</text>
+    
+    <line x1="25" y1="95" x2="115" y2="95" stroke="#ffe0b2" stroke-width="1"/>
+    
+    <text x="70" y="112" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">高清: 2M ✗</text>
+    
+    <text x="70" y="130" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#e65100" font-weight="bold">标清: 1M ✓</text>
+    
+    <text x="70" y="148" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">低清: 0.5M ✓</text>
+  </g>
+  
+  <!-- 订阅箭头 -->
+  <g>
+    <path d="M 490 120 L 650 140" stroke="#ff9800" stroke-width="2" fill="none" marker-end="url(#arrow-orange)" stroke-dasharray="5,3"/>
+    <text x="570" y="125" font-family="sans-serif" font-size="9" fill="#e65100">订阅标清层</text>
+  </g>
+  
+  <!-- 带宽自适应流程 -->
+  <g transform="translate(50, 300)">
+    <rect x="0" y="0" width="750" height="160" rx="8" fill="white" stroke="#ddd" stroke-width="1"/>
+    
+    <text x="375" y="30" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#333">带宽自适应决策流程</text>
+    
+    <!-- 步骤 -->
+    <g transform="translate(30, 50)">
+      <!-- 步骤1 -->
+      <rect x="0" y="0" width="130" height="90" rx="6" fill="#f5f5f5" stroke="#999" stroke-width="1"/>
+      <text x="65" y="25" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#333">1. 带宽检测</text>
+      <text x="65" y="45" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">RTCP 反馈</text>
+      <text x="65" y="60" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">丢包率/延迟</text>
+      <text x="65" y="75" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">估计可用带宽</text>
+      
+      <path d="M 130 45 L 150 45" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+      
+      <!-- 步骤2 -->
+      <rect x="155" y="0" width="130" height="90" rx="6" fill="#e3f2fd" stroke="#2196f3" stroke-width="1"/>
+      <text x="220" y="25" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1976d2">2. 分配计算</text>
+      <text x="220" y="45" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">总带宽 / 订阅数</text>
+      <text x="220" y="60" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">预留 20% 缓冲</text>
+      <text x="220" y="75" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">每路分配带宽</text>
+      
+      <path d="M 285 45 L 305 45" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+      
+      <!-- 步骤3 -->
+      <rect x="310" y="0" width="130" height="90" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="1"/>
+      <text x="375" y="25" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#e65100">3. 层选择</text>
+      <text x="375" y="45" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">匹配最佳层</text>
+      <text x="375" y="60" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">高清/标清/低清</text>
+      <text x="375" y="75" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">考虑窗口大小</text>
+      
+      <path d="M 440 45 L 460 45" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+      
+      <!-- 步骤4 -->
+      <rect x="465" y="0" width="130" height="90" rx="6" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+      <text x="530" y="25" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#2e7d32">4. 订阅更新</text>
+      <text x="530" y="45" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">发送订阅请求</text>
+      <text x="530" y="60" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">SFU 切换层</text>
+      <text x="530" y="75" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">平滑过渡</text>
+      
+      <path d="M 595 45 L 615 45" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+      
+      <!-- 步骤5 -->
+      <rect x="620" y="0" width="110" height="90" rx="6" fill="#f3e5f5" stroke="#9c27b0" stroke-width="1"/>
+      <text x="675" y="25" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#7b1fa2">5. 持续监控</text>
+      <text x="675" y="45" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">周期性检查</text>
+      <text x="675" y="60" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">网络变化响应</text>
+      <text x="675" y="75" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">回到步骤1</text>
+    </g>
+  </g>
+  
+  <defs>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#4caf50"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#ff9800"/>
+    </marker>
+    <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+  </defs>
+</svg>
