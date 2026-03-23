@@ -85,23 +85,27 @@
 
 ### 1.3 解决方案概览
 
-<img src="docs/images/network-player-arch.svg" width="100%"/>
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     网络播放器架构                           │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌──────────────┐      ┌──────────────┐      ┌──────────┐  │
-│  │  下载线程    │──────→│  环形缓冲区  │──────→│  解码器  │  │
-│  │  (HTTP)      │      │  (RingBuffer)│      │          │  │
-│  └──────────────┘      └──────────────┘      └──────────┘  │
-│         ↑                                              │    │
-│         │                                              ↓    │
-│    控制命令                                       渲染显示  │
-│  (seek/暂停)                                                │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph "HTTP Server"
+        S["视频文件"]
+    end
+    
+    subgraph "Player"
+        D["下载线程<br/>(HTTP)"] -->|"Range请求"| R[(环形缓冲区<br/>RingBuffer)]
+        R -->|"Read()"| DE["解码器"]
+        DE --> REN["渲染"]
+        C["控制命令<br/>(seek/暂停)"] -.-> D
+    end
+    
+    S -.-> D
+    
+    style S fill:#f5f5f5,stroke:#666
+    style D fill:#fff3e0,stroke:#f0ad4e
+    style R fill:#e3f2fd,stroke:#4a90d9
+    style DE fill:#e8f5e9,stroke:#5cb85c
+    style REN fill:#fce4ec,stroke:#e91e63
+    style C fill:#f3e5f5,stroke:#9c27b0
 ```
 
 **核心组件**：
@@ -727,39 +731,27 @@ double DownloadThread::GetCurrentSpeed() const {
 
 ### 6.1 架构图
 
-<img src="docs/images/network-player-flow.svg" width="100%"/>
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     网络播放器数据流                             │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   HTTP Server                    Player                         │
-│   ┌──────────┐                   ┌──────────────┐              │
-│   │ video.mp4│ ──HTTP Range──→  │ DownloadThread│              │
-│   └──────────┘                   └──────┬───────┘              │
-│                                         │ Write()               │
-│                                         ↓                       │
-│                                  ┌──────────────┐              │
-│                                  │  RingBuffer  │              │
-│                                  └──────┬───────┘              │
-│                                         │ Read()                │
-│                                         ↓                       │
-│                                  ┌──────────────┐              │
-│                                  │ FFmpeg Demux │              │
-│                                  └──────┬───────┘              │
-│                                         │ AVPacket              │
-│                                         ↓                       │
-│                                  ┌──────────────┐              │
-│                                  │ FFmpeg Decode│              │
-│                                  └──────┬───────┘              │
-│                                         │ AVFrame               │
-│                                         ↓                       │
-│                                  ┌──────────────┐              │
-│                                  │ SDL Render   │              │
-│                                  └──────────────┘              │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph "HTTP Server"
+        S["video.mp4"]
+    end
+    
+    subgraph "Player"
+        DT["DownloadThread"] -->|Write| RB[(RingBuffer)]
+        RB -->|Read| FD["FFmpeg Demux"]
+        FD -->|AVPacket| FDE["FFmpeg Decode"]
+        FDE -->|AVFrame| SR["SDL Render"]
+    end
+    
+    S -.->|"HTTP Range"| DT
+    
+    style S fill:#f5f5f5,stroke:#666
+    style DT fill:#fff3e0,stroke:#f0ad4e
+    style RB fill:#e3f2fd,stroke:#4a90d9
+    style FD fill:#e8f5e9,stroke:#5cb85c
+    style FDE fill:#e8f5e9,stroke:#5cb85c
+    style SR fill:#fce4ec,stroke:#e91e63
 ```
 
 ### 6.2 主程序实现

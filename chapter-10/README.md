@@ -36,7 +36,33 @@
 
 **本节概览**：回顾前五章内容，理解采集在直播系统中的位置和面临的挑战。
 
-<img src="docs/images/live-system-arch.svg" width="100%"/>
+```mermaid
+flowchart TB
+    subgraph "主播端"
+        A["摄像头"] --"采集"--> B["3A处理\nAEC/ANS/AGC"]
+        B --> C["视频编码\nH.264"]
+        C --> D["推流\nRTMP"]
+    end
+    
+    subgraph "服务器"
+        E["接收"] --> F["转码"]
+        F --> G["分发"]
+        G --> H["CDN分发"]
+    end
+    
+    subgraph "观众端"
+        I["播放器"] --> J["显示"]
+    end
+    
+    D --> E
+    H --> I
+    
+    style A fill:#e3f2fd,stroke:#4a90d9
+    style C fill:#e8f5e9,stroke:#5cb85c
+    style D fill:#fce4ec,stroke:#e91e63
+    style F fill:#fff3e0,stroke:#f0ad4e
+    style I fill:#f3e5f5,stroke:#9c27b0
+```
 
 ### 1.1 前五章回顾
 

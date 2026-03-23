@@ -33,7 +33,29 @@
 
 ### 1.1 屏幕采集 vs 摄像头采集
 
-<img src="docs/images/capture-arch.svg" width="100%"/>
+```mermaid
+flowchart TB
+    subgraph "摄像头采集"
+        C1["📹 摄像头设备"] --> C2["设备驱动"]
+        C2 --> C3["YUV 数据输出"]
+        C3 --> C4["固定分辨率\n1920×1080"]
+        C3 --> C5["固定帧率\n30/60fps"]
+        C3 --> C6["低延迟\n10-50ms"]
+    end
+    
+    subgraph "屏幕采集"
+        S1["🖥️ 显示器"] --> S2["显卡帧缓冲\nFrame Buffer"]
+        S2 --> S3["RGB 数据读取"]
+        S3 --> S4["动态分辨率\n最高 4K/8K"]
+        S3 --> S5["与刷新率同步\n60/144Hz"]
+        S3 --> S6["极低延迟\n1-5ms"]
+    end
+    
+    style C1 fill:#e3f2fd,stroke:#4a90d9,stroke-width:2px
+    style S1 fill:#fff3e0,stroke:#f0ad4e,stroke-width:2px
+    style C3 fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px
+    style S3 fill:#fce4ec,stroke:#e91e63,stroke-width:2px
+```
 
 | 特性 | 摄像头采集 | 屏幕采集 |
 |:---|:---|:---|
@@ -486,7 +508,32 @@ int64_t GeneratePTS() {
 
 ### 6.1 完整的采集 Pipeline
 
-<img src="docs/images/capture-pipeline.svg" width="100%"/>
+```mermaid
+flowchart LR
+    subgraph "视频流"
+        V1["📹 视频采集\n摄像头/屏幕"] --> V2["✨ 美颜滤镜\nGPU 处理"]
+        V2 --> V3["🎬 视频编码\nH.264/H.265"]
+    end
+    
+    subgraph "音频流"
+        A1["🎤 音频采集\n麦克风"] --> A2["🔊 3A 处理\nAEC/ANS/AGC"]
+        A2 --> A3["🎵 音频编码\nAAC"]
+    end
+    
+    V3 --> M["📦 封装器\nFLV"]
+    A3 --> M
+    M --> P["📤 推流器\nRTMP"]
+    P --> S["☁️ CDN 服务器"]
+    
+    style V1 fill:#4a90d9,stroke:#357abd,color:#fff
+    style V2 fill:#9c27b0,stroke:#7b1fa2,color:#fff
+    style V3 fill:#5cb85c,stroke:#4cae4c,color:#fff
+    style A1 fill:#f0ad4e,stroke:#ec971f,color:#fff
+    style A2 fill:#ff5722,stroke:#d84315,color:#fff
+    style A3 fill:#5cb85c,stroke:#4cae4c,color:#fff
+    style M fill:#607d8b,stroke:#455a64,color:#fff
+    style P fill:#795548,stroke:#5d4037,color:#fff
+```
 
 **Pipeline 各阶段**：
 ```

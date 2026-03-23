@@ -105,7 +105,27 @@ GPU（硬件解码）：
 
 **本节概览**：介绍硬件解码的工作原理、显存管理、以及与软件解码的区别。
 
-![硬件解码管线](docs/images/hw-decode-pipeline.svg)
+```mermaid
+flowchart TB
+    A["压缩数据\nH.264/H.265"] --> B["GPU 视频解码单元"]
+    B --> C["显存中的 YUV 帧\nGPU 内存"]
+    C --> D["直接渲染\n零拷贝"]
+    C --> E["读回系统内存\nCPU 处理"]
+    
+    subgraph "GPU 解码管线"
+        B1["1. 熵解码 VLD"] --> B2["2. 反量化 IQ"]
+        B2 --> B3["3. IDCT"]
+        B3 --> B4["4. 运动补偿 MC"]
+        B4 --> B5["5. 去块滤波 DF"]
+    end
+    
+    B -.-> B1
+    
+    style A fill:#e3f2fd,stroke:#4a90d9
+    style C fill:#e8f5e9,stroke:#5cb85c
+    style D fill:#fce4ec,stroke:#e91e63
+    style E fill:#fff3e0,stroke:#f0ad4e
+```
 
 ### 2.1 硬件解码管线
 

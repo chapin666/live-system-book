@@ -81,7 +81,19 @@ void main() {
 
 ### 0.3 GPU 图像处理管线
 
-<img src="docs/images/gpu-pipeline.svg" width="100%"/>
+```mermaid
+flowchart TB
+    A["输入纹理\nYUV/RGB"] --> B["顶点着色器\n确定像素位置"]
+    B --> C["片段着色器\n处理像素颜色\n美颜算法在这里"]
+    C --> D["帧缓冲\n输出结果"]
+    D --> E["下一级滤镜的输入纹理"]
+    
+    style A fill:#e3f2fd,stroke:#4a90d9
+    style B fill:#fff3e0,stroke:#f0ad4e
+    style C fill:#e8f5e9,stroke:#5cb85c
+    style D fill:#fce4ec,stroke:#e91e63
+    style E fill:#f3e5f5,stroke:#9c27b0
+```
 
 **管线各阶段**：
 ```
@@ -339,7 +351,36 @@ vec3 ApplyLUT(vec3 color) {
 
 ### 4.2 滤镜链架构
 
-<img src="docs/images/filter-chain.svg" width="100%"/>
+```mermaid
+flowchart LR
+    subgraph "滤镜链"
+        A["输入帧"] --> B["双边滤波\n磨皮"]
+        B --> C["亮度/对比度\n美白"]
+        C --> D["LUT 调色\n风格化"]
+        D --> E["锐化\n细节增强"]
+        E --> F["输出帧"]
+    end
+    
+    subgraph "控制接口"
+        C1["强度调节"]
+        C2["开关控制"]
+        C3["参数配置"]
+    end
+    
+    C1 -.-> B
+    C1 -.-> C
+    C1 -.-> D
+    C2 -.-> B
+    C2 -.-> C
+    C2 -.-> D
+    
+    style A fill:#e3f2fd,stroke:#4a90d9
+    style F fill:#e8f5e9,stroke:#5cb85c
+    style B fill:#fff3e0,stroke:#f0ad4e
+    style C fill:#fff3e0,stroke:#f0ad4e
+    style D fill:#fff3e0,stroke:#f0ad4e
+    style E fill:#fff3e0,stroke:#f0ad4e
+```
 
 **设计原则**：
 1. **接口统一**：所有滤镜实现相同的接口

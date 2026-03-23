@@ -104,9 +104,28 @@ YUV420P 每像素 1.5 字节（Y 全采样，U/V 1/4 采样）
 
 **本节概览**：介绍 H.264 的核心技术：帧内预测、帧间预测、变换量化、熵编码。不涉及数学公式，用图解说明原理。
 
-<img src="docs/images/h264-encode-flow.svg" width="100%"/>
-
 ### 2.1 H.264 编码流程
+
+```mermaid
+flowchart LR
+    A["输入帧\nYUV"] --> B["帧内/帧间预测"]
+    B --> C["残差计算"]
+    C --> D["DCT变换"]
+    D --> E["量化"]
+    E --> F["熵编码\nCABAC/CAVLC"]
+    F --> G["NAL单元输出"]
+    
+    E --> H["反量化"]
+    H --> I["反DCT"]
+    I --> J["重建帧"]
+    J --> K["参考帧缓存"]
+    K --> B
+    
+    style A fill:#e3f2fd,stroke:#4a90d9
+    style G fill:#e8f5e9,stroke:#5cb85c
+    style F fill:#fff3e0,stroke:#f0ad4e
+    style B fill:#fce4ec,stroke:#e91e63
+```
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -1255,19 +1274,26 @@ x264 preset=ultrafast: ███████████████░░░░
 
 **本节概览**：将编码后的 H.264 数据通过 RTMP 协议推送到服务器，实现完整的直播推流链路。
 
-<img src="docs/images/streaming-pipeline.svg" width="100%"/>
-
 ### 8.1 推流架构
 
-```cpp
-┌─────────────────────────────────────────────────────────────┐
-│                     直播推流架构                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│   摄像头采集 ──→ YUV420P                                    │
-│       ↓                                                     │
-│   视频编码（H.264）──→ AnnexB 格式                           │
-│       ↓                                                     │
+```mermaid
+flowchart TB
+    A["摄像头采集"] -->|"YUV420P"| B["视频编码\nH.264"]
+    B -->|"AnnexB"| C["FLV 封装"]
+    
+    D["麦克风采集"] -->|"PCM"| E["音频编码\nAAC"]
+    E -->|"ADTS"| C
+    
+    C -->|"RTMP Chunk"| F["网络发送"]
+    F --> G["RTMP Server"]
+    
+    style A fill:#e3f2fd,stroke:#4a90d9
+    style B fill:#e8f5e9,stroke:#5cb85c
+    style C fill:#fff3e0,stroke:#f0ad4e
+    style D fill:#fce4ec,stroke:#e91e63
+    style E fill:#f3e5f5,stroke:#9c27b0
+    style G fill:#f5f5f5,stroke:#666
+```
 │   音频采集 ──→ PCM                                          │
 │       ↓                                                     │
 │   音频编码（AAC）──→ ADTS 格式                               │

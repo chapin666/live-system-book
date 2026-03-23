@@ -34,7 +34,46 @@
 
 ### 1.1 系统整体架构
 
-<img src="docs/images/streamer-arch.svg" width="100%"/>
+```mermaid
+flowchart TB
+    subgraph "应用层 UI"
+        UI1["开始/停止按钮"]
+        UI2["参数调节"]
+        UI3["状态显示"]
+        UI4["日志输出"]
+    end
+    
+    subgraph "业务逻辑层"
+        BL1["状态机管理\nStateMachine"]
+        BL2["错误处理器\nErrorHandler"]
+        BL3["性能监控器\nPerformanceMonitor"]
+    end
+    
+    subgraph "Pipeline 层"
+        P1["采集模块\nCapture"] --> P2["处理模块\nProcessor"]
+        P2 --> P3["编码模块\nEncoder"]
+        P3 --> P4["推流模块\nPusher"]
+    end
+    
+    subgraph "基础能力层"
+        B1["线程池"]
+        B2["GPU 管理"]
+        B3["网络库"]
+        B4["日志系统"]
+    end
+    
+    UI1 -.-> BL1
+    BL1 -.-> P1
+    BL2 -.-> P4
+    B1 -.-> P1
+    B2 -.-> P2
+    B3 -.-> P4
+    
+    style P1 fill:#e3f2fd,stroke:#4a90d9
+    style P2 fill:#fff3e0,stroke:#f0ad4e
+    style P3 fill:#e8f5e9,stroke:#5cb85c
+    style P4 fill:#fce4ec,stroke:#e91e63
+```
 
 **架构分层**：
 
@@ -536,7 +575,40 @@ private:
 
 ### 4.2 状态机图
 
-<img src="docs/images/state-machine.svg" width="90%"/>
+```mermaid
+stateDiagram-v2
+    [*] --> Idle: 初始化
+    
+    Idle --> Initializing: Initialize()
+    Initializing --> Previewing: 成功
+    Initializing --> Error: 失败
+    
+    Previewing --> Connecting: StartStreaming()
+    Previewing --> Idle: Release()
+    
+    Connecting --> Streaming: 连接成功
+    Connecting --> Error: 连接失败
+    
+    Streaming --> Paused: Pause()
+    Streaming --> Idle: Stop()
+    Streaming --> Error: 网络错误
+    
+    Paused --> Streaming: Resume()
+    Paused --> Idle: Stop()
+    
+    Error --> Connecting: Reconnect()
+    Error --> Idle: Release()
+    
+    note right of Idle
+        空闲状态
+        等待操作
+    end note
+    
+    note right of Streaming
+        推流中
+        正常直播
+    end note
+```
 
 **状态定义**：
 ```cpp
@@ -1000,7 +1072,31 @@ private:
 
 ### 6.2 时间戳与同步原理
 
-<img src="docs/images/av-sync.svg" width="90%"/>
+```mermaid
+flowchart TB
+    subgraph "视频流 30fps"
+        V1["帧0\nPTS: 0ms"] --> V2["帧1\nPTS: 33ms"]
+        V2 --> V3["帧2\nPTS: 66ms"]
+        V3 --> V4["帧3\nPTS: 99ms"]
+    end
+    
+    subgraph "音频流 48kHz"
+        A1["帧0\nPTS: 0ms"] --> A2["帧1\nPTS: 21ms"]
+        A2 --> A3["帧2\nPTS: 42ms"]
+        A3 --> A4["帧3\nPTS: 63ms"]
+    end
+    
+    subgraph "同步目标"
+        S["| PTS 差值 | < 40ms\n(约 1 帧容忍度)"]
+    end
+    
+    V1 -.-> S
+    A1 -.-> S
+    
+    style V1 fill:#e3f2fd,stroke:#4a90d9
+    style A1 fill:#e8f5e9,stroke:#5cb85c
+    style S fill:#fff3e0,stroke:#f0ad4e
+```
 
 **关键概念**：
 - **PTS（Presentation Time Stamp）**：显示时间戳，表示该帧应该在何时播放

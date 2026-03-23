@@ -698,7 +698,35 @@ int main() {
 
 ### 5.1 架构总览
 
-<img src="docs/images/async-arch.svg" width="100%"/>
+```mermaid
+flowchart TB
+    subgraph "解码线程 (Producer)"
+        A["打开文件 / 初始化解码器"] --> B["读取 Packet → 解码 Frame"]
+        B --> C["FrameQueue.push()"]
+        C -->|队列满时阻塞| B
+    end
+    
+    subgraph "帧队列"
+        FQ[(FrameQueue<br/>3-5帧缓冲)]
+    end
+    
+    subgraph "主线程 (Consumer + UI)"
+        D["创建 SDL 窗口"] --> E["处理事件 (拖动/按键)"]
+        E --> G["FrameQueue.pop() → Render"]
+        G -->|队列空时阻塞| E
+    end
+    
+    C --> FQ
+    FQ --> G
+    
+    style A fill:#e3f2fd,stroke:#1976d2
+    style B fill:#e3f2fd,stroke:#1976d2
+    style C fill:#fff3e0,stroke:#ff9800
+    style D fill:#e8f5e9,stroke:#388e3c
+    style E fill:#e8f5e9,stroke:#388e3c
+    style G fill:#fff3e0,stroke:#ff9800
+    style FQ fill:#fce4ec,stroke:#c2185b
+```
 
 ### 5.2 线程职责划分
 
@@ -1355,24 +1383,39 @@ Time: 0-10s  → 30fps（稳定）
 
 ### 7.6 数据汇总
 
-<img src="docs/images/performance-compare.svg" width="100%"/>
+```mermaid
+flowchart LR
+    subgraph "同步播放器"
+        S1["简单直接"]
+        S2["延迟低（33ms）"]
+        S3["卡顿明显（I帧时）"]
+        S4["界面响应差"]
+        S5["CPU 波动大"]
+    end
+    
+    subgraph "异步播放器"
+        A1["架构清晰"]
+        A2["流畅度高"]
+        A3["卡顿少（队列缓冲）"]
+        A4["界面响应好"]
+        A5["CPU 稳定"]
+    end
+    
+    S1 --- A1
+    S2 --- A2
+    S3 --- A3
+    S4 --- A4
+    S5 --- A5
+    
+    style S3 fill:#ffcccc
+    style S4 fill:#ffcccc
+    style S5 fill:#ffcccc
+    style A3 fill:#ccffcc
+    style A4 fill:#ccffcc
+    style A5 fill:#ccffcc
+```
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     性能对比总结                             │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  同步播放器          vs           异步播放器                │
-│  ├─ 简单直接                      ├─ 架构清晰               │
-│  ├─ 延迟低（33ms）                ├─ 流畅度高               │
-│  ├─ 卡顿明显（I帧时）             ├─ 卡顿少（队列缓冲）      │
-│  ├─ 界面响应差                    ├─ 界面响应好             │
-│  └─ CPU 波动大                    └─ CPU 稳定               │
-│                                                             │
-│  推荐：学习用 → 同步版    生产用 → 异步版                   │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
+**推荐：学习用 → 同步版    生产用 → 异步版**
 
 **本节小结**：异步播放器在流畅度和响应性上明显优于同步版，代价是略高的延迟和代码复杂度。对于实际应用，异步架构是更好的选择。
 
