@@ -1,8 +1,8 @@
-# 第二十章：WebRTC Native 开发
+# 第21章：WebRTC Native 开发
 
 > **本章目标**：掌握 WebRTC Native 开发，使用 C++ 实现完整的实时通信客户端。
 
-在上一章（第十九章）中，我们深入理解了 WebRTC 的协议栈，包括 SDP、DTLS、SRTP 和 DataChannel。理论知识为实践奠定了基础，但真正的工程师需要在代码中落地这些概念。
+在上一章（第20章）中，我们深入理解了 WebRTC 的协议栈，包括 SDP、DTLS、SRTP 和 DataChannel。理论知识为实践奠定了基础，但真正的工程师需要在代码中落地这些概念。
 
 本章将带领你进入 **WebRTC Native 开发** 的世界。与浏览器中简单的 JavaScript API 不同，Native 开发让你能够：
 - **深度定制**：修改编解码器参数、优化传输策略
@@ -1135,7 +1135,7 @@ int main(int argc, char* argv[]) {
 
 本章我们掌握了 WebRTC Native 开发，实现了 1v1 连麦客户端。但在实际生产环境中，1v1 只是基础场景。
 
-下一章（第二十一章）**SFU 转发服务器** 将学习：
+下一章（第22章）**SFU 转发服务器** 将学习：
 - P2P 的局限性：为什么需要服务器中转
 - SFU（Selective Forwarding Unit）架构设计
 - Simulcast 多路质量转发

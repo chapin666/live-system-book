@@ -1,4 +1,4 @@
-# 第二十五章：WebTransport 与 WHEP/WHIP
+# 第26章：WebTransport 与 WHEP/WHIP
 
 > **本章目标**：了解下一代Web实时通信技术，掌握WebTransport协议和WHEP/WHIP协议的基本原理与应用场景。
 
