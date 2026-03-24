@@ -1,0 +1,251 @@
+# Chapter 30: Kubernetes 部署配置
+
+---
+# 命名空间
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: live-system
+  labels:
+    name: live-system
+    app.kubernetes.io/name: live-streaming
+
+---
+# ConfigMap - 配置文件
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: live-server-config
+  namespace: live-system
+data:
+  server.yaml: |
+    server:
+      signaling_port: 7880
+      sfu_udp_port: 7881
+      sfu_tcp_port: 7882
+      http_port: 8080
+    
+    rtc:
+      ice_servers:
+        - urls: ["stun:stun.l.google.com:19302"]
+      max_bitrate: 2000000
+    
+    recording:
+      enabled: true
+      output_path: /data/recordings
+      segment_duration: 10
+    
+    log:
+      level: info
+      output: stdout
+
+---
+# Secret - 敏感配置
+apiVersion: v1
+kind: Secret
+metadata:
+  name: live-server-secrets
+  namespace: live-system
+type: Opaque
+stringData:
+  api_key: "your-api-key-here"
+  db_password: "your-db-password-here"
+
+---
+# Deployment - 直播服务器
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: live-server
+  namespace: live-system
+  labels:
+    app: live-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: live-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: live-server
+    spec:
+      containers:
+      - name: live-server
+        image: live-system/server:v1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7880
+          name: signaling
+          protocol: TCP
+        - containerPort: 7881
+          name: rtp-udp
+          protocol: UDP
+        - containerPort: 7882
+          name: rtp-tcp
+          protocol: TCP
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+        - name: data
+          mountPath: /data
+        
+        env:
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: live-server-config
+              key: log.level
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      
+      volumes:
+      - name: config
+        configMap:
+          name: live-server-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: live-data-pvc
+
+---
+# Service - 集群内访问
+apiVersion: v1
+kind: Service
+metadata:
+  name: live-server
+  namespace: live-system
+spec:
+  selector:
+    app: live-server
+  ports:
+  - name: signaling
+    port: 7880
+    targetPort: 7880
+    protocol: TCP
+  - name: rtp-udp
+    port: 7881
+    targetPort: 7881
+    protocol: UDP
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  type: ClusterIP
+
+---
+# Ingress - 外部访问
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: live-server-ingress
+  namespace: live-system
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - live.example.com
+    secretName: live-server-tls
+  rules:
+  - host: live.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: live-server
+            port:
+              number: 8080
+
+---
+# HorizontalPodAutoscaler - 自动扩缩容
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: live-server-hpa
+  namespace: live-system
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: live-server
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+
+---
+# PersistentVolumeClaim - 存储
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: live-data-pvc
+  namespace: live-system
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: nfs-client

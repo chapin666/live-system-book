@@ -1,51 +1,43 @@
 #pragma once
+#include "live/player.h"
 #include <string>
-#include <chrono>
+#include <functional>
 
 namespace live {
 
-// 网络播放器配置
-struct NetworkConfig {
-    // 超时设置（微秒）
-    int64_t connect_timeout_us = 10000000;   // 10秒
-    int64_t read_timeout_us = 5000000;       // 5秒
-    
-    // 重连设置
-    int max_retries = 3;
-    int retry_delay_ms = 2000;
-    
-    // 缓冲设置
-    int buffer_duration_ms = 2000;  // 缓冲2秒数据再播放
-    
-    // HTTP 设置
-    bool tcp_nodelay = true;
-    int http_persistent = 1;  // 保持连接
-};
-
-class NetworkPlayer {
+// 带网络支持的播放器
+class NetworkPlayer : public Player {
 public:
-    explicit NetworkPlayer(const NetworkConfig& config = {});
+    NetworkPlayer();
+    ~NetworkPlayer();
     
-    // 播放网络或本地视频
-    bool Play(const char* url);
-    void Stop();
+    // 带重试的播放
+    bool PlayWithRetry(const char* url, int max_retries = 3);
+    
+    // 设置缓冲参数
+    void SetBufferSize(int min_buffer_ms, int max_buffer_ms);
+    
+    // 获取缓冲进度 (0-100)
+    int GetBufferProgress() const;
     
     // 网络状态
-    bool IsNetworkSource() const { return is_network_; }
-    float GetBufferProgress() const;  // 0.0 - 100.0
-    int64_t GetDownloadSpeed() const; // bytes/s
+    bool IsNetworkUrl(const char* url) const;
+    bool IsConnected() const;
+    
+    // 回调
+    std::function<void(int progress)> on_buffer_progress;
+    std::function<void(const char* error)> on_network_error;
     
 private:
-    bool IsNetworkUrl(const char* url);
-    bool TryOpen(const char* url);
-    void HandleError(int error_code);
-    bool RetryLoop(const char* url);
+    bool TryPlay(const char* url);
+    void HandleNetworkError(int error_code);
+    void UpdateBufferProgress();
     
-    NetworkConfig config_;
-    bool is_network_ = false;
-    int retry_count_ = 0;
-    int64_t bytes_downloaded_ = 0;
-    std::chrono::steady_clock::time_point download_start_;
+    int max_retries_ = 3;
+    int min_buffer_ms_ = 2000;
+    int max_buffer_ms_ = 10000;
+    int buffer_progress_ = 0;
+    bool is_connected_ = false;
 };
 
 } // namespace live
