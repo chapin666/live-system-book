@@ -5,34 +5,34 @@
   <!-- Title -->
   <text x="500" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">视频混画（合屏）流程</text>
   
-  <!-- Input Video Frames --
+  <!-- Input Video Frames -->
   <g transform="translate(50, 60)">
     <rect width="200" height="280" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
     <text x="100" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">输入视频帧</text>
     
-    <!-- User A --
+    <!-- User A -->
     <rect x="20" y="40" width="160" height="90" fill="#64b5f6" rx="5"/>
     <rect x="35" y="55" width="130" height="60" fill="#1976d2" rx="2"/>
     <text x="100" y="90" text-anchor="middle" font-size="12" fill="white">用户A</text>
     <text x="100" y="125" text-anchor="middle" font-size="10" fill="#e3f2fd">1920x1080 YUV420P</text>
     
-    <!-- User B --
+    <!-- User B -->
     <rect x="20" y="140" width="160" height="60" fill="#64b5f6" rx="5"/>
     <rect x="35" y="150" width="130" height="40" fill="#1976d2" rx="2"/>
     <text x="100" y="175" text-anchor="middle" font-size="12" fill="white">用户B</text>
     
-    <!-- User C --
+    <!-- User C -->
     <rect x="20" y="210" width="160" height="60" fill="#64b5f6" rx="5"/>
     <rect x="35" y="220" width="130" height="40" fill="#1976d2" rx="2"/>
     <text x="100" y="245" text-anchor="middle" font-size="12" fill="white">用户C</text>
   </g>
   
-  <!-- Arrows to Decoding --
+  <!-- Arrows to Decoding -->
   <path d="M250 127 L290 127" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
   <path d="M250 195 L290 195" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
   <path d="M250 260 L290 260" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
   
-  <!-- Decoding Stage --
+  <!-- Decoding Stage -->
   <g transform="translate(300, 60)">
     <rect width="140" height="280" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
     <text x="70" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#f57c00">解码</text>
@@ -50,12 +50,12 @@
     <text x="70" y="230" text-anchor="middle" font-size="9" fill="#fff3e0">→ YUV420P</text>
   </g>
   
-  <!-- Arrows to Scaling --
+  <!-- Arrows to Scaling -->
   <path d="M440 127 L480 127" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead)"/>
   <path d="M440 195 L480 195" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead)"/>
   <path d="M440 260 L480 260" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead)"/>
   
-  <!-- Scaling Stage --
+  <!-- Scaling Stage -->
   <g transform="translate(490, 60)">
     <rect width="140" height="280" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
     <text x="70" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">缩放</text>
@@ -76,44 +76,44 @@
     <text x="70" y="245" text-anchor="middle" font-size="9" fill="#f3e5f5">640x360</text>
   </g>
   
-  <!-- Arrows to Layout --
+  <!-- Arrows to Layout -->
   <path d="M630 127 L670 180" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead)"/>
   <path d="M630 195 L670 200" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead)"/>
   <path d="M630 260 L670 220" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead)"/>
   
-  <!-- Layout Composition --
+  <!-- Layout Composition -->
   <g transform="translate(680, 60)">
     <rect width="250" height="280" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
     <text x="125" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">布局合屏</text>
     
-    <!-- Output Canvas --
+    <!-- Output Canvas -->
     <rect x="20" y="40" width="210" height="160" fill="#1b5e20" rx="5"/>
     
-    <!-- Region 1: Speaker (A) --
+    <!-- Region 1: Speaker (A) -->
     <rect x="30" y="50" width="130" height="100" fill="#66bb6a" stroke="white" stroke-width="2" rx="3"/>
     <text x="95" y="105" text-anchor="middle" font-size="12" fill="white">主讲人A</text>
     <text x="95" y="130" text-anchor="middle" font-size="9" fill="#c8e6c9">1280x720</text>
     
-    <!-- Region 2: Participant B --
+    <!-- Region 2: Participant B -->
     <rect x="170" y="50" width="50" height="40" fill="#4caf50" stroke="white" stroke-width="1" rx="2"/>
     <text x="195" y="75" text-anchor="middle" font-size="9" fill="white">B</text>
     
-    <!-- Region 3: Participant C --
+    <!-- Region 3: Participant C -->
     <rect x="170" y="95" width="50" height="40" fill="#4caf50" stroke="white" stroke-width="1" rx="2"/>
     <text x="195" y="120" text-anchor="middle" font-size="9" fill="white">C</text>
     
-    <!-- Layout Info --
+    <!-- Layout Info -->
     <rect x="20" y="210" width="210" height="55" fill="#81c784" rx="3"/>
     <text x="125" y="230" text-anchor="middle" font-size="11" fill="white">主讲人模式布局</text>
     <text x="125" y="250" text-anchor="middle" font-size="10" fill="#e8f5e9">1920x1080 输出</text>
   </g>
   
-  <!-- Layout Types --
+  <!-- Layout Types -->
   <g transform="translate(50, 360)">
     <rect width="430" height="220" fill="#fafafa" stroke="#ddd" stroke-width="1" rx="5"/>
     <text x="215" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">布局类型</text>
     
-    <!-- Grid Layout --
+    <!-- Grid Layout -->
     <g transform="translate(20, 45)">
       <rect width="120" height="100" fill="#e3f2fd" stroke="#1976d2" stroke-width="1" rx="3"/>
       <text x="60" y="18" text-anchor="middle" font-size="11" font-weight="bold" fill="#1976d2">平铺网格</text>
@@ -126,7 +126,7 @@
       <text x="60" y="100" text-anchor="middle" font-size="9" fill="#555">2x2 布局</text>
     </g>
     
-    <!-- Speaker Layout --
+    <!-- Speaker Layout -->
     <g transform="translate(155, 45)">
       <rect width="120" height="100" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="1" rx="3"/>
       <text x="60" y="18" text-anchor="middle" font-size="11" font-weight="bold" fill="#7b1fa2">主讲人模式</text>
@@ -138,7 +138,7 @@
       <text x="60" y="100" text-anchor="middle" font-size="9" fill="#555">1大 + N小</text>
     </g>
     
-    <!-- PiP Layout --
+    <!-- PiP Layout -->
     <g transform="translate(290, 45)">
       <rect width="120" height="100" fill="#fff3e0" stroke="#f57c00" stroke-width="1" rx="3"/>
       <text x="60" y="18" text-anchor="middle" font-size="11" font-weight="bold" fill="#f57c00">画中画</text>
@@ -149,13 +149,13 @@
       <text x="60" y="100" text-anchor="middle" font-size="9" fill="#555">1大 + 1小</text>
     </g>
     
-    <!-- Layout selection text --
+    <!-- Layout selection text -->
     <text x="20" y="170" font-size="10" fill="#555">• 平铺: 2-16人，均等展示</text>
     <text x="20" y="185" font-size="10" fill="#555">• 主讲人: 突出当前发言人</text>
     <text x="20" y="200" font-size="10" fill="#555">• 画中画: 1对1场景</text>
   </g>
   
-  <!-- Encoding Output --
+  <!-- Encoding Output -->
   <g transform="translate(500, 360)">
     <rect width="430" height="220" fill="#e1f5fe" stroke="#0288d1" stroke-width="2" rx="8"/>
     <text x="215" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#0288d1">编码输出</text>
@@ -168,7 +168,7 @@
     <text x="110" y="165" text-anchor="middle" font-size="12" fill="white">H.264 → RTP</text>
     <text x="110" y="185" text-anchor="middle" font-size="10" fill="#e1f5fe">封装发送</text>
     
-    <!-- Stats --
+    <!-- Stats -->
     <rect x="220" y="45" width="190" height="160" fill="#b3e5fc" rx="3"/>
     <text x="315" y="70" text-anchor="middle" font-size="12" font-weight="bold" fill="#01579b">输出规格</text>
     
@@ -180,13 +180,13 @@
     <text x="235" y="195" font-size="11" fill="#333">Keyframe: 2s</text>
   </g>
   
-  <!-- Arrow Markers --
+  <!-- Arrow Markers -->
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
     </marker>
   </defs>
   
-  <!-- Performance Info --
+  <!-- Performance Info -->
   <text x="50" y="590" font-size="11" fill="#666">CPU占用: 解码 ~15% | 缩放 ~25% | 合屏 ~20% | 编码 ~40% (总计每路约100%单核@1080p)</text>
 </svg>

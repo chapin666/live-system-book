@@ -5,43 +5,43 @@
   <!-- Title -->
   <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">音频混音流程</text>
   
-  <!-- Input Streams --
+  <!-- Input Streams -->
   <g transform="translate(50, 70)">
     <rect width="180" height="400" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
     <text x="90" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">输入流</text>
     
-    <!-- User A --
+    <!-- User A -->
     <rect x="15" y="40" width="150" height="75" fill="#64b5f6" rx="5"/>
     <text x="90" y="60" text-anchor="middle" font-size="12" fill="white" font-weight="bold">用户A</text>
     <text x="90" y="78" text-anchor="middle" font-size="10" fill="#e3f2fd">PCM 16bit 48kHz</text>
     <text x="90" y="95" text-anchor="middle" font-size="10" fill="#81c784">🎤 说话中</text>
     
-    <!-- User B --
+    <!-- User B -->
     <rect x="15" y="125" width="150" height="75" fill="#64b5f6" rx="5"/>
     <text x="90" y="145" text-anchor="middle" font-size="12" fill="white" font-weight="bold">用户B</text>
     <text x="90" y="163" text-anchor="middle" font-size="10" fill="#e3f2fd">PCM 16bit 48kHz</text>
     <text x="90" y="180" text-anchor="middle" font-size="10" fill="#e57373">🔇 静音</text>
     
-    <!-- User C --
+    <!-- User C -->
     <rect x="15" y="210" width="150" height="75" fill="#64b5f6" rx="5"/>
     <text x="90" y="230" text-anchor="middle" font-size="12" fill="white" font-weight="bold">用户C</text>
     <text x="90" y="248" text-anchor="middle" font-size="10" fill="#e3f2fd">PCM 16bit 48kHz</text>
     <text x="90" y="265" text-anchor="middle" font-size="10" fill="#81c784">🎤 说话中</text>
     
-    <!-- User D --
+    <!-- User D -->
     <rect x="15" y="295" width="150" height="75" fill="#64b5f6" rx="5"/>
     <text x="90" y="315" text-anchor="middle" font-size="12" fill="white" font-weight="bold">用户D</text>
     <text x="90" y="333" text-anchor="middle" font-size="10" fill="#e3f2fd">PCM 16bit 48kHz</text>
     <text x="90" y="350" text-anchor="middle" font-size="10" fill="#e57373">🔇 静音</text>
   </g>
   
-  <!-- Arrows to VAD --
+  <!-- Arrows to VAD -->
   <path d="M230 127 L280 127" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
   <path d="M230 200 L280 200" stroke="#999" stroke-width="2" marker-end="url(#arrowhead2)" stroke-dasharray="4"/>
   <path d="M230 280 L280 280" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
   <path d="M230 365 L280 365" stroke="#999" stroke-width="2" marker-end="url(#arrowhead2)" stroke-dasharray="4"/>
   
-  <!-- VAD Stage --
+  <!-- VAD Stage -->
   <g transform="translate(290, 70)">
     <rect width="140" height="400" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
     <text x="70" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">VAD检测</text>
@@ -67,11 +67,11 @@
     <text x="70" y="357" text-anchor="middle" font-size="10" fill="#e57373" font-weight="bold">✗ 静音</text>
   </g>
   
-  <!-- Arrows to Sync --
+  <!-- Arrows to Sync -->
   <path d="M430 127 L480 150" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
   <path d="M430 280 L480 210" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
   
-  <!-- Sync Buffer --
+  <!-- Sync Buffer -->
   <g transform="translate(490, 120)">
     <rect width="120" height="130" fill="#fff8e1" stroke="#ffa000" stroke-width="2" rx="8"/>
     <text x="60" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffa000">同步缓冲区</text>
@@ -83,10 +83,10 @@
     <text x="60" y="100" text-anchor="middle" font-size="10" fill="#5d4037">用户C帧</text>
   </g>
   
-  <!-- Arrow to Mixing --
+  <!-- Arrow to Mixing -->
   <path d="M610 185 L660 220" stroke="#ffa000" stroke-width="2" marker-end="url(#arrowhead)"/>
   
-  <!-- Mixing Engine --
+  <!-- Mixing Engine -->
   <g transform="translate(670, 140)">
     <rect width="180" height="200" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
     <text x="90" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">混音引擎</text>
@@ -103,10 +103,10 @@
     <text x="90" y="177" text-anchor="middle" font-size="10" fill="white">输出混合PCM</text>
   </g>
   
-  <!-- Arrow to Encoding --
+  <!-- Arrow to Encoding -->
   <path d="M760 340 L760 380" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead)"/>
   
-  <!-- Audio Encoding --
+  <!-- Audio Encoding -->
   <g transform="translate(670, 390)">
     <rect width="180" height="80" fill="#e1f5fe" stroke="#0288d1" stroke-width="2" rx="8"/>
     <text x="90" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#0288d1">音频编码</text>
@@ -115,7 +115,7 @@
     <text x="90" y="70" text-anchor="middle" font-size="11" fill="#555">48kHz → 64kbps</text>
   </g>
   
-  <!-- Formula Box --
+  <!-- Formula Box -->
   <g transform="translate(490, 390)">
     <rect width="160" height="130" fill="#fafafa" stroke="#999" stroke-width="1" rx="5"/>
     <text x="80" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">混音公式</text>
@@ -126,7 +126,7 @@
     <text x="15" y="120" font-size="11" fill="#555">[-32768, 32767]</text>
   </g>
   
-  <!-- Arrow Markers --
+  <!-- Arrow Markers -->
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
@@ -136,7 +136,7 @@
     </marker>
   </defs>
   
-  <!-- Legend --
+  <!-- Legend -->
   <g transform="translate(50, 480)">
     <rect width="400" height="60" fill="white" stroke="#ddd" stroke-width="1" rx="5"/>
     <text x="10" y="20" font-size="11" fill="#333" font-weight="bold">图例:</text>
@@ -154,7 +154,7 @@
     <text x="310" y="42" font-size="10" fill="#555">混音处理</text>
   </g>
   
-  <!-- Process Info --
+  <!-- Process Info -->
   <g transform="translate(520, 480)">
     <rect width="400" height="60" fill="#f5f5f5" stroke="#ddd" stroke-width="1" rx="5"/>
     <text x="10" y="20" font-size="11" fill="#333" font-weight="bold">性能指标:</text>

@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400">
-  <!-- Background --
+  <!-- Background -->
   <rect width="900" height="400" fill="#f8f9fa"/>
   
-  <!-- Title --
+  <!-- Title -->
   <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">质量监控 Dashboard 架构</text>
   
   
-  <!-- Data Collection Layer --
+  <!-- Data Collection Layer -->
   <g transform="translate(50, 60)">
     <rect width="200" height="280" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
     
@@ -26,11 +26,11 @@
   </g>
   
   
-  <!-- Arrow to Storage --
+  <!-- Arrow to Storage -->
   <path d="M250 200 L290 200" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
   
   
-  <!-- Storage Layer --
+  <!-- Storage Layer -->
   <g transform="translate(300, 60)">
     <rect width="200" height="280" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
     
@@ -50,11 +50,11 @@
   </g>
   
   
-  <!-- Arrow to Processing --
+  <!-- Arrow to Processing -->
   <path d="M500 200 L540 200" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead)"/>
   
   
-  <!-- Processing Layer --
+  <!-- Processing Layer -->
   <g transform="translate(550, 60)">
     <rect width="150" height="280" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
     
@@ -71,11 +71,11 @@
   </g>
   
   
-  <!-- Arrow to Visualization --
+  <!-- Arrow to Visualization -->
   <path d="M700 200 L740 200" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead)"/>
   
   
-  <!-- Visualization Layer --
+  <!-- Visualization Layer -->
   <g transform="translate(750, 60)">
     <rect width="120" height="280" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
     
@@ -92,7 +92,7 @@
   </g>
   
   
-  <!-- Metrics Examples --
+  <!-- Metrics Examples -->
   <g transform="translate(50, 360)">
     <rect width="800" height="30" fill="#fafafa" stroke="#ddd" stroke-width="1" rx="5"/>
     
@@ -100,7 +100,7 @@
   </g>
   
   
-  <!-- Arrow Marker --
+  <!-- Arrow Marker -->
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>

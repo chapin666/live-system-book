@@ -1,39 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
-  <!-- Background --
+  <!-- Background -->
   <rect width="900" height="500" fill="#f8f9fa"/>
   
-  <!-- Title --
+  <!-- Title -->
   <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">Web 实时通信技术演进路线图</text>
   
   
-  <!-- Timeline --
+  <!-- Timeline -->
   <g transform="translate(50, 60)">
-    <!-- Time axis --
+    <!-- Time axis -->
     <line x1="50" y1="100" x2="800" y2="100" stroke="#333" stroke-width="2"/>
     
-    <!-- 2010 marker --
+    <!-- 2010 marker -->
     <line x1="100" y1="95" x2="100" y2="105" stroke="#333" stroke-width="2"/>
     <text x="100" y="125" text-anchor="middle" font-size="11" fill="#666">2010</text>
     
-    <!-- 2015 marker --
+    <!-- 2015 marker -->
     <line x1="250" y1="95" x2="250" y2="105" stroke="#333" stroke-width="2"/>
     <text x="250" y="125" text-anchor="middle" font-size="11" fill="#666">2015</text>
     
-    <!-- 2020 marker --
+    <!-- 2020 marker -->
     <line x1="400" y1="95" x2="400" y2="105" stroke="#333" stroke-width="2"/>
     <text x="400" y="125" text-anchor="middle" font-size="11" fill="#666">2020</text>
     
-    <!-- 2023 marker --
+    <!-- 2023 marker -->
     <line x1="550" y1="95" x2="550" y2="105" stroke="#333" stroke-width="2"/>
     <text x="550" y="125" text-anchor="middle" font-size="11" fill="#666">2023</text>
     
-    <!-- 2025+ marker --
+    <!-- 2025+ marker -->
     <line x1="700" y1="95" x2="700" y2="105" stroke="#333" stroke-width="2"/>
     <text x="700" y="125" text-anchor="middle" font-size="11" fill="#666">2025+</text>
   </g>
   
   
-  <!-- Era 1: WebRTC Birth --
+  <!-- Era 1: WebRTC Birth -->
   <g transform="translate(100, 160)">
     <rect width="140" height="80" fill="#ffebee" stroke="#c62828" stroke-width="2" rx="8"/>
     
@@ -45,7 +45,7 @@
   </g>
   
   
-  <!-- Era 2: WebRTC Maturity --
+  <!-- Era 2: WebRTC Maturity -->
   <g transform="translate(250, 160)">
     <rect width="140" height="80" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
     
@@ -57,7 +57,7 @@
   </g>
   
   
-  <!-- Era 3: WHIP/WHEP --
+  <!-- Era 3: WHIP/WHEP -->
   <g transform="translate(400, 160)">
     <rect width="140" height="80" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
     
@@ -69,7 +69,7 @@
   </g>
   
   
-  <!-- Era 4: WebTransport --
+  <!-- Era 4: WebTransport -->
   <g transform="translate(550, 160)">
     <rect width="140" height="80" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
     
@@ -81,7 +81,7 @@
   </g>
   
   
-  <!-- Era 5: Future --
+  <!-- Era 5: Future -->
   <g transform="translate(700, 160)">
     <rect width="140" height="80" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
     
@@ -93,13 +93,13 @@
   </g>
   
   
-  <!-- Technology Stack Evolution --
+  <!-- Technology Stack Evolution -->
   <g transform="translate(50, 280)">
     <rect width="800" height="200" fill="white" stroke="#ddd" stroke-width="2" rx="8"/>
     
     <text x="400" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">技术栈演进</text>
     
-    <!-- Stack 2010-2018 --
+    <!-- Stack 2010-2018 -->
     <g transform="translate(20, 50)">
       <rect width="140" height="135" fill="#ffebee" rx="5"/>
       
@@ -115,10 +115,10 @@
       <text x="70" y="112" text-anchor="middle" font-size="9" fill="white">SDP协商</text>
     </g>
     
-    <!-- Arrow --
+    <!-- Arrow -->
     <text x="170" y="130" font-size="16" fill="#666">→</text>
     
-    <!-- Stack 2018-2022 --
+    <!-- Stack 2018-2022 -->
     <g transform="translate(190, 50)">
       <rect width="140" height="135" fill="#e3f2fd" rx="5"/>
       
@@ -134,10 +134,10 @@
       <text x="70" y="112" text-anchor="middle" font-size="9" fill="white">选择性转发</text>
     </g>
     
-    <!-- Arrow --
+    <!-- Arrow -->
     <text x="340" y="130" font-size="16" fill="#666">→</text>
     
-    <!-- Stack 2022-2024 --
+    <!-- Stack 2022-2024 -->
     <g transform="translate(360, 50)">
       <rect width="140" height="135" fill="#fff3e0" rx="5"/>
       
@@ -153,10 +153,10 @@
       <text x="70" y="112" text-anchor="middle" font-size="9" fill="#5d4037">标准化</text>
     </g>
     
-    <!-- Arrow --
+    <!-- Arrow -->
     <text x="510" y="130" font-size="16" fill="#666">→</text>
     
-    <!-- Stack 2023+ --
+    <!-- Stack 2023+ -->
     <g transform="translate(530, 50)">
       <rect width="140" height="135" fill="#e8f5e9" rx="5"/>
       
@@ -172,10 +172,10 @@
       <text x="70" y="112" text-anchor="middle" font-size="9" fill="#1b5e20">低延迟</text>
     </g>
     
-    <!-- Arrow --
+    <!-- Arrow -->
     <text x="680" y="130" font-size="16" fill="#666">→</text>
     
-    <!-- Future --
+    <!-- Future -->
     <g transform="translate(700, 50)">
       <rect width="80" height="135" fill="#f3e5f5" rx="5"/>
       
@@ -193,7 +193,7 @@
   </g>
   
   
-  <!-- Technology Comparison --
+  <!-- Technology Comparison -->
   <g transform="translate(50, 500)">
     <rect width="800" height="100" fill="#fafafa" stroke="#ccc" stroke-width="1" rx="5"/>
     

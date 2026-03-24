@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 550">
-  <!-- Background --
+  <!-- Background -->
   <rect width="900" height="550" fill="#f8f9fa"/>
   
-  <!-- Title --
+  <!-- Title -->
   <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">WHIP 协议流程</text>
   
   
-  <!-- Participants --
+  <!-- Participants -->
   <g transform="translate(50, 60)">
-    <!-- Browser/Publisher --
+    <!-- Browser/Publisher -->
     <rect width="200" height="450" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
     <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">浏览器 (推流端)</text>
     
@@ -29,7 +29,7 @@
   </g>
   
   
-  <!-- HTTP Requests --
+  <!-- HTTP Requests -->
   <g transform="translate(270, 60)">
     <rect width="200" height="450" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
     
@@ -52,7 +52,7 @@
   </g>
   
   
-  <!-- WHIP Server --
+  <!-- WHIP Server -->
   <g transform="translate(490, 60)">
     <rect width="200" height="450" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
     <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">WHIP 服务器</text>
@@ -75,7 +75,7 @@
   </g>
   
   
-  <!-- Response --
+  <!-- Response -->
   <g transform="translate(710, 60)">
     <rect width="150" height="450" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
     <text x="75" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">响应</text>
@@ -87,32 +87,32 @@
   </g>
   
   
-  <!-- Arrows --
-  <!-- Browser to HTTP: SDP Offer --
+  <!-- Arrows -->
+  <!-- Browser to HTTP: SDP Offer -->
   <path d="M250 150 L270 220" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
   <text x="255" y="180" font-size="9" fill="#1976d2">SDP offer</text>
   
-  <!-- HTTP to WHIP Server: POST --
+  <!-- HTTP to WHIP Server: POST -->
   <path d="M470 230 L490 230" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead2)"/>
   
-  <!-- WHIP Server to Response: 201 --
+  <!-- WHIP Server to Response: 201 -->
   <path d="M690 230 L710 230" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead3)"/>
   
-  <!-- Response to Browser: SDP Answer --
+  <!-- Response to Browser: SDP Answer -->
   <path d="M860 230 L880 230 L880 360 L250 360" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead3)" fill="none"/>
   
-  <!-- Browser to HTTP: ICE candidates --
+  <!-- Browser to HTTP: ICE candidates -->
   <path d="M250 360 L260 360 L260 325 L270 325" stroke="#1976d2" stroke-width="1.5" marker-end="url(#arrowhead)"/>
   
-  <!-- HTTP to WHIP: PATCH --
+  <!-- HTTP to WHIP: PATCH -->
   <path d="M470 325 L490 325" stroke="#f57c00" stroke-width="1.5" marker-end="url(#arrowhead2)"/>
   
-  <!-- Media Stream --
+  <!-- Media Stream -->
   <path d="M250 420 L300 420 L300 440 L480 440" stroke="#f44336" stroke-width="3" marker-end="url(#arrowhead4)"/>
   <text x="360" y="435" font-size="10" fill="#f44336" font-weight="bold">SRTP 媒体流</text>
   
   
-  <!-- Arrow Markers --
+  <!-- Arrow Markers -->
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
@@ -129,7 +129,7 @@
   </defs>
   
   
-  <!-- Comparison with Traditional --
+  <!-- Comparison with Traditional -->
   <g transform="translate(50, 520)">
     <rect width="800" height="200" fill="#fafafa" stroke="#ccc" stroke-width="1" rx="5"/>
     

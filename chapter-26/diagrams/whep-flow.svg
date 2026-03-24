@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 550">
-  <!-- Background --
+  <!-- Background -->
   <rect width="900" height="550" fill="#f8f9fa"/>
   
-  <!-- Title --
+  <!-- Title -->
   <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">WHEP 协议流程</text>
   
   
-  <!-- Browser/Player --
+  <!-- Browser/Player -->
   <g transform="translate(50, 60)">
     <rect width="200" height="450" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
     
@@ -25,7 +25,7 @@
   </g>
   
   
-  <!-- HTTP Requests --
+  <!-- HTTP Requests -->
   <g transform="translate(270, 60)">
     <rect width="200" height="450" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
     
@@ -44,7 +44,7 @@
   </g>
   
   
-  <!-- WHEP Server --
+  <!-- WHEP Server -->
   <g transform="translate(490, 60)">
     <rect width="200" height="450" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
     
@@ -72,7 +72,7 @@
   </g>
   
   
-  <!-- Response --
+  <!-- Response -->
   <g transform="translate(710, 60)">
     <rect width="150" height="450" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
     
@@ -85,29 +85,29 @@
   </g>
   
   
-  <!-- Publisher/SFU Source --
+  <!-- Publisher/SFU Source -->
   <g transform="translate(50, 520)">
     <rect width="800" height="150" fill="#fafafa" stroke="#ddd" stroke-width="1" rx="5"/>
     
     <text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">WHEP 架构关系</text>
     
-    <!-- Publisher --
+    <!-- Publisher -->
     <rect x="50" y="45" width="150" height="50" fill="#e3f2fd" rx="5"/>
     <text x="125" y="75" text-anchor="middle" font-size="11" fill="#1976d2">Publisher</text>
     
-    <!-- Arrow to SFU --
+    <!-- Arrow to SFU -->
   <path d="M200 70 L280 70" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
     <text x="240" y="60" text-anchor="middle" font-size="9" fill="#666">WHIP推流</text>
     
-    <!-- SFU --
+    <!-- SFU -->
     <rect x="300" y="45" width="150" height="50" fill="#f3e5f5" rx="5"/>
     <text x="375" y="75" text-anchor="middle" font-size="11" fill="#7b1fa2">SFU / WHIP Server</text>
     
-    <!-- Arrow to Player --
+    <!-- Arrow to Player -->
   <path d="M450 70 L550 70" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead2)"/>
     <text x="500" y="60" text-anchor="middle" font-size="9" fill="#f57c00">WHEP拉流</text>
     
-    <!-- Player --
+    <!-- Player -->
     <rect x="570" y="45" width="150" height="50" fill="#fff3e0" rx="5"/>
     <text x="645" y="75" text-anchor="middle" font-size="11" fill="#f57c00">Player</text>
     
@@ -115,26 +115,26 @@
   </g>
   
   
-  <!-- Arrows --
-  <!-- Browser to HTTP: SDP Offer --
+  <!-- Arrows -->
+  <!-- Browser to HTTP: SDP Offer -->
   <path d="M250 150 L270 220" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
   
-  <!-- HTTP to WHEP: POST --
+  <!-- HTTP to WHEP: POST -->
   <path d="M470 230 L490 230" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead2)"/>
   
-  <!-- WHEP to Response: 201 --
+  <!-- WHEP to Response: 201 -->
   <path d="M690 230 L710 230" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead3)"/>
   
-  <!-- Response to Browser: SDP Answer --
+  <!-- Response to Browser: SDP Answer -->
   <path d="M860 230 L880 230 L880 360 L250 360" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead3)" fill="none"/>
   
-  <!-- Media Stream from SFU to Player --
+  <!-- Media Stream from SFU to Player -->
   <path d="M480 360 L250 360 L250 440 L150 440 L150 470" stroke="#f44336" stroke-width="3" marker-end="url(#arrowhead4)" fill="none"/>
   
   <text x="360" y="380" font-size="10" fill="#f44336" font-weight="bold">SRTP 媒体流</text>
   
   
-  <!-- Arrow Markers --
+  <!-- Arrow Markers -->
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>

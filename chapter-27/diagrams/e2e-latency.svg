@@ -2,22 +2,22 @@
   <!-- Background -->
   <rect width="900" height="450" fill="#f8f9fa"/>
   
-  <!-- Title --
+  <!-- Title -->
   <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">端到端延迟测量</text>
   
-  <!-- Timeline --
+  <!-- Timeline -->
   <g transform="translate(50, 70)">
     <rect width="800" height="300" fill="white" stroke="#ddd" stroke-width="2" rx="8"/>
     
-    <!-- Time axis --
+    <!-- Time axis -->
     <line x1="50" y1="150" x2="750" y2="150" stroke="#333" stroke-width="2"/>
     
-    <!-- Capture --
+    <!-- Capture -->
     <rect x="80" y="60" width="80" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
     <text x="120" y="85" text-anchor="middle" font-size="11" font-weight="bold" fill="#1976d2">采集</text>
     <text x="120" y="105" text-anchor="middle" font-size="9" fill="#555">10-50ms</text>
     
-    <!-- Encode --
+    <!-- Encode -->
     <rect x="180" y="60" width="80" height="60" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="5"/>
     <text x="220" y="85" text-anchor="middle" font-size="11" font-weight="bold" fill="#f57c00">编码</text>
     <text x="220" y="105" text-anchor="middle" font-size="9" fill="#555">10-100ms</text>
@@ -47,7 +47,7 @@
     <text x="710" y="85" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffa000">渲染</text>
     <text x="710" y="105" text-anchor="middle" font-size="9" fill="#555">16-33ms</text>
     
-    <!-- Arrows --
+    <!-- Arrows -->
     <path d="M160 90 L180 90" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
     <path d="M260 90 L280 90" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
     <path d="M360 90 L380 90" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
@@ -62,7 +62,7 @@
   </g>
   
   
-  <!-- Measurement Methods --
+  <!-- Measurement Methods -->
   <g transform="translate(50, 390)">
     <rect width="800" height="50" fill="#fafafa" stroke="#ddd" stroke-width="1" rx="5"/>
     
@@ -74,7 +74,7 @@
   </g>
   
   
-  <!-- Arrow Marker --
+  <!-- Arrow Marker -->
   <defs>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
       <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
