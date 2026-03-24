@@ -20,6 +20,21 @@ flowchart LR
     style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
 ```
 
+**代码演进关系**：
+```mermaid
+flowchart LR
+    subgraph "P4→P5 演进"
+        A["Ch10 音频采集"] --> B["📍 Ch11 音频3A处理"]
+        B --> C["Ch12 视频编码"]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
+```
+
+- **当前阶段**：音频处理
+- **本章产出**：AEC/ANS/AGC回声消除降噪
+
+
 
 > **本章目标**：理解并实现音频 3A（AEC/ANS/AGC）处理，提升直播音频质量。
 

@@ -20,6 +20,21 @@ flowchart LR
     style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
 ```
 
+**代码演进关系**：
+```mermaid
+flowchart LR
+    subgraph "P2 网络播放器"
+        A["Ch4 发现瓶颈"] --> B["📍 Ch5 多线程基础"]
+        B --> C["Ch6 异步播放器"]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
+```
+
+- **当前阶段**：多线程基础
+- **本章产出**：掌握thread/mutex/条件变量
+
+
 
 > **本章目标**：掌握 C++11 多线程编程基础，为第六章异步播放器打下坚实基础。
 > 

@@ -28,6 +28,21 @@ flowchart LR
     style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
 ```
 
+**代码演进关系**：
+```mermaid
+flowchart LR
+    subgraph "P1→P2 演进"
+        A["Ch3 Pipeline架构"] --> B["📍 Ch4 性能分析"]
+        B --> C["Ch5-6 多线程改造"]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
+```
+
+- **当前阶段**：性能分析
+- **本章产出**：发现单线程瓶颈
+
+
 **阅读指南**：
 - 第 1-2 节：观察卡顿现象，测量解码耗时
 - 第 3-4 节：理解帧率预算和不同帧类型的解码成本

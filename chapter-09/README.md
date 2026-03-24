@@ -20,6 +20,21 @@ flowchart LR
     style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
 ```
 
+**代码演进关系**：
+```mermaid
+flowchart LR
+    subgraph "P3 直播观众端"
+        A["Ch8 直播协议"] --> B["📍 Ch9 硬件解码"]
+        B --> C["Ch10 音视频采集"]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
+```
+
+- **当前阶段**：性能优化
+- **本章产出**：VideoToolbox/VAAPI/NVDEC
+
+
 
 > **本章目标**：实现硬件解码播放器，支持 4K@60fps 流畅播放，CPU 占用低于 15%。
 

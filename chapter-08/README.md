@@ -20,6 +20,21 @@ flowchart LR
     style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
 ```
 
+**代码演进关系**：
+```mermaid
+flowchart LR
+    subgraph "P3 直播观众端"
+        A["Ch7 网络基础"] --> B["📍 Ch8 直播vs点播"]
+        B --> C["Ch9 硬件解码"]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
+```
+
+- **当前阶段**：直播协议
+- **本章产出**：RTMP协议、直播特性
+
+
 
 > **本章目标**：使用 FFmpeg 实现 RTMP 直播播放器，理解直播与点播的差异。
 
