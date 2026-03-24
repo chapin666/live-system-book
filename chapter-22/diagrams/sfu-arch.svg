@@ -168,4 +168,5 @@
   <line x1="250" y1="225" x2="190" y2="225" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow)"/>
   <line x1="250" y1="315" x2="190" y2="315" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow)"/>
   <line x1="250" y1="405" x2="190" y2="405" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow)"/>
-  <line x1="250" y1="495" x2="190" y2="495" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow)"/
+  <line x1="250" y1="495" x2="190" y2="495" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow)"/>
+</svg>
