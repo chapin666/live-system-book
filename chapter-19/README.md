@@ -206,7 +206,7 @@ A → T:80     NAT分配: 1.2.3.4:6001  (不同端口!)
 
 ### 3.2 STUN 工作流程
 
-![STUN 工作流程](diagrams/stun-process.svg)
+![STUN 工作流程](diagrams/stun-flow.svg)
 
 **协议细节**：
 
