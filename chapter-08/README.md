@@ -180,6 +180,8 @@ RTMP 方式（流）：
 - 支持推拉流（主播推流，观众拉流）
 - 行业标准，CDN 广泛支持
 
+![RTMP 协议栈](./diagrams/rtmp-stack.svg)
+
 ### 2.2 RTMP URL 格式
 
 ```

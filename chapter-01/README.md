@@ -127,6 +127,8 @@ GOP 大小影响：
 - **GOP 小（如 12）**：解码延迟低，适合直播，但压缩率稍差
 - **GOP 大（如 250）**：压缩率高，适合存储，但解码延迟高
 
+![GOP 结构示意图](./diagrams/gop-structure.svg)
+
 ### 1.4 冗余三：视觉冗余（感知压缩）
 
 **现象**：人眼对颜色和亮度的敏感度不同。
@@ -162,6 +164,8 @@ flowchart LR
 1. **解封装**：从容器格式中提取压缩数据
 2. **解码**：将压缩数据还原为原始图像
 3. **渲染**：将图像显示到屏幕
+
+![播放器 Pipeline 架构](./diagrams/pipeline-arch.svg)
 
 ---
 
@@ -201,6 +205,8 @@ flowchart LR
 数据量 = 4 + 1 + 1 = 6 字节/4像素 = 1.5 字节/像素
 相比 RGB（3 字节/像素）节省 50%
 ```
+
+![YUV 采样布局示意图](./diagrams/yuv-layout.svg)
 
 ### 2.3 YUV 数据在内存中的布局
 
@@ -255,6 +261,8 @@ flowchart TB
     style D fill:#fce4ec,stroke:#e91e63
     style E fill:#f3e5f5,stroke:#9c27b0
 ```
+
+![FFmpeg 分层架构](./diagrams/layered-arch.svg)
 
 ### 3.2 关键数据结构
 

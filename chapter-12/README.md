@@ -136,6 +136,8 @@ flowchart LR
     style B fill:#fce4ec,stroke:#e91e63
 ```
 
+![H.264 编码流程](./diagrams/h264-encode-flow.svg)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     H.264 编码流程                           │

@@ -151,6 +151,8 @@ flowchart LR
 - `RingBuffer`（本章）存储的是**压缩的数据**，供解码器读取
 - 两者是**串联关系**：网络数据 → RingBuffer → 解码器 → FrameQueue → 渲染
 
+![网络播放器架构](./diagrams/network-player-arch.svg)
+
 ---
 
 ## 2. HTTP 协议基础

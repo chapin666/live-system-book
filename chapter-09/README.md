@@ -163,6 +163,8 @@ flowchart TB
     style E fill:#fff3e0,stroke:#f0ad4e
 ```
 
+![硬件解码 Pipeline](./diagrams/hw-decode-pipeline.svg)
+
 ### 2.1 硬件解码管线
 
 ```

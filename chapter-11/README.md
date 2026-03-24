@@ -111,6 +111,8 @@ flowchart LR
 处理后音频 → 编码 → 推流
 ```
 
+![3A 处理流程](./diagrams/3a-processing.svg)
+
 ---
 
 ## 2. AEC：回声消除
