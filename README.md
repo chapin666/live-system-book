@@ -73,6 +73,7 @@ ffmpeg -f lavfi -i testsrc=duration=10:size=640x480:rate=30 -pix_fmt yuv420p tes
 
 | 章节 | 内容 | 简介 |
 |:---:|:---|:---|
+| Ch16.5 | [网络编程基础](chapter-16.5/) ⭐ 新增 | Socket API、UDP编程、字节序、数据序列化 |
 | Ch17 | [UDP与实时传输](chapter-17/) | RTP/RTCP协议、JitterBuffer、拥塞控制基础 |
 | Ch18 | [NAT穿透与P2P](chapter-18/) | STUN/TURN/ICE协议、点对点连接建立 |
 | **P6** | [P2P通话工具](project-06/) | UDP/RTP/NAT穿透，双人音视频通话 |
