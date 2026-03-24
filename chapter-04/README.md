@@ -556,7 +556,7 @@ void CheckBudget(int64_t total_us) {
 
 在第一章我们学习了视频压缩原理，其中提到了三种帧类型：
 
-<img src="docs/images/frame-types-decode.svg" width="100%"/>
+<img src="diagrams/frame-types-decode.svg" width="100%"/>
 
 | 类型 | 名称 | 依赖关系 | 典型大小 | 解码成本 |
 |:---|:---|:---|:---|:---|
@@ -913,7 +913,7 @@ g++ -std=c++14 lag_experiment.cpp -o lag_experiment $(pkg-config --cflags --libs
 
 双缓冲（Double Buffering）是一种经典的计算机图形技术：
 
-<img src="docs/images/double-buffering.svg" width="100%"/>
+<img src="diagrams/double-buffering.svg" width="100%"/>
 
 ```
 传统单缓冲：
@@ -1075,7 +1075,7 @@ firefox flamegraph.svg
 
 火焰图的阅读方法：
 
-<img src="docs/images/flamegraph-example.svg" width="100%"/>
+<img src="diagrams/flamegraph-example.svg" width="100%"/>
 
 ```
 火焰图结构：

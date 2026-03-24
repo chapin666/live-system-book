@@ -156,7 +156,7 @@ ffmpeg -f avfoundation -r 30 -i "0:0" output.mp4
 
 ### 2.2 GPU 纹理共享方案
 
-<img src="docs/images/gpu-texture-sharing.svg" width="100%"/>
+<img src="diagrams/gpu-texture-sharing.svg" width="100%"/>
 
 **核心思想**：
 数据始终留在 GPU 显存，不经过 CPU 内存：
@@ -318,7 +318,7 @@ ffmpeg -f x11grab -s 1280x720 -i :0.0+100,200 output.mp4
 - 主画面：游戏/PPT/屏幕分享（全屏或大部分）
 - 小窗：主播摄像头（角落）
 
-<img src="docs/images/pip-composition.svg" width="100%"/>
+<img src="diagrams/pip-composition.svg" width="100%"/>
 
 ### 4.2 合成原理
 
@@ -393,7 +393,7 @@ void main() {
 - 音乐直播：全景 + 乐器特写
 - 教学直播：板书 + 讲师
 
-<img src="docs/images/multi-camera.svg" width="100%"/>
+<img src="diagrams/multi-camera.svg" width="100%"/>
 
 ### 5.2 多摄像头架构设计
 

@@ -196,7 +196,7 @@ BD-Rate = (Area under curve B - Area under curve A) / Area under curve A × 100%
 
 ### 4.1 CTU 四叉树划分：自适应块大小
 
-<img src="docs/images/ctu-partition.svg" width="90%"/>
+<img src="diagrams/ctu-partition.svg" width="90%"/>
 
 **从宏块到 CTU**：
 H.264 使用固定的 16×16 宏块，而 H.265 引入**编码树单元（Coding Tree Unit, CTU）**：
@@ -341,7 +341,7 @@ H.265 有三个专利池：
 
 ### 6.2 SVC 的三维可伸缩性
 
-<img src="docs/images/svc-layer.svg" width="100%"/>
+<img src="diagrams/svc-layer.svg" width="100%"/>
 
 **时间可伸缩（Temporal Scalability）**：
 ```

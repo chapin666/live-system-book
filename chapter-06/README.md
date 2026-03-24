@@ -893,7 +893,7 @@ chapter-02/
 │   ├── decoder_thread.cpp # 解码线程
 │   ├── decoder_thread.h
 │   └── main.cpp           # 主程序
-└── docs/images/
+└── diagrams/
     └── async-arch.svg
 ```
 

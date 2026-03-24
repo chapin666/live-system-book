@@ -189,7 +189,7 @@ I'(x) = (1/W) × Σ I(y) × Gs(||x-y||) × Gr(|I(x)-I(y)|)
 
 ### 2.2 双边滤波的可视化
 
-<img src="docs/images/bilateral-filter.svg" width="100%"/>
+<img src="diagrams/bilateral-filter.svg" width="100%"/>
 
 **平滑区域（如脸颊）**：
 - 周围像素颜色相似
@@ -297,7 +297,7 @@ vec3 BeautyAdjust(vec3 color, float brightness, float contrast) {
 - 输入颜色 → 查表 → 输出颜色
 - 换一张表 = 换一种风格
 
-<img src="docs/images/lut-color-grading.svg" width="80%"/>
+<img src="diagrams/lut-color-grading.svg" width="80%"/>
 
 **3D LUT 原理**：
 ```

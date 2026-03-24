@@ -1,29 +1,43 @@
 # 图表绘制规范
 
-本书使用 **SVG 外链方案**，平衡美观度和加载速度。
+本书使用 **SVG + Mermaid** 方案，平衡美观度和可维护性。
 
 ---
 
 ## 图表存放
 
+每章独立存放：
+
 ```
-docs/
-├── images/          # SVG 图片（用于引用）
-│   ├── roadmap.svg
-│   ├── pipeline-arch.svg
+chapter-XX/
+├── README.md
+├── diagrams/          # SVG 图片 + Mermaid 定义
+│   ├── arch.svg
+│   ├── flow.svg
 │   └── ...
-└── diagrams/        # Draw.io 源文件（可编辑）
-    └── *.drawio
+└── src/
 ```
 
 ---
 
 ## 使用方式
 
-Markdown 中引用 SVG：
+### SVG 引用
 
 ```markdown
-<img src="docs/images/xxx.svg" width="100%"/>
+<img src="./diagrams/xxx.svg" width="100%"/>
+```
+
+### Mermaid 图表
+
+直接在 Markdown 中嵌入：
+
+```markdown
+```mermaid
+graph TD
+    A[输入] --> B[处理]
+    B --> C[输出]
+```
 ```
 
 ---
@@ -39,17 +53,20 @@ Markdown 中引用 SVG：
 
 ---
 
-## 每章图表数量
+## 图表类型选择
 
-- **README**：1 个（五阶段演进图）
-- **每章**：最多 2 个核心图
-- **其他**：Markdown 表格
+| 场景 | 推荐格式 |
+|:---|:---|
+| 架构图 | Mermaid graph |
+| 流程图 | Mermaid flowchart |
+| 时序图 | Mermaid sequence |
+| 复杂示意图 | SVG |
+| 状态机 | Mermaid stateDiagram |
 
 ---
 
 ## 绘制工具
 
-1. 用 Draw.io 绘制
-2. 导出为 SVG
-3. 存放到 `docs/images/`
-4. 保留 `.drawio` 源文件到 `docs/diagrams/`
+1. **Mermaid**: 直接在 Markdown 中编写
+2. **Draw.io**: 复杂图形，导出 SVG
+3. **保存位置**: `chapter-XX/diagrams/`
