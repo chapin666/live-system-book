@@ -1,1157 +1,591 @@
-# 第二十章：WebRTC Native 开发
+# 第十九章：WebRTC 标准详解
 
-> **本章目标**：掌握 WebRTC Native 开发，使用 C++ 实现完整的实时通信客户端。
+> **本章目标**：深入理解 WebRTC 协议栈，掌握实时通信的工业标准。
 
-在上一章（第十九章）中，我们深入理解了 WebRTC 的协议栈，包括 SDP、DTLS、SRTP 和 DataChannel。理论知识为实践奠定了基础，但真正的工程师需要在代码中落地这些概念。
+上一章（第十八章）我们深入学习了 **NAT 穿透** 和 **P2P 连接建立**，掌握了 STUN/TURN/ICE 协议栈。虽然使用这些协议可以实现 P2P 连接，但工业级的实时通信还需要解决更多问题：
+- **加密传输**：如何防止窃听？
+- **媒体协商**：如何确定双方支持的编解码格式？
+- **网络适应**：如何应对丢包和带宽变化？
+- **数据通道**：除了音视频，如何传输其他数据？
 
-本章将带领你进入 **WebRTC Native 开发** 的世界。与浏览器中简单的 JavaScript API 不同，Native 开发让你能够：
-- **深度定制**：修改编解码器参数、优化传输策略
-- **跨平台部署**：从嵌入式设备到服务器端应用
-- **性能优化**：充分利用硬件加速和系统资源
-- **集成现有系统**：与 C/C++ 遗留代码无缝对接
+**WebRTC（Web Real-Time Communication）** 是一个开源项目，也是一个 W3C 标准，提供了完整的实时通信解决方案。
+
+**本章学习路线**：
+1. 理解 WebRTC 的架构和核心组件
+2. 深入协议栈：从 ICE 到 SRTP 的四层架构
+3. 掌握 SDP 会话描述和 Offer/Answer 协商
+4. 理解 DTLS 加密握手和 SRTP 安全传输
+5. 学习 DataChannel 数据通道
 
 **学习本章后，你将能够**：
-- 获取和编译 WebRTC 源码
-- 使用 PeerConnection API 建立连接
-- 管理音视频轨道和设备
-- 实现 WebSocket 信令交互
-- 构建完整的 1v1 连麦客户端
+- 理解 WebRTC 的协议栈架构
+- 解析和生成 SDP 描述
+- 理解 DTLS/SRTP 的加密流程
+- 使用 DataChannel 传输任意数据
 
 ---
 
 ## 目录
 
-1. [WebRTC Native 简介](#1-webrtc-native-简介)
-2. [编译 WebRTC](#2-编译-webrtc)
-3. [PeerConnection API](#3-peerconnection-api)
-4. [音视频轨道管理](#4-音视频轨道管理)
-5. [信令集成](#5-信令集成)
-6. [完整连麦客户端实现](#6-完整连麦客户端实现)
+1. [WebRTC 是什么？](#1-webrtc-是什么)
+2. [WebRTC 协议栈](#2-webrtc-协议栈)
+3. [SDP 会话描述](#3-sdp-会话描述)
+4. [DTLS 加密握手](#4-dtls-加密握手)
+5. [SRTP 安全传输](#5-srtp-安全传输)
+6. [DataChannel](#6-datachannel)
 7. [本章总结](#7-本章总结)
 
 ---
 
-## 1. WebRTC Native 简介
+## 1. WebRTC 是什么？
 
-### 1.1 Native 与浏览器版的区别
+### 1.1 WebRTC 的历史与背景
 
-WebRTC 最初是为浏览器设计的，但其核心库是用 C++ 编写的。Google 将这部分代码开源为 **WebRTC Native API**，让开发者能够在浏览器之外使用 WebRTC。
+**WebRTC 由 Google 于 2011 年开源**，目的是让浏览器无需插件就能进行实时音视频通信。
 
-| 特性 | 浏览器版 (JavaScript) | Native 版 (C++) |
+**核心诉求**：
+- **标准化**：统一的 API，跨浏览器兼容
+- **安全性**：端到端加密
+- **低延迟**：适合实时通话
+- **P2P 优先**：直接通信，降低服务器成本
+
+**WebRTC 不是单一协议**，而是一套技术栈，包括：
+- 音视频采集和处理
+- 编解码（VP8/VP9/H.264/Opus）
+- 网络传输（ICE/DTLS/SRTP）
+- 数据通道（SCTP）
+
+### 1.2 WebRTC 三大引擎
+
+![WebRTC 架构](./diagrams/webrtc-arch.svg)
+
+**VoiceEngine（音频引擎）**：
+- 音频采集和播放
+- 3A 处理（AEC/ANS/AGC）
+- Opus 编解码
+- JitterBuffer 和 NetEQ
+
+**VideoEngine（视频引擎）**：
+- 视频采集和渲染
+- VP8/VP9/H.264 编解码
+- 拥塞控制（GCC）
+- 图像处理（降噪、美颜等）
+
+**Transport（传输层）**：
+- ICE 连接管理
+- DTLS 加密
+- SRTP 安全传输
+- SCTP 数据通道
+
+### 1.3 WebRTC vs 自研方案
+
+| 特性 | 自研 P2P | WebRTC |
 |:---|:---|:---|
-| **API 复杂度** | 简单，高度封装 | 复杂，需要手动管理 |
-| **灵活性** | 受限（浏览器决定） | 高（完全可控） |
-| **性能** | 受浏览器沙箱限制 | 可直接优化系统资源 |
-| **部署环境** | 仅限浏览器 | 任何支持 C++ 的平台 |
-| **调试能力** | 受限 | 完整调试和性能分析 |
-| **包大小** | 浏览器自带 | 需静态链接（~20MB） |
+| 开发成本 | 高（需处理所有细节） | 低（标准库封装） |
+| 跨平台 | 需自行适配 | 浏览器原生支持 |
+| 安全性 | 需自行实现加密 | 内置 DTLS/SRTP |
+| 编解码 | 需自行集成 | 内置多种编解码器 |
+| 网络适应 | 需自行实现 | 内置 GCC 拥塞控制 |
+| 生态支持 | 有限 | 丰富的开源项目 |
 
-### 1.2 适用场景
+**结论**：除非有特殊需求，否则生产环境优先选择 WebRTC。
 
-**优先选择 Native WebRTC 的场景**：
+---
 
-1. **嵌入式设备**：IP 摄像头、可视门铃、智能眼镜
-2. **服务器端**：SFU 转发服务器、录制服务、AI 处理节点
-3. **桌面应用**：游戏语音、远程桌面、视频会议客户端
-4. **性能敏感**：需要极致优化的实时通信场景
+## 2. WebRTC 协议栈
 
-**优先选择浏览器版的场景**：
+### 2.1 四层协议架构
 
-1. **快速原型**：无需编译，即写即测
-2. **Web 应用**：无需用户安装，即点即用
-3. **跨平台**：一次开发，多浏览器运行
+![WebRTC 协议栈](./diagrams/webrtc-protocol-stack.svg)
 
-### 1.3 Native 架构概览
-
-![WebRTC Native 架构](./diagrams/webrtc-native-arch.svg)
-
-**WebRTC Native 的核心组件**：
+WebRTC 的传输层采用四层协议栈：
 
 ```
+┌─────────────────────────────────────────┐
+│  应用层 (Application)                    │
+│  - 音视频数据 (RTP)                      │
+│  - 数据通道 (SCTP)                       │
+├─────────────────────────────────────────┤
+│  SRTP (Secure RTP)                      │
+│  - RTP 加密传输                          │
+│  - 认证和完整性保护                       │
+├─────────────────────────────────────────┤
+│  DTLS (Datagram TLS)                    │
+│  - 密钥交换                              │
+│  - 证书验证                              │
+├─────────────────────────────────────────┤
+│  ICE/STUN/TURN                          │
+│  - 连接建立                              │
+│  - NAT 穿透                              │
+│  - 中继 fallback                        │
+├─────────────────────────────────────────┤
+│  UDP                                    │
+│  - 底层传输                              │
+└─────────────────────────────────────────┘
+```
+
+### 2.2 每层的作用
+
+**第 1 层：ICE/STUN/TURN**
+- 解决连接建立问题
+- NAT 穿透
+- 已在第 17 章详细讲解
+
+**第 2 层：DTLS**
+- 解决密钥交换问题
+- 协商 SRTP 加密密钥
+- 证书验证，防止中间人攻击
+
+**第 3 层：SRTP**
+- 解决媒体加密问题
+- RTP 包加密
+- 认证标签防止篡改
+
+**第 4 层：应用层**
+- RTP：音视频数据传输
+- SCTP：数据通道传输
+
+### 2.3 为什么是这种分层？
+
+**分层的好处**：
+1. **职责分离**：每层只解决一个问题
+2. **可替换**：可以替换某一层而不影响其他层
+3. **标准化**：每层都有标准 RFC 文档
+
+**与其他协议的对比**：
+
+| 协议 | 分层 | 特点 |
+|:---|:---|:---|
+| HTTPS | TLS → HTTP | 可靠流传输 |
+| WebRTC | ICE → DTLS → SRTP → RTP | 不可靠数据报 |
+| RTMP | TCP → RTMP | 简单但延迟高 |
+
+---
+
+## 3. SDP 会话描述
+
+### 3.1 什么是 SDP？
+
+**SDP（Session Description Protocol，会话描述协议）** 是一种文本格式，用于描述多媒体会话的参数。
+
+**为什么需要 SDP？**
+在建立连接之前，双方需要交换以下信息：
+- 支持的编解码格式（H.264? VP8? Opus?）
+- 传输地址（IP:Port）
+- ICE 候选
+- DTLS 指纹
+- SSRC（同步源标识）
+
+### 3.2 SDP 格式
+
+SDP 是纯文本格式，由多行组成，每行格式为：
+```
+<type>=<value>
+```
+
+**常见字段**：
+
+| 字段 | 含义 | 示例 |
+|:---|:---|:---|
+| v= | 协议版本 | `v=0` |
+| o= | 会话所有者 | `o=- 123456 2 IN IP4 127.0.0.1` |
+| s= | 会话名称 | `s=-` |
+| t= | 时间 | `t=0 0`（永久） |
+| m= | 媒体描述 | `m=audio 9 UDP/TLS/RTP/SAVPF 111` |
+| c= | 连接信息 | `c=IN IP4 0.0.0.0` |
+| a= | 属性 | `a=rtpmap:111 opus/48000/2` |
+
+### 3.3 WebRTC SDP 示例
+
+```sdp
+v=0
+o=- 1234567890 2 IN IP4 127.0.0.1
+s=-
+t=0 0
+
+// DTLS 指纹（用于证书验证）
+a=fingerprint:sha-256 4A:79:94:...:B6:71
+a=setup:actpass
+
+// ICE 候选（简化示例）
+a=candidate:1 1 UDP 2130706431 192.168.1.2 5000 typ host
+a=candidate:2 1 UDP 1694498815 1.2.3.4 60001 typ srflx
+
+// 音频媒体
+m=audio 9 UDP/TLS/RTP/SAVPF 111 103 104
+a=mid:audio
+a=sendrecv
+a=rtpmap:111 opus/48000/2
+a=rtpmap:103 ISAC/16000
+a=ssrc:12345678 cname:user@host
+
+// 视频媒体
+m=video 9 UDP/TLS/RTP/SAVPF 96 97
+a=mid:video
+a=sendrecv
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 H264/90000
+a=ssrc:87654321 cname:user@host
+```
+
+### 3.4 Offer/Answer 模型
+
+![SDP Offer/Answer 交换](./diagrams/sdp-offer-answer.svg)
+
+**协商流程**：
+
+```
+主播端 (Offerer)              观众端 (Answerer)
+     │                              │
+     │ 1. CreateOffer()             │
+     │    生成 SDP Offer            │
+     │                              │
+     │──SDP Offer──────────────────→│
+     │    包含: 支持的所有编解码      │
+     │         所有 ICE 候选         │
+     │         DTLS 指纹            │
+     │                              │
+     │                              │ 2. CreateAnswer()
+     │                              │    选择合适的配置
+     │                              │    生成 SDP Answer
+     │                              │
+     │←─SDP Answer──────────────────│
+     │    包含: 选定的编解码          │
+     │         对方的 ICE 候选       │
+     │         对方的 DTLS 指纹      │
+     │                              │
+     │ 3. SetLocal/RemoteDescription│
+     │    双方配置生效              │
+```
+
+**关键点**：
+- **Offer**：发起方提供的 "我能支持什么"
+- **Answer**：接收方选择的 "我们用什么"
+- **协商是双向的**：双方都要设置本地和远端的 SDP
+
+### 3.5 SDP 的演进：Trickle ICE
+
+**问题**：ICE 候选收集可能需要几秒时间，阻塞 SDP 交换。
+
+**Trickle ICE 解决方案**：
+- 先交换不含候选的 SDP
+- 候选收集完成后，**单独发送**（ICE Candidate Trickling）
+
+```
+主播端                          观众端
+  │                              │
+  │ SDP Offer (无候选)           │
+  │─────────────────────────────→│
+  │                              │
+  │ Candidate: host 192.168.1.2  │
+  │─────────────────────────────→│
+  │ Candidate: srflx 1.2.3.4     │
+  │─────────────────────────────→│
+  │ Candidate: relay 5.6.7.8     │
+  │─────────────────────────────→│
+```
+
+**好处**：连接建立更快，用户体验更好。
+
+---
+
+## 4. DTLS 加密握手
+
+### 4.1 为什么需要 DTLS？
+
+**SRTP 需要加密密钥**，但密钥如何安全地交换？
+
+**DTLS（Datagram Transport Layer Security）** 是 TLS 的 UDP 版本，用于：
+1. **密钥交换**：协商 SRTP 加密密钥
+2. **证书验证**：确认对方身份，防止中间人攻击
+3. **加密传输**：握手完成前，所有数据都加密
+
+### 4.2 DTLS 握手流程
+
+![DTLS 握手流程](./diagrams/dtls-handshake.svg)
+
+**简化流程**：
+
+```
+主播端                              观众端
+  │                                  │
+  │ 1. ClientHello                   │
+  │    - 支持的加密套件               │
+  │    - 随机数                       │
+  │─────────────────────────────────→│
+  │                                  │
+  │                                  │ 2. ServerHello
+  │                                  │    - 选择的加密套件
+  │                                  │    - 随机数
+  │                                  │ 3. Certificate
+  │                                  │    - 服务器证书
+  │                                  │ 4. ServerHelloDone
+  │←─────────────────────────────────│
+  │                                  │
+  │ 5. ClientKeyExchange             │
+  │    - 预主密钥 (用服务器公钥加密)   │
+  │ 6. ChangeCipherSpec              │
+  │ 7. Finished                      │
+  │─────────────────────────────────→│
+  │                                  │
+  │                                  │ 8. ChangeCipherSpec
+  │                                  │ 9. Finished
+  │←─────────────────────────────────│
+  │                                  │
+  │ [加密通道建立]                    │ [加密通道建立]
+  │ 导出 SRTP 密钥                    │ 导出 SRTP 密钥
+```
+
+### 4.3 DTLS 与 TLS 的区别
+
+| 特性 | TLS (HTTPS) | DTLS (WebRTC) |
+|:---|:---|:---|
+| 传输层 | TCP | UDP |
+| 可靠性 | 内置重传 | 应用层处理重传 |
+| 队头阻塞 | 有 | 无 |
+| 适用场景 | 网页、API | 实时音视频 |
+
+**为什么 WebRTC 用 DTLS 而不是 TLS？**
+- UDP 无连接，延迟更低
+- 无队头阻塞，丢包不影响其他数据
+- 适合实时性要求高的场景
+
+### 4.4 证书与指纹验证
+
+**如何防止中间人攻击？**
+
+WebRTC 使用 **自签名证书** + **指纹验证**：
+
+```
+1. 每个端生成自签名证书
+2. 计算证书指纹 (SHA-256)
+3. 将指纹放入 SDP: a=fingerprint:sha-256 ...
+4. 通过信令服务器交换 SDP
+5. DTLS 握手时验证对方证书指纹
+```
+
+**好处**：
+- 不需要 CA 证书
+- 信令服务器的安全性保证 WebRTC 的安全性
+- 即使媒体路径被劫持，也无法解密
+
+---
+
+## 5. SRTP 安全传输
+
+### 5.1 什么是 SRTP？
+
+**SRTP（Secure Real-time Transport Protocol）** 是 RTP 的安全版本，提供：
+- **加密**：防止窃听
+- **认证**：防止篡改
+- **重放保护**：防止重放攻击
+
+### 5.2 SRTP 包结构
+
+![SRTP 包结构](./diagrams/srtp-packet.svg)
+
+```
+RTP Header (12 bytes+)
 ┌─────────────────────────────────────────────────────────────┐
-│                    应用层 (你的代码)                         │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │ PeerConnection│  │   AudioTrack │  │   VideoTrack │       │
-│  │   Observer   │  │   Source     │  │   Source     │       │
-│  └──────────────┘  └──────────────┘  └──────────────┘       │
+│ V |P|X|  CC   |M|     PT      │       Sequence Number      │
 ├─────────────────────────────────────────────────────────────┤
-│                  WebRTC API 层 (libwebrtc)                  │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │  PeerConnection│  │  Audio Engine │  │ Video Engine │       │
-│  │  Factory     │  │              │  │              │       │
-│  └──────────────┘  └──────────────┘  └──────────────┘       │
+│                         Timestamp                           │
 ├─────────────────────────────────────────────────────────────┤
-│                  WebRTC 内部模块                             │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐   │
-│  │   ICE    │ │  DTLS    │ │  SRTP    │ │   Network    │   │
-│  │  Agent   │ │  Client  │ │  Session │ │   Thread     │   │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘   │
+│                         SSRC                                │
 ├─────────────────────────────────────────────────────────────┤
-│                    系统层                                    │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐   │
-│  │  Socket  │ │  ALSA/   │ │  Camera  │ │   GPU        │   │
-│  │  API     │ │  CoreAudio│ │  Capture │ │   Encoder    │   │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘   │
+│                     CSRC (可选)                              │
+└─────────────────────────────────────────────────────────────┘
+
+Encrypted Payload
+┌─────────────────────────────────────────────────────────────┐
+│                    加密后的音视频数据                        │
+└─────────────────────────────────────────────────────────────┘
+
+Authentication Tag (10 bytes)
+┌─────────────────────────────────────────────────────────────┐
+│                    认证标签 (HMAC)                           │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 1.4 开发环境准备
+**加密范围**：
+- **加密**：Payload（音视频数据）
+- **不加密**：RTP Header（需要路由信息）
+- **附加**：认证标签（验证数据完整性）
 
-**系统要求**：
-- Linux: Ubuntu 18.04+ / Debian 9+ / CentOS 7+
-- macOS: 10.14+ (Mojave)
-- Windows: Windows 10 + Visual Studio 2019+
+### 5.3 密钥派生
 
-**依赖工具**：
-- Python 3.8+（depot_tools 要求）
-- Git
-- CMake 3.16+（构建示例项目）
+SRTP 密钥从 DTLS 握手导出：
+
+```
+DTLS 握手完成
+    │
+    ▼
+导出密钥材料 (Exporter)
+    │
+    ├──> SRTP 加密密钥
+    ├──> SRTP 认证密钥
+    └──> SRTP Salt
+```
+
+**不同流的独立密钥**：
+- 音频发送密钥
+- 音频接收密钥
+- 视频发送密钥
+- 视频接收密钥
+
+### 5.4 ROC（Roll-Over Counter）
+
+**问题**：RTP 序列号只有 16 位（0-65535），会回绕。
+
+**解决方案**：ROC 记录序列号回绕次数。
+
+```
+实际包序号 = ROC × 65536 + Sequence Number
+
+示例：
+- 第 1 个包: ROC=0, Seq=0 → 实际序号 0
+- 第 65536 个包: ROC=0, Seq=65535 → 实际序号 65535
+- 第 65537 个包: ROC=1, Seq=0 → 实际序号 65536
+```
+
+ROC 用于 SRTP 的加密 IV（初始化向量）计算，确保即使序列号回绕，加密依然安全。
 
 ---
 
-## 2. 编译 WebRTC
+## 6. DataChannel
 
-### 2.1 获取源码
+### 6.1 什么是 DataChannel？
 
-WebRTC 使用 Chromium 的 `depot_tools` 进行代码管理：
+**DataChannel** 允许在 WebRTC 连接上传输**任意数据**，不仅仅是音视频。
 
-```bash
-# 1. 安装 depot_tools
-git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-export PATH="$PWD/depot_tools:$PATH"
+**应用场景**：
+- 文字消息
+- 文件传输
+- 游戏状态同步
+- 远程控制指令
 
-# 2. 创建工作目录
-mkdir webrtc-checkout
-cd webrtc-checkout
+### 6.2 DataChannel 协议栈
 
-# 3. 获取代码（约 10GB，需要稳定网络）
-fetch --nohooks webrtc
-cd src
+DataChannel 基于 **SCTP（Stream Control Transmission Protocol）** over DTLS：
 
-# 4. 同步依赖
-gclient sync
+```
+应用层数据
+    │
+    ▼
+SCTP (数据分片、流控制、拥塞控制)
+    │
+    ▼
+DTLS (加密)
+    │
+    ▼
+UDP
 ```
 
-**国内镜像加速**：
-由于网络原因，国内开发者可以使用镜像：
-```bash
-# 使用清华大学镜像
-export DEPOT_TOOLS_UPDATE=0
-export GYP_GENERATORS=ninja
+**为什么选择 SCTP 而不是直接使用 DTLS？**
+- **多流**：一个连接可以有多个独立的数据通道
+- **可靠性可选**：可靠传输或不可靠传输
+- **有序性可选**：有序或无序传输
+- **拥塞控制**：内置流量控制
+
+### 6.3 DataChannel API
+
+```cpp
+// 创建 DataChannel
+auto data_channel = peer_connection->CreateDataChannel(
+    "chat",  // 标签
+    {
+        .ordered = true,           // 有序传输
+        .maxRetransmits = nullptr, // 可靠传输
+        .protocol = ""             // 子协议
+    }
+);
+
+// 发送消息
+data_channel->Send(DataBuffer("Hello, WebRTC!"));
+
+// 接收回调
+data_channel->RegisterObserver({
+    .OnMessage = [](const DataBuffer& buffer) {
+        std::string msg(buffer.data.data(), buffer.data.size());
+        std::cout << "Received: " << msg << std::endl;
+    }
+});
 ```
 
-### 2.2 GN 构建系统
+### 6.4 传输模式对比
 
-WebRTC 使用 **GN**（Generate Ninja）作为元构建系统，生成 **Ninja** 构建文件。
+| 模式 | 可靠性 | 有序性 | 适用场景 |
+|:---|:---:|:---:|:---|
+| 可靠有序 | ✓ | ✓ | 文字消息、文件传输 |
+| 可靠无序 | ✓ | ✗ | 多文件并行传输 |
+| 不可靠有序 | ✗ | ✓ | 实时位置更新 |
+| 不可靠无序 | ✗ | ✗ | 游戏状态同步 |
 
-**GN 基础概念**：
-- `.gn` 文件：定义构建根和默认参数
-- `BUILD.gn` 文件：定义构建目标
-- `args.gn` 文件：存储构建参数
+### 6.5 DataChannel vs WebSocket
 
-**常用构建参数**：
-
-| 参数 | 说明 | 常用值 |
+| 特性 | DataChannel | WebSocket |
 |:---|:---|:---|
-| `target_os` | 目标操作系统 | `"linux"`, `"mac"`, `"win"` |
-| `target_cpu` | 目标架构 | `"x64"`, `"arm64"`, `"arm"` |
-| `is_debug` | 调试构建 | `true` / `false` |
-| `is_component_build` | 动态库构建 | `true` / `false` |
-| `rtc_use_h264` | 启用 H.264 | `true` / `false` |
-| `rtc_include_tests` | 包含测试 | `true` / `false` |
-
-### 2.3 编译步骤
-
-```bash
-# 1. 生成构建配置
-gn gen out/Default --args='
-    target_os="linux"
-    target_cpu="x64"
-    is_debug=false
-    is_component_build=false
-    rtc_use_h264=true
-    rtc_include_tests=false
-'
-
-# 2. 开始编译（约需 30-60 分钟）
-ninja -C out/Default
-
-# 3. 验证编译结果
-ls out/Default/libwebrtc.a  # 静态库
-ls out/Default/peerconnection_client  # 示例程序
-```
-
-### 2.4 提取所需模块
-
-完整的 WebRTC 库很大（~20MB），实际项目中可能只需要部分功能。
-
-**最小化提取**：
-```bash
-# 创建提取脚本
-mkdir -p webrtc-minimal/include
-mkdir -p webrtc-minimal/lib
-
-# 复制头文件（关键模块）
-rsync -av --include='*/' --include='*.h' --exclude='*' \
-    api/ webrtc-minimal/include/api/
-rsync -av --include='*/' --include='*.h' --exclude='*' \
-    pc/ webrtc-minimal/include/pc/
-rsync -av --include='*/' --include='*.h' --exclude='*' \
-    media/ webrtc-minimal/include/media/
-
-# 复制库文件
-cp out/Default/libwebrtc.a webrtc-minimal/lib/
-```
-
----
-
-## 3. PeerConnection API
-
-### 3.1 核心概念
-
-**PeerConnection** 是 WebRTC Native 的核心类，代表与对端的连接。
-
-**主要组件**：
-- **PeerConnectionFactory**：创建 PeerConnection 的工厂
-- **PeerConnectionInterface**：连接接口
-- **Observer**：异步事件回调
-
-### 3.2 PeerConnection 状态机
-
-![PeerConnection 状态机](./diagrams/peerconnection-states.svg)
-
-```cpp
-namespace live {
-
-// 信令状态
-enum class SignalingState {
-    STABLE,              // 稳定状态
-    HAVE_LOCAL_OFFER,    // 已创建本地 Offer
-    HAVE_REMOTE_OFFER,   // 收到远端 Offer
-    HAVE_LOCAL_ANSWER,   // 已创建本地 Answer
-    HAVE_REMOTE_ANSWER   // 收到远端 Answer
-};
-
-// ICE 连接状态
-enum class IceConnectionState {
-    NEW,           // 初始状态
-    CHECKING,      // 检测连通性
-    CONNECTED,     // 已连接
-    COMPLETED,     // ICE 完成
-    FAILED,        // 连接失败
-    DISCONNECTED,  // 连接断开
-    CLOSED         // 连接关闭
-};
-
-// 连接状态
-enum class PeerConnectionState {
-    NEW,
-    CONNECTING,
-    CONNECTED,
-    DISCONNECTED,
-    FAILED,
-    CLOSED
-};
-
-} // namespace live
-```
-
-### 3.3 初始化与创建
-
-```cpp
-namespace live {
-
-// PeerConnection 观察者接口
-class PeerConnectionObserver {
-public:
-    virtual ~PeerConnectionObserver() = default;
-    
-    // ICE 候选收集完成回调
-    virtual void OnIceCandidate(const std::string& sdp_mid,
-                                int sdp_mline_index,
-                                const std::string& candidate) = 0;
-    
-    // 连接状态变化回调
-    virtual void OnIceConnectionStateChange(IceConnectionState state) = 0;
-    
-    // 数据通道创建回调
-    virtual void OnDataChannel(std::shared_ptr<DataChannel> channel) = 0;
-    
-    // 远端轨道添加回调
-    virtual void OnTrack(std::shared_ptr<RtpTransceiver> transceiver) = 0;
-    
-    // 重协商需要回调
-    virtual void OnRenegotiationNeeded() = 0;
-};
-
-// PeerConnection 封装类
-class PeerConnectionClient {
-public:
-    PeerConnectionClient();
-    ~PeerConnectionClient();
-    
-    // 初始化（必须在任何其他操作之前调用）
-    bool Initialize();
-    
-    // 创建 PeerConnection
-    bool CreatePeerConnection(const IceServers& ice_servers,
-                              PeerConnectionObserver* observer);
-    
-    // 创建 Offer
-    void CreateOffer(std::function<void(const std::string& sdp,
-                                        const std::string& type)> callback);
-    
-    // 创建 Answer
-    void CreateAnswer(std::function<void(const std::string& sdp,
-                                         const std::string& type)> callback);
-    
-    // 设置本地描述
-    void SetLocalDescription(const std::string& sdp,
-                             const std::string& type,
-                             std::function<void(bool)> callback);
-    
-    // 设置远端描述
-    void SetRemoteDescription(const std::string& sdp,
-                              const std::string& type,
-                              std::function<void(bool)> callback);
-    
-    // 添加 ICE 候选
-    void AddIceCandidate(const std::string& sdp_mid,
-                         int sdp_mline_index,
-                         const std::string& candidate);
-    
-    // 添加媒体轨道
-    void AddTrack(std::shared_ptr<MediaStreamTrack> track,
-                  const std::vector<std::string>& stream_ids);
-    
-    // 关闭连接
-    void Close();
-    
-private:
-    class Impl;
-    std::unique_ptr<Impl> impl_;
-};
-
-} // namespace live
-```
-
-### 3.4 ICE 服务器配置
-
-```cpp
-namespace live {
-
-// ICE 服务器配置
-struct IceServer {
-    std::string uri;              // STUN/TURN 服务器地址
-    std::string username;         // TURN 用户名
-    std::string password;         // TURN 密码
-};
-
-using IceServers = std::vector<IceServer>;
-
-// 创建默认 ICE 配置
-inline IceServers CreateDefaultIceServers() {
-    return {
-        // Google 公共 STUN 服务器
-        {"stun:stun.l.google.com:19302", "", ""},
-        {"stun:stun1.l.google.com:19302", "", ""},
-        
-        // 自定义 TURN 服务器（生产环境必须部署）
-        // {"turn:your-turn-server.com:3478", "user", "pass"}
-    };
-}
-
-} // namespace live
-```
-
-### 3.5 CreateOffer/Answer 流程
-
-```cpp
-namespace live {
-
-// SDP 描述封装
-struct SessionDescription {
-    std::string type;    // "offer" 或 "answer"
-    std::string sdp;     // SDP 文本
-    
-    bool IsValid() const {
-        return !type.empty() && !sdp.empty();
-    }
-};
-
-// Offer/Answer 协商流程
-class SdpNegotiator {
-public:
-    // 创建 Offer（发起方调用）
-    void CreateOffer(PeerConnectionClient* pc,
-                     std::function<void(const SessionDescription&)> callback) {
-        pc->CreateOffer([callback](const std::string& sdp,
-                                   const std::string& type) {
-            callback(SessionDescription{type, sdp});
-        });
-    }
-    
-    // 创建 Answer（接收方调用）
-    void CreateAnswer(PeerConnectionClient* pc,
-                      const SessionDescription& remote_offer,
-                      std::function<void(const SessionDescription&)> callback) {
-        // 1. 先设置远端 Offer
-        pc->SetRemoteDescription(remote_offer.sdp, remote_offer.type,
-            [pc, callback](bool success) {
-                if (!success) {
-                    callback(SessionDescription{});
-                    return;
-                }
-                // 2. 创建 Answer
-                pc->CreateAnswer([callback](const std::string& sdp,
-                                            const std::string& type) {
-                    callback(SessionDescription{type, sdp});
-                });
-            });
-    }
-    
-    // 完成协商（双方都调用）
-    void CompleteNegotiation(PeerConnectionClient* pc,
-                             const SessionDescription& remote_desc,
-                             std::function<void(bool)> callback) {
-        pc->SetRemoteDescription(remote_desc.sdp, remote_desc.type, callback);
-    }
-};
-
-} // namespace live
-```
-
----
-
-## 4. 音视频轨道管理
-
-### 4.1 MediaStream 与 Track
-
-**核心概念**：
-- **MediaStream**：媒体流的容器，包含多个 Track
-- **AudioTrack**：音频轨道
-- **VideoTrack**：视频轨道
-- **TrackSource**：轨道数据源（采集设备或自定义数据）
-
-### 4.2 音频轨道管理
-
-```cpp
-namespace live {
-
-// 音频设备管理
-class AudioDeviceManager {
-public:
-    // 获取可用设备列表
-    std::vector<AudioDevice> GetRecordingDevices();
-    std::vector<AudioDevice> GetPlayoutDevices();
-    
-    // 选择设备
-    bool SetRecordingDevice(int index);
-    bool SetPlayoutDevice(int index);
-    
-    // 创建音频轨道
-    std::shared_ptr<AudioTrack> CreateAudioTrack(
-        const std::string& track_id,
-        std::shared_ptr<PeerConnectionFactory> factory);
-};
-
-// 音频轨道配置
-struct AudioTrackConfig {
-    int sample_rate_hz = 48000;      // 采样率
-    int channels = 2;                 // 声道数
-    bool echo_cancellation = true;    // 回声消除
-    bool noise_suppression = true;    // 噪声抑制
-    bool auto_gain_control = true;    // 自动增益
-};
-
-// 音频轨道封装
-class AudioTrackWrapper {
-public:
-    AudioTrackWrapper(const std::string& track_id,
-                      std::shared_ptr<PeerConnectionFactory> factory);
-    
-    // 初始化
-    bool Initialize(const AudioTrackConfig& config);
-    
-    // 获取底层轨道
-    std::shared_ptr<AudioTrack> GetTrack() const { return track_; }
-    
-    // 静音控制
-    void SetMuted(bool muted);
-    bool IsMuted() const;
-    
-    // 音量控制 (0.0 - 1.0)
-    void SetVolume(double volume);
-    double GetVolume() const;
-    
-private:
-    std::string track_id_;
-    std::shared_ptr<AudioTrack> track_;
-    std::shared_ptr<AudioSource> source_;
-};
-
-} // namespace live
-```
-
-### 4.3 视频轨道管理
-
-```cpp
-namespace live {
-
-// 视频捕获设备
-struct VideoCaptureDevice {
-    std::string device_id;
-    std::string friendly_name;
-    std::vector<VideoFormat> supported_formats;
-};
-
-// 视频格式
-struct VideoFormat {
-    int width;
-    int height;
-    int fps;
-    VideoCodecType codec;  // I420, NV12, etc.
-};
-
-// 视频轨道配置
-struct VideoTrackConfig {
-    int width = 1280;
-    int height = 720;
-    int fps = 30;
-    VideoCodecType capture_format = VideoCodecType::kI420;
-};
-
-// 视频轨道封装
-class VideoTrackWrapper {
-public:
-    VideoTrackWrapper(const std::string& track_id,
-                      std::shared_ptr<PeerConnectionFactory> factory);
-    
-    // 初始化摄像头
-    bool InitializeCamera(const std::string& device_id,
-                          const VideoTrackConfig& config);
-    
-    // 初始化屏幕捕获
-    bool InitializeScreenCapture(int screen_index,
-                                 const VideoTrackConfig& config);
-    
-    // 使用自定义视频源
-    bool InitializeCustomSource(std::shared_ptr<VideoSource> source);
-    
-    // 获取底层轨道
-    std::shared_ptr<VideoTrack> GetTrack() const { return track_; }
-    
-    // 启用/禁用
-    void SetEnabled(bool enabled);
-    
-    // 添加渲染器
-    void AddRenderer(std::shared_ptr<VideoRenderer> renderer);
-    void RemoveRenderer(std::shared_ptr<VideoRenderer> renderer);
-    
-private:
-    std::string track_id_;
-    std::shared_ptr<VideoTrack> track_;
-    std::shared_ptr<VideoSource> source_;
-    std::shared_ptr<VideoCapturer> capturer_;
-};
-
-} // namespace live
-```
-
-### 4.4 自定义视频源
-
-```cpp
-namespace live {
-
-// 自定义视频源（用于推送编码后的数据）
-class CustomVideoSource : public VideoSource {
-public:
-    CustomVideoSource(int width, int height, int fps);
-    
-    // 推送帧数据
-    void PushFrame(const uint8_t* data, size_t len,
-                   int64_t timestamp_us);
-    
-    // 推送 I420 格式的帧
-    void PushI420Frame(const uint8_t* y_plane, int y_stride,
-                       const uint8_t* u_plane, int u_stride,
-                       const uint8_t* v_plane, int v_stride,
-                       int width, int height,
-                       int64_t timestamp_us);
-    
-    // 推送 NV12 格式的帧
-    void PushNV12Frame(const uint8_t* y_plane, int y_stride,
-                       const uint8_t* uv_plane, int uv_stride,
-                       int width, int height,
-                       int64_t timestamp_us);
-    
-private:
-    int width_;
-    int height_;
-    int fps_;
-    std::atomic<int64_t> last_timestamp_{0};
-};
-
-} // namespace live
-```
-
-### 4.5 远端轨道接收
-
-```cpp
-namespace live {
-
-// 远端音频轨道处理
-class RemoteAudioTrackHandler {
-public:
-    void OnRemoteAudioTrack(std::shared_ptr<AudioTrack> track) {
-        track_ = track;
-        
-        // 添加音频接收回调
-        track->AddSink(this);
-    }
-    
-    // 音频数据回调
-    void OnData(const void* audio_data,
-                int bits_per_sample,
-                int sample_rate,
-                size_t number_of_channels,
-                size_t number_of_frames) {
-        // 处理接收到的音频数据
-        // 例如：播放、录制、分析
-        ProcessAudio(audio_data, bits_per_sample, sample_rate,
-                     number_of_channels, number_of_frames);
-    }
-    
-private:
-    std::shared_ptr<AudioTrack> track_;
-    
-    void ProcessAudio(const void* data, int bits_per_sample,
-                      int sample_rate, size_t channels, size_t frames);
-};
-
-// 远端视频轨道处理
-class RemoteVideoTrackHandler {
-public:
-    void OnRemoteVideoTrack(std::shared_ptr<VideoTrack> track) {
-        track_ = track;
-        
-        // 添加视频渲染器
-        renderer_ = std::make_shared<CustomVideoRenderer>();
-        track->AddOrUpdateSink(renderer_.get(), rtc::VideoSinkWants());
-    }
-    
-private:
-    std::shared_ptr<VideoTrack> track_;
-    std::shared_ptr<CustomVideoRenderer> renderer_;
-};
-
-} // namespace live
-```
-
----
-
-## 5. 信令集成
-
-### 5.1 信令流程概览
-
-![信令流程](./diagrams/signaling-flow.svg)
-
-**信令的核心作用**：
-1. 交换 SDP（Offer/Answer）
-2. 交换 ICE 候选
-3. 传递控制消息（静音、挂断等）
-
-### 5.2 WebSocket 信令客户端
-
-```cpp
-namespace live {
-
-// WebSocket 信令客户端
-class WebSocketSignalingClient : public PeerConnectionObserver {
-public:
-    WebSocketSignalingClient();
-    ~WebSocketSignalingClient();
-    
-    // 连接到信令服务器
-    bool Connect(const std::string& url);
-    void Disconnect();
-    
-    // 加入房间
-    void JoinRoom(const std::string& room_id, const std::string& user_id);
-    
-    // 离开房间
-    void LeaveRoom();
-    
-    // 发送 SDP
-    void SendSdp(const std::string& type, const std::string& sdp);
-    
-    // 发送 ICE 候选
-    void SendIceCandidate(const std::string& sdp_mid,
-                          int sdp_mline_index,
-                          const std::string& candidate);
-    
-    // 设置事件回调
-    using SdpCallback = std::function<void(const std::string& type,
-                                           const std::string& sdp)>;
-    using IceCallback = std::function<void(const std::string& sdp_mid,
-                                           int sdp_mline_index,
-                                           const std::string& candidate)>;
-    using PeerCallback = std::function<void(const std::string& peer_id,
-                                            bool joined)>;
-    
-    void SetSdpCallback(SdpCallback cb) { sdp_callback_ = cb; }
-    void SetIceCallback(IceCallback cb) { ice_callback_ = cb; }
-    void SetPeerCallback(PeerCallback cb) { peer_callback_ = cb; }
-
-private:
-    // WebSocket 回调
-    void OnWebSocketMessage(const std::string& message);
-    void OnWebSocketConnected();
-    void OnWebSocketDisconnected();
-    
-    // 信令消息处理
-    void HandleSignalingMessage(const json& msg);
-    void HandleSdpMessage(const json& msg);
-    void HandleIceMessage(const json& msg);
-    void HandlePeerEvent(const json& msg);
-    
-    std::unique_ptr<WebSocketClient> ws_client_;
-    std::string room_id_;
-    std::string user_id_;
-    
-    SdpCallback sdp_callback_;
-    IceCallback ice_callback_;
-    PeerCallback peer_callback_;
-};
-
-} // namespace live
-```
-
-### 5.3 信令消息格式
-
-```cpp
-namespace live {
-
-// 信令消息类型
-enum class SignalingMessageType {
-    JOIN,           // 加入房间
-    LEAVE,          // 离开房间
-    OFFER,          // SDP Offer
-    ANSWER,         // SDP Answer
-    ICE_CANDIDATE,  // ICE 候选
-    PEER_JOINED,    // 对端加入
-    PEER_LEFT,      // 对端离开
-    ERROR           // 错误
-};
-
-// 消息结构定义
-/*
-// 加入房间
-{
-    "type": "join",
-    "room_id": "room-123",
-    "user_id": "user-abc"
-}
-
-// SDP 交换
-{
-    "type": "offer",  // 或 "answer"
-    "sdp": "v=0\r\no=- 123...",
-    "from": "user-abc",
-    "to": "user-xyz"
-}
-
-// ICE 候选
-{
-    "type": "ice_candidate",
-    "sdp_mid": "audio",
-    "sdp_mline_index": 0,
-    "candidate": "candidate:1 1 UDP 2122252543 192.168.1.10 5000 typ host",
-    "from": "user-abc",
-    "to": "user-xyz"
-}
-
-// 对端事件
-{
-    "type": "peer_joined",
-    "peer_id": "user-xyz"
-}
-*/
-
-// 消息序列化/反序列化
-class SignalingMessageParser {
-public:
-    static std::string SerializeJoin(const std::string& room_id,
-                                      const std::string& user_id);
-    
-    static std::string SerializeSdp(const std::string& type,
-                                     const std::string& sdp,
-                                     const std::string& to);
-    
-    static std::string SerializeIceCandidate(const std::string& sdp_mid,
-                                              int sdp_mline_index,
-                                              const std::string& candidate,
-                                              const std::string& to);
-    
-    static bool ParseMessage(const std::string& json_str,
-                             SignalingMessageType* type,
-                             json* payload);
-};
-
-} // namespace live
-```
-
-### 5.4 SDP 交换流程实现
-
-```cpp
-namespace live {
-
-// 完整的信令协调器
-class SignalingCoordinator : public PeerConnectionObserver {
-public:
-    SignalingCoordinator(std::shared_ptr<WebSocketSignalingClient> signaling,
-                         std::shared_ptr<PeerConnectionClient> pc)
-        : signaling_(signaling), pc_(pc) {
-        
-        // 注册信令回调
-        signaling_->SetSdpCallback(
-            [this](const std::string& type, const std::string& sdp) {
-                OnRemoteSdp(type, sdp);
-            });
-        
-        signaling_->SetIceCallback(
-            [this](const std::string& sdp_mid, int index,
-                   const std::string& candidate) {
-                pc_->AddIceCandidate(sdp_mid, index, candidate);
-            });
-    }
-    
-    // 发起通话
-    void StartCall() {
-        // 1. 添加本地轨道
-        AddLocalTracks();
-        
-        // 2. 创建 Offer
-        pc_->CreateOffer([this](const std::string& sdp,
-                                const std::string& type) {
-            // 3. 设置本地描述
-            pc_->SetLocalDescription(sdp, type, [this, sdp](bool success) {
-                if (success) {
-                    // 4. 发送 Offer
-                    signaling_->SendSdp("offer", sdp);
-                }
-            });
-        });
-    }
-    
-    // 收到远端 SDP
-    void OnRemoteSdp(const std::string& type, const std::string& sdp) {
-        if (type == "offer") {
-            // 作为 Answer 方
-            HandleRemoteOffer(sdp);
-        } else if (type == "answer") {
-            // 作为 Offer 方，收到 Answer
-            pc_->SetRemoteDescription(sdp, "answer",
-                [](bool success) {
-                    LOG_INFO("Answer set: {}", success);
-                });
-        }
-    }
-    
-    // PeerConnectionObserver 回调
-    void OnIceCandidate(const std::string& sdp_mid,
-                        int sdp_mline_index,
-                        const std::string& candidate) override {
-        // 发送 ICE 候选到对端
-        signaling_->SendIceCandidate(sdp_mid, sdp_mline_index, candidate);
-    }
-    
-    void OnIceConnectionStateChange(IceConnectionState state) override {
-        LOG_INFO("ICE state: {}", static_cast<int>(state));
-        
-        switch (state) {
-            case IceConnectionState::CONNECTED:
-            case IceConnectionState::COMPLETED:
-                LOG_INFO("Connected!");
-                break;
-            case IceConnectionState::FAILED:
-                LOG_ERROR("Connection failed");
-                break;
-            default:
-                break;
-        }
-    }
-    
-private:
-    void AddLocalTracks() {
-        // 添加音频轨道
-        auto audio_track = audio_device_->CreateAudioTrack("audio", factory_);
-        pc_->AddTrack(audio_track, {"stream-1"});
-        
-        // 添加视频轨道
-        auto video_track = video_device_->CreateVideoTrack("video", factory_);
-        pc_->AddTrack(video_track, {"stream-1"});
-    }
-    
-    void HandleRemoteOffer(const std::string& sdp) {
-        // 1. 设置远端 Offer
-        pc_->SetRemoteDescription(sdp, "offer", [this](bool success) {
-            if (!success) {
-                LOG_ERROR("Failed to set remote offer");
-                return;
-            }
-            
-            // 2. 添加本地轨道
-            AddLocalTracks();
-            
-            // 3. 创建 Answer
-            pc_->CreateAnswer([this](const std::string& sdp,
-                                     const std::string& type) {
-                // 4. 设置本地 Answer
-                pc_->SetLocalDescription(sdp, type, [this, sdp](bool success) {
-                    if (success) {
-                        // 5. 发送 Answer
-                        signaling_->SendSdp("answer", sdp);
-                    }
-                });
-            });
-        });
-    }
-    
-    std::shared_ptr<WebSocketSignalingClient> signaling_;
-    std::shared_ptr<PeerConnectionClient> pc_;
-    std::shared_ptr<AudioDeviceManager> audio_device_;
-    std::shared_ptr<VideoDeviceManager> video_device_;
-    std::shared_ptr<PeerConnectionFactory> factory_;
-};
-
-} // namespace live
-```
-
----
-
-## 6. 完整连麦客户端实现
-
-### 6.1 项目结构
-
-```
-webrtc-call-client/
-├── CMakeLists.txt
-├── src/
-│   ├── main.cpp
-│   ├── peer_connection_client.{h,cpp}
-│   ├── websocket_signaling.{h,cpp}
-│   ├── audio_device.{h,cpp}
-│   ├── video_device.{h,cpp}
-│   └── signaling_coordinator.{h,cpp}
-└── include/
-    └── live/
-        └── webrtc/
-```
-
-### 6.2 CMakeLists.txt
-
-```cmake
-cmake_minimum_required(VERSION 3.16)
-project(webrtc_call_client VERSION 1.0.0 LANGUAGES CXX)
-
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# 查找 WebRTC
-find_package(WebRTC REQUIRED)
-
-# 查找其他依赖
-find_package(Threads REQUIRED)
-find_package(OpenSSL REQUIRED)
-
-# 可执行文件
-add_executable(webrtc_call_client
-    src/main.cpp
-    src/peer_connection_client.cpp
-    src/websocket_signaling.cpp
-    src/audio_device.cpp
-    src/video_device.cpp
-    src/signaling_coordinator.cpp
-)
-
-target_include_directories(webrtc_call_client PRIVATE
-    ${CMAKE_SOURCE_DIR}/include
-    ${WEBRTC_INCLUDE_DIRS}
-)
-
-target_link_libraries(webrtc_call_client PRIVATE
-    ${WEBRTC_LIBRARIES}
-    Threads::Threads
-    OpenSSL::SSL
-    OpenSSL::Crypto
-)
-
-# 编译选项
-target_compile_options(webrtc_call_client PRIVATE
-    -Wall
-    -Wextra
-    -O2
-)
-```
-
-### 6.3 主程序
-
-```cpp
-// src/main.cpp
-#include <iostream>
-#include <string>
-#include <memory>
-#include <signal.h>
-
-#include "live/webrtc/peer_connection_client.h"
-#include "live/webrtc/websocket_signaling.h"
-#include "live/webrtc/signaling_coordinator.h"
-
-using namespace live;
-
-static std::atomic<bool> g_running{true};
-
-void SignalHandler(int sig) {
-    g_running = false;
-}
-
-void PrintUsage(const char* program) {
-    std::cout << "Usage: " << program << " [options]\n"
-              << "Options:\n"
-              << "  --server <url>    Signaling server URL (ws://host:port)\n"
-              << "  --room <id>       Room ID to join\n"
-              << "  --user <id>       User ID\n"
-              << "  --help            Show this help\n";
-}
-
-int main(int argc, char* argv[]) {
-    // 解析命令行参数
-    std::string server_url = "ws://localhost:8080";
-    std::string room_id = "test-room";
-    std::string user_id = "user-" + std::to_string(getpid());
-    
-    for (int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
-        if (arg == "--server" && i + 1 < argc) {
-            server_url = argv[++i];
-        } else if (arg == "--room" && i + 1 < argc) {
-            room_id = argv[++i];
-        } else if (arg == "--user" && i + 1 < argc) {
-            user_id = argv[++i];
-        } else if (arg == "--help") {
-            PrintUsage(argv[0]);
-            return 0;
-        }
-    }
-    
-    // 设置信号处理
-    signal(SIGINT, SignalHandler);
-    signal(SIGTERM, SignalHandler);
-    
-    std::cout << "WebRTC Call Client\n"
-              << "Server: " << server_url << "\n"
-              << "Room: " << room_id << "\n"
-              << "User: " << user_id << "\n\n";
-    
-    // 初始化 PeerConnection
-    auto pc_client = std::make_shared<PeerConnectionClient>();
-    if (!pc_client->Initialize()) {
-        std::cerr << "Failed to initialize PeerConnection\n";
-        return 1;
-    }
-    
-    // 配置 ICE 服务器
-    auto ice_servers = CreateDefaultIceServers();
-    if (!pc_client->CreatePeerConnection(ice_servers, nullptr)) {
-        std::cerr << "Failed to create PeerConnection\n";
-        return 1;
-    }
-    
-    // 连接信令服务器
-    auto signaling = std::make_shared<WebSocketSignalingClient>();
-    if (!signaling->Connect(server_url)) {
-        std::cerr << "Failed to connect to signaling server\n";
-        return 1;
-    }
-    
-    // 创建信令协调器
-    auto coordinator = std::make_shared<SignalingCoordinator>(
-        signaling, pc_client);
-    
-    // 加入房间
-    signaling->JoinRoom(room_id, user_id);
-    
-    // 主循环
-    std::cout << "Press Ctrl+C to exit\n";
-    while (g_running) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    
-    // 清理
-    signaling->LeaveRoom();
-    signaling->Disconnect();
-    pc_client->Close();
-    
-    std::cout << "\nBye!\n";
-    return 0;
-}
-```
+| 传输路径 | P2P 直连 | 通过服务器 |
+| 延迟 | < 50ms | 50-200ms |
+| 服务器成本 | 低 | 高 |
+| 建立复杂度 | 高（需 ICE 协商） | 低 |
+| 适用场景 | 实时游戏、文件传输 | 聊天、通知 |
 
 ---
 
 ## 7. 本章总结
 
-### 7.1 核心知识点回顾
-
-| 概念 | 作用 | 关键 API |
-|:---|:---|:---|
-| **PeerConnectionFactory** | 创建所有 WebRTC 对象 | `CreatePeerConnectionFactory()` |
-| **PeerConnection** | 管理连接生命周期 | `CreateOffer()`, `SetLocalDescription()` |
-| **MediaStreamTrack** | 音视频数据传输 | `AddTrack()`, `OnTrack()` |
-| **SDP** | 媒体协商 | `CreateOffer()`, `CreateAnswer()` |
-| **ICE** | 连接建立 | `OnIceCandidate()`, `AddIceCandidate()` |
-| **信令** | 协调连接建立 | WebSocket 交换 SDP/ICE |
-
-### 7.2 WebRTC Native 开发流程
+### 7.1 WebRTC 协议栈总览
 
 ```
-1. 获取源码 → 2. 编译 → 3. 初始化 Factory → 4. 创建 PC → 5. 添加轨道
-                              ↓
-6. 信令连接 → 7. 交换 SDP → 8. ICE 协商 → 9. DTLS 握手 → 10. 媒体传输
+┌─────────────────────────────────────────────────────────────┐
+│                     WebRTC 技术栈                           │
+├─────────────────────────────────────────────────────────────┤
+│  应用层                                                       │
+│  ├─ RTP (音视频)                                             │
+│  └─ SCTP (DataChannel)                                       │
+├─────────────────────────────────────────────────────────────┤
+│  SRTP ── 媒体加密 (AES)                                      │
+├─────────────────────────────────────────────────────────────┤
+│  DTLS ── 密钥交换 + 证书验证                                  │
+├─────────────────────────────────────────────────────────────┤
+│  ICE/STUN/TURN ── 连接建立 + NAT 穿透                        │
+├─────────────────────────────────────────────────────────────┤
+│  UDP ── 底层传输                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### 7.3 常见问题与解决
+### 7.2 关键概念回顾
 
-| 问题 | 原因 | 解决方案 |
+| 概念 | 作用 | 类比 |
 |:---|:---|:---|
-| 编译失败 | 依赖缺失 | 检查 depot_tools，使用 `gclient sync` |
-| 连接失败 | ICE 不通 | 部署 TURN 服务器，检查防火墙 |
-| 无视频 | 权限/设备 | 检查摄像头权限，确认设备 ID 正确 |
-| 回声 | 3A 未启用 | 确保 AEC/ANS/AGC 开启 |
-| 延迟高 | 编码参数 | 降低分辨率/帧率，调整 buffer 大小 |
+| SDP | 描述会话参数 | 菜单（列出所有选项） |
+| Offer/Answer | 协商媒体格式 | 点菜（从菜单中选择） |
+| DTLS | 加密握手 | SSL 证书验证 |
+| SRTP | 媒体加密 | HTTPS 加密 |
+| DataChannel | 传输任意数据 | WebSocket 的 P2P 版本 |
 
-### 7.4 与下一章的衔接
+### 7.3 与下一章的衔接
 
-本章我们掌握了 WebRTC Native 开发，实现了 1v1 连麦客户端。但在实际生产环境中，1v1 只是基础场景。
+本章我们深入理解了 WebRTC 的协议栈和核心概念，掌握了 SDP、DTLS、SRTP、DataChannel 等关键协议的工作原理。理论知识是基础，但真正的能力来自于实践。
 
-下一章（第二十一章）**SFU 转发服务器** 将学习：
-- P2P 的局限性：为什么需要服务器中转
-- SFU（Selective Forwarding Unit）架构设计
-- Simulcast 多路质量转发
-- GCC 拥塞控制和带宽估计
-- 实现一个简单的 SFU 服务器
+下一章（第二十章）**WebRTC Native 开发** 将带你进入实战：
+- 获取和编译 WebRTC 源码（GN + Ninja 构建系统）
+- 使用 Native PeerConnection API
+- 管理音视频轨道和设备
+- 实现完整的信令交互流程
+- 构建可运行的 1v1 连麦客户端
 
-SFU 是多人视频会议的核心技术，它将让我们从 1v1 走向 1vN 的实时通信世界。
+通过 Native 开发，你将真正掌握 WebRTC 的实战应用，为后续学习 SFU 服务器和多人房间架构打下坚实基础。
 
 ---
 
-## 课后实践
+## 课后思考
 
-1. **修改示例代码**，实现一个简单的文件传输功能（使用 DataChannel）
+1. **为什么 WebRTC 使用自签名证书而不是传统 CA 证书？** 这种设计有什么优缺点？
 
-2. **添加统计功能**，定期打印连接状态、码率、丢包率等信息
+2. **SRTP 只加密 Payload 不加密 Header，会有什么安全隐患？** 攻击者能从 Header 中获取什么信息？
 
-3. **实现屏幕共享**，将摄像头替换为屏幕捕获源
+3. **对比 WebRTC DataChannel 和 QUIC**：两者都基于 UDP，都提供可靠传输，设计上有何异同？
 
-4. **部署信令服务器**，使用 Node.js + WebSocket 实现一个支持多房间的简单信令服务
+4. **如果你的应用需要同时传输音视频和文件**，你会如何设计？使用一个 PeerConnection 还是多个？DataChannel 和 RTP 如何配合？

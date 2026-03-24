@@ -73,36 +73,36 @@ ffmpeg -f lavfi -i testsrc=duration=10:size=640x480:rate=30 -pix_fmt yuv420p tes
 
 | 章节 | 内容 | 简介 |
 |:---:|:---|:---|
-| Ch16.5 | [网络编程基础](chapter-16.5/) ⭐ 新增 | Socket API、UDP编程、字节序、数据序列化 |
-| Ch17 | [UDP与实时传输](chapter-17/) | RTP/RTCP协议、JitterBuffer、拥塞控制基础 |
-| Ch18 | [NAT穿透与P2P](chapter-18/) | STUN/TURN/ICE协议、点对点连接建立 |
+| Ch17 | [网络编程基础](chapter-17/) ⭐ 新增 | Socket API、UDP编程、字节序、数据序列化 |
+| Ch18 | [UDP与实时传输](chapter-18/) | RTP/RTCP协议、JitterBuffer、拥塞控制基础 |
+| Ch19 | [NAT穿透与P2P](chapter-19/) | STUN/TURN/ICE协议、点对点连接建立 |
 | **P6** | [P2P通话工具](project-06/) | UDP/RTP/NAT穿透，双人音视频通话 |
-| Ch19 | [WebRTC标准](chapter-19/) | DTLS/SRTP加密、DataChannel、信令协议设计 |
-| Ch20 | [WebRTC Native开发](chapter-20/) | libwebrtc使用、音视频轨道管理、SDP协商 |
+| Ch20 | [WebRTC标准](chapter-20/) | DTLS/SRTP加密、DataChannel、信令协议设计 |
+| Ch21 | [WebRTC Native开发](chapter-21/) | libwebrtc使用、音视频轨道管理、SDP协商 |
 | **P7** | [WebRTC连麦客户端](project-07/) | 1v1实时连麦，信令交互完整实现 |
-| Ch21 | [SFU转发服务器](chapter-21/) | 选择性转发、Simulcast、GCC拥塞控制 |
-| Ch22 | [多人房间管理](chapter-22/) | 多路视频渲染、音量检测、布局管理 |
+| Ch22 | [SFU转发服务器](chapter-22/) | 选择性转发、Simulcast、GCC拥塞控制 |
+| Ch23 | [多人房间管理](chapter-23/) | 多路视频渲染、音量检测、布局管理 |
 | **P8** | [多人会议系统](project-08/) | SFU转发，10人在线，多路渲染 |
 
 ### Part 4：服务端架构 ✅ 已完成
 
 | 章节 | 内容 | 简介 |
 |:---:|:---|:---|
-| Ch23 | [MCU混音混画](chapter-23/) | 音频混音算法、视频混画布局、GPU加速 |
-| Ch24 | [录制与回放](chapter-24/) | HLS/DASH协议、服务端录制、时移回放 |
+| Ch24 | [MCU混音混画](chapter-24/) | 音频混音算法、视频混画布局、GPU加速 |
+| Ch25 | [录制与回放](chapter-25/) | HLS/DASH协议、服务端录制、时移回放 |
 | **P9** | [录制回放系统](project-09/) | MCU录制、HLS切片、HTTP回放服务 |
-| Ch25 | [最新协议探索](chapter-25/) | WebTransport、WHIP/WHEP、SRT/RIST |
+| Ch26 | [最新协议探索](chapter-26/) | WebTransport、WHIP/WHEP、SRT/RIST |
 | **P10** | [完整服务端](project-10/) | SFU/MCU/信令三合一服务端 |
 
 ### Part 5：生产部署 ✅ 已完成
 
 | 章节 | 内容 | 简介 |
 |:---:|:---|:---|
-| Ch26 | [质量监控体系](chapter-26/) | Prometheus/Grafana、QoS指标、MOS评分 |
-| Ch27 | [安全防护](chapter-27/) | Token认证、内容审核、防重放攻击 |
-| Ch28 | [性能调优](chapter-28/) | 零拷贝、内存池、无锁队列、BBR拥塞控制 |
-| Ch29 | [Docker容器化](chapter-29/) | 多阶段构建、镜像优化、Compose编排 |
-| Ch30 | [Kubernetes部署](chapter-30/) | HPA自动扩缩容、灰度发布、服务网格 |
+| Ch27 | [质量监控体系](chapter-27/) | Prometheus/Grafana、QoS指标、MOS评分 |
+| Ch28 | [安全防护](chapter-28/) | Token认证、内容审核、防重放攻击 |
+| Ch29 | [性能调优](chapter-29/) | 零拷贝、内存池、无锁队列、BBR拥塞控制 |
+| Ch30 | [Docker容器化](chapter-30/) | 多阶段构建、镜像优化、Compose编排 |
+| Ch31 | [Kubernetes部署](chapter-31/) | HPA自动扩缩容、灰度发布、服务网格 |
 | **P11** | [生产级部署](project-11/) | Docker/K8s完整运维体系 |
 
 ---

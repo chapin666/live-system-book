@@ -1,1118 +1,1651 @@
-# 第二十六章：质量监控体系
+# 第二十五章：WebTransport 与 WHEP/WHIP
 
-> **本章目标**：建立完整的音视频质量监控体系，掌握关键指标的采集、分析和可视化方法。
+> **本章目标**：了解下一代Web实时通信技术，掌握WebTransport协议和WHEP/WHIP协议的基本原理与应用场景。
 
-在生产环境中，监控是保障服务质量的关键。实时音视频系统涉及多个环节（采集、编码、传输、解码、渲染），任何环节出现问题都会影响用户体验。本章将详细介绍如何构建完整的质量监控体系。
+WebRTC虽然是当前实时通信的主流技术，但其复杂的信令流程和协议栈也带来了一些挑战。近年来，新的标准如WebTransport、WHEP和WHIP正在兴起，它们旨在简化实时通信的部署和使用。本章将介绍这些新兴技术，帮助你了解实时通信的未来发展方向。
 
 **本章你将学习**：
-- 监控指标体系的设计（音视频质量、网络、设备）
-- 端到端延迟测量方法
-- 音视频质量评估标准（MOS、VMAF）
-- 实时监控Dashboard设计
-- 告警与自动化处理
+- WebTransport协议及其与WebRTC的对比
+- WHIP协议（WebRTC-HTTP Ingestion Protocol）
+- WHEP协议（WebRTC-HTTP Egress Protocol）
+- WebTransport在实时通信中的应用
+- 下一代Web实时通信技术展望
 
 **学习本章后，你将能够**：
-- 设计全面的监控指标体系
-- 实现端到端延迟测量
-- 搭建质量监控Dashboard
-- 配置有效告警策略
-- 基于监控数据优化系统
+- 理解WebTransport的核心优势
+- 使用WHIP协议简化推流开发
+- 使用WHEP协议简化拉流开发
+- 评估新技术在项目中的适用性
 
 ---
 
 ## 目录
 
-1. [监控指标体系](#1-监控指标体系)
-2. [端到端延迟测量](#2-端到端延迟测量)
-3. [音视频质量评估](#3-音视频质量评估)
-4. [实时监控Dashboard](#4-实时监控dashboard)
-5. [告警与自动化](#5-告警与自动化)
-6. [本章总结](#6-本章总结)
+1. [WebTransport 简介](#1-webtransport-简介)
+2. [WHIP 协议](#2-whip-协议)
+3. [WHEP 协议](#3-whep-协议)
+4. [SRT 协议详解](#4-srt-协议详解) ⭐ 新增
+5. [WebTransport 实时通信](#5-webtransport-实时通信)
+6. [实战：多协议网关](#6-实战多协议网关) ⭐ 新增
+7. [未来展望](#7-未来展望)
+8. [本章总结](#8-本章总结)
 
 ---
 
-## 1. 监控指标体系
+## 1. WebTransport 简介
 
-### 1.1 监控指标分类
+### 1.1 什么是WebTransport？
 
-![监控指标体系](./diagrams/monitoring-metrics.svg)
+**WebTransport**是一个新的Web API，基于HTTP/3和QUIC协议，为客户端和服务器之间提供双向、多路复用的传输能力。
 
-**监控指标三大维度**：
+**核心特点**：
+| 特性 | 说明 |
+|:---|:---|
+| **基于QUIC** | 使用HTTP/3底层协议，内建多路复用 |
+| **低延迟** | 减少握手时间，0-RTT或1-RTT建立连接 |
+| **可靠/不可靠传输** | 同时支持可靠流和不可靠数据报 |
+| **拥塞控制** | 现代化的拥塞控制算法（BBR） |
+| **易于部署** | 基于HTTP，更容易穿透防火墙/NAT |
 
-| 维度 | 指标示例 | 重要性 |
+### 1.2 WebTransport 协议栈
+
+![WebTransport 协议栈](./diagrams/webtransport-stack.svg)
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    应用层                                │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────────┐  │
+│  │ WebSocket│  │  HTTP/2  │  │    WebTransport      │  │
+│  │   API    │  │  Server  │  │        API           │  │
+│  └────┬─────┘  └────┬─────┘  └──────────┬───────────┘  │
+├───────┼─────────────┼────────────────────┼──────────────┤
+│       │             │                    │              │
+│  ┌────┴─────┐  ┌────┴─────┐  ┌──────────┴──────────┐   │
+│  │   TCP    │  │   TCP    │  │       QUIC          │   │
+│  │          │  │          │  │  (基于UDP)          │   │
+│  └────┬─────┘  └────┬─────┘  └──────────┬──────────┘   │
+│       │             │                    │              │
+│  ┌────┴─────────────┴────────────────────┴──────────┐   │
+│  │                      IP                           │   │
+│  └───────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 1.3 WebTransport vs WebRTC
+
+| 维度 | WebRTC | WebTransport |
 |:---|:---|:---|
-| **音视频质量** | 码率、帧率、分辨率、卡顿 | ⭐⭐⭐⭐⭐ |
-| **网络质量** | 延迟、丢包、抖动、带宽 | ⭐⭐⭐⭐⭐ |
-| **设备状态** | CPU、内存、温度、电量 | ⭐⭐⭐⭐ |
+| **传输协议** | SCTP/DTLS over UDP | QUIC over UDP |
+| **连接建立** | ICE + DTLS + SCTP (2-3 RTT) | QUIC (0-1 RTT) |
+| **NAT穿透** | 需要STUN/TURN | 类似HTTP/3，相对简单 |
+| **可靠性** | 可配置 (SRTP/SCTP) | 可配置 (流/数据报) |
+| **API复杂度** | 高 | 低 |
+| **音视频** | 内置支持 | 需要配合WebCodecs |
+| **浏览器支持** | 广泛 | 逐渐普及 |
+| **服务端部署** | 复杂 | 相对简单 |
 
-### 1.2 监控理论基础
+### 1.4 WebTransport 核心API
 
-#### 1.2.1 指标类型详解
+```javascript
+// 客户端 JavaScript API
 
-**时序数据的四种黄金指标类型**：
+// 1. 创建 WebTransport 连接
+const transport = new WebTransport('https://example.com:4433/endpoint');
 
-| 类型 | 定义 | 典型示例 | 采集频率 |
-|:---|:---|:---|:---:|
-| **计数器 (Counter)** | 单调递增的累积值，只能增加或归零 | 发送包数、接收字节数 | 实时 |
-| **仪表盘 (Gauge)** | 可增可减的瞬时值 | CPU使用率、内存占用、队列长度 | 1-10秒 |
-| **直方图 (Histogram)** | 采样值的分布情况 | 延迟分布、请求大小分布 | 事件触发 |
-| **摘要 (Summary)** | 类似直方图，但计算滑动时间窗口内的分位数 | P99延迟、P95延迟 | 事件触发 |
+// 2. 等待连接就绪
+await transport.ready;
+console.log('WebTransport connected');
 
-**为什么需要区分指标类型？**
+// 3. 创建双向流（可靠传输）
+const stream = await transport.createBidirectionalStream();
+const reader = stream.readable.getReader();
+const writer = stream.writable.getWriter();
 
-```cpp
-// Counter：适合计算速率（rate）
-// 错误示例：直接用当前值判断
-if (packets_sent > threshold) { /* 错误！ */ }
+// 发送数据
+await writer.write(new Uint8Array([1, 2, 3, 4]));
 
-// 正确做法：计算速率
-float packet_rate = (packets_sent - last_packets_sent) / time_delta;
+// 接收数据
+const { value, done } = await reader.read();
+if (!done) {
+    console.log('Received:', value);
+}
 
-// Gauge：适合设置阈值告警
-if (cpu_usage > 80.0) { /* 正确！ */ }
+// 4. 发送不可靠数据报
+const datagramWriter = transport.datagrams.writable.getWriter();
+await datagramWriter.write(new Uint8Array([5, 6, 7, 8]));
 
-// Histogram：适合分析分布
-// 不能只关注平均值， outliers 可能严重影响用户体验
-LatencyHistogram.Record(rtt_ms);
-// 分析：P50=50ms, P99=500ms → 部分用户体验极差
+// 5. 接收数据报
+const datagramReader = transport.datagrams.readable.getReader();
+const { value: datagram } = await datagramReader.read();
+
+// 6. 关闭连接
+await transport.close();
 ```
 
-#### 1.2.2 采样策略
-
-**采样是监控系统的核心设计决策**：
-
-| 采样策略 | 原理 | 适用场景 | 优缺点 |
-|:---|:---|:---|:---|
-| **周期性采样** | 固定时间间隔采集（如每秒一次） | CPU、内存等连续指标 | 实现简单，可能错过突发峰值 |
-| **事件驱动采样** | 特定事件发生时采集 | 错误、异常、状态变更 | 精准捕获关键事件，数据量不可控 |
-| **自适应采样** | 根据数据变化率动态调整采样频率 | 网络抖动、码率变化 | 平衡精度和开销，实现复杂 |
-| **头部采样** | 只采集前N个或按比例采样 | 日志、追踪数据 | 大幅降低数据量，可能丢失关键信息 |
-| **尾部采样** | 延迟决策，根据完整上下文判断是否保留 | 分布式追踪 | 保留异常链路，需要缓存 |
-
-**采样率选择原则**：
+### 1.5 C++ 服务端实现
 
 ```cpp
-// 不同指标的推荐采样策略
-struct SamplingConfig {
-    // 关键指标：100%采样（不能丢数据）
-    struct CriticalMetrics {
-        static constexpr float packet_loss = 1.0;      // 丢包事件
-        static constexpr float connection_failure = 1.0; // 连接失败
-        static constexpr float mos_score = 1.0;         // MOS评分
-    };
-    
-    // 高频指标：自适应采样
-    struct HighFreqMetrics {
-        static constexpr float rtp_packets = 0.1;       // 10%采样
-        static constexpr float frame_info = 0.01;       // 1%采样
-    };
-    
-    // 聚合指标：周期性采样
-    struct PeriodicMetrics {
-        static constexpr int cpu_memory_ms = 1000;      // 1秒
-        static constexpr int bandwidth_ms = 5000;       // 5秒
-    };
-};
-```
-
-#### 1.2.3 聚合方法
-
-**时间聚合（降采样）**：
-
-| 方法 | 公式 | 适用场景 | 注意事项 |
-|:---|:---|:---|:---|
-| **平均值 (Avg)** | $\frac{1}{n}\sum_{i=1}^{n}x_i$ | 平稳指标 | 掩盖异常值 |
-| **最大值 (Max)** | $\max(x_1, x_2, ..., x_n)$ | 延迟、资源峰值 | 可能受噪声影响 |
-| **最小值 (Min)** | $\min(x_1, x_2, ..., x_n)$ | 可用性指标 | |
-| **百分位数 (Px)** | 排序后第x%位置的值 | 延迟、质量评估 | P99比Avg更能反映用户体验 |
-| **标准差 (Std)** | $\sqrt{\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^2}$ | 稳定性分析 | 值越大波动越大 |
-
-**空间聚合（多实例合并）**：
-
-```cpp
-// 不同聚合方式的选择
-enum class AggregationMethod {
-    SUM,      // 总和：总带宽、总连接数
-    AVG,      // 平均：平均CPU、平均延迟
-    MAX,      // 最大：最坏情况延迟
-    P99,      // P99：用户体验边界
-    COUNT     // 计数：错误次数、异常数
-};
-
-// 示例：聚合10个SFU节点的指标
-struct ClusterMetrics {
-    // 总出口带宽 = SUM(各节点出口带宽)
-    int64_t total_egress_bandwidth;
-    
-    // 平均CPU = AVG(各节点CPU)
-    float avg_cpu_usage;
-    
-    // 集群P99延迟 = P99(所有连接的延迟)
-    int p99_latency_ms;
-    
-    // 最大连接数 = MAX(各节点连接数)
-    int max_connections;
-};
-```
-
-**聚合粒度选择**：
-- **原始数据**：1-10秒（用于实时告警和故障排查）
-- **分钟级聚合**：保留1-7天（用于趋势分析）
-- **小时级聚合**：保留30-90天（用于容量规划）
-- **天级聚合**：长期保留（用于业务报表）
-
-### 1.2 音视频质量指标
-
-```cpp
-namespace live {
-
-// 音视频质量指标
-struct MediaQualityMetrics {
-    // 视频指标
-    struct VideoMetrics {
-        int target_bitrate;        // 目标码率 (bps)
-        int actual_bitrate;        // 实际码率 (bps)
-        int target_fps;            // 目标帧率
-        int actual_fps;            // 实际帧率
-        int encode_time_ms;        // 编码耗时
-        int width;                 // 分辨率宽
-        int height;                // 分辨率高
-        int keyframe_interval;     // 关键帧间隔
-        
-        // 质量相关
-        int frame_drop_count;      // 丢帧数
-        int freeze_count;          // 卡顿次数
-        int freeze_duration_ms;    // 卡顿时长
-        float qp_average;          // 平均量化参数 (越小越好)
-    } video;
-    
-    // 音频指标
-    struct AudioMetrics {
-        int target_bitrate;        // 目标码率
-        int actual_bitrate;        // 实际码率
-        int sample_rate;           // 采样率
-        int channels;              // 声道数
-        float input_level;         // 输入音量
-        float output_level;        // 输出音量
-        
-        // 质量相关
-        int audio_loss_count;      // 音频丢包数
-        int audio_expand_count;    // 音频拉伸次数( concealment )
-        float echo_return_loss;    // 回声消除效果
-    } audio;
-    
-    // 时间戳
-    int64_t timestamp_ms;
-};
-
-// 网络质量指标
-struct NetworkMetrics {
-    // 往返延迟
-    int rtt_ms;                    // 往返时间
-    
-    // 丢包
-    float packet_loss_rate;        // 丢包率 (0-1)
-    int packets_sent;              // 发送包数
-    int packets_received;          // 接收包数
-    int packets_lost;              // 丢包数
-    
-    // 抖动
-    int jitter_ms;                 // 网络抖动
-    
-    // 带宽
-    int available_send_bandwidth;  // 可用发送带宽
-    int available_recv_bandwidth;  // 可用接收带宽
-    int target_bitrate;            // 目标码率
-    
-    // ICE状态
-    std::string ice_state;         // new/checking/connected/completed/failed
-    std::string connection_type;   // udp/tcp/relay
-    std::string local_candidate_type;   // host/srflx/relay
-    std::string remote_candidate_type;  // host/srflx/relay
-    
-    // 时间戳
-    int64_t timestamp_ms;
-};
-
-// 设备状态指标
-struct DeviceMetrics {
-    // CPU
-    float cpu_usage_percent;       // CPU使用率
-    int cpu_cores;                 // CPU核心数
-    
-    // 内存
-    int64_t memory_total_mb;       // 总内存
-    int64_t memory_used_mb;        // 已用内存
-    float memory_usage_percent;    // 内存使用率
-    
-    // 系统信息
-    std::string os_name;           // 操作系统
-    std::string os_version;        // 系统版本
-    std::string device_model;      // 设备型号
-    
-    // 移动端特有
-    float battery_level;           // 电量 (0-1)
-    bool is_charging;              // 是否充电
-    float device_temperature;      // 设备温度 (摄氏度)
-    
-    // 时间戳
-    int64_t timestamp_ms;
-};
-
-} // namespace live
-```
-
-### 1.3 指标采集实现
-
-```cpp
-// metrics_collector.h
+// webtransport_server.h
 #pragma once
 
+#include <string>
 #include <memory>
 #include <functional>
-#include <vector>
 
 namespace live {
 
-// 指标采集器
-class MetricsCollector {
+// WebTransport 会话
+class WebTransportSession {
 public:
-    using MetricsCallback = std::function<void(const MediaQualityMetrics&,
-                                                  const NetworkMetrics&,
-                                                  const DeviceMetrics&)>>;
+    using StreamCallback = std::function<void(uint64_t stream_id)>;
+    using DataCallback = std::function<void(uint64_t stream_id, 
+                                               const uint8_t* data, 
+                                               size_t len)>;
     
-    void SetCallback(MetricsCallback callback);
+    WebTransportSession(uint64_t session_id);
+    ~WebTransportSession();
     
-    // 启动采集
-    void Start(int interval_ms = 1000);
-    void Stop();
+    // 设置回调
+    void SetStreamCallback(StreamCallback callback);
+    void SetDatagramCallback(DataCallback callback);
     
-    // 上报原始数据
-    void OnRtpSent(int packets, int bytes);
-    void OnRtpReceived(int packets, int bytes, int lost);
-    void OnRttMeasured(int rtt_ms);
-    void OnVideoEncoded(int width, int height, int bitrate, int qp);
-    void OnFrameRendered(bool was_dropped);
+    // 创建双向流
+    uint64_t CreateBidirectionalStream();
     
-    // 获取当前统计
-    MediaQualityMetrics GetMediaMetrics() const;
-    NetworkMetrics GetNetworkMetrics() const;
-    DeviceMetrics GetDeviceMetrics() const;
+    // 发送数据（流）
+    bool SendStreamData(uint64_t stream_id, 
+                        const uint8_t* data, 
+                        size_t len);
+    
+    // 发送数据报
+    bool SendDatagram(const uint8_t* data, size_t len);
+    
+    // 关闭会话
+    void Close();
+    
+    uint64_t GetSessionId() const { return session_id_; }
     
 private:
-    void CollectLoop();
-    void CalculateMetrics();
+    uint64_t session_id_;
+    StreamCallback stream_callback_;
+    DataCallback datagram_callback_;
     
-    MetricsCallback callback_;
-    std::atomic<bool> running_{false};
-    std::thread collect_thread_;
-    int interval_ms_ = 1000;
-    
-    // 原始数据统计
-    struct RawStats {
-        std::atomic<int64_t> rtp_sent_packets{0};
-        std::atomic<int64_t> rtp_sent_bytes{0};
-        std::atomic<int64_t> rtp_recv_packets{0};
-        std::atomic<int64_t> rtp_recv_bytes{0};
-        std::atomic<int64_t> rtp_lost_packets{0};
-        std::atomic<int> rtt_ms{0};
-        
-        // 视频统计
-        std::atomic<int> video_frames_encoded{0};
-        std::atomic<int> video_frames_dropped{0};
-        std::atomic<int> video_bitrate{0};
-        
-        // 窗口统计（用于计算速率）
-        struct WindowStat {
-            int64_t packets;
-            int64_t bytes;
-            int64_t timestamp_ms;
-        };
-        std::queue<WindowStat> send_window_;
-        std::queue<WindowStat> recv_window_;
-    };
-    RawStats raw_stats_;
-    
-    // 计算后的指标
-    MediaQualityMetrics media_metrics_;
-    NetworkMetrics network_metrics_;
-    DeviceMetrics device_metrics_;
-    mutable std::mutex metrics_mutex_;
+    uint64_t next_stream_id_ = 0;
+    std::atomic<bool> closed_{false};
 };
 
-} // namespace live
-```
-
----
-
-## 2. 端到端延迟测量
-
-### 2.1 延迟组成分析
-
-![端到端延迟](./diagrams/e2e-latency.svg)
-
-**延迟组成**：
-
-| 阶段 | 典型值 | 优化方法 |
-|:---|:---|:---|
-| **采集延迟** | 10-50ms | 减少buffer大小 |
-| **编码延迟** | 10-100ms | 低延迟编码模式 |
-| **发送端缓冲** | 20-100ms | 动态调整buffer |
-| **网络传输** | 20-200ms | 优化路由、减少跳数 |
-| **接收端缓冲** | 50-200ms | 自适应jitter buffer |
-| **解码延迟** | 10-50ms | 硬件解码 |
-| **渲染延迟** | 16-33ms | 垂直同步优化 |
-| **总计** | **150-700ms** | 各环节优化 |
-
-### 2.2 延迟测量方法对比
-
-**三种主流延迟测量技术的深度对比**：
-
-| 维度 | NTP同步法 | RTCP XR扩展 | 音视频同步时差法 |
-|:---|:---|:---|:---|
-| **精度** | ±5-10ms | ±1-5ms | ±1-3ms |
-| **实现复杂度** | 中 | 低 | 高 |
-| **侵入性** | 低（水印） | 无（协议扩展） | 高（需改采集/渲染）|
-| **时钟要求** | 两端NTP同步 | 无需同步 | 同一参考时钟 |
-| **适用场景** | 实验室测试 | 生产环境 | 高精度需求 |
-| **额外开销** | 水印编码/解码 | 少量控制包 | 无时钟同步开销 |
-
-#### 2.2.1 NTP同步法详解
-
-**原理**：
-1. 发送端在视频帧中嵌入当前NTP时间戳（水印/二维码）
-2. 接收端解码识别水印，提取发送时间
-3. 延迟 = 接收端当前时间 - 水印时间
-
-**数学推导**：
-
-假设：
-- 发送端NTP时间：$T_s$
-- 接收端NTP时间：$T_r$
-- 真实延迟：$D$
-- 时钟偏差：$\Delta = T_s^{real} - T_r^{real}$
-
-则测量延迟：$D_{measured} = T_r - T_s = D + \Delta$
-
-**精度限制**：NTP同步精度通常为5-10ms，这是该方法的误差下限。
-
-```cpp
-namespace live {
-
-// 基于NTP的延迟测量
-class NtpLatencyMeasurer {
-public:
-    // 发送端在视频中嵌入时间戳水印
-    void EmbedTimestampWatermark(VideoFrame* frame, int64_t ntp_time_ms) {
-        // 将时间戳编码为QR码
-        uint8_t qr_data[64];
-        EncodeTimestampToQR(ntp_time_ms, qr_data);
-        
-        // 嵌入到帧的角落（通常右下角，不遮挡内容）
-        OverlayQRCode(frame, qr_data, 
-                      frame->width - 100,   // x
-                      frame->height - 100,  // y
-                      80, 80);              // size
-    }
-    
-    // 接收端检测水印并计算延迟
-    int64_t DetectAndCalculateLatency(const VideoFrame& frame) {
-        // 提取区域
-        uint8_t extracted_qr[64];
-        ExtractRegion(frame, 
-                      frame.width - 100,
-                      frame.height - 100,
-                      80, 80,
-                      extracted_qr);
-        
-        // 解码时间戳
-        int64_t send_time = DecodeQRCode(extracted_qr);
-        int64_t receive_time = GetCurrentNtpTimeMs();
-        
-        return receive_time - send_time;
-    }
-    
-private:
-    void EncodeTimestampToQR(int64_t timestamp, uint8_t* out);
-    int64_t DecodeQRCode(const uint8_t* qr_data);
-    void OverlayQRCode(VideoFrame* frame, const uint8_t* qr, int x, int y, int w, int h);
-    void ExtractRegion(const VideoFrame& frame, int x, int y, int w, int h, uint8_t* out);
-    int64_t GetCurrentNtpTimeMs();
-};
-
-} // namespace live
-```
-
-**适用场景**：实验室环境、自动化测试、需要精确测量但可接受少量侵入的场景。
-
-#### 2.2.2 RTCP XR扩展详解
-
-**原理**：利用RTCP Extended Report (XR) 协议扩展，通过往返时间推算单向延迟。
-
-**关键公式**：
-
-$$RTT = (T_{receive} - T_{send}) - (T_{process})$$
-
-$$Delay_{one-way} \approx \frac{RTT}{2}$$
-
-**优点**：
-- 无需修改媒体流
-- 标准协议，兼容性好
-- 实现简单
-
-**局限**：
-- 假设往返路径对称（实际往往不对称）
-- 受网络抖动影响大
-- 无法精确测量端到端（只能测量到对端协议栈）
-
-```cpp
-// RTCP Extended Report (XR) 用于延迟测量
-class RtcpXrDelayReport {
-public:
-    // RFC 3611: RTCP XR
-    struct XrBlock {
-        uint8_t block_type;      // BT = 4 (Receiver Reference Time)
-        uint8_t reserved;
-        uint16_t block_length;
-        uint32_t ntp_timestamp_msw;  // NTP timestamp (MSW)
-        uint32_t ntp_timestamp_lsw;  // NTP timestamp (LSW)
-    };
-    
-    // 发送端发送LRR (Last Receiver Report)
-    void SendLRR(uint32_t ssrc, uint32_t lrr, uint32_t dlrr);
-    
-    // 计算往返时间
-    int64_t CalculateRoundTripTime(uint32_t lrr, uint32_t dlrr);
-    
-    // 计算端到端延迟（需要时钟同步）
-    int64_t CalculateEndToEndDelay(
-        int64_t sender_ntp_time,
-        int64_t receiver_ntp_time,
-        int64_t rtt
-    ) {
-        // 单向延迟估算 = RTT/2
-        // 更精确的公式需要考虑时钟偏移
-        return rtt / 2;
-    }
-    
-    // 高级：使用时钟偏移补偿
-    int64_t CalculateOneWayDelayWithSkew(
-        int64_t t_send,      // 发送时间（发送端时钟）
-        int64_t t_receive,   // 接收时间（接收端时钟）
-        int64_t rtt,
-        double skew_ppm      // 时钟漂移（ppm）
-    );
-};
-```
-
-#### 2.2.3 音视频同步时差法详解
-
-**原理**：利用音视频采集时使用同一参考时钟的特性，通过音视频同步的时差来推算延迟。
-
-**核心洞察**：
-- 音视频在采集端是同步的（同一时间戳）
-- 在渲染端，音视频也是同步渲染的
-- 延迟差异反映了传输路径的差异
-
-**公式推导**：
-
-设：
-- 视频采集时间：$T_{v,cap}$
-- 音频采集时间：$T_{a,cap}$
-- 视频渲染时间：$T_{v,ren}$
-- 音频渲染时间：$T_{a,ren}$
-
-由于采集同步：$T_{v,cap} = T_{a,cap}$
-
-音视频延迟：
-$$D_v = T_{v,ren} - T_{v,cap}$$
-$$D_a = T_{a,ren} - T_{a,cap}$$
-
-音视频时差：$\Delta = D_v - D_a = (T_{v,ren} - T_{a,ren})$
-
-```cpp
-// 利用音视频同步信息计算延迟
-class AVSyncLatencyCalculator {
-public:
-    // 音视频采集时使用同一个参考时钟
-    void RecordCaptureTimestamp(int64_t video_timestamp, int64_t audio_timestamp) {
-        // 正常情况下 video_timestamp ≈ audio_timestamp
-        capture_sync_point_ = (video_timestamp + audio_timestamp) / 2;
-    }
-    
-    // 渲染时记录时间
-    void RecordRenderTimestamp(int64_t video_timestamp, int64_t audio_timestamp) {
-        int64_t now = GetMonotonicTimeMs();
-        
-        // 视频延迟
-        if (video_timestamp > 0) {
-            video_delay_samples_.push_back(now - video_timestamp);
-        }
-        
-        // 音频延迟
-        if (audio_timestamp > 0) {
-            audio_delay_samples_.push_back(now - audio_timestamp);
-        }
-    }
-    
-    // 计算延迟统计
-    struct LatencyStats {
-        int64_t video_avg_ms;
-        int64_t video_p99_ms;
-        int64_t audio_avg_ms;
-        int64_t audio_p99_ms;
-        int64_t av_diff_ms;  // 音视频延迟差
-    };
-    
-    LatencyStats CalculateLatency() {
-        LatencyStats stats;
-        stats.video_avg_ms = CalculateAverage(video_delay_samples_);
-        stats.video_p99_ms = CalculatePercentile(video_delay_samples_, 99);
-        stats.audio_avg_ms = CalculateAverage(audio_delay_samples_);
-        stats.audio_p99_ms = CalculatePercentile(audio_delay_samples_, 99);
-        stats.av_diff_ms = stats.video_avg_ms - stats.audio_avg_ms;
-        return stats;
-    }
-    
-private:
-    int64_t capture_sync_point_ = 0;
-    std::vector<int64_t> video_delay_samples_;
-    std::vector<int64_t> audio_delay_samples_;
-    
-    int64_t CalculateAverage(const std::vector<int64_t>& samples);
-    int64_t CalculatePercentile(const std::vector<int64_t>& samples, int p);
-    int64_t GetMonotonicTimeMs();
-};
-```
-
-**三种方法选型建议**：
-
-| 场景 | 推荐方法 | 理由 |
-|:---|:---|:---|
-| 生产监控 | RTCP XR | 低开销、标准化 |
-| 精度测试 | 音视频同步法 | 最高精度 |
-| 实验室 | NTP水印法 | 直观、可视化 |
-| 移动端 | 音视频同步法 | 硬件时钟统一 |
-```cpp
-namespace live {
-
-// 基于NTP的延迟测量
-class NtpLatencyMeasurer {
-public:
-    // 发送端在视频中嵌入时间戳水印
-    void EmbedTimestampWatermark(VideoFrame* frame, int64_t ntp_time_ms);
-    
-    // 接收端检测水印并计算延迟
-    int64_t DetectAndCalculateLatency(const VideoFrame& frame);
-    
-private:
-    // 生成时间戳水印（二维码或数字）
-    void GenerateTimestampQRCode(int64_t timestamp, uint8_t* buffer);
-    
-    // 解析水印
-    int64_t ParseTimestampQRCode(const uint8_t* buffer);
-};
-
-} // namespace live
-```
-
-**方法二：RTCP XR扩展**
-```cpp
-// RTCP Extended Report (XR) 用于延迟测量
-class RtcpXrDelayReport {
-public:
-    // 发送端发送LRR (Last Receiver Report)
-    void SendLRR(uint32_t ssrc, uint32_t lrr, uint32_t dlrr);
-    
-    // 计算往返时间
-    int64_t CalculateRoundTripTime(uint32_t lrr, uint32_t dlrr);
-    
-    // 计算端到端延迟（需要时钟同步）
-    int64_t CalculateEndToEndDelay(
-        int64_t sender_ntp_time,
-        int64_t receiver_ntp_time,
-        int64_t rtt
-    );
-};
-```
-
-**方法三：音视频同步时差法**
-```cpp
-// 利用音视频同步信息计算延迟
-class A/VSyncLatencyCalculator {
-public:
-    // 音视频采集时使用同一个参考时钟
-    void RecordCaptureTimestamp(int64_t video_timestamp, int64_t audio_timestamp);
-    
-    // 渲染时记录时间
-    void RecordRenderTimestamp(int64_t video_timestamp, int64_t render_time);
-    
-    // 计算延迟
-    int64_t CalculateLatency() {
-        // 延迟 = 渲染时间 - 采集时间
-        return render_time_ - capture_time_;
-    }
-};
-```
-
----
-
-## 3. 音视频质量评估
-
-### 3.1 MOS评分系统
-
-**MOS（Mean Opinion Score）**是主观质量评分的标准：
-
-| 分值 | 质量等级 | 用户感受 |
-|:---|:---|:---|
-| 5 | 优秀 | 完全满意，无感知缺陷 |
-| 4 | 良好 | 满意，有轻微缺陷但不影响 |
-| 3 | 一般 | 有些不满意，有感知缺陷 |
-| 2 | 较差 | 不满意，有明显缺陷 |
-| 1 | 很差 | 完全不满意，无法使用 |
-
-#### 3.1.1 E-Model理论详解
-
-**E-Model（ITU-T G.107）**是业界广泛使用的语音质量客观评估模型，它通过传输参数计算期望的语音质量评分（R值），再转换为MOS。
-
-**R值计算公式**：
-
-$$R = R_0 - I_s - I_d - I_{e,eff} + A$$
-
-| 参数 | 含义 | 典型范围 |
-|:---|:---|:---:|
-| $R_0$ | 基本信噪比因子（理想条件下的最高分） | 90-100 |
-| $I_s$ | 同时损伤因子（编解码、量化等） | 0-30 |
-| $I_d$ | 延迟损伤因子（网络延迟造成） | 0-50 |
-| $I_{e,eff}$ | 设备损伤因子（丢包、抖动等） | 0-40 |
-| $A$ | 优势因子（用户对技术的容忍度） | 0-20 |
-
-**延迟损伤因子 $I_d$ 的计算**：
-
-$$I_d = 0.024d + 0.11(d - 177.3) \cdot H(d - 177.3)$$
-
-其中：
-- $d$：单向端到端延迟（毫秒）
-- $H(x)$：单位阶跃函数，$x<0$ 时为0，$x\geq0$ 时为1
-- **177.3ms**：延迟损伤开始显著增加的临界点
-
-```cpp
-// E-Model延迟损伤计算
-class EModelCalculator {
-public:
-    // 计算延迟损伤因子 Id
-    static double CalculateDelayImpairment(double one_way_delay_ms) {
-        if (one_way_delay_ms <= 177.3) {
-            return 0.024 * one_way_delay_ms;
-        } else {
-            return 0.024 * one_way_delay_ms + 
-                   0.11 * (one_way_delay_ms - 177.3);
-        }
-    }
-    
-    // 计算丢包损伤因子 Ie_eff
-    static double CalculatePacketLossImpairment(
-        double packet_loss_rate,  // 0-1
-        int codec_type            // 编解码器类型
-    ) {
-        // 不同编解码器的丢包鲁棒性参数
-        struct CodecParams {
-            double Ie;      // 设备损伤基准
-            double Bpl;     // 丢包鲁棒性因子
-        };
-        
-        static const std::map<int, CodecParams> codec_params = {
-            {0, {0, 25.0}},     // G.711
-            {1, {10, 15.0}},    // G.729
-            {2, {15, 10.0}},    // AMR
-            {3, {5, 20.0}},     // Opus
-        };
-        
-        auto it = codec_params.find(codec_type);
-        if (it == codec_params.end()) return 0;
-        
-        const auto& params = it->second;
-        return params.Ie + (95 - params.Ie) * 
-               (packet_loss_rate / (packet_loss_rate + params.Bpl));
-    }
-    
-    // 计算R值
-    static double CalculateRValue(
-        double rtt_ms,
-        double packet_loss_rate,
-        int codec_type = 3,    // 默认Opus
-        double advantage_factor = 0
-    ) {
-        const double R0 = 93.2;  // 典型值
-        double Is = 15.0;        // 编解码损伤（Opus）
-        double Id = CalculateDelayImpairment(rtt_ms / 2);  // 单向延迟
-        double Ie_eff = CalculatePacketLossImpairment(packet_loss_rate, codec_type);
-        
-        return R0 - Is - Id - Ie_eff + advantage_factor;
-    }
-    
-    // R值转MOS
-    static double RtoMOS(double R) {
-        if (R < 0) return 1.0;
-        if (R > 100) return 4.5;
-        
-        // ITU-T G.107 标准转换公式
-        return 1 + 0.035 * R + R * (R - 60) * (100 - R) * 7e-6;
-    }
-};
-```
-
-**关键阈值参考**：
-
-| R值 | MOS | 用户满意度 | 对应延迟（无丢包） |
-|:---:|:---:|:---|:---:|
-| 90-100 | 4.3-4.5 | 非常满意 | <50ms |
-| 80-90 | 4.0-4.3 | 满意 | 50-150ms |
-| 70-80 | 3.6-4.0 | 基本满意 | 150-300ms |
-| 60-70 | 3.1-3.6 | 有些不满 | 300-500ms |
-| 50-60 | 2.6-3.1 | 不满意 | 500-700ms |
-| <50 | <2.6 | 无法接受 | >700ms |
-
-#### 3.1.2 视频MOS模型
-
-视频质量评估比音频更复杂，需要考虑：
-
-| 因素 | 权重 | 影响说明 |
-|:---|:---:|:---|
-| **分辨率** | 高 | 低于期望值会显著降低满意度 |
-| **帧率** | 中 | <15fps明显感知卡顿 |
-| **卡顿** | 极高 |  freezes 是最差的用户体验 |
-| **码率/压缩** | 中 | 影响画面清晰度 |
-| **延迟** | 中 | 主要影响交互体验 |
-
-**客观MOS估算公式**：
-```cpp
-namespace live {
-
-// 基于网络指标的MOS估算
-class MosCalculator {
-public:
-    // 音频MOS (E-Model)
-    static double CalculateAudioMOS(const NetworkMetrics& network) {
-        // 简化的E-Model计算
-        double delay_factor = 0;
-        if (network.rtt_ms < 150) {
-            delay_factor = 0;
-        } else if (network.rtt_ms < 400) {
-            delay_factor = (network.rtt_ms - 150) * 0.01;
-        } else {
-            delay_factor = 2.5 + (network.rtt_ms - 400) * 0.02;
-        }
-        
-        double loss_factor = network.packet_loss_rate * 100 * 0.3;
-        
-        double r_value = 93.2 - delay_factor - loss_factor;
-        
-        // R值转MOS
-        if (r_value < 0) return 1;
-        if (r_value > 100) return 4.5;
-        
-        return 1 + 0.035 * r_value + r_value * (r_value - 60) * (100 - r_value) * 7e-6;
-    }
-    
-    // 视频MOS (简化的质量模型)
-    static double CalculateVideoMOS(const MediaQualityMetrics& media,
-                                     const NetworkMetrics& network) {
-        double score = 5.0;
-        
-        // 帧率影响
-        if (media.video.actual_fps < 15) {
-            score -= (15 - media.video.actual_fps) * 0.1;
-        }
-        
-        // 分辨率影响
-        int pixels = media.video.width * media.video.height;
-        if (pixels < 640 * 480) {
-            score -= 0.5;
-        }
-        
-        // 卡顿影响
-        score -= media.video.freeze_count * 0.3;
-        
-        // 丢包影响
-        score -= network.packet_loss_rate * 100 * 0.05;
-        
-        return std::max(1.0, std::min(5.0, score));
-    }
-};
-
-} // namespace live
-```
-
-### 3.2 VMAF视频质量评估
-
-**VMAF（Video Multi-method Assessment Fusion）**是Netflix开源的视频质量评估算法。
-
-```cpp
-// VMAF集成
-#ifdef USE_VMAF
-
-class VMAFAnalyzer {
-public:
-    bool Initialize(const std::string& model_path);
-    
-    // 计算VMAF分数
-    double CalculateVMAF(const VideoFrame& reference,
-                         const VideoFrame& distorted);
-    
-    // 批量计算
-    double CalculateVMAF(const std::vector& reference_frames,
-                         const std::vector& distorted_frames);
-    
-private:
-    void* vmaf_context_ = nullptr;
-};
-
-#endif // USE_VMAF
-```
-
----
-
-## 4. 实时监控Dashboard
-
-### 4.1 Dashboard设计
-
-![质量监控Dashboard](./diagrams/quality-dashboard.svg)
-
-### 4.2 数据上报系统
-
-```cpp
-// metrics_reporter.h
-#pragma once
-
-namespace live {
-
-// 监控数据上报器
-class MetricsReporter {
+// WebTransport 服务器
+class WebTransportServer {
 public:
     struct Config {
-        std::string endpoint;           // 上报地址
-        int batch_size = 100;           // 批量上报大小
-        int flush_interval_ms = 5000;   // 刷新间隔
-        bool enable_compression = true; // 启用压缩
+        std::string bind_address = "0.0.0.0";
+        int port = 4433;
+        std::string certificate_path;
+        std::string private_key_path;
+        int max_sessions = 10000;
     };
     
     bool Initialize(const Config& config);
     void Shutdown();
     
-    // 上报指标
-    void ReportMetrics(const MediaQualityMetrics& media,
-                       const NetworkMetrics& network,
-                       const DeviceMetrics& device);
+    // 设置会话回调
+    using SessionCallback = std::function<void(std::shared_ptr<WebTransportSession>)>;
+    void SetNewSessionCallback(SessionCallback callback);
+    void SetSessionClosedCallback(SessionCallback callback);
     
-    // 上报事件
-    void ReportEvent(const std::string& event_type,
-                     const std::map<std::string, std::string>& properties);
+    // 启动/停止
+    bool Start();
+    void Stop();
     
-    // 立即刷新
-    void Flush();
+    // 获取统计
+    struct Stats {
+        int active_sessions;
+        int total_streams;
+        int64_t bytes_sent;
+        int64_t bytes_received;
+    };
+    Stats GetStats() const;
     
 private:
-    void FlushLoop();
-    bool SendBatch(const std::vector<std::string>& batch);
+    void AcceptLoop();
+    void HandleQUICConnection(struct quic_connection_t* conn);
     
     Config config_;
-    std::vector<std::string> buffer_;
-    std::mutex buffer_mutex_;
-    std::thread flush_thread_;
+    SessionCallback new_session_callback_;
+    SessionCallback closed_session_callback_;
+    
     std::atomic<bool> running_{false};
+    std::thread accept_thread_;
+    
+    // QUIC 上下文
+    void* quic_context_ = nullptr;
+    int listen_socket_ = -1;
+    
+    std::mutex sessions_mutex_;
+    std::map<uint64_t, std::shared_ptr<WebTransportSession>> sessions_;
 };
 
 } // namespace live
 ```
 
-### 4.3 Grafana Dashboard JSON
-
-```json
-{
-  "dashboard": {
-    "title": "Live Streaming Quality",
-    "panels": [
-      {
-        "title": "Video Bitrate",
-        "type": "graph",
-        "targets": [
-          {
-            "expr": "video_bitrate{job=\"live-streaming\"}",
-            "legendFormat": "{{user_id}}"
-          }
-        ]
-      },
-      {
-        "title": "Packet Loss Rate",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "packet_loss_rate{job=\"live-streaming\"}",
-            "thresholds": [0.01, 0.05]
-          }
-        ]
-      },
-      {
-        "title": "MOS Score",
-        "type": "gauge",
-        "targets": [
-          {
-            "expr": "mos_score{job=\"live-streaming\"}",
-            "min": 1,
-            "max": 5
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
 ---
 
-## 5. 告警与自动化
+## 2. WHIP 协议
 
-### 5.1 告警规则配置
+### 2.1 什么是WHIP？
+
+**WHIP（WebRTC-HTTP Ingestion Protocol）**是一个基于HTTP的协议，用于简化WebRTC推流（Ingestion）过程。
+
+**传统WebRTC推流的痛点**：
+```
+传统流程 (复杂):
+浏览器 ←──SDP offer/answer──→ 信令服务器 ←──复杂信令──→ SFU
+     ←──ICE candidate交换──→
+     ←──DTLS握手───────────→
+     ←──媒体传输────────────→
+```
+
+**WHIP简化后的流程**：
+```
+WHIP流程 (简单):
+浏览器 ──HTTP POST (SDP offer)──→ WHIP服务器
+       ←──SDP answer────────────┘
+     
+直接开始媒体传输 (ICE/DTLS自动处理)
+```
+
+### 2.2 WHIP 协议流程
+
+![WHIP 流程](./diagrams/whip-flow.svg)
+
+**WHIP核心思想**：
+1. 客户端发送HTTP POST请求，包含SDP offer
+2. 服务器返回SDP answer
+3. ICE和DTLS在后台自动完成
+4. 开始媒体传输
+
+### 2.3 WHIP API 设计
+
+```
+WHIP 端点: https://whip.example.com/session
+
+1. 创建会话:
+POST /session HTTP/1.1
+Content-Type: application/sdp
+
+v=0
+o=- 0 0 IN IP4 127.0.0.1
+s=-
+t=0 0
+a=group:BUNDLE 0 1
+m=audio 9 UDP/TLS/RTP/SAVPF 111
+...
+
+响应:
+HTTP/1.1 201 Created
+Location: https://whip.example.com/session/abc123
+Content-Type: application/sdp
+
+v=0
+...
+
+2. 更新/修改会话:
+PATCH /session/abc123
+Content-Type: application/trickle-ice-sdpfrag
+
+3. 结束会话:
+DELETE /session/abc123
+```
+
+### 2.4 WHIP 客户端实现
 
 ```cpp
+// whip_client.h
+#pragma once
+
+#include <string>
+#include <memory>
+
 namespace live {
 
-// 告警规则
-struct AlertRule {
-    std::string name;              // 规则名称
-    std::string metric;            // 监控指标
-    std::string condition;         // 条件: >, <, ==, !=
-    double threshold;              // 阈值
-    int duration_sec;              // 持续时间
-    std::string severity;          // 级别: info/warning/critical
-    std::string message_template;  // 消息模板
-};
-
-// 告警管理器
-class AlertManager {
+// WHIP 客户端
+class WHIPClient {
 public:
-    void AddRule(const AlertRule& rule);
-    void RemoveRule(const std::string& name);
+    struct Config {
+        std::string whip_endpoint;  // WHIP服务器URL
+        int timeout_ms = 30000;
+    };
     
-    // 检查指标是否触发告警
-    void CheckMetrics(const MediaQualityMetrics& media,
-                      const NetworkMetrics& network);
+    WHIPClient(const Config& config);
+    ~WHIPClient();
     
-    // 设置告警回调
-    using AlertCallback = std::function<void(const AlertRule&, 
-                                               const std::string& user_id,
-                                               double current_value)>;
-    void SetAlertCallback(AlertCallback callback);
+    // 初始化本地PeerConnection
+    bool InitializePeerConnection();
+    
+    // 创建推流会话
+    struct SessionInfo {
+        std::string session_id;
+        std::string resource_url;  // 用于后续PATCH/DELETE
+        std::string remote_sdp;
+    };
+    
+    // 开始推流
+    // local_sdp: 本地SDP offer
+    std::pair<bool, SessionInfo> StartPublishing(const std::string& local_sdp);
+    
+    // 更新ICE candidate (Trickle ICE)
+    bool SendIceCandidate(const std::string& candidate,
+                          const std::string& mid);
+    
+    // 停止推流
+    bool StopPublishing();
+    
+    // 获取状态
+    bool IsPublishing() const { return is_publishing_; }
     
 private:
-    std::vector<AlertRule> rules_;
-    AlertCallback callback_;
+    bool SendHttpPost(const std::string& url,
+                      const std::string& body,
+                      const std::string& content_type,
+                      std::string& response);
     
-    // 记录告警触发时间，用于去重
-    std::map<std::string, int64_t> last_alert_time_;
+    bool SendHttpDelete(const std::string& url);
+    
+    bool SendHttpPatch(const std::string& url,
+                       const std::string& body);
+    
+    Config config_;
+    bool is_publishing_ = false;
+    SessionInfo current_session_;
 };
 
-// 预设告警规则
-std::vector<AlertRule> GetDefaultAlertRules() {
-    return {
-        {
-            "high_packet_loss",
-            "packet_loss_rate",
-            ">",
-            0.05,  // 5%
-            10,    // 持续10秒
-            "warning",
-            "User {user_id} packet loss rate is {value:.1%}"
-        },
-        {
-            "high_latency",
-            "rtt_ms",
-            ">",
-            300,   // 300ms
-            30,    // 持续30秒
-            "warning",
-            "User {user_id} RTT is {value}ms"
-        },
-        {
-            "video_freeze",
-            "freeze_count",
-            ">",
-            3,     // 3秒内卡顿超过3次
-            3,
-            "critical",
-            "User {user_id} video freeze detected"
-        },
-        {
-            "low_mos",
-            "mos_score",
-            "<",
-            3.0,   // MOS < 3
-            60,    // 持续60秒
-            "critical",
-            "User {user_id} MOS score is {value:.1f}"
-        }
-    };
+// 简化的WHIP客户端实现
+bool WHIPClient::StartPublishing(const std::string& local_sdp) {
+    // 发送POST请求到WHIP端点
+    std::string response;
+    bool success = SendHttpPost(
+        config_.whip_endpoint,
+        local_sdp,
+        "application/sdp",
+        response
+    );
+    
+    if (!success) {
+        return false;
+    }
+    
+    // 解析响应
+    // 1. 获取SDP answer
+    current_session_.remote_sdp = response;
+    
+    // 2. 解析Location头获取资源URL
+    // current_session_.resource_url = ...
+    
+    is_publishing_ = true;
+    return true;
+}
+
+bool WHIPClient::SendIceCandidate(const std::string& candidate,
+                                   const std::string& mid) {
+    if (!is_publishing_) return false;
+    
+    // 构建trickle ICE SDP片段
+    std::string body = "a=" + candidate + "\r\n";
+    
+    return SendHttpPatch(
+        current_session_.resource_url,
+        body
+    );
+}
+
+bool WHIPClient::StopPublishing() {
+    if (!is_publishing_) return true;
+    
+    bool success = SendHttpDelete(current_session_.resource_url);
+    
+    is_publishing_ = false;
+    current_session_ = SessionInfo{};
+    
+    return success;
 }
 
 } // namespace live
 ```
 
-### 5.2 自动化处理
+### 2.5 WHIP 服务端实现
 
 ```cpp
-// 自动化处理
-class AutoRemediation {
+// whip_server.h
+#pragma once
+
+#include <memory>
+#include <map>
+
+namespace live {
+
+// WHIP 会话
+class WHIPSession {
 public:
-    // 自动降低码率
-    void AutoReduceBitrate(const std::string& user_id, 
-                           int current_bitrate,
-                           int target_bitrate);
+    WHIPSession(const std::string& session_id,
+                const std::string& local_sdp);
     
-    // 自动切换服务器
-    void AutoSwitchServer(const std::string& user_id,
-                          const std::string& current_server,
-                          const std::string& backup_server);
+    // 处理远端SDP offer
+    std::string ProcessOffer(const std::string& remote_sdp);
     
-    // 自动重连
-    void AutoReconnect(const std::string& user_id);
+    // 添加ICE candidate
+    void AddRemoteIceCandidate(const std::string& candidate);
     
-    // 通知用户
-    void NotifyUser(const std::string& user_id,
-                    const std::string& message);
+    // 获取本地ICE candidates
+    std::vector<std::string> GetLocalIceCandidates();
+    
+    // 关闭会话
+    void Close();
+    
+    std::string GetSessionId() const { return session_id_; }
+    
+private:
+    std::string session_id_;
+    std::string local_sdp_;
+    std::unique_ptr<PeerConnection> pc_;
 };
+
+// WHIP HTTP服务器
+class WHIPServer {
+public:
+    struct Config {
+        std::string bind_address = "0.0.0.0";
+        int port = 8080;
+        std::string whip_path = "/whip";
+        
+        // ICE服务器配置
+        std::vector<std::string> ice_servers;
+        
+        // 证书配置
+        std::string certificate_path;
+        std::string private_key_path;
+    };
+    
+    bool Initialize(const Config& config);
+    void Shutdown();
+    
+    // HTTP请求处理
+    void HandlePost(const std::string& path,
+                    const std::map<std::string, std::string>& headers,
+                    const std::string& body,
+                    HttpResponse& response);
+    
+    void HandlePatch(const std::string& path,
+                     const std::map<std::string, std::string>& headers,
+                     const std::string& body,
+                     HttpResponse& response);
+    
+    void HandleDelete(const std::string& path,
+                      HttpResponse& response);
+    
+    bool Start();
+    void Stop();
+    
+private:
+    std::string GenerateSessionId();
+    
+    Config config_;
+    std::mutex sessions_mutex_;
+    std::map<std::string, std::shared_ptr<WHIPSession>> sessions_;
+    
+    std::unique_ptr<HttpServer> http_server_;
+};
+
+} // namespace live
 ```
 
 ---
 
-## 6. 本章总结
+## 3. WHEP 协议
 
-### 6.1 监控体系关键要素
+### 3.1 什么是WHEP？
 
-1. **全面覆盖**：音视频、网络、设备三维度
-2. **实时性**：秒级数据采集和上报
-3. **可视化**：直观的Dashboard展示
-4. **智能化**：基于数据的自动优化
+**WHEP（WebRTC-HTTP Egress Protocol）**是WHIP的"对称"协议，用于简化WebRTC拉流（Playback/Egress）过程。
 
-### 6.2 质量指标参考值
+**WHEP与WHIP的关系**：
+| 协议 | 方向 | 用途 |
+|:---|:---|:---|
+| WHIP | 客户端 → 服务端 | 推流（Ingestion） |
+| WHEP | 客户端 ← 服务端 | 拉流（Egress/Playback） |
 
-| 指标 | 优秀 | 良好 | 一般 | 差 |
-|:---|:---|:---|:---|:---|
-| **MOS评分** | >4.0 | 3.5-4.0 | 3.0-3.5 | <3.0 |
-| **端到端延迟** | <200ms | 200-400ms | 400-800ms | >800ms |
-| **丢包率** | <1% | 1-3% | 3-5% | >5% |
-| **卡顿率** | 0% | <1% | 1-3% | >3% |
+### 3.2 WHEP 协议流程
 
-### 6.3 课后思考
+![WHEP 流程](./diagrams/whep-flow.svg)
 
-1. **监控设计**：设计一个针对万人直播活动的监控方案，包括关键指标和告警规则。
+### 3.3 WHEP API 设计
 
-2. **延迟优化**：测量并优化现有系统的端到端延迟，目标从500ms降到300ms。
+```
+WHEP 端点: https://whep.example.com/endpoint
 
-3. **MOS模型**：基于你的系统特点，改进MOS计算模型，使其更准确。
+1. 请求播放:
+POST /endpoint HTTP/1.1
+Content-Type: application/sdp
 
-4. **告警降噪**：如何减少误报，设计智能告警合并策略。
+v=0
+o=- 0 0 IN IP4 127.0.0.1
+s=-
+t=0 0
+... (SDP offer with receive-only)
+
+响应:
+HTTP/1.1 201 Created
+Location: https://whep.example.com/endpoint/xyz789
+Content-Type: application/sdp
+
+v=0
+... (SDP answer)
+
+2. ICE candidate交换 (Trickle ICE):
+PATCH /endpoint/xyz789
+Content-Type: application/trickle-ice-sdpfrag
+
+3. 停止播放:
+DELETE /endpoint/xyz789
+```
+
+### 3.4 WHEP 客户端实现
+
+```cpp
+// whep_client.h
+#pragma once
+
+#include <string>
+
+namespace live {
+
+// WHEP 客户端 (拉流)
+class WHEPClient {
+public:
+    struct Config {
+        std::string whep_endpoint;
+        int timeout_ms = 30000;
+    };
+    
+    WHEPClient(const Config& config);
+    ~WHEPClient();
+    
+    // 开始拉流
+    struct PlaybackInfo {
+        std::string session_id;
+        std::string resource_url;
+        std::string remote_sdp;
+    };
+    
+    // local_sdp: receive-only SDP offer
+    std::pair<bool, PlaybackInfo> StartPlayback(const std::string& local_sdp);
+    
+    // 发送ICE candidate
+    bool SendIceCandidate(const std::string& candidate,
+                          const std::string& mid);
+    
+    // 停止拉流
+    bool StopPlayback();
+    
+    bool IsPlaying() const { return is_playing_; }
+    
+private:
+    bool SendHttpPost(const std::string& url,
+                      const std::string& body,
+                      std::string& response);
+    
+    bool SendHttpDelete(const std::string& url);
+    bool SendHttpPatch(const std::string& url,
+                       const std::string& body);
+    
+    Config config_;
+    bool is_playing_ = false;
+    PlaybackInfo current_session_;
+};
+
+} // namespace live
+```
 
 ---
 
-**本章结束。下一章将学习安全防护，保障系统的安全性。**
+## 4. SRT 协议详解 ⭐ 新增
+
+### 4.1 什么是 SRT
+
+**SRT（Secure Reliable Transport）**是一种开源的音视频传输协议，专为高质量、低延迟的实时传输设计。由 Haivision 开发并开源，现已成为广播行业的标准协议之一。
+
+**核心优势**：
+| 特性 | 说明 |
+|:---|:---|
+| **低延迟** | 可配置延迟（默认 120ms），远低于 TCP |
+| **抗丢包** | ARQ（自动重传请求）机制，精准重传 |
+| **安全** | 内置 AES-128/256 加密 |
+| **跨平台** | Windows/Linux/macOS，FFmpeg 原生支持 |
+| **防火墙友好** | 单向出站连接，易于穿透 |
+
+### 4.2 SRT vs RTMP 对比
+
+```
+延迟对比（典型值）：
+
+RTMP:  建立连接(3 RTT) + 缓冲区(2-5s) = 3-6秒延迟
+       ████████████████████████████████████
+
+SRT:   握手(1 RTT) + 配置延迟(120ms) = 200-500ms延迟
+       ████
+
+WebRTC: ICE(2-3 RTT) + DTLS + 缓冲 = 300-800ms延迟
+       ██████
+```
+
+| 协议 | 延迟 | 抗丢包 | 加密 | 适用场景 |
+|:---:|:---:|:---:|:---:|:---|
+| RTMP | 3-6s | 弱（TCP） | 无 | 传统直播、CDN |
+| SRT | 200-500ms | 强（ARQ） | AES | 广播级传输、跨地域 |
+| WebRTC | 200-800ms | 中（NACK/FEC） | DTLS/SRTP | 实时连麦 |
+| WHIP | 300-800ms | 中 | DTLS/SRTP | 浏览器推流 |
+
+### 4.3 SRT 核心机制
+
+#### ARQ 精准重传
+
+```
+传统 TCP 重传：
+发送:  [1][2][3][4][5]  →  [3]丢失
+重传:  整个窗口 [3][4][5]  ❌ 浪费带宽
+
+SRT ARQ 重传：
+发送:  [1][2][3][4][5]  →  [3]丢失
+重传:  仅 [3]              ✓ 精准高效
+
+        ↓
+发送端维护一个滑动窗口，接收端通过 ACK/NAK 反馈
+只有丢失的包才会被重传
+```
+
+#### 延迟控制
+
+```
+SRT 延迟模型：
+
+发送端缓冲          网络传输          接收端缓冲
+┌─────────┐        ┌───────┐        ┌─────────┐
+│ T+120ms │───────→│       │───────→│ T+0ms   │ 播放
+│ T+100ms │        │  jitter      ││ T-20ms  │ 缓冲
+│ T+80ms  │        │       │        │ T-40ms  │ 缓冲
+│ ...     │        └───────┘        │ ...     │
+└─────────┘                          └─────────┘
+
+延迟 = 发送缓冲 + 网络抖动 + 解码延迟
+     ≈ 120ms + 30ms + 50ms = 200ms
+```
+
+### 4.4 SRT 编程实战
+
+#### SRT 推流端
+
+```cpp
+// srt_publisher.cpp - SRT 推流示例
+#include <srt/srt.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+class SRTPublisher {
+public:
+    SRTPublisher() : sock_(SRT_INVALID_SOCK) {
+        srt_startup();
+    }
+    
+    ~SRTPublisher() {
+        Close();
+        srt_cleanup();
+    }
+    
+    bool Connect(const char* host, int port) {
+        sock_ = srt_create_socket();
+        if (sock_ == SRT_INVALID_SOCK) {
+            fprintf(stderr, "srt_create_socket: %s\n", srt_getlasterror_str());
+            return false;
+        }
+        
+        // 设置模式为 CALLER（主动连接）
+        int mode = SRTT_LIVE;
+        srt_setsockopt(sock_, 0, SRTO_TRANSTYPE, &mode, sizeof(mode));
+        
+        // 设置延迟（毫秒）
+        int latency = 120;
+        srt_setsockopt(sock_, 0, SRTO_LATENCY, &latency, sizeof(latency));
+        
+        // 设置超时
+        int timeout = 5000;
+        srt_setsockopt(sock_, 0, SRTO_CONNTIMEO, &timeout, sizeof(timeout));
+        
+        // 设置地址
+        sockaddr_in addr;
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(port);
+        inet_pton(AF_INET, host, &addr.sin_addr);
+        
+        // 连接
+        if (srt_connect(sock_, (sockaddr*)&addr, sizeof(addr)) == SRT_ERROR) {
+            fprintf(stderr, "srt_connect: %s\n", srt_getlasterror_str());
+            return false;
+        }
+        
+        printf("SRT connected to %s:%d, latency=%dms\n", host, port, latency);
+        return true;
+    }
+    
+    bool Send(const uint8_t* data, size_t len) {
+        if (sock_ == SRT_INVALID_SOCK) return false;
+        
+        int sent = srt_sendmsg2(sock_, (const char*)data, len, nullptr);
+        if (sent == SRT_ERROR) {
+            fprintf(stderr, "srt_sendmsg2: %s\n", srt_getlasterror_str());
+            return false;
+        }
+        return sent == (int)len;
+    }
+    
+    void Close() {
+        if (sock_ != SRT_INVALID_SOCK) {
+            srt_close(sock_);
+            sock_ = SRT_INVALID_SOCK;
+        }
+    }
+    
+    // 获取统计信息
+    void PrintStats() {
+        SRT_TRACEBSTATS stats;
+        if (srt_bistats(sock_, &stats, 0, 0) == 0) {
+            printf("SRT Stats: pktSent=%d, pktRetrans=%d, msRTT=%.2f, mbpsBandwidth=%.2f\n",
+                   stats.pktSent, stats.pktRetrans, stats.msRTT, stats.mbpsBandwidth);
+        }
+    }
+
+private:
+    SRTSOCKET sock_;
+};
+
+// 使用示例
+int main(int argc, char* argv[]) {
+    SRTPublisher publisher;
+    
+    if (!publisher.Connect("127.0.0.1", 10000)) {
+        return 1;
+    }
+    
+    // 模拟发送 TS 数据包
+    uint8_t packet[1316];  // 7×188 MPEG-TS packets
+    for (int i = 0; i < 1000; i++) {
+        // 填充测试数据
+        memset(packet, 0x47, sizeof(packet));  // TS sync byte
+        
+        if (!publisher.Send(packet, sizeof(packet))) {
+            fprintf(stderr, "Send failed at packet %d\n", i);
+            break;
+        }
+        
+        // 模拟 7×188×8 / 4Mbps = 2.6ms 间隔 (4Mbps 码率)
+        usleep(2600);
+        
+        if (i % 100 == 0) {
+            publisher.PrintStats();
+        }
+    }
+    
+    return 0;
+}
+```
+
+#### SRT 播放端
+
+```cpp
+// srt_player.cpp - SRT 播放示例
+#include <srt/srt.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+class SRTPlayer {
+public:
+    SRTPlayer() : sock_(SRT_INVALID_SOCK) {
+        srt_startup();
+    }
+    
+    ~SRTPlayer() {
+        Close();
+        srt_cleanup();
+    }
+    
+    bool Listen(int port) {
+        sock_ = srt_create_socket();
+        if (sock_ == SRT_INVALID_SOCK) return false;
+        
+        // 设置模式
+        int mode = SRTT_LIVE;
+        srt_setsockopt(sock_, 0, SRTO_TRANSTYPE, &mode, sizeof(mode));
+        
+        // 设置延迟
+        int latency = 120;
+        srt_setsockopt(sock_, 0, SRTO_LATENCY, &latency, sizeof(latency));
+        
+        // 绑定
+        sockaddr_in addr;
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(port);
+        addr.sin_addr.s_addr = INADDR_ANY;
+        
+        if (srt_bind(sock_, (sockaddr*)&addr, sizeof(addr)) == SRT_ERROR) {
+            fprintf(stderr, "srt_bind: %s\n", srt_getlasterror_str());
+            return false;
+        }
+        
+        if (srt_listen(sock_, 1) == SRT_ERROR) {
+            fprintf(stderr, "srt_listen: %s\n", srt_getlasterror_str());
+            return false;
+        }
+        
+        printf("SRT listening on port %d, latency=%dms\n", port, latency);
+        
+        // 接受连接
+        sockaddr_in client_addr;
+        int addr_len = sizeof(client_addr);
+        SRTSOCKET client = srt_accept(sock_, (sockaddr*)&client_addr, &addr_len);
+        
+        if (client == SRT_INVALID_SOCK) {
+            fprintf(stderr, "srt_accept: %s\n", srt_getlasterror_str());
+            return false;
+        }
+        
+        srt_close(sock_);  // 关闭监听 socket
+        sock_ = client;    // 使用连接 socket
+        
+        char ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
+        printf("SRT connection from %s:%d\n", ip, ntohs(client_addr.sin_port));
+        
+        return true;
+    }
+    
+    // 接收数据并写入文件
+    bool ReceiveToFile(const char* filename) {
+        FILE* fp = fopen(filename, "wb");
+        if (!fp) return false;
+        
+        uint8_t buffer[1316];
+        int64_t total = 0;
+        
+        while (true) {
+            int received = srt_recvmsg(sock_, (char*)buffer, sizeof(buffer));
+            
+            if (received > 0) {
+                fwrite(buffer, 1, received, fp);
+                total += received;
+                
+                if (total % (1024*1024) == 0) {
+                    printf("Received %.2f MB\n", total / (1024.0 * 1024.0));
+                }
+            } else if (received == 0) {
+                printf("Connection closed\n");
+                break;
+            } else {
+                fprintf(stderr, "srt_recvmsg: %s\n", srt_getlasterror_str());
+                break;
+            }
+        }
+        
+        fclose(fp);
+        printf("Total received: %.2f MB\n", total / (1024.0 * 1024.0));
+        return true;
+    }
+    
+    void Close() {
+        if (sock_ != SRT_INVALID_SOCK) {
+            srt_close(sock_);
+            sock_ = SRT_INVALID_SOCK;
+        }
+    }
+
+private:
+    SRTSOCKET sock_;
+};
+
+int main(int argc, char* argv[]) {
+    SRTPlayer player;
+    
+    if (!player.Listen(10000)) {
+        return 1;
+    }
+    
+    player.ReceiveToFile("received.ts");
+    
+    return 0;
+}
+```
+
+#### 编译运行
+
+```bash
+# 安装 SRT 库
+# macOS: brew install srt
+# Ubuntu: apt install libsrt-dev
+
+# 编译
+g++ -o srt_publisher srt_publisher.cpp -lsrt
+g++ -o srt_player srt_player.cpp -lsrt
+
+# 终端 1：启动播放器
+./srt_player
+
+# 终端 2：启动推流
+./srt_publisher
+```
+
+### 4.5 SRT 与 FFmpeg 集成
+
+```bash
+# SRT 推流（FFmpeg 原生支持）
+ffmpeg -re -i input.mp4 -c copy -f mpegts 'srt://127.0.0.1:10000?mode=caller&latency=120'
+
+# SRT 播放
+ffplay 'srt://127.0.0.1:10000?mode=listener&latency=120'
+
+# SRT 转 RTMP（网关功能）
+ffmpeg -i 'srt://127.0.0.1:10000?mode=listener' -c copy -f flv rtmp://localhost/live/stream
+```
+
+---
+
+## 5. WebTransport 实时通信
+
+
+### 4.1 为什么选择 WebTransport？
+
+**WebTransport + WebCodecs 组合**：
+
+```
+┌─────────────────────────────────────────┐
+│           应用层 (Application)           │
+│  ┌──────────────┐  ┌────────────────┐  │
+│  │  信令/控制    │  │  音视频处理     │  │
+│  └──────────────┘  └────────────────┘  │
+├─────────────────────────────────────────┤
+│         WebTransport API                │
+│  ┌──────────┐  ┌──────────┐            │
+│  │  可靠流   │  │ 不可靠数据报│            │
+│  └──────────┘  └──────────┘            │
+├─────────────────────────────────────────┤
+│              QUIC 协议                  │
+└─────────────────────────────────────────┘
+```
+
+**WebCodecs API**（用于音视频编解码）：
+```javascript
+// 视频编码
+const encoder = new VideoEncoder({
+    output: (chunk, metadata) => {
+        // 发送编码后的数据
+        sendVideoChunk(chunk);
+    },
+    error: (e) => console.error(e)
+});
+
+encoder.configure({
+    codec: 'vp09.00.10.08',
+    width: 1920,
+    height: 1080,
+    bitrate: 2_000_000,
+    framerate: 30
+});
+
+// 编码视频帧
+const frame = new VideoFrame(videoElement);
+encoder.encode(frame);
+
+// 视频解码
+const decoder = new VideoDecoder({
+    output: (frame) => {
+        // 渲染解码后的帧
+        canvasContext.drawImage(frame, 0, 0);
+    },
+    error: (e) => console.error(e)
+});
+
+decoder.configure({
+    codec: 'vp09.00.10.08',
+    codedWidth: 1920,
+    codedHeight: 1080
+});
+```
+
+### 4.2 基于 WebTransport 的实时通信系统
+
+```cpp
+// wt_media_server.h
+#pragma once
+
+#include <memory>
+#include <map>
+
+namespace live {
+
+// WebTransport 媒体流
+class WTMediaStream {
+public:
+    enum class Type {
+        PUBLISH,    // 推流
+        PLAYBACK    // 拉流
+    };
+    
+    WTMediaStream(uint64_t stream_id, Type type);
+    
+    // 处理视频帧
+    void OnVideoFrame(const EncodedVideoFrame& frame);
+    
+    // 处理音频帧
+    void OnAudioFrame(const EncodedAudioFrame& frame);
+    
+    // 转发到订阅者
+    void ForwardTo(WTMediaStream* subscriber);
+    
+    // 设置编解码参数
+    void SetVideoCodec(const std::string& codec,
+                       int width, int height,
+                       int bitrate);
+    void SetAudioCodec(const std::string& codec,
+                       int sample_rate,
+                       int channels);
+    
+private:
+    uint64_t stream_id_;
+    Type type_;
+    
+    std::string video_codec_;
+    std::string audio_codec_;
+    
+    std::vector<WTMediaStream*> subscribers_;
+};
+
+// WebTransport 媒体服务器
+class WTMediaServer {
+public:
+    struct Config {
+        std::string bind_address = "0.0.0.0";
+        int port = 4433;
+        std::string cert_path;
+        std::string key_path;
+    };
+    
+    bool Initialize(const Config& config);
+    void Shutdown();
+    
+    // 启动服务器
+    bool Start();
+    void Stop();
+    
+    // 处理新的WebTransport会话
+    void OnNewSession(std::shared_ptr<WebTransportSession> session);
+    
+    // 创建发布流
+    std::shared_ptr<WTMediaStream> CreatePublishStream(
+        const std::string& stream_id,
+        std::shared_ptr<WebTransportSession> session);
+    
+    // 创建播放流
+    std::shared_ptr<WTMediaStream> CreatePlaybackStream(
+        const std::string& stream_id,
+        std::shared_ptr<WebTransportSession> session);
+    
+    // 获取统计
+    struct Stats {
+        int active_sessions;
+        int publish_streams;
+        int playback_streams;
+        int64_t bytes_sent;
+        int64_t bytes_received;
+    };
+    Stats GetStats() const;
+    
+private:
+    void HandleControlMessage(std::shared_ptr<WebTransportSession> session,
+                               const uint8_t* data, size_t len);
+    
+    void HandleMediaData(std::shared_ptr<WebTransportSession> session,
+                         const uint8_t* data, size_t len);
+    
+    Config config_;
+    std::unique_ptr<WebTransportServer> wt_server_;
+    
+    std::mutex streams_mutex_;
+    std::map<std::string, std::shared_ptr<WTMediaStream>> publish_streams_;
+    std::map<std::string, std::vector<std::shared_ptr<WTMediaStream>>> stream_subscribers_;
+};
+
+} // namespace live
+```
+
+---
+
+## 6. 实战：多协议网关 ⭐ 新增
+
+### 6.1 网关架构设计
+
+在实际生产环境中，常常需要同时支持多种协议：
+
+```
+                    ┌─────────────────────────────────────┐
+                    │         多协议网关                  │
+                    │  ┌─────────┐  ┌─────────┐          │
+  浏览器 ──WHIP──→  │  │ WHIP    │  │ 转码    │          │
+                    │  │ Handler │──│ 模块    │          │
+  OBS ────RTMP───→  │  ├─────────┤  │  ┌─────┴─────┐     │
+                    │  │ RTMP    │  │  │  核心转发  │     │
+  编码器 ──SRT────→  │  │ Handler │  └──│   引擎    │     │
+                    │  ├─────────┤     └─────┬─────┘     │
+  工具 ────RTP────→  │  │ RTP     │           │           │
+                    │  │ Handler │  ┌────────┼────────┐  │
+                    │  └─────────┘  │        │        │  │
+                    │               ▼        ▼        ▼  │
+                    │            ┌─────┐  ┌─────┐  ┌────┐ │
+                    │            │HLS  │  │WebRTC│  │SRT │ │
+                    │            └─────┘  └─────┘  └────┘ │
+                    └─────────────────────────────────────┘
+```
+
+### 6.2 协议转换核心代码
+
+```cpp
+// protocol_gateway.hpp - 多协议网关核心
+#pragma once
+
+#include <memory>
+#include <string>
+#include <functional>
+#include <map>
+
+namespace gateway {
+
+// 媒体数据包
+struct MediaPacket {
+    enum Type { VIDEO, AUDIO, META };
+    Type type;
+    uint8_t* data;
+    size_t size;
+    int64_t pts;      // 显示时间戳
+    int64_t dts;      // 解码时间戳
+    bool key_frame;   // 是否关键帧
+};
+
+// 协议处理器接口
+class ProtocolHandler {
+public:
+    virtual ~ProtocolHandler() = default;
+    virtual bool Start(const std::string& bind_addr) = 0;
+    virtual void Stop() = 0;
+    
+    // 设置数据回调
+    void SetDataCallback(std::function<void(const MediaPacket&)> callback) {
+        on_data_ = callback;
+    }
+    
+protected:
+    std::function<void(const MediaPacket&)> on_data_;
+};
+
+// 协议转换器
+class ProtocolGateway {
+public:
+    // 注册输入协议
+    void RegisterInput(const std::string& protocol,
+                       std::shared_ptr<ProtocolHandler> handler);
+    
+    // 注册输出协议
+    void RegisterOutput(const std::string& protocol,
+                        std::shared_ptr<ProtocolHandler> handler);
+    
+    // 启动网关
+    bool Start();
+    void Stop();
+    
+    // 获取统计信息
+    struct Stats {
+        uint64_t packets_in;
+        uint64_t packets_out;
+        uint64_t bytes_in;
+        uint64_t bytes_out;
+        std::map<std::string, uint64_t> protocol_stats;
+    };
+    Stats GetStats() const;
+
+private:
+    void OnInputData(const std::string& protocol, const MediaPacket& packet);
+    void DistributeToOutputs(const MediaPacket& packet);
+    
+    std::map<std::string, std::shared_ptr<ProtocolHandler>> inputs_;
+    std::map<std::string, std::shared_ptr<ProtocolHandler>> outputs_;
+    Stats stats_;
+};
+
+} // namespace gateway
+```
+
+### 6.3 WHIP 输入处理器
+
+```cpp
+// whip_handler.cpp - WHIP 协议输入处理器
+#include "protocol_gateway.hpp"
+#include <curl/curl.h>
+#include <json/json.h>
+
+namespace gateway {
+
+class WHIPHandler : public ProtocolHandler {
+public:
+    bool Start(const std::string& bind_addr) override {
+        // 启动 HTTP 服务器接收 WHIP 请求
+        // 实际实现需要集成 HTTP 库（如 libmicrohttpd 或 cpp-httplib）
+        
+        printf("WHIP handler started on %s\n", bind_addr.c_str());
+        return true;
+    }
+    
+    void Stop() override {
+        // 停止 HTTP 服务器
+    }
+    
+    // 处理 WHIP POST 请求（Offer）
+    std::string HandlePost(const std::string& offer_sdp) {
+        // 1. 解析 Offer SDP
+        // 2. 创建 Answer SDP
+        // 3. 建立 WebRTC 连接
+        // 4. 开始接收 RTP 数据
+        
+        return GenerateAnswerSDP(offer_sdp);
+    }
+    
+private:
+    std::string GenerateAnswerSDP(const std::string& offer) {
+        // 简化的 SDP 生成
+        std::string answer = 
+            "v=0\r\n"
+            "o=- 0 0 IN IP4 127.0.0.1\r\n"
+            "s=-\r\n"
+            "t=0 0\r\n"
+            "a=group:BUNDLE 0\r\n"
+            "m=video 9 UDP/TLS/RTP/SAVPF 96\r\n"
+            "c=IN IP4 0.0.0.0\r\n"
+            "a=rtpmap:96 H264/90000\r\n"
+            "a=sendonly\r\n";
+        return answer;
+    }
+};
+
+} // namespace gateway
+```
+
+### 6.4 SRT 输出处理器
+
+```cpp
+// srt_output.cpp - SRT 协议输出处理器
+#include "protocol_gateway.hpp"
+#include <srt/srt.h>
+#include <thread>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+
+namespace gateway {
+
+class SRTOutputHandler : public ProtocolHandler {
+public:
+    SRTOutputHandler() : running_(false) {
+        srt_startup();
+    }
+    
+    ~SRTOutputHandler() {
+        Stop();
+        srt_cleanup();
+    }
+    
+    bool Start(const std::string& bind_addr) override {
+        // 解析 bind_addr (格式: "0.0.0.0:10000")
+        size_t colon = bind_addr.find(':');
+        std::string ip = bind_addr.substr(0, colon);
+        int port = std::stoi(bind_addr.substr(colon + 1));
+        
+        // 创建 SRT 监听 socket
+        sock_ = srt_create_socket();
+        if (sock_ == SRT_INVALID_SOCK) return false;
+        
+        int mode = SRTT_LIVE;
+        srt_setsockopt(sock_, 0, SRTO_TRANSTYPE, &mode, sizeof(mode));
+        
+        int latency = 120;
+        srt_setsockopt(sock_, 0, SRTO_LATENCY, &latency, sizeof(latency));
+        
+        sockaddr_in addr;
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(port);
+        addr.sin_addr.s_addr = INADDR_ANY;
+        
+        if (srt_bind(sock_, (sockaddr*)&addr, sizeof(addr)) == SRT_ERROR) {
+            return false;
+        }
+        
+        srt_listen(sock_, 5);
+        
+        running_ = true;
+        accept_thread_ = std::thread(&SRTOutputHandler::AcceptLoop, this);
+        send_thread_ = std::thread(&SRTOutputHandler::SendLoop, this);
+        
+        printf("SRT output listening on %s, latency=%dms\n", bind_addr.c_str(), latency);
+        return true;
+    }
+    
+    void Stop() override {
+        running_ = false;
+        
+        if (accept_thread_.joinable()) accept_thread_.join();
+        if (send_thread_.joinable()) send_thread_.join();
+        
+        for (auto sock : clients_) {
+            srt_close(sock);
+        }
+        srt_close(sock_);
+    }
+    
+    // 接收来自网关的数据
+    void OnData(const MediaPacket& packet) {
+        std::lock_guard<std::mutex> lock(queue_mutex_);
+        send_queue_.push(packet);
+        cv_.notify_one();
+    }
+
+private:
+    void AcceptLoop() {
+        while (running_) {
+            sockaddr_in client_addr;
+            int addr_len = sizeof(client_addr);
+            SRTSOCKET client = srt_accept(sock_, (sockaddr*)&client_addr, &addr_len);
+            
+            if (client != SRT_INVALID_SOCK) {
+                std::lock_guard<std::mutex> lock(clients_mutex_);
+                clients_.push_back(client);
+                
+                char ip[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
+                printf("SRT client connected: %s:%d\n", ip, ntohs(client_addr.sin_port));
+            }
+        }
+    }
+    
+    void SendLoop() {
+        while (running_) {
+            std::unique_lock<std::mutex> lock(queue_mutex_);
+            cv_.wait(lock, [this] { return !send_queue_.empty() || !running_; });
+            
+            if (!running_) break;
+            
+            MediaPacket packet = send_queue_.front();
+            send_queue_.pop();
+            lock.unlock();
+            
+            // 发送给所有客户端
+            std::lock_guard<std::mutex> clients_lock(clients_mutex_);
+            for (auto it = clients_.begin(); it != clients_.end();) {
+                int sent = srt_sendmsg2(*it, (const char*)packet.data, packet.size, nullptr);
+                if (sent == SRT_ERROR) {
+                    srt_close(*it);
+                    it = clients_.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+        }
+    }
+    
+    SRTSOCKET sock_;
+    std::vector<SRTSOCKET> clients_;
+    std::mutex clients_mutex_;
+    
+    std::queue<MediaPacket> send_queue_;
+    std::mutex queue_mutex_;
+    std::condition_variable cv_;
+    
+    std::thread accept_thread_;
+    std::thread send_thread_;
+    bool running_;
+};
+
+} // namespace gateway
+```
+
+### 6.5 网关使用示例
+
+```cpp
+// gateway_main.cpp - 多协议网关主程序
+#include "protocol_gateway.hpp"
+#include <signal.h>
+
+static volatile bool running = true;
+
+void signal_handler(int sig) {
+    running = false;
+}
+
+int main() {
+    signal(SIGINT, signal_handler);
+    
+    gateway::ProtocolGateway gateway;
+    
+    // 注册 WHIP 输入
+    auto whip_input = std::make_shared<gateway::WHIPHandler>();
+    gateway.RegisterInput("whip", whip_input);
+    
+    // 注册 RTMP 输入
+    // auto rtmp_input = std::make_shared<gateway::RTMPHandler>();
+    // gateway.RegisterInput("rtmp", rtmp_input);
+    
+    // 注册 SRT 输入
+    // auto srt_input = std::make_shared<gateway::SRTHandler>();
+    // gateway.RegisterInput("srt", srt_input);
+    
+    // 注册 SRT 输出
+    auto srt_output = std::make_shared<gateway::SRTOutputHandler>();
+    gateway.RegisterOutput("srt", srt_output);
+    
+    // 注册 HLS 输出
+    // auto hls_output = std::make_shared<gateway::HLSHandler>();
+    // gateway.RegisterOutput("hls", hls_output);
+    
+    // 启动网关
+    if (!gateway.Start()) {
+        fprintf(stderr, "Failed to start gateway\n");
+        return 1;
+    }
+    
+    printf("Protocol Gateway started\n");
+    printf("Press Ctrl+C to stop\n");
+    
+    // 主循环
+    while (running) {
+        auto stats = gateway.GetStats();
+        printf("Stats: in=%lu/%lu MB, out=%lu/%lu MB\n",
+               stats.packets_in, stats.bytes_in / (1024*1024),
+               stats.packets_out, stats.bytes_out / (1024*1024));
+        sleep(5);
+    }
+    
+    printf("\nStopping gateway...\n");
+    gateway.Stop();
+    
+    return 0;
+}
+```
+
+### 6.6 协议选型决策树
+
+```
+协议选择决策：
+
+开始
+  │
+  ├─ 浏览器推流？ ──Yes──→ WHIP
+  │                         (原生WebRTC，无插件)
+  │
+  ├─ 广播级质量？ ──Yes──→ SRT
+  │                         (低延迟、抗丢包、AES加密)
+  │
+  ├─ 延迟要求 < 500ms？ ──Yes──→ WebRTC/WHIP
+  │                               (实时连麦、互动直播)
+  │
+  ├─ CDN 分发？ ──Yes──→ RTMP/HLS
+  │                       (生态成熟、成本低廉)
+  │
+  └─ 自定义应用？ ──Yes──→ WebTransport
+                          (灵活控制、现代协议)
+```
+
+---
+
+## 7. 未来展望
+
+
+### 5.1 技术演进路线图
+
+![未来技术路线图](./diagrams/future-roadmap.svg)
+
+**2020-2023**: WebRTC成熟，SFU/MCU广泛应用
+**2023-2025**: WHIP/WHEP标准化，简化信令
+**2025+**: WebTransport + WebCodecs成为新选择
+
+### 5.2 WebTransport vs WebRTC 选择指南
+
+| 场景 | 推荐技术 | 理由 |
+|:---|:---|:---|
+| 视频会议 | WebRTC | 成熟、浏览器原生支持 |
+| 低延迟直播 | WHIP/WHEP + WebRTC | 简化部署、兼容性好 |
+| 游戏/控制 | WebTransport | 超低延迟、可靠/不可靠灵活选择 |
+| 自定义编解码 | WebTransport + WebCodecs | 完全控制媒体处理 |
+| IoT数据传输 | WebTransport | 轻量、易部署 |
+| 大规模广播 | WebTransport | 更好的拥塞控制 |
+
+### 5.3 迁移策略
+
+```
+现有系统演进路线:
+
+阶段1: 保留WebRTC核心
+┌─────────────────┐
+│   WebRTC SFU    │
+│  (保持稳定)     │
+└────────┬────────┘
+         │
+阶段2: 添加WHIP/WHEP支持
+┌─────────────────┐
+│   WHIP/WHEP     │
+│   接口层        │
+├─────────────────┤
+│   WebRTC SFU    │
+└─────────────────┘
+
+阶段3: 实验性WebTransport
+┌─────────────────┐
+│  WebTransport   │
+│   (部分场景)    │
+├─────────────────┤
+│  WHIP/WHEP      │
+├─────────────────┤
+│   WebRTC SFU    │
+└─────────────────┘
+
+阶段4: 全面迁移(视情况)
+┌─────────────────┐
+│  WebTransport   │
+│  + WebCodecs    │
+└─────────────────┘
+```
+
+---
+
+## 8. 本章总结
+
+### 8.1 核心知识点
+
+**WebTransport**：
+- 基于 QUIC 的新一代 Web 传输 API
+- 支持可靠流和不可靠数据报
+- 0-RTT 快速连接建立
+- 更简单的部署（类似 HTTP）
+
+**WHIP 协议**：
+- 简化 WebRTC 推流，基于 HTTP POST/DELETE
+- 自动处理 ICE/DTLS 协商
+- 适合浏览器原生推流场景
+
+**WHEP 协议**：
+- WHIP 的对称协议，用于拉流
+- 统一 HTTP 接口，简化播放器开发
+
+**SRT 协议**：
+- 广播级传输协议，开源免费
+- ARQ 精准重传，抗丢包能力强
+- 低延迟（200-500ms），AES 加密
+- FFmpeg 原生支持，生态成熟
+
+**多协议网关**：
+- 统一抽象层处理多种输入输出协议
+- 协议转换的核心架构
+- 实际生产环境的多协议支持方案
+
+### 8.2 技术选型指南
+
+| 场景 | 推荐协议 | 延迟 | 特点 |
+|:---|:---:|:---:|:---|
+| 浏览器推流 | WHIP | 300-800ms | 原生 WebRTC，无需插件 |
+| 浏览器播放 | WHEP | 300-800ms | 低延迟，优于 HLS |
+| 跨地域传输 | SRT | 200-500ms | 抗丢包，广播级质量 |
+| 广播级直播 | SRT | 200-500ms | AES 加密，专业可控 |
+| 实时连麦 | WebRTC | 200-800ms | 完整栈，P2P/SFU 支持 |
+| 传统直播 | RTMP | 3-6s | 生态完善，CDN 支持好 |
+| 自定义传输 | WebTransport | 100-500ms | 灵活，现代协议 |
+
+### 8.3 实战代码总结
+
+| 文件 | 功能 | 技术点 |
+|:---|:---|:---|
+| `webtransport_client.js` | WebTransport 客户端 | QUIC、双向流 |
+| `webtransport_server.cpp` | WebTransport 服务端 | aioquic、C++ |
+| `whip_client.cpp` | WHIP 推流客户端 | HTTP POST、SDP 协商 |
+| `srt_publisher.cpp` | SRT 推流端 | libsrt、ARQ |
+| `srt_player.cpp` | SRT 播放端 | SRT 监听、接收 |
+| `protocol_gateway.hpp` | 多协议网关接口 | 抽象设计 |
+| `srt_output.cpp` | SRT 输出处理器 | 多客户端分发 |
+
+### 8.4 课后思考
+
+1. **协议选择**：设计一个跨国直播系统，源站在中国，观众分布在欧美，分析 SRT、WHIP、RTMP 各自的优缺点。
+
+2. **SRT 优化**：如何调整 SRT 的延迟和重传参数，在 5% 丢包网络下保持流畅传输？
+
+3. **网关设计**：多协议网关在高并发场景下有哪些性能瓶颈？如何优化？
+
+4. **迁移路径**：假设你有一个 RTMP 系统，如何逐步引入 SRT 支持而不影响现有用户？
+
+5. **未来趋势**：WebCodecs + WebTransport 组合会取代 WebRTC 吗？分析各自的生存空间。
+
+### 8.5 扩展阅读
+
+- WebTransport W3C草案: https://w3c.github.io/webtransport/
+- WHIP IETF草案: https://datatracker.ietf.org/doc/draft-ietf-wish-whip/
+- WHEP IETF草案: https://datatracker.ietf.org/doc/draft-murillo-whep/
+- SRT 官方文档: https://github.com/Haivision/srt/blob/master/docs/API/API.md
+- WebCodecs API: https://w3c.github.io/webcodecs/
+
+---
+
+**本章结束。下一部分将进入生产部署相关内容，学习如何构建可靠的监控系统。**

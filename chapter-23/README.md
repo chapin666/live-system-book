@@ -1,530 +1,343 @@
-# 第二十三章：MCU 混音混画详解
+# 第二十二章：多人房间客户端
 
-> **本章目标**：理解 MCU 架构原理，掌握音频混音和视频混画的核心技术。
+> **本章目标**：实现多人视频会议客户端，掌握多路视频管理、动态订阅和房间状态处理。
 
-在上一章（第二十二章）中，我们实现了多人房间的客户端，使用 SFU 架构实现了灵活的多路视频管理。但是，当会议人数增加到一定规模，或者需要进行云端录制时，SFU 的局限性就开始显现。
+在前面的章节中，我们已经掌握了 P2P 通话（Ch18）、WebRTC 连接（Ch19-Ch20）和 SFU 服务器（Ch21）。现在要把这些技术组合起来，实现一个**真正的多人会议系统**。
 
-本章将学习 **MCU（Multipoint Control Unit，多点控制单元）** 架构，这是处理大规模会议和云端录制的核心技术。通过 MCU，服务器可以将多路音视频流混合成一路合流，大幅降低客户端的带宽和性能消耗。
+本章你将学习：
+- 多人房间的架构设计（发布/订阅模型）
+- 多路视频的渲染布局（网格/主讲人模式）
+- 动态订阅策略（按需接收、带宽管理）
+- 房间事件处理（用户进出、音视频状态变化）
 
 **学习本章后，你将能够**：
-- 理解 MCU 与 SFU 的区别和适用场景
-- 掌握音频混音的数学原理和溢出处理
-- 理解视频混画的布局设计和 GPU 加速
-- 设计 MCU 的完整处理流水线
-- 实现一个简单的 MCU 服务器
+- 设计多人会议的客户端架构
+- 实现自适应的视频布局
+- 优化多路视频的带宽使用
+- 处理复杂的房间状态同步
 
 ---
 
 ## 目录
 
-1. [为什么需要 MCU？](#1-为什么需要-mcu)
-2. [音频混音原理](#2-音频混音原理)
-3. [视频混画原理](#3-视频混画原理)
-4. [MCU 流水线设计](#4-mcu-流水线设计)
-5. [简单 MCU 实现](#5-简单-mcu-实现)
+1. [多人房间架构](#1-多人房间架构)
+2. [多路视频渲染](#2-多路视频渲染)
+3. [动态订阅策略](#3-动态订阅策略)
+4. [房间事件处理](#4-房间事件处理)
+5. [音频管理](#5-音频管理)
 6. [本章总结](#6-本章总结)
 
 ---
 
-## 1. 为什么需要 MCU？
+## 1. 多人房间架构
 
-### 1.1 SFU 的局限性
+### 1.1 从 P2P 到多人
 
-在第二十一章中，我们学习了 SFU 架构，它的核心优势是服务器只转发不解码，延迟低、性能好。但当遇到以下场景时，SFU 就显得力不从心了：
-
-**场景 1：大规模会议（50+ 人）**
-
-使用 SFU 时，每个参与者需要接收其他所有参与者的视频流：
-
+**P2P（一对一）**：
 ```
-50 人会议，每人需要接收 49 路视频
-假设每路 500kbps，每人下行带宽 = 49 × 500kbps = 24.5 Mbps
+用户 A ←────WebRTC────→ 用户 B
 ```
 
-普通家庭宽带（通常 20-100 Mbps）根本无法支撑这样的带宽需求。
-
-**场景 2：移动端弱网环境**
-
-移动设备的网络环境复杂，4G/5G 信号不稳定，WiFi 质量参差不齐。SFU 要求客户端接收多路流，在弱网环境下很容易出现卡顿、花屏。
-
-**场景 3：云端录制需求**
-
-如果要将整场会议录制下来，使用 SFU 需要：
-- 同时录制每一路单独的流
-- 录制后再进行离线混流合成
-- 流程复杂，实时性差
-
-### 1.2 MCU vs SFU 对比
-
-![SFU vs MCU 架构对比](./diagrams/sfu-vs-mcu.svg)
-
-**SFU（选择性转发单元）**：
-
+**多人会议（SFU 架构）**：
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    SFU 架构                             │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│   用户 A ──→┌─────────┐←── 用户 B                       │
-│   发送1路    │  Server  │    收到1路 (A的)               │
-│             │ (转发)   │                               │
-│   用户 B ──→│ 不解码   │←── 用户 A                       │
-│   发送1路    │ 不编码   │    收到1路 (B的)               │
-│             └─────────┘                               │
-│                                                         │
-│  特点: N人会议，每人接收 N-1 路流                       │
-│  延迟: 极低 (< 50ms)                                    │
-│  适用: 小型会议 (4-20人)                                │
-└─────────────────────────────────────────────────────────┘
+                    ┌─────────┐
+       ┌───────────→│   SFU   │←───────────┐
+       │            │  Server │            │
+       │            └────┬────┘            │
+   ┌───┴───┐        ┌────┴────┐        ┌───┴───┐
+   │用户 A │        │ 用户 B  │        │ 用户 C │
+   └───┬───┘        └────┬────┘        └───┬───┘
+       │                 │                 │
+    发布流            订阅 A/C          订阅 A/B
 ```
 
-**MCU（多点控制单元）**：
+**关键区别**：
+- P2P：每个连接只有一个远端
+- 多人：每个连接有多个远端，需要管理多路流
 
+### 1.2 发布/订阅模型
+
+![多人房间架构](./diagrams/multi-room-arch.svg)
+
+**角色定义**：
+- **Publisher（发布者）**：发送音视频流到 SFU
+- **Subscriber（订阅者）**：从 SFU 接收其他用户的流
+- **一个用户可以同时是发布者和订阅者**
+
+**工作流程**：
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    MCU 架构                             │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│   用户 A ──┐                                          │
-│             ↓                                          │
-│   用户 B ──→┌─────────┐                               │
-│             │  Server  │                               │
-│   用户 C ──→│ (混音   │──→ 所有用户收到 1 路合流        │
-│             │  混画)   │      包含 A+B+C               │
-│   用户 D ──→│ 解码→合成→编码│                               │
-│             └─────────┘                               │
-│                                                         │
-│  特点: N人会议，每人只接收 1 路合流                     │
-│  延迟: 较高 (100-500ms)                                 │
-│  适用: 大型会议、直播、录制                             │
-└─────────────────────────────────────────────────────────┘
-```
+1. 用户 A 加入房间
+   ├── 发布本地音视频（Publisher）
+   └── 订阅房间内的其他用户（Subscriber）
 
-### 1.3 三种架构详细对比
-
-| 特性 | Mesh (P2P) | SFU | MCU |
-|:---|:---:|:---:|:---:|
-| **服务器角色** | 仅信令 | 转发 | 混音混画 |
-| **服务器 CPU** | 极低 | 低 | 高 |
-| **服务器带宽** | 低 | 高 | 低 |
-| **客户端上行** | 高 | 低 | 低 |
-| **客户端下行** | 高 | 高 | 极低 |
-| **客户端 CPU** | 高 | 中等 | 低 |
-| **延迟** | 低 | 极低 (<50ms) | 高 (100-500ms) |
-| **布局灵活性** | 高 | 高 | 低 |
-| **最大人数** | 3-4 | 20-50 | 100+ |
-| **云端录制** | 困难 | 复杂 | 简单 |
-
-### 1.4 适用场景分析
-
-**选择 SFU 的场景**：
-- 视频会议（4-20 人）
-- 需要灵活布局（用户可以自定义谁大谁小）
-- 对延迟敏感（远程协作、在线教育）
-- 参与者的设备和网络较好
-
-**选择 MCU 的场景**：
-- 大型会议（50+ 人）
-- Webinar / 大型直播
-- 移动端弱网环境
-- 需要云端录制存档
-- 需要向 CDN 推流（HLS/DASH）
-
-**混合架构（SFU + MCU）**：
-
-现代大型会议系统通常采用混合架构：
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    混合架构                             │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│    ┌─────────┐                                         │
-│    │   SFU   │←── 互动参与者 (10-20人)                 │
-│    │  Server │    低延迟、灵活布局                     │
-│    └────┬────┘                                         │
-│         │                                              │
-│         ↓ 转发                                         │
-│    ┌─────────┐                                         │
-│    │   MCU   │←── 大规模观众 (1000+人)                │
-│    │  Server │    接收合流，也可录制成 HLS             │
-│    └────┬────┘                                         │
-│         │                                              │
-│         ↓ CDN                                          │
-│    ┌─────────┐                                         │
-│    │  HLS/CDN│←── 仅观看用户                          │
-│    └─────────┘                                         │
-└─────────────────────────────────────────────────────────┘
+2. 用户 B 加入房间
+   ├── 发布本地音视频
+   └── 订阅用户 A 的流
+   
+3. 用户 A 收到通知
+   └── 订阅用户 B 的流
 ```
 
-**核心参与者**使用 SFU 进行实时互动，**普通观众**通过 MCU 接收合流或 CDN 直播。
+### 1.3 客户端架构设计
+
+```
+┌─────────────────────────────────────────────────┐
+│                  UI 层                           │
+│  ┌──────────────┐  ┌──────────────────────────┐ │
+│  │ 视频网格布局  │  │      控制面板            │ │
+│  └──────────────┘  └──────────────────────────┘ │
+├─────────────────────────────────────────────────┤
+│              业务逻辑层                          │
+│  ┌───────────┐  ┌───────────┐  ┌─────────────┐ │
+│  │  RoomManager│  │   Layout  │  │ EventHandler│ │
+│  └───────────┘  └───────────┘  └─────────────┘ │
+├─────────────────────────────────────────────────┤
+│              WebRTC 层                           │
+│  ┌───────────┐  ┌───────────┐  ┌─────────────┐ │
+│  │  PeerConn │  │  TrackMgr │  │  Subscribe  │ │
+│  └───────────┘  └───────────┘  └─────────────┘ │
+├─────────────────────────────────────────────────┤
+│              网络层                              │
+│  ┌───────────┐  ┌───────────┐                   │
+│  │  Signaling│  │   SFU     │                   │
+│  │ (WebSocket)│  │  (RTP)    │                   │
+│  └───────────┘  └───────────┘                   │
+└─────────────────────────────────────────────────┘
+```
+
+**核心模块职责**：
+
+| 模块 | 职责 |
+|:---|:---|
+| RoomManager | 房间生命周期、成员管理 |
+| Layout | 视频布局计算、窗口分配 |
+| TrackMgr | 音视频轨道管理、设备控制 |
+| Subscribe | 订阅管理、带宽分配 |
+| EventHandler | 房间事件处理、状态同步 |
 
 ---
 
-## 2. 音频混音原理
+## 2. 多路视频渲染
 
-### 2.1 为什么需要混音？
+### 2.1 视频布局策略
 
-在多路通话中，每个参与者需要同时听到其他所有参与者的声音。如果不进行混音，就需要在客户端同时播放多个独立的音频流，这会带来两个问题：
+![视频布局类型](./diagrams/video-layouts.svg)
 
-1. **同步问题**：多个独立流的播放难以精确同步，会产生回声或重叠
-2. **资源消耗**：同时解码和播放多路音频，对移动端是负担
+**常见布局模式**：
 
-**混音的本质**：将多路音频的 PCM 数据按采样点相加，生成一路混合后的音频。
-
-### 2.2 PCM 数据相加原理
-
-音频混音的核心是数学上的**采样点相加**：
-
-![音频混音原理](./diagrams/audio-mixing.svg)
-
-**基本原理**：
-
+#### 1) 网格布局（Gallery View）
 ```
-假设有两个音频流：
-- 流 A 的采样点序列: [a₁, a₂, a₃, ...]
-- 流 B 的采样点序列: [b₁, b₂, b₃, ...]
-
-混音后的采样点序列: [a₁+b₁, a₂+b₂, a₃+b₃, ...]
+┌────────┬────────┬────────┐
+│   A    │   B    │   C    │
+├────────┼────────┼────────┤
+│   D    │   E    │   F    │
+└────────┴────────┴────────┘
 ```
+**适用**：平等会议，所有人可见
 
-**用代码表示**：
+#### 2) 主讲人模式（Speaker View）
+```
+┌─────────────────────────┐
+│                         │
+│        主讲人           │
+│       (大图)            │
+│                         │
+├───────┬───────┬─────────┤
+│   A   │   B   │   ...   │
+└───────┴───────┴─────────┘
+```
+**适用**：讲座、培训
+
+#### 3) 画中画模式（PIP）
+```
+┌─────────────────────────┐
+│                         │
+│       主讲人            │
+│                         │
+│   ┌─────┐               │
+│   │自己 │               │
+│   └─────┘               │
+└─────────────────────────┘
+```
+**适用**：自己也需要看到
+
+### 2.2 布局计算算法
 
 ```cpp
-namespace live {
+// layout_manager.h
+#pragma once
 
-// 简单的两路混音 (16-bit PCM)
-void MixAudioSimple(const int16_t* input1, 
-                    const int16_t* input2,
-                    int16_t* output,
-                    size_t sample_count) {
-    for (size_t i = 0; i < sample_count; ++i) {
-        int32_t mixed = static_cast<int32_t>(input1[i]) 
-                      + static_cast<int32_t>(input2[i]);
-        
-        // 溢出保护：硬限幅
-        if (mixed > INT16_MAX) {
-            output[i] = INT16_MAX;
-        } else if (mixed < INT16_MIN) {
-            output[i] = INT16_MIN;
-        } else {
-            output[i] = static_cast<int16_t>(mixed);
-        }
-    }
-}
+#include <vector>
+#include <math>
 
-} // namespace live
-```
-
-### 2.3 溢出处理策略
-
-当多路音频叠加时，很容易出现**溢出问题**。例如，两路音量都接近最大值的音频相加，结果会超出 16-bit PCM 的范围（-32768 ~ 32767）。
-
-#### 策略 1：硬限幅 (Hard Clipping)
-
-最简单的溢出处理，超出范围直接截断：
-
-```cpp
-// 硬限幅
-int16_t Clip(int32_t value) {
-    if (value > INT16_MAX) return INT16_MAX;
-    if (value < INT16_MIN) return INT16_MIN;
-    return static_cast<int16_t>(value);
-}
-```
-
-**优点**：简单、计算量小  
-**缺点**：会产生削波失真，音质下降
-
-#### 策略 2：动态压缩 (Dynamic Compression)
-
-根据总音量动态调整混音系数：
-
-```cpp
-namespace live {
-
-class AudioMixer {
-public:
-    // 动态压缩混音
-    void MixWithCompression(const std::vector<const int16_t*>& inputs,
-                           int16_t* output,
-                           size_t sample_count);
-    
-private:
-    // 计算自适应增益
-    float CalculateAttenuation(size_t active_stream_count) {
-        // 经验公式：增益 = 1 / sqrt(N)
-        // N 越大，每路的音量衰减越多
-        if (active_stream_count <= 1) return 1.0f;
-        return 1.0f / std::sqrt(static_cast<float>(active_stream_count));
-    }
-};
-
-void AudioMixer::MixWithCompression(
-    const std::vector<const int16_t*>& inputs,
-    int16_t* output,
-    size_t sample_count) {
-    
-    const size_t stream_count = inputs.size();
-    const float attenuation = CalculateAttenuation(stream_count);
-    
-    for (size_t i = 0; i < sample_count; ++i) {
-        float mixed = 0.0f;
-        
-        for (const auto* input : inputs) {
-            mixed += static_cast<float>(input[i]) * attenuation;
-        }
-        
-        // 最终限幅
-        output[i] = Clip(static_cast<int32_t>(mixed));
-    }
-}
-
-} // namespace live
-```
-
-**优点**：音质较好，多人混音时自动降低音量  
-**缺点**：计算量稍大，需要浮点运算
-
-#### 策略 3：自适应归一化 (AGC - Automatic Gain Control)
-
-实时监测音频峰值，动态调整混音系数：
-
-```cpp
-namespace live {
-
-class AdaptiveMixer {
-public:
-    // 自适应混音
-    void MixAdaptive(const std::vector<AudioStream>& inputs,
-                    int16_t* output,
-                    size_t sample_count);
-    
-private:
-    // 计算当前帧的峰值
-    int16_t CalculatePeak(const int16_t* data, size_t count);
-    
-    // 自适应增益 (平滑调整)
-    float current_gain_ = 1.0f;
-    static constexpr float kGainAttack = 0.9f;   // 快速降低
-    static constexpr float kGainDecay = 0.999f;  // 缓慢恢复
-};
-
-void AdaptiveMixer::MixAdaptive(
-    const std::vector<AudioStream>& inputs,
-    int16_t* output,
-    size_t sample_count) {
-    
-    // 第一遍：计算原始混音和峰值
-    std::vector<int32_t> mixed(sample_count, 0);
-    int32_t max_abs_value = 0;
-    
-    for (const auto& stream : inputs) {
-        if (!stream.is_muted && stream.is_active) {
-            for (size_t i = 0; i < sample_count; ++i) {
-                mixed[i] += stream.data[i];
-                max_abs_value = std::max(max_abs_value, 
-                    std::abs(mixed[i]));
-            }
-        }
-    }
-    
-    // 计算需要的增益
-    float target_gain = 1.0f;
-    if (max_abs_value > INT16_MAX) {
-        target_gain = static_cast<float>(INT16_MAX) / max_abs_value;
-    }
-    
-    // 平滑调整增益
-    if (target_gain < current_gain_) {
-        current_gain_ = target_gain * kGainAttack 
-                       + current_gain_ * (1 - kGainAttack);
-    } else {
-        current_gain_ = target_gain * (1 - kGain_decay)
-                       + current_gain_ * kGainDecay;
-    }
-    
-    // 应用增益输出
-    for (size_t i = 0; i < sample_count; ++i) {
-        output[i] = Clip(static_cast<int32_t>(mixed[i] * current_gain_));
-    }
-}
-
-} // namespace live
-```
-
-### 2.4 VAD 语音检测优化
-
-在多人会议中，通常只有少数人同时说话。我们可以使用 **VAD（Voice Activity Detection，语音活动检测）** 来识别谁在说话，只对活跃的音频流进行混音。
-
-**VAD 的基本原理**：
-
-```
-1. 计算音频帧的能量（采样点的平方和）
-2. 与阈值比较：能量 > 阈值 → 有语音
-3. 添加迟滞：避免在静音边界频繁切换
-```
-
-```cpp
-namespace live {
-
-class VadDetector {
-public:
-    // 检测是否有语音活动
-    bool Detect(const int16_t* pcm_data, size_t sample_count);
-    
-    // 设置阈值 (默认 -40dB)
-    void SetThreshold(float db_threshold);
-    
-private:
-    float energy_threshold_ = 0.01f;  // -40dB
-    int hold_frames_ = 0;              // 保持计数
-    static constexpr int kHoldFrames = 10;  // 保持10帧
-};
-
-bool VadDetector::Detect(const int16_t* pcm_data, size_t sample_count) {
-    // 计算帧能量
-    float energy = 0.0f;
-    for (size_t i = 0; i < sample_count; ++i) {
-        float sample = static_cast<float>(pcm_data[i]) / INT16_MAX;
-        energy += sample * sample;
-    }
-    energy /= sample_count;
-    
-    if (energy > energy_threshold_) {
-        hold_frames_ = kHoldFrames;
-        return true;
-    }
-    
-    // 迟滞：保持一段时间
-    if (hold_frames_ > 0) {
-        --hold_frames_;
-        return true;
-    }
-    
-    return false;
-}
-
-// 在混音器中使用 VAD
-class SmartMixer {
-public:
-    void AddStream(const std::string& stream_id, 
-                   const int16_t* pcm_data,
-                   size_t sample_count);
-    
-    void Mix(int16_t* output, size_t sample_count);
-    
-private:
-    struct StreamInfo {
-        std::vector<int16_t> buffer;
-        VadDetector vad;
-        bool is_active = false;
-    };
-    std::unordered_map<std::string, StreamInfo> streams_;
-};
-
-} // namespace live
-```
-
-**VAD 的优化效果**：
-- 减少计算量：只混音活跃的流
-- 降低底噪：静音流不混入噪声
-- 提升音质：避免无效音频的叠加
-
----
-
-## 3. 视频混画原理
-
-### 3.1 混画的基本概念
-
-视频混画（Video Composition）是将多路视频按照一定布局合并成一路视频的过程。与音频混音不同，视频混画涉及**二维空间的操作**，需要考虑：
-
-1. **布局设计**：每个视频放在什么位置，多大尺寸
-2. **图像处理**：缩放、裁剪、格式转换
-3. **合成算法**：多路视频的叠加、Alpha 混合
-
-### 3.2 常见布局类型
-
-![视频混画布局设计](./diagrams/video-composition.svg)
-
-#### 布局 1：网格布局 (Grid)
-
-```
-┌─────────┬─────────┬─────────┐
-│    A    │    B    │    C    │
-├─────────┼─────────┼─────────┤
-│    D    │    E    │    F    │
-└─────────┴─────────┴─────────┘
-
-特点：所有参与者平等显示
-适用：小型会议、讨论模式
-计算：自动计算行列数，均匀分配空间
-```
-
-**网格布局计算算法**：
-
-```cpp
 namespace live {
 
 struct VideoCell {
-    int x, y;           // 左上角坐标
-    int width, height;  // 尺寸
-    std::string stream_id;
+    int x, y;           // 位置
+    int width, height;  // 大小
+    std::string user_id; // 用户ID
+    bool is_speaking;   // 是否正在说话
 };
 
-class GridLayout {
+enum class LayoutMode {
+    GRID,       // 网格
+    SPEAKER,    // 主讲人
+    PIP         // 画中画
+};
+
+class LayoutManager {
 public:
-    // 计算网格布局
-    std::vector<VideoCell> Calculate(int stream_count,
-                                      int canvas_width,
-                                      int canvas_height);
+    LayoutManager(int container_width, int container_height);
+    
+    // 设置布局模式
+    void SetMode(LayoutMode mode);
+    
+    // 计算布局
+    std::vector<VideoCell> CalculateLayout(
+        const std::vector<std::string>& user_ids,
+        const std::string& speaker_id);
+    
+    // 获取最佳行列数
+    static void GetGridSize(int count, int* rows, int* cols);
     
 private:
-    // 计算最佳行列数
-    void GetGridSize(int count, int* rows, int* cols) {
-        *cols = static_cast<int>(std::ceil(std::sqrt(count)));
-        *rows = static_cast<int>(std::ceil(
-            static_cast<double>(count) / *cols));
-    }
+    std::vector<VideoCell> CalculateGrid(
+        const std::vector<std::string>& user_ids);
+    
+    std::vector<VideoCell> CalculateSpeaker(
+        const std::vector<std::string>& user_ids,
+        const std::string& speaker_id);
+    
+    std::vector<VideoCell> CalculatePIP(
+        const std::vector<std::string>& user_ids);
+    
+    int container_width_;
+    int container_height_;
+    LayoutMode mode_;
+    static constexpr int kMinCellWidth = 200;
+    static constexpr int kMinCellHeight = 150;
 };
 
-std::vector<VideoCell> GridLayout::Calculate(
-    int stream_count,
-    int canvas_width,
-    int canvas_height) {
+} // namespace live
+```
+
+```cpp
+// layout_manager.cpp
+
+#include "layout_manager.h"
+
+namespace live {
+
+LayoutManager::LayoutManager(int container_width, int container_height)
+    : container_width_(container_width)
+    , container_height_(container_height)
+    , mode_(LayoutMode::GRID) {}
+
+void LayoutManager::SetMode(LayoutMode mode) {
+    mode_ = mode;
+}
+
+std::vector<VideoCell> LayoutManager::CalculateLayout(
+    const std::vector<std::string>& user_ids,
+    const std::string& speaker_id) {
+    
+    switch (mode_) {
+    case LayoutMode::GRID:
+        return CalculateGrid(user_ids);
+    case LayoutMode::SPEAKER:
+        return CalculateSpeaker(user_ids, speaker_id);
+    case LayoutMode::PIP:
+        return CalculatePIP(user_ids);
+    }
+    return {};
+}
+
+void LayoutManager::GetGridSize(int count, int* rows, int* cols) {
+    // 计算最接近正方形的行列数
+    *cols = static_cast<int>(std::ceil(std::sqrt(count)));
+    *rows = static_cast<int>(std::ceil(static_cast<double>(count) / *cols));
+}
+
+std::vector<VideoCell> LayoutManager::CalculateGrid(
+    const std::vector<std::string>& user_ids) {
     
     std::vector<VideoCell> cells;
+    int count = static_cast<int>(user_ids.size());
+    if (count == 0) return cells;
     
     int rows, cols;
-    GetGridSize(stream_count, &rows, &cols);
+    GetGridSize(count, &rows, &cols);
     
-    int cell_width = canvas_width / cols;
-    int cell_height = canvas_height / rows;
+    // 计算每个单元格大小
+    int cell_width = container_width_ / cols;
+    int cell_height = container_height_ / rows;
     
-    // 保持 16:9 比例
-    float target_aspect = 16.0f / 9.0f;
-    float cell_aspect = static_cast<float>(cell_width) / cell_height;
-    
-    int final_width, final_height;
-    if (cell_aspect > target_aspect) {
-        // 太宽，以高度为基准
-        final_height = cell_height;
-        final_width = static_cast<int>(cell_height * target_aspect);
-    } else {
-        // 太高，以宽度为基准
-        final_width = cell_width;
-        final_height = static_cast<int>(cell_width / target_aspect);
+    // 确保最小尺寸
+    if (cell_width < kMinCellWidth || cell_height < kMinCellHeight) {
+        // 需要滚动，这里简化处理
+        cell_width = std::max(cell_width, kMinCellWidth);
+        cell_height = std::max(cell_height, kMinCellHeight);
     }
     
-    // 居中计算
-    for (int i = 0; i < stream_count; ++i) {
-        int row = i / cols;
-        int col = i % cols;
-        
-        int x = col * cell_width + (cell_width - final_width) / 2;
-        int y = row * cell_height + (cell_height - final_height) / 2;
-        
-        cells.push_back({x, y, final_width, final_height, ""});
+    // 分配位置
+    for (int i = 0; i < count; ++i) {
+        VideoCell cell;
+        cell.user_id = user_ids[i];
+        cell.col = i % cols;
+        cell.row = i / cols;
+        cell.x = cell.col * cell_width;
+        cell.y = cell.row * cell_height;
+        cell.width = cell_width;
+        cell.height = cell_height;
+        cell.is_speaking = false;
+        cells.push_back(cell);
+    }
+    
+    return cells;
+}
+
+std::vector<VideoCell> LayoutManager::CalculateSpeaker(
+    const std::vector<std::string>& user_ids,
+    const std::string& speaker_id) {
+    
+    std::vector<VideoCell> cells;
+    if (user_ids.empty()) return cells;
+    
+    // 主讲人占 70% 高度
+    int main_height = static_cast<int>(container_height_ * 0.7);
+    int thumb_height = container_height_ - main_height;
+    
+    // 主讲人
+    auto speaker_it = std::find(user_ids.begin(), user_ids.end(), speaker_id);
+    if (speaker_it != user_ids.end()) {
+        VideoCell main;
+        main.user_id = speaker_id;
+        main.x = 0;
+        main.y = 0;
+        main.width = container_width_;
+        main.height = main_height;
+        main.is_speaking = true;
+        cells.push_back(main);
+    }
+    
+    // 缩略图
+    int other_count = static_cast<int>(user_ids.size()) - 1;
+    if (other_count > 0) {
+        int thumb_width = container_width_ / other_count;
+        int idx = 0;
+        for (const auto& user_id : user_ids) {
+            if (user_id == speaker_id) continue;
+            
+            VideoCell thumb;
+            thumb.user_id = user_id;
+            thumb.x = idx * thumb_width;
+            thumb.y = main_height;
+            thumb.width = thumb_width;
+            thumb.height = thumb_height;
+            thumb.is_speaking = false;
+            cells.push_back(thumb);
+            ++idx;
+        }
     }
     
     return cells;
@@ -533,905 +346,545 @@ std::vector<VideoCell> GridLayout::Calculate(
 } // namespace live
 ```
 
-#### 布局 2：主讲人模式 (Speaker View)
-
-```
-┌─────────────────────────────────────┐
-│                                     │
-│              主讲人                 │
-│            (大图 70%)               │
-│                                     │
-├───────────┬───────────┬─────────────┤
-│    A      │     B     │      C      │
-│  (小图)   │   (小图)  │    (小图)   │
-└───────────┴───────────┴─────────────┘
-
-特点：主讲人占据主要区域，其他人小图显示
-适用：讲座、培训、直播
-动态：根据语音活动自动切换主讲人
-```
-
-#### 布局 3：画中画模式 (PIP - Picture In Picture)
-
-```
-┌─────────────────────────────────────┐
-│                                     │
-│                                     │
-│           主画面                    │
-│        (对方视频)                   │
-│                                     │
-│    ┌──────────────┐                 │
-│    │              │                 │
-│    │    小窗      │                 │
-│    │  (自己画面)  │                 │
-│    └──────────────┘                 │
-│                                     │
-└─────────────────────────────────────┘
-
-特点：小窗悬浮在主画面上
-适用：1v1 通话、小班课
-位置：通常右下角，可拖动
-```
-
-### 3.3 YUV 图像处理
-
-视频混画需要对图像进行缩放、裁剪和格式转换。在 MCU 中，通常使用 **YUV420P** 格式进行处理。
-
-**YUV420P 格式回顾**：
-
-```
-YUV420P 是一种平面格式：
-- Y 平面：亮度信息，分辨率 = width × height
-- U 平面：色度信息，分辨率 = width/2 × height/2
-- V 平面：色度信息，分辨率 = width/2 × height/2
-
-总大小 = width × height × 1.5
-```
-
-**YUV 缩放算法**：
+### 2.3 SDL2 多窗口渲染
 
 ```cpp
-namespace live {
-
-// YUV420P 图像缩放 (双线性插值)
-class YuvScaler {
-public:
-    // 缩放 YUV420P 图像
-    void Scale(const uint8_t* src_y, const uint8_t* src_u, 
-               const uint8_t* src_v,
-               int src_width, int src_height,
-               uint8_t* dst_y, uint8_t* dst_u, uint8_t* dst_v,
-               int dst_width, int dst_height);
-    
-private:
-    // 缩放单平面
-    void ScalePlane(const uint8_t* src, int src_width, 
-                    int src_height,
-                    uint8_t* dst, int dst_width, int dst_height);
-};
-
-void YuvScaler::ScalePlane(const uint8_t* src, int src_width,
-                           int src_height,
-                           uint8_t* dst, int dst_width, 
-                           int dst_height) {
-    const float x_ratio = static_cast<float>(src_width) / dst_width;
-    const float y_ratio = static_cast<float>(src_height) / dst_height;
-    
-    for (int y = 0; y < dst_height; ++y) {
-        for (int x = 0; x < dst_width; ++x) {
-            // 源坐标
-            float src_x = x * x_ratio;
-            float src_y = y * y_ratio;
-            
-            // 双线性插值
-            int x0 = static_cast<int>(src_x);
-            int y0 = static_cast<int>(src_y);
-            int x1 = std::min(x0 + 1, src_width - 1);
-            int y1 = std::min(y0 + 1, src_height - 1);
-            
-            float fx = src_x - x0;
-            float fy = src_y - y0;
-            
-            // 四个角的像素值
-            uint8_t p00 = src[y0 * src_width + x0];
-            uint8_t p01 = src[y0 * src_width + x1];
-            uint8_t p10 = src[y1 * src_width + x0];
-            uint8_t p11 = src[y1 * src_width + x1];
-            
-            // 插值计算
-            float val = p00 * (1-fx) * (1-fy)
-                      + p01 * fx * (1-fy)
-                      + p10 * (1-fx) * fy
-                      + p11 * fx * fy;
-            
-            dst[y * dst_width + x] = static_cast<uint8_t>(val);
-        }
-    }
-}
-
-} // namespace live
-```
-
-**注意**：实际生产环境通常使用 FFmpeg 的 `libswscale` 或 GPU 加速，而不是纯 CPU 实现。
-
-### 3.4 Alpha 混合与边框
-
-为了让混画效果更好看，通常会在视频之间添加边框，并可能使用圆角或阴影效果。
-
-```cpp
-namespace live {
-
-// 将一路视频复制到画布指定位置
-void CopyToCanvas(const uint8_t* src_y, const uint8_t* src_u,
-                  const uint8_t* src_v,
-                  int src_width, int src_height,
-                  uint8_t* canvas_y, uint8_t* canvas_u, 
-                  uint8_t* canvas_v,
-                  int canvas_width, int canvas_height,
-                  int pos_x, int pos_y) {
-    
-    // 计算实际复制区域
-    int copy_width = std::min(src_width, canvas_width - pos_x);
-    int copy_height = std::min(src_height, canvas_height - pos_y);
-    
-    // 复制 Y 平面
-    for (int y = 0; y < copy_height; ++y) {
-        memcpy(canvas_y + (pos_y + y) * canvas_width + pos_x,
-               src_y + y * src_width,
-               copy_width);
-    }
-    
-    // 复制 U/V 平面 (注意 UV 是半分辨率)
-    int copy_uv_width = copy_width / 2;
-    int copy_uv_height = copy_height / 2;
-    int uv_canvas_width = canvas_width / 2;
-    int uv_src_width = src_width / 2;
-    int uv_pos_x = pos_x / 2;
-    int uv_pos_y = pos_y / 2;
-    
-    for (int y = 0; y < copy_uv_height; ++y) {
-        memcpy(canvas_u + (uv_pos_y + y) * uv_canvas_width + uv_pos_x,
-               src_u + y * uv_src_width,
-               copy_uv_width);
-        memcpy(canvas_v + (uv_pos_y + y) * uv_canvas_width + uv_pos_x,
-               src_v + y * uv_src_width,
-               copy_uv_width);
-    }
-}
-
-// 绘制边框
-void DrawBorder(uint8_t* canvas_y, uint8_t* canvas_u, uint8_t* canvas_v,
-                int canvas_width, int canvas_height,
-                int x, int y, int width, int height,
-                int border_width, uint8_t y_val, uint8_t u_val, 
-                uint8_t v_val) {
-    // 白色边框 YUV 值 (近似)
-    // Y=255, U=128, V=128 为白色
-    
-    // 上边框
-    for (int by = 0; by < border_width; ++by) {
-        memset(canvas_y + (y + by) * canvas_width + x, y_val, width);
-    }
-    
-    // 下边框
-    for (int by = 0; by < border_width; ++by) {
-        memset(canvas_y + (y + height - border_width + by) * canvas_width + x, 
-               y_val, width);
-    }
-    
-    // 左右边框
-    for (int by = border_width; by < height - border_width; ++by) {
-        memset(canvas_y + (y + by) * canvas_width + x, y_val, border_width);
-        memset(canvas_y + (y + by) * canvas_width + x + width - border_width,
-               y_val, border_width);
-    }
-}
-
-} // namespace live
-```
-
-### 3.5 GPU 加速混画
-
-对于高分辨率、多路视频的混画，CPU 处理会非常吃力。现代 MCU 都使用 GPU 进行加速。
-
-![GPU 混画加速架构](./diagrams/gpu-compositing.svg)
-
-**GPU 混画的核心流程**：
-
-```
-1. 解码后的视频帧作为 GPU 纹理 (Texture)
-2. 使用 Fragment Shader 进行多纹理采样
-3. 在 Shader 中完成缩放、位置计算、Alpha 混合
-4. 输出到帧缓冲 (FBO - Frame Buffer Object)
-5. 直接从 FBO 进行硬件编码
-```
-
-**OpenGL ES Shader 示例**：
-
-```glsl
-// 顶点着色器 (vertex shader)
-attribute vec2 a_position;
-attribute vec2 a_texCoord;
-varying vec2 v_texCoord;
-
-void main() {
-    gl_Position = vec4(a_position, 0.0, 1.0);
-    v_texCoord = a_texCoord;
-}
-
-// 片段着色器 (fragment shader)
-precision mediump float;
-varying vec2 v_texCoord;
-
-uniform sampler2D u_texture0;  // 视频1
-uniform sampler2D u_texture1;  // 视频2
-uniform sampler2D u_texture2;  // 视频3
-uniform sampler2D u_texture3;  // 视频4
-
-uniform vec4 u_rect0;  // x, y, w, h (归一化 0-1)
-uniform vec4 u_rect1;
-uniform vec4 u_rect2;
-uniform vec4 u_rect3;
-
-void main() {
-    vec2 coord = v_texCoord;
-    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);  // 黑色背景
-    
-    // 判断当前像素属于哪个视频区域
-    if (coord.x >= u_rect0.x && coord.x <= u_rect0.x + u_rect0.z &&
-        coord.y >= u_rect0.y && coord.y <= u_rect0.y + u_rect0.w) {
-        // 计算在视频1中的相对坐标
-        vec2 localCoord = (coord - u_rect0.xy) / u_rect0.zw;
-        color = texture2D(u_texture0, localCoord);
-    }
-    else if (coord.x >= u_rect1.x && coord.x <= u_rect1.x + u_rect1.z) {
-        vec2 localCoord = (coord - u_rect1.xy) / u_rect1.zw;
-        color = texture2D(u_texture1, localCoord);
-    }
-    // ... 其他视频
-    
-    gl_FragColor = color;
-}
-```
-
-**GPU vs CPU 性能对比**：
-
-| 场景 | CPU (软混画) | GPU (硬混画) | 提升 |
-|:---|:---:|:---:|:---:|
-| 4路 1080p → 1080p | 100ms | 2ms | 50x |
-| 16路 1080p → 720p | 500ms | 5ms | 100x |
-| CPU/GPU 占用 | 80-100% | 20-30% | - |
-
----
-
-## 4. MCU 流水线设计
-
-### 4.1 整体架构
-
-一个完整的 MCU 服务器由多个处理模块组成，形成流水线式处理：
-
-![MCU 处理流水线](./diagrams/mcu-pipeline.svg)
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        MCU Pipeline                             │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│   Input → JitterBuffer → Decode → Mixer/Compositor → Encode → Output
-│   (RTP)      (5-20ms)    (10ms)    (10-100ms)      (30ms)   (5ms)
-│                                                                 │
-│   ├─ Audio ─→ PCM Mixing ───────────────────→ Audio Encode ─┤  │
-│   │                                                           │  │
-│   └─ Video ─→ YUV Compositing (GPU) ────────→ Video Encode ─┘  │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-                         Total Latency: 100-300ms
-```
-
-### 4.2 输入处理模块
-
-**职责**：
-- 接收来自各参与者的 RTP 包
-- 使用 JitterBuffer 消除网络抖动
-- 将 RTP 包交给解码器
-
-```cpp
-namespace live {
-
-class InputProcessor {
-public:
-    // 添加 RTP 包
-    void OnRtpPacket(const std::string& stream_id,
-                    const uint8_t* rtp_data,
-                    size_t len);
-    
-    // 获取解码后的帧
-    std::unique_ptr<AudioFrame> GetNextAudioFrame(
-        const std::string& stream_id);
-    std::unique_ptr<VideoFrame> GetNextVideoFrame(
-        const std::string& stream_id);
-    
-private:
-    // stream_id -> JitterBuffer
-    std::unordered_map<std::string, 
-                       std::unique_ptr<JitterBuffer>> jitter_buffers_;
-    
-    // stream_id -> Decoder
-    std::unordered_map<std::string, 
-                       std::unique_ptr<AudioDecoder>> audio_decoders_;
-    std::unordered_map<std::string,
-                       std::unique_ptr<VideoDecoder>> video_decoders_;
-};
-
-} // namespace live
-```
-
-### 4.3 混音模块
-
-**职责**：
-- 收集各路音频的 PCM 数据
-- 进行混音处理
-- 输出混合后的 PCM
-
-```cpp
-namespace live {
-
-class AudioMixerModule {
-public:
-    struct MixedResult {
-        std::vector<int16_t> pcm_data;
-        int sample_rate;
-        int channels;
-    };
-    
-    // 添加一路音频帧
-    void AddFrame(const std::string& stream_id,
-                  const AudioFrame& frame);
-    
-    // 执行混音
-    MixedResult Mix();
-    
-    // 设置混音参数
-    void SetMaxStreams(size_t max_streams) { max_streams_ = max_streams; }
-    
-private:
-    struct StreamBuffer {
-        std::queue<AudioFrame> frames;
-        VadDetector vad;
-        float volume_level = 1.0f;
-    };
-    
-    std::unordered_map<std::string, StreamBuffer> streams_;
-    AdaptiveMixer mixer_;
-    size_t max_streams_ = 16;
-    
-    // 选择最活跃的 N 路进行混音
-    std::vector<std::string> SelectActiveStreams();
-};
-
-} // namespace live
-```
-
-### 4.4 混画模块
-
-**职责**：
-- 收集各路视频帧
-- 按布局进行合成
-- 输出合成后的视频帧
-
-```cpp
-namespace live {
-
-class VideoCompositorModule {
-public:
-    struct CompositedResult {
-        std::vector<uint8_t> yuv_data;
-        int width;
-        int height;
-    };
-    
-    // 设置布局模式
-    void SetLayout(LayoutMode mode);
-    
-    // 添加视频帧
-    void AddFrame(const std::string& stream_id,
-                  const VideoFrame& frame);
-    
-    // 执行合成
-    CompositedResult Composite();
-    
-private:
-    LayoutMode layout_mode_ = LayoutMode::GRID;
-    std::unordered_map<std::string, VideoFrame> current_frames_;
-    
-    // GPU 合成器
-    std::unique_ptr<GpuCompositor> gpu_compositor_;
-    
-    // 合成画布尺寸
-    static constexpr int kCanvasWidth = 1280;
-    static constexpr int kCanvasHeight = 720;
-};
-
-} // namespace live
-```
-
-### 4.5 编码输出模块
-
-**职责**：
-- 对混音后的音频进行编码
-- 对混画后的视频进行编码
-- 打包成 RTP 发送给订阅者
-
-```cpp
-namespace live {
-
-class EncoderModule {
-public:
-    // 初始化编码器
-    bool Initialize(AudioCodec audio_codec, 
-                    VideoCodec video_codec);
-    
-    // 编码音频
-    std::vector<RtpPacket> EncodeAudio(const AudioFrame& frame);
-    
-    // 编码视频
-    std::vector<RtpPacket> EncodeVideo(const VideoFrame& frame);
-    
-private:
-    std::unique_ptr<AudioEncoder> audio_encoder_;
-    std::unique_ptr<VideoEncoder> video_encoder_;
-    uint32_t audio_ssrc_;
-    uint32_t video_ssrc_;
-    uint16_t audio_seq_ = 0;
-    uint16_t video_seq_ = 0;
-    uint32_t audio_timestamp_ = 0;
-    uint32_t video_timestamp_ = 0;
-};
-
-} // namespace live
-```
-
-### 4.6 延迟分析
-
-MCU 的延迟是不可避免的，我们需要理解延迟的来源并尽量优化：
-
-| 阶段 | 延迟 | 优化方法 |
-|:---|:---:|:---|
-| JitterBuffer | 5-20ms | 动态调整缓冲区大小 |
-| 解码 | 5-10ms | 使用硬件解码 |
-| 混音 | 1-5ms | 使用优化的算法 |
-| 混画 | 2-10ms | **必须使用 GPU 加速** |
-| 编码 | 10-50ms | 使用硬件编码 |
-| 网络传输 | 5-20ms | 选择优质的机房和网络 |
-| **总计** | **50-150ms** | - |
-
-**延迟优化技巧**：
-
-1. **零拷贝传输**：从解码到混画到编码，数据始终留在 GPU 内存
-2. **并行处理**：音频和视频可以并行处理
-3. **流水线优化**：当前帧处理的同时，预取下一帧数据
-4. **快速编码器参数**：使用低延迟编码模式（x264 的 `tune=zerolatency`）
-
----
-
-## 5. 简单 MCU 实现
-
-### 5.1 整体设计
-
-让我们设计一个简化的 MCU 服务器，支持基本的混音混画功能：
-
-```cpp
-// mcu_server.h
+// multi_video_renderer.h
 #pragma once
 
-#include <memory>
+#include <SDL2/SDL.h>
+#include <map>
 #include <string>
-#include <vector>
-#include <unordered_map>
-#include <functional>
+#include "layout_manager.h"
 
 namespace live {
 
-// 前向声明
-class InputProcessor;
-class AudioMixerModule;
-class VideoCompositorModule;
-class EncoderModule;
-
-// MCU 配置
-struct McuConfig {
-    // 音频配置
-    int audio_sample_rate = 48000;
-    int audio_channels = 2;
-    
-    // 视频配置
-    int video_width = 1280;
-    int video_height = 720;
-    int video_fps = 30;
-    
-    // 混音配置
-    size_t max_audio_streams = 16;
-    
-    // 混画配置
-    LayoutMode layout_mode = LayoutMode::GRID;
-    size_t max_video_streams = 16;
-};
-
-// MCU 房间
-class McuRoom {
+class MultiVideoRenderer {
 public:
-    explicit McuRoom(const std::string& room_id, 
-                     const McuConfig& config);
-    ~McuRoom();
+    MultiVideoRenderer(int width, int height);
+    ~MultiVideoRenderer();
     
-    // 参与者管理
-    bool AddParticipant(const std::string& participant_id);
-    void RemoveParticipant(const std::string& participant_id);
+    bool Initialize();
+    void Shutdown();
     
-    // 接收 RTP 包
-    void OnAudioRtp(const std::string& participant_id,
-                   const uint8_t* data, size_t len);
-    void OnVideoRtp(const std::string& participant_id,
-                   const uint8_t* data, size_t len);
+    // 更新布局
+    void UpdateLayout(const std::vector<VideoCell>& cells);
     
-    // 设置输出回调
-    using OutputCallback = std::function<void(
-        const std::vector<uint8_t>& rtp_data,
-        bool is_audio)>;
-    void SetOutputCallback(const OutputCallback& callback);
+    // 渲染视频帧
+    void RenderFrame(const std::string& user_id,
+                     const uint8_t* y_plane, const uint8_t* u_plane, 
+                     const uint8_t* v_plane,
+                     int y_pitch, int u_pitch, int v_pitch,
+                     int width, int height);
     
-    // 开始/停止处理
-    void Start();
-    void Stop();
+    // 渲染所有（包括背景、边框等）
+    void Render();
     
 private:
-    void ProcessLoop();  // 处理线程
+    struct VideoTexture {
+        SDL_Texture* texture = nullptr;
+        int width = 0;
+        int height = 0;
+        std::string user_id;
+        VideoCell cell;
+    };
     
-    std::string room_id_;
-    McuConfig config_;
+    SDL_Window* window_ = nullptr;
+    SDL_Renderer* renderer_ = nullptr;
+    std::map<std::string, VideoTexture> textures_;
+    std::vector<VideoCell> current_layout_;
     
-    std::unique_ptr<InputProcessor> input_processor_;
-    std::unique_ptr<AudioMixerModule> audio_mixer_;
-    std::unique_ptr<VideoCompositorModule> video_compositor_;
-    std::unique_ptr<EncoderModule> encoder_;
-    
-    std::unordered_set<std::string> participants_;
-    OutputCallback output_callback_;
-    
-    std::atomic<bool> running_{false};
-    std::thread process_thread_;
-};
-
-// MCU 服务器
-class McuServer {
-public:
-    bool Initialize(const McuConfig& default_config);
-    
-    // 创建房间
-    std::shared_ptr<McuRoom> CreateRoom(const std::string& room_id);
-    void DestroyRoom(const std::string& room_id);
-    
-    // 获取房间
-    std::shared_ptr<McuRoom> GetRoom(const std::string& room_id);
-    
-private:
-    McuConfig default_config_;
-    std::unordered_map<std::string, std::shared_ptr<McuRoom>> rooms_;
-    std::shared_mutex rooms_mutex_;
+    int container_width_;
+    int container_height_;
 };
 
 } // namespace live
 ```
 
-### 5.2 音频混音实现
+---
 
-```cpp
-// audio_mixer_impl.cpp
-#include "audio_mixer.h"
-#include <math>
-#include <algorithm>
+## 3. 动态订阅策略
 
-namespace live {
+### 3.1 为什么需要动态订阅？
 
-// 混音实现
-std::vector<int16_t> AudioMixerImpl::Mix(
-    const std::vector<StreamData>& inputs,
-    size_t sample_count) {
-    
-    std::vector<int16_t> output(sample_count, 0);
-    
-    if (inputs.empty()) {
-        return output;
-    }
-    
-    // 计算自适应增益
-    const float attenuation = CalculateAttenuation(inputs.size());
-    
-    // 逐采样点混音
-    for (size_t i = 0; i < sample_count; ++i) {
-        float mixed = 0.0f;
-        
-        for (const auto& input : inputs) {
-            mixed += static_cast<float>(input.pcm[i]) * attenuation;
-        }
-        
-        // 限幅
-        output[i] = static_cast<int16_t>(
-            std::max(std::min(mixed, 32767.0f), -32768.0f));
-    }
-    
-    return output;
-}
+**问题**：
+- 10 人会议，每人发送 2Mbps
+- 如果订阅所有 9 路流，需要 18Mbps 下行带宽
+- 大部分用户没有这么高的带宽
 
-// 选择最活跃的流
-std::vector<AudioMixerImpl::StreamData> 
-AudioMixerImpl::SelectActiveStreams(
-    const std::unordered_map<std::string, StreamInfo>& streams,
-    size_t max_count) {
-    
-    std::vector<StreamData> active_streams;
-    
-    for (const auto& [id, info] : streams) {
-        if (info.vad.IsActive() && !info.pcm_buffer.empty()) {
-            active_streams.push_back({id, info.pcm_buffer});
-        }
-    }
-    
-    // 如果太多，按音量排序取前 N 个
-    if (active_streams.size() > max_count) {
-        std::partial_sort(active_streams.begin(),
-                         active_streams.begin() + max_count,
-                         active_streams.end(),
-                         [](const StreamData& a, const StreamData& b) {
-                             return a.volume > b.volume;
-                         });
-        active_streams.resize(max_count);
-    }
-    
-    return active_streams;
-}
+**解决方案**：动态订阅
 
-} // namespace live
+![订阅模型](./diagrams/subscription-model.svg)
+
+### 3.2 订阅策略类型
+
+| 策略 | 描述 | 适用场景 |
+|:---|:---|:---|
+| **全订阅** | 订阅所有参与者的流 | ≤4 人会议 |
+| **按需订阅** | 只订阅正在说话的人 | 大型会议 |
+| **分页订阅** | 订阅当前页的人 |  webinars |
+| **分层订阅** | 根据 Simulcast 层选择质量 | 自适应带宽 |
+
+### 3.3 Simulcast 分层订阅
+
+SFU 支持 Simulcast（分层编码），发送端同时发送多路质量：
+```
+发送端:
+├── 高清层 (1080p) ──┐
+├── 标清层 (720p) ──┼──→ SFU 选择一路转发给订阅者
+└── 低清层 (360p) ──┘
 ```
 
-### 5.3 视频混画实现
+**订阅决策**：
+```cpp
+enum class SimulcastLayer {
+    HIGH,   // 1080p, 2Mbps
+    MEDIUM, // 720p, 1Mbps
+    LOW     // 360p, 0.5Mbps
+};
+
+class SubscriptionManager {
+public:
+    // 根据带宽和窗口大小选择层
+    SimulcastLayer SelectLayer(
+        int available_bandwidth,  // kbps
+        int video_width,          // 渲染窗口宽度
+        const std::string& user_id
+    ) {
+        // 1. 带宽检查
+        if (available_bandwidth < 600) {
+            return SimulcastLayer::LOW;
+        } else if (available_bandwidth < 1200) {
+            return SimulcastLayer::MEDIUM;
+        }
+        
+        // 2. 窗口大小检查
+        if (video_width < 480) {
+            return SimulcastLayer::LOW;
+        } else if (video_width < 960) {
+            return SimulcastLayer::MEDIUM;
+        }
+        
+        return SimulcastLayer::HIGH;
+    }
+    
+    // 订阅指定层
+    void SubscribeLayer(const std::string& user_id, SimulcastLayer layer);
+    
+    // 取消订阅
+    void Unsubscribe(const std::string& user_id);
+    
+private:
+    struct Subscription {
+        std::string user_id;
+        SimulcastLayer current_layer;
+        bool audio_enabled;
+        bool video_enabled;
+    };
+    
+    std::map<std::string, Subscription> subscriptions_;
+    int total_bandwidth_used_ = 0;
+    static constexpr int kBandwidthReserve = 200; // 保留 200kbps
+};
+```
+
+### 3.4 带宽自适应
 
 ```cpp
-// video_compositor_impl.cpp
-#include "video_compositor.h"
+class BandwidthEstimator {
+public:
+    // 基于 RTCP Receiver Report 估计带宽
+    void OnReceiverReport(const ReceiverReport& rr);
+    
+    // 获取估计带宽 (kbps)
+    int GetEstimatedBandwidth() const {
+        return estimated_bandwidth_;
+    }
+    
+    // 检测拥塞
+    bool IsCongested() const {
+        return packet_loss_rate_ > 0.05; // 5% 丢包视为拥塞
+    }
+    
+private:
+    int estimated_bandwidth_ = 2000; // 初始估计 2Mbps
+    float packet_loss_rate_ = 0.0;
+    int rtt_ms_ = 50;
+    
+    // 指数移动平均系数
+    static constexpr float kAlpha = 0.8;
+};
 
-namespace live {
-
-// 网格布局计算
-std::vector<VideoLayout> VideoCompositorImpl::CalculateGridLayout(
-    size_t stream_count,
-    int canvas_width,
-    int canvas_height) {
+void BandwidthEstimator::OnReceiverReport(const ReceiverReport& rr) {
+    // 更新丢包率
+    packet_loss_rate_ = rr.fraction_lost / 255.0f;
     
-    std::vector<VideoLayout> layouts;
-    
-    if (stream_count == 0) return layouts;
-    
-    // 计算行列
-    int cols = static_cast<int>(std::ceil(std::sqrt(stream_count)));
-    int rows = static_cast<int>(
-        std::ceil(static_cast<double>(stream_count) / cols));
-    
-    int cell_w = canvas_width / cols;
-    int cell_h = canvas_height / rows;
-    
-    // 保持 16:9
-    float target_ratio = 16.0f / 9.0f;
-    int video_w, video_h;
-    
-    if (static_cast<float>(cell_w) / cell_h > target_ratio) {
-        video_h = cell_h - 4;  // 留2像素边框
-        video_w = static_cast<int>(video_h * target_ratio);
+    // 基于丢包调整带宽估计
+    if (packet_loss_rate_ > 0.1) {
+        // 严重拥塞，大幅降低
+        estimated_bandwidth_ = static_cast<int>(
+            estimated_bandwidth_ * 0.7);
+    } else if (packet_loss_rate_ > 0.02) {
+        // 轻微拥塞，适当降低
+        estimated_bandwidth_ = static_cast<int>(
+            estimated_bandwidth_ * 0.9);
     } else {
-        video_w = cell_w - 4;
-        video_h = static_cast<int>(video_w / target_ratio);
+        // 网络良好，可以尝试增加
+        estimated_bandwidth_ = static_cast<int>(
+            estimated_bandwidth_ * 1.05);
     }
     
-    // 计算每个视频的位置
-    for (size_t i = 0; i < stream_count; ++i) {
-        int row = static_cast<int>(i) / cols;
-        int col = static_cast<int>(i) % cols;
-        
-        int x = col * cell_w + (cell_w - video_w) / 2;
-        int y = row * cell_h + (cell_h - video_h) / 2;
-        
-        layouts.push_back({x, y, video_w, video_h});
-    }
+    // 限制范围
+    estimated_bandwidth_ = std::clamp(estimated_bandwidth_, 200, 10000);
+}
+```
+
+---
+
+## 4. 房间事件处理
+
+### 4.1 房间状态模型
+
+```
+Room State:
+├── room_id: string
+├── local_user: UserInfo
+├── remote_users: Map<user_id, UserInfo>
+├── connections: Map<user_id, PeerConnection>
+└── layout: LayoutState
+
+UserInfo:
+├── user_id: string
+├── nickname: string
+├── has_audio: bool
+├── has_video: bool
+├── is_speaking: bool
+├── is_screen_sharing: bool
+└── join_time: timestamp
+```
+
+### 4.2 事件类型
+
+| 事件 | 描述 | 处理动作 |
+|:---|:---|:---|
+| `user-joined` | 新用户加入 | 创建订阅、添加视频格子 |
+| `user-left` | 用户离开 | 关闭订阅、移除视频格子 |
+| `stream-added` | 用户发布流 | 订阅流、绑定渲染 |
+| `stream-removed` | 用户停止发布 | 取消订阅 |
+| `audio-status-changed` | 音频开关 | 更新 UI 状态 |
+| `video-status-changed` | 视频开关 | 更新 UI 状态 |
+| `speaking-changed` | 说话状态 | 高亮显示 |
+| `active-speaker` | 当前主讲人 | 切换布局 |
+
+### 4.3 事件处理器实现
+
+```cpp
+// room_event_handler.h
+#pragma once
+
+#include <functional>
+#include <json/json.h>
+
+namespace live {
+
+enum class RoomEventType {
+    USER_JOINED,
+    USER_LEFT,
+    STREAM_ADDED,
+    STREAM_REMOVED,
+    AUDIO_STATUS_CHANGED,
+    VIDEO_STATUS_CHANGED,
+    SPEAKING_CHANGED,
+    ACTIVE_SPEAKER_CHANGED,
+    CONNECTION_STATE_CHANGED,
+    ERROR
+};
+
+struct RoomEvent {
+    RoomEventType type;
+    std::string user_id;
+    Json::Value data;
+};
+
+class RoomEventHandler {
+public:
+    using EventCallback = std::function<void(const RoomEvent&)>;
     
-    return layouts;
+    void RegisterCallback(RoomEventType type, EventCallback callback);
+    void HandleEvent(const RoomEvent& event);
+    
+    // 具体事件处理
+    void OnUserJoined(const std::string& user_id, const Json::Value& user_info);
+    void OnUserLeft(const std::string& user_id);
+    void OnStreamAdded(const std::string& user_id, const std::string& stream_type);
+    void OnStreamRemoved(const std::string& user_id);
+    void OnSpeakingChanged(const std::string& user_id, bool is_speaking);
+    void OnActiveSpeakerChanged(const std::string& user_id);
+    
+private:
+    std::map<RoomEventType, std::vector<EventCallback>> callbacks_;
+};
+
+} // namespace live
+```
+
+```cpp
+// room_event_handler.cpp
+
+#include "room_event_handler.h"
+
+namespace live {
+
+void RoomEventHandler::RegisterCallback(RoomEventType type, 
+                                         EventCallback callback) {
+    callbacks_[type].push_back(callback);
 }
 
-// CPU 软合成 (简化版)
-void VideoCompositorImpl::CompositeCPU(
-    const std::vector<VideoFrame>& frames,
-    const std::vector<VideoLayout>& layouts,
-    uint8_t* output_yuv,
-    int canvas_width,
-    int canvas_height) {
-    
-    size_t y_size = canvas_width * canvas_height;
-    uint8_t* y_plane = output_yuv;
-    uint8_t* u_plane = output_yuv + y_size;
-    uint8_t* v_plane = output_yuv + y_size + y_size / 4;
-    
-    // 清空画布 (黑色)
-    memset(y_plane, 0, y_size);
-    memset(u_plane, 128, y_size / 4);
-    memset(v_plane, 128, y_size / 4);
-    
-    // 合成每个视频
-    for (size_t i = 0; i < frames.size() && i < layouts.size(); ++i) {
-        const auto& frame = frames[i];
-        const auto& layout = layouts[i];
-        
-        // 缩放并复制到画布 (简化版，实际应使用更好的缩放算法)
-        ScaleAndCopy(frame, layout, 
-                    y_plane, u_plane, v_plane,
-                    canvas_width, canvas_height);
+void RoomEventHandler::HandleEvent(const RoomEvent& event) {
+    auto it = callbacks_.find(event.type);
+    if (it != callbacks_.end()) {
+        for (const auto& callback : it->second) {
+            callback(event);
+        }
     }
+}
+
+void RoomEventHandler::OnUserJoined(const std::string& user_id,
+                                     const Json::Value& user_info) {
+    RoomEvent event;
+    event.type = RoomEventType::USER_JOINED;
+    event.user_id = user_id;
+    event.data = user_info;
+    HandleEvent(event);
+    
+    LOG_INFO("User joined: %s, nickname: %s", 
+             user_id.c_str(), 
+             user_info["nickname"].asString().c_str());
+}
+
+void RoomEventHandler::OnUserLeft(const std::string& user_id) {
+    RoomEvent event;
+    event.type = RoomEventType::USER_LEFT;
+    event.user_id = user_id;
+    HandleEvent(event);
+    
+    LOG_INFO("User left: %s", user_id.c_str());
+}
+
+void RoomEventHandler::OnSpeakingChanged(const std::string& user_id,
+                                          bool is_speaking) {
+    RoomEvent event;
+    event.type = RoomEventType::SPEAKING_CHANGED;
+    event.user_id = user_id;
+    event.data["is_speaking"] = is_speaking;
+    HandleEvent(event);
+    
+    LOG_DEBUG("User %s speaking state: %s",
+              user_id.c_str(), is_speaking ? "true" : "false");
+}
+
+void RoomEventHandler::OnActiveSpeakerChanged(const std::string& user_id) {
+    RoomEvent event;
+    event.type = RoomEventType::ACTIVE_SPEAKER_CHANGED;
+    event.user_id = user_id;
+    HandleEvent(event);
+    
+    LOG_INFO("Active speaker changed to: %s", user_id.c_str());
 }
 
 } // namespace live
 ```
 
-### 5.4 主流程实现
+### 4.4 信令消息格式
 
-```cpp
-// mcu_room.cpp
-#include "mcu_room.h"
-
-namespace live {
-
-void McuRoom::ProcessLoop() {
-    const auto frame_duration = std::chrono::milliseconds(1000 / 30);  // 30fps
-    
-    while (running_) {
-        auto start = std::chrono::steady_clock::now();
-        
-        // 1. 从输入模块获取解码后的帧
-        auto audio_frames = input_processor_->GetAudioFrames();
-        auto video_frames = input_processor_->GetVideoFrames();
-        
-        // 2. 音频混音
-        if (!audio_frames.empty()) {
-            for (const auto& frame : audio_frames) {
-                audio_mixer_->AddFrame(frame.stream_id, frame);
-            }
-            auto mixed_audio = audio_mixer_->Mix();
-            
-            // 编码并输出
-            auto rtp_packets = encoder_->EncodeAudio(mixed_audio);
-            for (const auto& packet : rtp_packets) {
-                if (output_callback_) {
-                    output_callback_(packet.data, true);
-                }
-            }
-        }
-        
-        // 3. 视频混画
-        if (!video_frames.empty()) {
-            for (const auto& frame : video_frames) {
-                video_compositor_->AddFrame(frame.stream_id, frame);
-            }
-            auto composited_video = video_compositor_->Composite();
-            
-            // 编码并输出
-            auto rtp_packets = encoder_->EncodeVideo(composited_video);
-            for (const auto& packet : rtp_packets) {
-                if (output_callback_) {
-                    output_callback_(packet.data, false);
-                }
-            }
-        }
-        
-        // 4. 控制帧率
-        auto elapsed = std::chrono::steady_clock::now() - start;
-        if (elapsed < frame_duration) {
-            std::this_thread::sleep_for(frame_duration - elapsed);
-        }
-    }
+```json
+// 用户加入通知
+{
+  "type": "user-joined",
+  "user_id": "user_123",
+  "nickname": "张三",
+  "timestamp": 1699000000000
 }
 
-} // namespace live
+// 流发布通知
+{
+  "type": "stream-added",
+  "user_id": "user_123",
+  "stream_id": "stream_456",
+  "audio": true,
+  "video": true,
+  "simulcast": ["high", "medium", "low"]
+}
+
+// 说话检测通知
+{
+  "type": "speaking-changed",
+  "user_id": "user_123",
+  "is_speaking": true,
+  "audio_level": 0.75
+}
+
+// 订阅请求
+{
+  "type": "subscribe",
+  "target_user_id": "user_123",
+  "audio": true,
+  "video": true,
+  "layer": "medium"
+}
+```
+
+---
+
+## 5. 音频管理
+
+### 5.1 客户端音频混音
+
+多人会议中，如果同时播放多个远端音频，需要混音处理：
+
+```cpp
+class AudioMixer {
+public:
+    // 添加音频源
+    void AddSource(const std::string& user_id);
+    
+    // 移除音频源
+    void RemoveSource(const std::string& user_id);
+    
+    // 输入音频帧
+    void PushAudio(const std::string& user_id, 
+                   const int16_t* pcm_data, 
+                   int samples);
+    
+    // 获取混音后的音频
+    void GetMixedAudio(int16_t* output, int samples);
+    
+private:
+    struct AudioSource {
+        std::queue<std::vector<int16_t>> buffer;
+        float volume = 1.0f;
+        bool muted = false;
+    };
+    
+    std::map<std::string, AudioSource> sources_;
+    std::mutex mutex_;
+};
+
+void AudioMixer::GetMixedAudio(int16_t* output, int samples) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    
+    // 清零输出
+    std::fill(output, output + samples, 0);
+    
+    // 混音
+    for (auto& [user_id, source] : sources_) {
+        if (source.muted || source.buffer.empty()) continue;
+        
+        auto& frame = source.buffer.front();
+        int frame_samples = static_cast<int>(frame.size());
+        int mix_samples = std::min(samples, frame_samples);
+        
+        for (int i = 0; i < mix_samples; ++i) {
+            // 简单叠加（实际需要溢出处理）
+            int32_t sum = output[i] + static_cast<int32_t>(
+                frame[i] * source.volume);
+            output[i] = static_cast<int16_t>(
+                std::clamp(sum, -32768, 32767));
+        }
+        
+        source.buffer.pop();
+    }
+}
+```
+
+### 5.2 音量检测（VU Meter）
+
+```cpp
+class VolumeDetector {
+public:
+    // 计算音频帧的 RMS 音量
+    float CalculateVolume(const int16_t* pcm_data, int samples) {
+        double sum_squares = 0.0;
+        for (int i = 0; i < samples; ++i) {
+            sum_squares += pcm_data[i] * pcm_data[i];
+        }
+        double rms = std::sqrt(sum_squares / samples);
+        
+        // 归一化到 0-1
+        return static_cast<float>(
+            std::min(rms / 32768.0, 1.0));
+    }
+    
+    // 检测是否正在说话（阈值检测）
+    bool IsSpeaking(const int16_t* pcm_data, int samples) {
+        float volume = CalculateVolume(pcm_data, samples);
+        
+        // 应用平滑
+        smoothed_volume_ = smoothed_volume_ * 0.8f + volume * 0.2f;
+        
+        // 迟滞比较，避免抖动
+        if (smoothed_volume_ > kSpeakingThreshold) {
+            is_speaking_ = true;
+        } else if (smoothed_volume_ < kSpeakingThreshold * 0.7f) {
+            is_speaking_ = false;
+        }
+        
+        return is_speaking_;
+    }
+    
+private:
+    float smoothed_volume_ = 0.0f;
+    bool is_speaking_ = false;
+    static constexpr float kSpeakingThreshold = 0.05f;
+};
 ```
 
 ---
 
 ## 6. 本章总结
 
-### 6.1 核心知识点回顾
-
-本章我们学习了 MCU 混音混画的核心技术：
-
-**1. MCU vs SFU**：
-- SFU：选择性转发，低延迟，客户端接收多路流
-- MCU：混音混画，高延迟，客户端只接收 1 路合流
-- 选择依据：会议规模、网络环境、录制需求
-
-**2. 音频混音**：
-- 核心原理：PCM 采样点相加
-- 溢出处理：硬限幅、动态压缩、自适应归一化
-- VAD 优化：只混音活跃的音频流
-
-**3. 视频混画**：
-- 布局设计：网格、主讲人、画中画
-- 图像处理：YUV 缩放、裁剪、格式转换
-- GPU 加速：使用 Shader 进行并行合成
-
-**4. MCU 流水线**：
-- 输入处理 → 混音/混画 → 编码 → 输出
-- 延迟来源：JitterBuffer、解码、合成、编码
-- 优化方向：GPU 加速、零拷贝、流水线并行
-
-### 6.2 MCU 选型建议
-
-| 场景 | 推荐方案 | 原因 |
-|:---|:---|:---|
-| 小型会议 (4-20人) | 纯 SFU | 低延迟、布局灵活 |
-| 中型会议 (20-50人) | SFU + 可选 MCU | 参与者用 SFU，观众用 MCU |
-| 大型会议 (50+人) | 纯 MCU 或 CDN | 客户端只需接收 1 路 |
-| 需要录制 | MCU | 直接录制合流 |
-| 移动优先 | MCU | 弱网环境下更稳定 |
-
-### 6.3 常见陷阱
-
-**陷阱 1：CPU 软混画**
+### 6.1 核心概念回顾
 
 ```
-错误：使用纯 CPU 进行 16 路 1080p 混画
-结果：单帧处理 500ms，完全不可用
-正确：必须使用 GPU 加速
+多人会议客户端技术栈：
+
+┌─────────────────────────────────────────┐
+│  布局管理（网格/主讲人/PIP）              │
+├─────────────────────────────────────────┤
+│  动态订阅（Simulcast 层选择）             │
+├─────────────────────────────────────────┤
+│  带宽自适应（RTCP 反馈）                  │
+├─────────────────────────────────────────┤
+│  事件处理（用户/流/状态）                 │
+├─────────────────────────────────────────┤
+│  音频混音 + 音量检测                      │
+├─────────────────────────────────────────┤
+│  WebRTC 连接管理                          │
+└─────────────────────────────────────────┘
 ```
 
-**陷阱 2：忽略音频同步**
+### 6.2 关键学习点
 
-```
-问题：视频和音频处理延迟不同步
-结果：口型对不上，用户体验差
-解决：统一时间戳，保持同步
-```
+1. **发布/订阅模型**：灵活控制接收哪些流
+2. **动态布局**：根据人数和模式自动调整
+3. **带宽管理**：Simulcast + 自适应层选择
+4. **事件驱动**：房间状态变化及时响应
+5. **音频处理**：混音 + 说话检测
 
-**陷阱 3：混音溢出**
+### 6.3 与下一章的衔接
 
-```
-问题：多路音频直接相加导致削波失真
-结果：音质严重下降
-解决：使用动态压缩或自适应归一化
-```
+本章完成了**客户端**的多人会议功能。但要支持更多用户（如 100+ 人），单靠 SFU 还不够，需要考虑 **MCU 混音混画** 来降低下行带宽。
 
-### 6.4 课后练习
-
-1. **思考题**：
-   - 为什么 MCU 的延迟比 SFU 高？延迟主要来自哪些环节？
-   - 如果要支持 100 人会议，你会如何设计 MCU 的混音策略？
-   - GPU 混画相比 CPU 混画有哪些优势？实现难点在哪里？
-
-2. **编程题**：
-   - 实现一个简单的双路音频混音器，支持溢出保护
-   - 实现网格布局计算算法，支持 1-16 路视频
-   - 使用 OpenGL 编写一个简单的双路视频混画 Shader
-
-3. **拓展阅读**：
-   - 研究 FFmpeg 的 `libswscale` 库，了解 YUV 缩放的高效实现
-   - 学习 OpenGL FBO（Frame Buffer Object）的使用方法
-   - 了解现代 GPU 的 NVENC/VA-API 硬件编码
-
-### 6.5 下一章预告
-
-在第二十四章《录制与回放》中，我们将学习：
-
-- **录制需求分析**：单流录制 vs 合流录制，格式选择
-- **服务端录制**：从 SFU/MCU 录制，文件分段策略
-- **HLS 时移回放**：实现直播的时移功能
-- **DASH 协议**：多码率自适应播放
-
-录制是直播系统的核心功能之一，云端录制可以为业务提供回放、审核、剪辑等能力。下一章将带你深入理解录制的技术原理和实现方法。
+下一章 **MCU 混音混画详解** 将介绍服务端如何混合多路音视频，让每个人都能以较低带宽观看统一画面。
 
 ---
 
-**课后思考**：如果你要设计一个支持 1000 人同时在线的大型直播系统，你会如何组合使用 SFU、MCU 和 CDN？
+## 课后思考
+
+1. **布局算法优化**：当用户超过 16 人时，网格布局需要分页或滚动。如何设计合理的分页策略？
+
+2. **带宽分配**：假设总带宽 2Mbps，房间内 6 个远端用户，如何分配每个人的订阅质量？是平均分配还是按需分配？
+
+3. **说话检测延迟**：说话检测通常有 100-200ms 的检测延迟，如何让用户感知不到切换主讲人的延迟？
+
+4. **音频混音性能**：10 人会议意味着 10 路音频混音。如何优化混音算法以降低 CPU 占用？（提示：只混活跃说话者）

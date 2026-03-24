@@ -1,1284 +1,974 @@
-# 第十七章：UDP与实时传输
+# 第16.5章：网络编程基础（新增）
 
-> **本章目标**：掌握 UDP 协议的基础编程，理解 RTP/RTCP 协议，实现实时音视频传输。
+| 项目 | 内容 |
+|:---|:---|
+| **本章目标** | 掌握Socket API、UDP编程、字节序转换等网络编程基础 |
+| **难度** | ⭐⭐ 中等 |
+| **前置知识** | Ch16：主播端架构、C++ 基础 |
+| **预计时间** | 2-3 小时 |
 
-在第十六章中，我们构建了完整的主播端架构，使用 RTMP 协议进行推流。RTMP 基于 TCP 传输，虽然可靠但延迟较高（1-3秒），无法满足连麦互动的实时性需求。
+> **本章引言**：在学习实时传输协议（RTP/RTCP）之前，我们需要先掌握网络编程的基础知识。本章将从最底层的 Socket API 开始，带你理解网络通信的本质。
 
-本章将深入 **UDP 协议栈**，这是所有实时通信技术的基石。从 UDP 基础编程到 RTP/RTCP 协议，再到 JitterBuffer 抖动缓冲，你将建立起完整的实时传输知识体系。
+**本章与项目的关系**：
+```mermaid
+flowchart LR
+    subgraph "P6 P2P通话工具"
+        A["Ch16 主播端架构"] --> B["📍 Ch17 网络编程基础"]
+        B --> C["Ch18 UDP与RTP"]
+        C --> D["Ch19 NAT穿透"]
+        D --> E["P6 P2P通话工具"]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px
+```
 
-**学习本章后，你将能够**：
-- 理解为什么 UDP 比 TCP 更适合实时通信
-- 掌握 UDP Socket 编程的核心 API
-- 理解 RTP 协议头部结构和负载封装
-- 使用 RTCP 进行质量反馈和带宽估计
-- 实现 JitterBuffer 平滑网络抖动
+通过本章的学习，你将：
+- 理解 Socket API 的核心概念
+- 掌握 UDP 编程的基本方法
+- 理解字节序问题及解决方案
+- 能够编写简单的网络通信程序
 
-**本章与第十六章的关系**：
-- Ch16 是 **主播端架构** —— 如何采集、处理、编码、推流
-- Ch17 是 **实时传输基础** —— 如何用 UDP 实现低延迟传输
+**阅读指南**：
+- 第 1-2 节：Socket API 基础，理解网络编程接口
+- 第 3-4 节：UDP 编程详解，掌握无连接通信
+- 第 5-6 节：字节序与数据序列化
+- 第 7-8 节：实战示例与常见问题
 
 ---
 
 ## 目录
 
-1. [为什么 UDP 更适合实时通信？](#1-为什么-udp-更适合实时通信)
-2. [UDP 编程基础](#2-udp-编程基础)
-3. [RTP 协议详解](#3-rtp-协议详解)
-4. [RTCP 协议](#4-rtcp-协议)
-5. [JitterBuffer 抖动缓冲](#5-jitterbuffer-抖动缓冲)
-6. [本章总结](#6-本章总结)
+1. [Socket API 基础](#1-socket-api-基础)
+2. [地址与端口](#2-地址与端口)
+3. [UDP 编程入门](#3-udp-编程入门)
+4. [UDP 高级话题](#4-udp-高级话题)
+5. [字节序问题](#5-字节序问题)
+6. [数据序列化](#6-数据序列化)
+7. [实战：Echo 服务器](#7-实战echo-服务器)
+8. [FAQ 常见问题](#8-faq-常见问题)
+9. [本章小结](#9-本章小结)
+10. [下章预告](#10-下章预告)
 
 ---
 
-## 1. 为什么 UDP 更适合实时通信？
+## 1. Socket API 基础
 
-### 1.1 TCP 的"可靠性"代价
+### 1.1 什么是 Socket
 
-TCP（Transmission Control Protocol）是互联网最常用的传输协议，它的设计目标是 **可靠传输**。但这份"可靠性"在实时通信场景下却成了负担：
-
-**TCP 的可靠性机制**：
+**Socket（套接字）**是操作系统提供的网络通信接口，是应用程序与网络协议栈之间的桥梁。
 
 ```
-发送方: [Pkt1] [Pkt2] [Pkt3] [Pkt4] [Pkt5]
-            ↓     ↓     ↓     ↓     ↓
-接收方: [Pkt1] [Pkt2]       [Pkt4] [Pkt5]
-                      ↑
-                  Pkt3 丢失！
-                      ↓
-            [等待重传 Pkt3...]
-                      ↓
-            [Pkt3] 终于到达
-                      ↓
-        按序交付: [Pkt1] [Pkt2] [Pkt3] [Pkt4] [Pkt5]
+┌─────────────────────────────────────────────────┐
+│                  应用程序                        │
+│              (你的代码)                          │
+├─────────────────────────────────────────────────┤
+│  ┌─────────┐  ┌─────────┐  ┌─────────────────┐  │
+│  │ Socket  │  │ Socket  │  │     Socket      │  │
+│  │  (TCP)  │  │  (UDP)  │  │   (Raw IP)      │  │
+│  └────┬────┘  └────┬────┘  └────────┬────────┘  │
+├───────┼────────────┼────────────────┼───────────┤
+│       ↓            ↓                ↓           │
+│  ┌──────────────────────────────────────────┐   │
+│  │         传输层 (TCP/UDP)                  │   │
+│  └──────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────┐   │
+│  │         网络层 (IP)                       │   │
+│  └──────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────┐   │
+│  │         链路层 (以太网/WiFi)              │   │
+│  └──────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────┘
 ```
 
-TCP 为了保证可靠性，引入了三个关键机制：
+### 1.2 Socket 类型
 
-| 机制 | 作用 | 实时通信中的问题 |
-|:---|:---|:---|
-| **重传机制** | 丢包后重发 | 重传增加延迟，过时数据无用 |
-| **队头阻塞** | 保证数据顺序 | 一个丢包阻塞后续所有数据 |
-| **拥塞控制** | 防止网络过载 | 过度保守，无法适应实时需求 |
+| Socket 类型 | 协议 | 特点 | 适用场景 |
+|:---:|:---:|:---|:---|
+| **SOCK_STREAM** | TCP | 面向连接、可靠、有序 | 文件传输、HTTP |
+| **SOCK_DGRAM** | UDP | 无连接、不可靠、快速 | 实时音视频、DNS |
+| **SOCK_RAW** | IP | 直接访问底层 | 网络工具、ping |
 
-### 1.2 队头阻塞：TCP 的致命伤
-
-**队头阻塞（Head-of-Line Blocking）** 是 TCP 在实时场景下的最大问题：
-
-![TCP 队头阻塞](./diagrams/tcp-hol-blocking.svg)
-
-```
-时间线 →
-
-TCP 场景:
-Pkt1 Pkt2 Pkt3  Pkt4  Pkt5  Pkt6
- │    │    │     │     │     │
- ▼    ▼    ▼     ▼     ▼     ▼
-[1]  [2]  [丢]  [4]   [5]   [6]
-  │    │   ↑     │     │     │
-  │    │   │     │     │     │
-  ▼    ▼   │     ▼     ▼     ▼
- [应用层必须等待Pkt3重传]
-  │    │   │     │     │     │
-  ▼    ▼   ▼     ▼     ▼     ▼
- [1]  [2] [3]   [4]   [5]   [6]  ← 延迟剧增！
-
-UDP 场景:
-Pkt1 Pkt2 Pkt3  Pkt4  Pkt5  Pkt6
- │    │    │     │     │     │
- ▼    ▼    ▼     ▼     ▼     ▼
-[1]  [2]  [丢]  [4]   [5]   [6]
-  │    │         │     │     │
-  ▼    ▼         ▼     ▼     ▼
- [1]  [2]       [4]   [5]   [6]  ← 立即交付可用数据
-```
-
-在视频通话中，第3帧丢失后，第4、5、6帧可能已经到达。TCP 会强制等待第3帧重传，导致画面卡顿；而 UDP 可以立即显示第4、5、6帧，虽然少了第3帧，但画面是连续的。
-
-### 1.3 实时通信的核心诉求
-
-实时音视频通信有独特的需求：
-
-**"快"比"全"更重要**：
-- 视频会议：宁愿丢掉几帧，也不能让整个画面卡住
-- 直播连麦：说话者的声音必须实时到达，晚到的数据毫无意义
-
-**"适度丢包"是可接受的**：
-- 视频帧率 30fps，丢掉 1 帧，用户几乎察觉不到
-- 音频有丢包隐藏（PLC）技术，可以"伪造"丢失的采样
-
-**需要应用层控制**：
-- 何时重传、何时放弃，应该由应用决定
-- 编码层可以主动降低码率，而非 TCP 强制降速
-
-### 1.4 TCP vs UDP 对比
-
-![TCP vs UDP 对比](./diagrams/tcp-vs-udp.svg)
-
-| 特性 | TCP | UDP | 实时场景偏好 |
-|:---|:---|:---|:---:|
-| **连接方式** | 面向连接 | 无连接 | UDP |
-| **可靠性** | 可靠传输 | 尽力而为 | UDP |
-| **顺序保证** | 有序交付 | 无序 | UDP |
-| **拥塞控制** | 内置 | 无 | UDP |
-| **头部开销** | 20-60 字节 | 8 字节 | UDP |
-| **延迟** | 可变（重传延迟）| 稳定 | UDP |
-| **适用场景** | 文件传输、网页 | 音视频、游戏 | - |
-
-### 1.5 实时传输的正确姿势
-
-使用 UDP 不代表放弃可靠性，而是 **把可靠性控制交给应用层**：
-
-```
-┌─────────────────────────────────────────┐
-│           应用层（你的代码）              │
-│  ┌─────────────┐    ┌─────────────┐    │
-│  │  丢包恢复    │    │  拥塞控制   │    │
-│  │  (NACK/PLC) │    │  (GCC)      │    │
-│  └─────────────┘    └─────────────┘    │
-│  ┌─────────────┐    ┌─────────────┐    │
-│  │  抖动缓冲    │    │  前向纠错   │    │
-│  │(JitterBuffer)│   │  (FEC)      │    │
-│  └─────────────┘    └─────────────┘    │
-└─────────────────────────────────────────┘
-                   ↓
-┌─────────────────────────────────────────┐
-│              传输层 (UDP)               │
-│         快速、无阻塞、低开销             │
-└─────────────────────────────────────────┘
-```
-
-**关键设计原则**：
-1. **快速发送**：UDP 不阻塞，数据准备好立即发送
-2. **智能丢包处理**：关键帧必须重传，非关键帧可以丢
-3. **自适应码率**：根据网络状况动态调整编码码率
-4. **平滑抖动**：用 JitterBuffer 吸收网络时延波动
-
----
-
-## 2. UDP 编程基础
-
-### 2.1 UDP Socket 核心 API
-
-UDP 编程比 TCP 简单得多，核心只有四个操作：
+### 1.3 核心 API 概览
 
 ```cpp
-// 1. 创建 UDP Socket
-int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-
-// 2. 绑定本地地址（服务器端必需）
-bind(sockfd, (struct sockaddr*)&local_addr, sizeof(local_addr));
-
-// 3. 发送数据
-sendto(sockfd, buffer, len, 0, 
-       (struct sockaddr*)&dest_addr, sizeof(dest_addr));
-
-// 4. 接收数据
-recvfrom(sockfd, buffer, max_len, 0,
-         (struct sockaddr*)&from_addr, &addr_len);
-```
-
-### 2.2 UDP 服务器示例
-
-```cpp
-// ============================================
-// 简单的 UDP Echo 服务器
-// ============================================
-#pragma once
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <unistd.h>
-#include <cstring>
-#include <functional>
 
-namespace live {
+// 创建 Socket
+int socket(int domain, int type, int protocol);
 
-class UdpServer {
-public:
-    using PacketHandler = std::function<void(
-        const uint8_t* data, size_t len,
-        const sockaddr_in& from)>;
+// 绑定地址（服务器）
+int bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 
-    UdpServer() : sockfd_(-1) {}
+// 监听连接（TCP服务器）
+int listen(int sockfd, int backlog);
+
+// 接受连接（TCP服务器）
+int accept(int sockfd, struct sockaddr* addr, socklen_t* addrlen);
+
+// 连接到服务器（TCP客户端）
+int connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
+
+// 发送数据
+ssize_t send(int sockfd, const void* buf, size_t len, int flags);
+ssize_t sendto(int sockfd, const void* buf, size_t len, int flags,
+               const struct sockaddr* dest_addr, socklen_t addrlen);
+
+// 接收数据
+ssize_t recv(int sockfd, void* buf, size_t len, int flags);
+ssize_t recvfrom(int sockfd, void* buf, size_t len, int flags,
+                 struct sockaddr* src_addr, socklen_t* addrlen);
+
+// 关闭 Socket
+int close(int sockfd);
+```
+
+### 1.4 最简单的 TCP 客户端
+
+```cpp
+// simple_tcp_client.cpp
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+int main() {
+    // 1. 创建 Socket
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        perror("socket");
+        return 1;
+    }
     
-    ~UdpServer() { Stop(); }
-
-    // 绑定本地端口
-    bool Bind(uint16_t port) {
-        sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);
-        if (sockfd_ < 0) return false;
-
-        sockaddr_in addr{};
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(port);
-        addr.sin_addr.s_addr = INADDR_ANY;
-
-        if (bind(sockfd_, (sockaddr*)&addr, sizeof(addr)) < 0) {
-            close(sockfd_);
-            sockfd_ = -1;
-            return false;
-        }
-        return true;
+    // 2. 设置服务器地址
+    struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(8080);
+    inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr);
+    
+    // 3. 连接服务器
+    if (connect(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        perror("connect");
+        close(sockfd);
+        return 1;
     }
-
-    // 启动接收循环（阻塞模式）
-    void StartBlocking(PacketHandler handler) {
-        uint8_t buffer[2048];
-        sockaddr_in from_addr;
-        socklen_t addr_len = sizeof(from_addr);
-
-        while (running_) {
-            ssize_t n = recvfrom(sockfd_, buffer, sizeof(buffer), 0,
-                                 (sockaddr*)&from_addr, &addr_len);
-            if (n > 0 && handler) {
-                handler(buffer, n, from_addr);
-            }
-        }
+    
+    printf("Connected to server\n");
+    
+    // 4. 发送数据
+    const char* msg = "Hello, Server!";
+    send(sockfd, msg, strlen(msg), 0);
+    
+    // 5. 接收响应
+    char buffer[1024];
+    int n = recv(sockfd, buffer, sizeof(buffer) - 1, 0);
+    if (n > 0) {
+        buffer[n] = '\0';
+        printf("Received: %s\n", buffer);
     }
-
-    // 发送数据到指定地址
-    void SendTo(const uint8_t* data, size_t len, 
-                const sockaddr_in& to) {
-        sendto(sockfd_, data, len, 0, 
-               (sockaddr*)&to, sizeof(to));
-    }
-
-    void Stop() {
-        running_ = false;
-        if (sockfd_ >= 0) {
-            close(sockfd_);
-            sockfd_ = -1;
-        }
-    }
-
-private:
-    int sockfd_;
-    bool running_ = true;
-};
-
-} // namespace live
+    
+    // 6. 关闭连接
+    close(sockfd);
+    return 0;
+}
 ```
 
-### 2.3 UDP 客户端示例
+编译运行：
+```bash
+g++ -o simple_tcp_client simple_tcp_client.cpp
+./simple_tcp_client
+```
+
+---
+
+## 2. 地址与端口
+
+### 2.1 IPv4 地址结构
 
 ```cpp
-// ============================================
-// UDP 客户端
-// ============================================
-#pragma once
-#include "udp_server.hpp"
+// IPv4 地址结构（网络字节序）
+struct in_addr {
+    uint32_t s_addr;  // 32位 IP 地址
+};
 
-namespace live {
+// IPv4 Socket 地址
+struct sockaddr_in {
+    sa_family_t    sin_family;  // 地址族：AF_INET
+    in_port_t      sin_port;    // 16位端口号（网络字节序）
+    struct in_addr sin_addr;    // 32位 IP 地址
+    char           sin_zero[8]; // 填充字节
+};
 
-class UdpClient {
-public:
-    bool Connect(const char* ip, uint16_t port) {
-        sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);
-        if (sockfd_ < 0) return false;
+// 通用地址结构（用于 API 参数）
+struct sockaddr {
+    sa_family_t sa_family;    // 地址族
+    char        sa_data[14];  // 地址数据
+};
+```
 
-        server_addr_.sin_family = AF_INET;
-        server_addr_.sin_port = htons(port);
-        inet_pton(AF_INET, ip, &server_addr_.sin_addr);
+### 2.2 地址转换函数
+
+```cpp
+#include <arpa/inet.h>
+
+// 点分十进制字符串 -> 网络字节序二进制
+// 成功返回 1，格式错误返回 0
+int inet_pton(int af, const char* src, void* dst);
+
+// 网络字节序二进制 -> 点分十进制字符串
+// 成功返回字符串指针，失败返回 NULL
+const char* inet_ntop(int af, const void* src, char* dst, socklen_t size);
+
+// 示例
+struct in_addr addr;
+inet_pton(AF_INET, "192.168.1.1", &addr);  // 字符串转二进制
+
+char ip_str[INET_ADDRSTRLEN];
+inet_ntop(AF_INET, &addr, ip_str, sizeof(ip_str));  // 二进制转字符串
+```
+
+### 2.3 端口号的范围
+
+| 端口范围 | 名称 | 用途 |
+|:---:|:---:|:---|
+| 0-1023 | 知名端口 | 系统服务（HTTP:80, HTTPS:443） |
+| 1024-49151 | 注册端口 | 用户应用程序 |
+| 49152-65535 | 动态/私有端口 | 临时分配 |
+
+```cpp
+// 一些常用端口
+#define HTTP_PORT     80
+#define HTTPS_PORT    443
+#define RTMP_PORT     1935
+#define RTP_PORT_BASE 10000  // RTP 通常使用 10000-20000
+```
+
+### 2.4 地址族（Address Family）
+
+| 地址族 | 说明 | 使用场景 |
+|:---:|:---:|:---|
+| **AF_INET** | IPv4 | 大多数应用 |
+| **AF_INET6** | IPv6 | 下一代互联网 |
+| **AF_UNIX** | Unix 域套接字 | 本地进程通信 |
+| **AF_PACKET** | 底层数据包 | 网络抓包工具 |
+
+---
+
+## 3. UDP 编程入门
+
+### 3.1 UDP 的特点
+
+```
+┌─────────────────────────────────────────────────┐
+│              UDP 特点速览                       │
+├─────────────────────────────────────────────────┤
+│  ✓ 无连接        不需要建立连接，直接发送      │
+│  ✓ 低开销        头部仅 8 字节                │
+│  ✓ 快速          没有握手和确认延迟           │
+│  ✗ 不可靠        可能丢包、乱序、重复         │
+│  ✗ 无流量控制    可能 overwhelming 接收方     │
+└─────────────────────────────────────────────────┘
+```
+
+### 3.2 UDP 服务器
+
+```cpp
+// udp_server.cpp
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+int main() {
+    // 1. 创建 UDP Socket
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        perror("socket");
+        return 1;
+    }
+    
+    // 2. 绑定地址和端口
+    struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(8888);
+    server_addr.sin_addr.s_addr = INADDR_ANY;  // 监听所有接口
+    
+    if (bind(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        perror("bind");
+        close(sockfd);
+        return 1;
+    }
+    
+    printf("UDP Server listening on port 8888...\n");
+    
+    // 3. 接收和响应
+    char buffer[1024];
+    struct sockaddr_in client_addr;
+    socklen_t addr_len = sizeof(client_addr);
+    
+    while (1) {
+        // 接收数据
+        ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer) - 1, 0,
+                             (struct sockaddr*)&client_addr, &addr_len);
+        if (n < 0) {
+            perror("recvfrom");
+            continue;
+        }
         
-        connected_ = true;
-        return true;
+        buffer[n] = '\0';
+        
+        char client_ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, sizeof(client_ip));
+        printf("Received from %s:%d: %s\n", 
+               client_ip, ntohs(client_addr.sin_port), buffer);
+        
+        // 发送响应
+        const char* response = "Message received!";
+        sendto(sockfd, response, strlen(response), 0,
+               (struct sockaddr*)&client_addr, addr_len);
     }
-
-    // 发送数据
-    bool Send(const uint8_t* data, size_t len) {
-        if (!connected_) return false;
-        ssize_t sent = sendto(sockfd_, data, len, 0,
-                              (sockaddr*)&server_addr_, 
-                              sizeof(server_addr_));
-        return sent == (ssize_t)len;
-    }
-
-    // 接收数据（带超时）
-    bool Receive(uint8_t* buffer, size_t max_len, 
-                 size_t& received, int timeout_ms) {
-        // 设置接收超时
-        timeval tv{timeout_ms / 1000, 
-                   (timeout_ms % 1000) * 1000};
-        setsockopt(sockfd_, SOL_SOCKET, SO_RCVTIMEO, 
-                   &tv, sizeof(tv));
-
-        sockaddr_in from;
-        socklen_t addr_len = sizeof(from);
-        ssize_t n = recvfrom(sockfd_, buffer, max_len, 0,
-                             (sockaddr*)&from, &addr_len);
-        if (n > 0) {
-            received = n;
-            return true;
-        }
-        return false;
-    }
-
-private:
-    int sockfd_ = -1;
-    sockaddr_in server_addr_;
-    bool connected_ = false;
-};
-
-} // namespace live
+    
+    close(sockfd);
+    return 0;
+}
 ```
 
-### 2.4 非阻塞 IO 与事件循环
-
-生产环境必须使用 **非阻塞 IO + 事件驱动** 架构：
+### 3.3 UDP 客户端
 
 ```cpp
-// ============================================
-// 非阻塞 UDP 服务器（基于 epoll）
-// ============================================
-#pragma once
-#include <sys/epoll.h>
+// udp_client.cpp
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+int main() {
+    // 1. 创建 UDP Socket
+    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) {
+        perror("socket");
+        return 1;
+    }
+    
+    // 2. 设置服务器地址
+    struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(8888);
+    inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr);
+    
+    // 3. 发送数据
+    const char* msg = "Hello, UDP Server!";
+    sendto(sockfd, msg, strlen(msg), 0,
+           (struct sockaddr*)&server_addr, sizeof(server_addr));
+    
+    printf("Sent: %s\n", msg);
+    
+    // 4. 接收响应
+    char buffer[1024];
+    struct sockaddr_in from_addr;
+    socklen_t addr_len = sizeof(from_addr);
+    
+    ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer) - 1, 0,
+                         (struct sockaddr*)&from_addr, &addr_len);
+    if (n > 0) {
+        buffer[n] = '\0';
+        printf("Received: %s\n", buffer);
+    }
+    
+    close(sockfd);
+    return 0;
+}
+```
+
+### 3.4 编译和测试
+
+```bash
+# 编译
+g++ -o udp_server udp_server.cpp
+g++ -o udp_client udp_client.cpp
+
+# 终端 1：启动服务器
+./udp_server
+
+# 终端 2：运行客户端
+./udp_client
+```
+
+---
+
+## 4. UDP 高级话题
+
+### 4.1 UDP 缓冲区
+
+```cpp
+// 获取/设置接收缓冲区大小
+int recvbuf_size;
+socklen_t optlen = sizeof(recvbuf_size);
+getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &recvbuf_size, &optlen);
+printf("Default recv buffer: %d bytes\n", recvbuf_size);
+
+// 增大接收缓冲区（用于高码率视频）
+int new_size = 1024 * 1024;  // 1MB
+setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &new_size, sizeof(new_size));
+
+// 同样设置发送缓冲区
+int sndbuf_size = 1024 * 1024;
+setsockopt(sockfd, SOL_SOCKET, SO_SNDBUF, &sndbuf_size, sizeof(sndbuf_size));
+```
+
+### 4.2 非阻塞 IO
+
+```cpp
 #include <fcntl.h>
-#include <vector>
 
-namespace live {
+// 设置非阻塞模式
+int flags = fcntl(sockfd, F_GETFL, 0);
+fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
 
-class UdpServerAsync {
-public:
-    bool Initialize(uint16_t port) {
-        // 创建 socket
-        sockfd_ = socket(AF_INET, SOCK_DGRAM, 0);
-        if (sockfd_ < 0) return false;
-
-        // 设置为非阻塞模式
-        int flags = fcntl(sockfd_, F_GETFL, 0);
-        fcntl(sockfd_, F_SETFL, flags | O_NONBLOCK);
-
-        // 绑定地址
-        sockaddr_in addr{};
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(port);
-        addr.sin_addr.s_addr = INADDR_ANY;
-        bind(sockfd_, (sockaddr*)&addr, sizeof(addr));
-
-        // 创建 epoll 实例
-        epollfd_ = epoll_create1(0);
-        
-        // 注册读事件
-        epoll_event ev{};
-        ev.events = EPOLLIN;
-        ev.data.fd = sockfd_;
-        epoll_ctl(epollfd_, EPOLL_CTL_ADD, sockfd_, &ev);
-
-        return true;
+// 非阻塞接收
+ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer), 0, ...);
+if (n < 0) {
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        // 暂时没有数据，可以做其他事情
+    } else {
+        perror("recvfrom");
     }
-
-    // 事件循环
-    void RunLoop() {
-        epoll_event events[10];
-        while (running_) {
-            // 等待事件，最多阻塞 100ms
-            int nfds = epoll_wait(epollfd_, events, 10, 100);
-            
-            for (int i = 0; i < nfds; i++) {
-                if (events[i].data.fd == sockfd_) {
-                    OnSocketReadable();
-                }
-            }
-        }
-    }
-
-private:
-    void OnSocketReadable() {
-        uint8_t buffer[2048];
-        sockaddr_in from;
-        socklen_t addr_len = sizeof(from);
-
-        // 循环读取所有可用数据（边缘触发模式需要）
-        while (true) {
-            ssize_t n = recvfrom(sockfd_, buffer, sizeof(buffer), 0,
-                                 (sockaddr*)&from, &addr_len);
-            if (n <= 0) {
-                if (errno == EAGAIN || errno == EWOULDBLOCK) {
-                    break; // 没有更多数据了
-                }
-                // 处理错误
-                break;
-            }
-            // 处理数据包
-            ProcessPacket(buffer, n, from);
-        }
-    }
-
-    void ProcessPacket(const uint8_t* data, size_t len, 
-                       const sockaddr_in& from) {
-        // 实际业务逻辑
-    }
-
-    int sockfd_ = -1;
-    int epollfd_ = -1;
-    bool running_ = true;
-};
-
-} // namespace live
+}
 ```
 
-**非阻塞 IO 的优势**：
-- 单个线程可以处理数万连接
-- 没有线程切换开销
-- 响应延迟低且可控
+### 4.3 select/poll/epoll
 
-### 2.5 UDP 编程最佳实践
+```cpp
+// 使用 select 监听多个 socket
+fd_set readfds;
+FD_ZERO(&readfds);
+FD_SET(sockfd, &readfds);
 
-| 实践 | 说明 | 代码示例 |
-|:---|:---|:---|
-| **设置缓冲区大小** | 防止内核缓冲区溢出丢包 | `setsockopt(SO_RCVBUF/SO_SNDBUF)` |
-| **启用端口复用** | 服务器快速重启 | `setsockopt(SO_REUSEADDR)` |
-| **校验包大小** | UDP 包通常限制在 1500 字节以内 | 检查 MTU |
-| **处理 EAGAIN** | 非阻塞模式下无数据可读 | `if (errno == EAGAIN)` |
+struct timeval timeout;
+timeout.tv_sec = 1;  // 1秒超时
+timeout.tv_usec = 0;
+
+int ret = select(sockfd + 1, &readfds, NULL, NULL, &timeout);
+if (ret > 0 && FD_ISSET(sockfd, &readfds)) {
+    // 有数据可读
+    recvfrom(sockfd, buffer, sizeof(buffer), 0, ...);
+}
+```
 
 ---
 
-## 3. RTP 协议详解
+## 5. 字节序问题
 
-RTP（Real-time Transport Protocol）是实时音视频传输的事实标准，定义于 RFC 3550。它运行在 UDP 之上，为音视频数据提供时序信息和负载类型标识。
+### 5.1 什么是字节序
 
-### 3.1 RTP 设计目标
-
-RTP 不是凭空设计的，它要解决几个关键问题：
-
-| 问题 | RTP 解决方案 |
-|:---|:---|
-| 如何知道包的发送顺序？ | 序列号（Sequence Number） |
-| 如何同步音视频？ | 时间戳（Timestamp） |
-| 如何区分不同来源？ | 同步源标识（SSRC） |
-| 如何识别编码格式？ | 负载类型（Payload Type） |
-
-### 3.2 RTP 包结构
-
-![RTP 包结构](./diagrams/rtp-packet.svg)
+**字节序（Endianness）**指多字节数据在内存中的存储顺序。
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        IP 头部 (20 字节)                      │
-├─────────────────────────────────────────────────────────────┤
-│                       UDP 头部 (8 字节)                       │
-├─────────────────────────────────────────────────────────────┤
-│                       RTP 头部 (12+ 字节)                     │
-├─────────────────────────────────────────────────────────────┤
-│                      RTP 负载 (变长)                          │
-│                  (H.264 NALU / Opus 帧等)                     │
-└─────────────────────────────────────────────────────────────┘
+数值：0x12345678（32位整数）
+
+大端序（Big Endian）：高位字节在前
+地址：  低 ────────────────────> 高
+数据：  [0x12] [0x34] [0x56] [0x78]
+        ↑高位              低位↑
+
+小端序（Little Endian）：低位字节在前
+地址：  低 ────────────────────> 高
+数据：  [0x78] [0x56] [0x34] [0x12]
+        ↑低位              高位↑
 ```
 
-### 3.3 RTP 头部详解
+| 平台 | 字节序 |
+|:---:|:---:|
+| x86/x64 (Intel/AMD) | 小端序 |
+| ARM | 可配置，通常小端序 |
+| 网络协议 | 大端序 |
+| Motorola 68000 | 大端序 |
 
-![RTP 头部详解](./diagrams/rtp-header.svg)
+### 5.2 网络字节序转换
+
+```cpp
+#include <arpa/inet.h>
+
+// 主机字节序 -> 网络字节序（大端序）
+uint32_t htonl(uint32_t hostlong);   // 32位
+uint16_t htons(uint16_t hostshort);  // 16位
+
+// 网络字节序 -> 主机字节序
+uint32_t ntohl(uint32_t netlong);    // 32位
+uint16_t ntohs(uint16_t netshort);   // 16位
+
+// 示例
+uint16_t port = 8080;
+uint16_t net_port = htons(port);  // 主机 -> 网络
+
+uint32_t ip = 0xC0A80101;  // 192.168.1.1
+uint32_t net_ip = htonl(ip);
+```
+
+### 5.3 为什么要转换
 
 ```
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|V=2|P|X|  CC   |M|     PT      |       序列号 (Sequence)        |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                           时间戳 (Timestamp)                   |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|           同步源标识 (SSRC)                                    |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|           贡献源标识 (CSRC) 列表 (可选，0-15 项)               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+场景：x86 主机（小端序）发送数据到网络（大端序）
+
+不转换的错误：
+发送：0x1234 -> [0x34] [0x12]（小端序字节）
+接收方读取：[0x34] [0x12] 解释为大端序 = 0x3412 ❌
+
+正确转换：
+发送前：htons(0x1234) = 0x3412 内存表示 [0x12] [0x34]
+接收方：ntohs([0x12] [0x34]) = 0x1234 ✓
 ```
 
-**字段详解**：
+### 5.4 64位整数处理
 
-| 字段 | 位宽 | 说明 |
+```cpp
+// 64位整数字节序转换
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    #define htonll(x) __builtin_bswap64(x)
+    #define ntohll(x) __builtin_bswap64(x)
+#else
+    #define htonll(x) (x)
+    #define ntohll(x) (x)
+#endif
+
+// 使用
+uint64_t timestamp = htonll(GetTimestamp());
+send(sockfd, &timestamp, sizeof(timestamp), 0);
+```
+
+---
+
+## 6. 数据序列化
+
+### 6.1 为什么需要序列化
+
+网络传输的是字节流，需要把结构化数据转换为字节序列。
+
+```cpp
+// 要发送的数据结构
+struct PlayerState {
+    uint32_t player_id;
+    float x, y, z;
+    uint16_t health;
+    uint8_t status;
+};
+
+// 错误：直接发送结构体
+struct PlayerState state;
+send(sockfd, &state, sizeof(state), 0);  // ❌ 有填充字节和对齐问题
+
+// 正确：手动序列化
+```
+
+### 6.2 手动序列化
+
+```cpp
+// 将数据序列化为字节流（网络字节序）
+void SerializePlayerState(const PlayerState& state, uint8_t* buffer) {
+    uint32_t offset = 0;
+    
+    // player_id (4字节)
+    uint32_t net_id = htonl(state.player_id);
+    memcpy(buffer + offset, &net_id, sizeof(net_id));
+    offset += sizeof(net_id);
+    
+    // x, y, z (各4字节，float需要特殊处理)
+    uint32_t net_x = htonl(*(uint32_t*)&state.x);
+    memcpy(buffer + offset, &net_x, sizeof(net_x));
+    offset += sizeof(net_x);
+    // ... y, z 同理
+    
+    // health (2字节)
+    uint16_t net_health = htons(state.health);
+    memcpy(buffer + offset, &net_health, sizeof(net_health));
+    offset += sizeof(net_health);
+    
+    // status (1字节)
+    buffer[offset] = state.status;
+}
+
+// 反序列化
+void DeserializePlayerState(const uint8_t* buffer, PlayerState& state) {
+    uint32_t offset = 0;
+    
+    memcpy(&state.player_id, buffer + offset, sizeof(state.player_id));
+    state.player_id = ntohl(state.player_id);
+    offset += sizeof(state.player_id);
+    
+    // ... 同理反序列化其他字段
+}
+```
+
+### 6.3 TLV 格式
+
+TLV（Type-Length-Value）是常用的自描述数据格式：
+
+```
+┌──────────┬──────────┬──────────┐
+│  Type    │  Length  │  Value   │
+│  (1字节) │  (2字节) │ (变长)   │
+└──────────┴──────────┴──────────┘
+```
+
+```cpp
+// TLV 编码示例
+enum DataType {
+    TYPE_VIDEO_FRAME = 1,
+    TYPE_AUDIO_FRAME = 2,
+    TYPE_CONTROL_MSG = 3
+};
+
+struct TLVPacket {
+    uint8_t type;
+    uint16_t length;
+    std::vector<uint8_t> value;
+};
+
+void EncodeTLV(const TLVPacket& packet, std::vector<uint8_t>& output) {
+    output.push_back(packet.type);
+    uint16_t net_len = htons(packet.length);
+    output.push_back((net_len >> 8) & 0xFF);
+    output.push_back(net_len & 0xFF);
+    output.insert(output.end(), packet.value.begin(), packet.value.end());
+}
+
+bool DecodeTLV(const uint8_t* data, size_t len, TLVPacket& packet) {
+    if (len < 3) return false;
+    
+    packet.type = data[0];
+    packet.length = ntohs(*(uint16_t*)(data + 1));
+    
+    if (len < 3 + packet.length) return false;
+    
+    packet.value.assign(data + 3, data + 3 + packet.length);
+    return true;
+}
+```
+
+---
+
+## 7. 实战：Echo 服务器
+
+### 7.1 完整代码
+
+```cpp
+// echo_server.cpp - 支持 TCP 和 UDP 的 Echo 服务器
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/select.h>
+
+static volatile bool running = true;
+
+void signal_handler(int sig) {
+    running = false;
+}
+
+int main() {
+    signal(SIGINT, signal_handler);
+    
+    // 创建 TCP Socket
+    int tcp_sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (tcp_sock < 0) {
+        perror("tcp socket");
+        return 1;
+    }
+    
+    // 创建 UDP Socket
+    int udp_sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (udp_sock < 0) {
+        perror("udp socket");
+        close(tcp_sock);
+        return 1;
+    }
+    
+    // 允许地址重用
+    int reuse = 1;
+    setsockopt(tcp_sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    setsockopt(udp_sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+    
+    // 绑定地址
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(9999);
+    addr.sin_addr.s_addr = INADDR_ANY;
+    
+    if (bind(tcp_sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        perror("tcp bind");
+        close(tcp_sock);
+        close(udp_sock);
+        return 1;
+    }
+    
+    if (bind(udp_sock, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+        perror("udp bind");
+        close(tcp_sock);
+        close(udp_sock);
+        return 1;
+    }
+    
+    // TCP 监听
+    listen(tcp_sock, 5);
+    
+    printf("Echo Server listening on port 9999 (TCP + UDP)...\n");
+    printf("Press Ctrl+C to stop\n");
+    
+    // 使用 select 同时处理 TCP 和 UDP
+    fd_set readfds;
+    int max_fd = (tcp_sock > udp_sock ? tcp_sock : udp_sock) + 1;
+    
+    while (running) {
+        FD_ZERO(&readfds);
+        FD_SET(tcp_sock, &readfds);
+        FD_SET(udp_sock, &readfds);
+        
+        struct timeval tv;
+        tv.tv_sec = 1;
+        tv.tv_usec = 0;
+        
+        int ret = select(max_fd, &readfds, NULL, NULL, &tv);
+        if (ret < 0) {
+            if (errno == EINTR) continue;
+            perror("select");
+            break;
+        }
+        
+        if (ret == 0) continue;  // 超时
+        
+        // 处理新的 TCP 连接
+        if (FD_ISSET(tcp_sock, &readfds)) {
+            struct sockaddr_in client_addr;
+            socklen_t addr_len = sizeof(client_addr);
+            int client_sock = accept(tcp_sock, (struct sockaddr*)&client_addr, &addr_len);
+            
+            if (client_sock >= 0) {
+                char ip[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
+                printf("[TCP] New connection from %s:%d\n", ip, ntohs(client_addr.sin_port));
+                
+                // 简单处理：接收并回显
+                char buffer[1024];
+                ssize_t n = recv(client_sock, buffer, sizeof(buffer), 0);
+                if (n > 0) {
+                    send(client_sock, buffer, n, 0);
+                }
+                close(client_sock);
+            }
+        }
+        
+        // 处理 UDP 数据
+        if (FD_ISSET(udp_sock, &readfds)) {
+            char buffer[1024];
+            struct sockaddr_in client_addr;
+            socklen_t addr_len = sizeof(client_addr);
+            
+            ssize_t n = recvfrom(udp_sock, buffer, sizeof(buffer), 0,
+                                 (struct sockaddr*)&client_addr, &addr_len);
+            if (n > 0) {
+                char ip[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
+                printf("[UDP] Received from %s:%d (%zd bytes)\n", 
+                       ip, ntohs(client_addr.sin_port), n);
+                
+                // 回显
+                sendto(udp_sock, buffer, n, 0,
+                       (struct sockaddr*)&client_addr, addr_len);
+            }
+        }
+    }
+    
+    printf("\nServer stopped\n");
+    close(tcp_sock);
+    close(udp_sock);
+    return 0;
+}
+```
+
+### 7.2 测试
+
+```bash
+# 编译
+g++ -o echo_server echo_server.cpp
+
+# 启动服务器
+./echo_server
+
+# 测试 TCP (另一个终端)
+echo "Hello TCP" | nc localhost 9999
+
+# 测试 UDP (另一个终端)
+echo "Hello UDP" | nc -u localhost 9999
+```
+
+---
+
+## 8. FAQ 常见问题
+
+### Q1：TCP 和 UDP 怎么选？
+
+**A**：选择指南：
+
+| 场景 | 推荐协议 | 原因 |
 |:---|:---:|:---|
-| **V** | 2 | 版本号，固定为 2 |
-| **P** | 1 | 填充标志，负载末尾有填充字节 |
-| **X** | 1 | 扩展标志，头部后有扩展头 |
-| **CC** | 4 | CSRC 计数，0-15 |
-| **M** | 1 | 标记位，视频表示关键帧，音频表示会话开始 |
-| **PT** | 7 | 负载类型，标识编码格式 |
-| **Sequence** | 16 | 序列号，每发一个包 +1，用于检测丢包和排序 |
-| **Timestamp** | 32 | 时间戳，反映采样时刻，用于同步和抖动计算 |
-| **SSRC** | 32 | 同步源标识，随机生成，唯一标识一个流 |
-| **CSRC** | 32×N | 贡献源列表，混音时使用 |
+| 文件传输 | TCP | 需要可靠传输 |
+| 网页浏览 | TCP | HTTP/HTTPS 基于 TCP |
+| 实时音视频 | UDP | 低延迟优先 |
+| DNS 查询 | UDP | 单次请求响应 |
+| 在线游戏 | UDP + 自定义重传 | 低延迟 + 可控可靠性 |
 
-### 3.4 负载类型（Payload Type）
+### Q2：为什么 bind 失败？
 
-PT 字段标识了负载的编码格式：
-
-| PT 值 | 编码格式 | 时钟频率 |
-|:---:|:---|:---:|
-| 0 | PCMU (G.711 μ-law) | 8000 Hz |
-| 8 | PCMA (G.711 A-law) | 8000 Hz |
-| 96-127 | 动态分配 | 协商确定 |
-
-**动态 PT 常见映射**：
-
-| PT | 编码 | 说明 |
-|:---:|:---|:---|
-| 96 | H.264 | 视频编码 |
-| 97 | H.265 | 视频编码 |
-| 98 | VP8 | 视频编码 |
-| 111 | Opus | 音频编码 |
-
-### 3.5 RTP 打包实现
+**A**：常见原因：
+1. **端口被占用**：其他程序正在使用该端口
+2. **权限不足**：1024 以下端口需要 root 权限
+3. **地址不可用**：绑定的 IP 不在本机网卡上
 
 ```cpp
-// ============================================
-// RTP 打包器
-// ============================================
-#pragma once
-#include <cstdint>
-#include <cstring>
-
-namespace live {
-
-// RTP 头部结构（固定 12 字节）
-struct RtpHeader {
-    uint8_t flags;        // V(2) + P(1) + X(1) + CC(4)
-    uint8_t m_pt;         // M(1) + PT(7)
-    uint16_t sequence;    // 序列号（网络字节序）
-    uint32_t timestamp;   // 时间戳（网络字节序）
-    uint32_t ssrc;        // 同步源（网络字节序）
-
-    // 设置各个字段
-    void SetVersion(uint8_t v) { flags = (flags & 0x3F) | (v << 6); }
-    void SetPadding(bool p) { flags = p ? (flags | 0x20) : (flags & 0xDF); }
-    void SetExtension(bool x) { flags = x ? (flags | 0x10) : (flags & 0xEF); }
-    void SetCsrcCount(uint8_t cc) { flags = (flags & 0xF0) | (cc & 0x0F); }
-    void SetMarker(bool m) { m_pt = m ? (m_pt | 0x80) : (m_pt & 0x7F); }
-    void SetPayloadType(uint8_t pt) { m_pt = (m_pt & 0x80) | (pt & 0x7F); }
-    
-    // 网络字节序转换
-    void SetSequence(uint16_t seq) { sequence = htons(seq); }
-    void SetTimestamp(uint32_t ts) { timestamp = htonl(ts); }
-    void SetSsrc(uint32_t s) { ssrc = htonl(s); }
-};
-static_assert(sizeof(RtpHeader) == 12, "RtpHeader size must be 12");
-
-class RtpPacketizer {
-public:
-    RtpPacketizer(uint8_t payload_type, uint32_t ssrc)
-        : payload_type_(payload_type), ssrc_(ssrc), sequence_(0) {}
-
-    // 打包一帧数据
-    bool Packetize(const uint8_t* frame, size_t frame_len,
-                   uint32_t timestamp,
-                   std::vector<std::vector<uint8_t>>& packets) {
-        
-        const size_t MAX_RTP_PAYLOAD = 1400; // 预留空间给头部
-        size_t offset = 0;
-        bool first_fragment = true;
-
-        while (offset < frame_len) {
-            size_t remaining = frame_len - offset;
-            size_t payload_size = std::min(remaining, MAX_RTP_PAYLOAD);
-            bool last_fragment = (offset + payload_size >= frame_len);
-
-            // 创建 RTP 包
-            std::vector<uint8_t> packet;
-            packet.reserve(12 + payload_size + 2); // 头 + 负载 + FU 头
-
-            // 写入 RTP 头部
-            RtpHeader header{};
-            header.SetVersion(2);
-            header.SetPadding(false);
-            header.SetExtension(false);
-            header.SetCsrcCount(0);
-            header.SetMarker(last_fragment); // 最后一个片段设置 M 位
-            header.SetPayloadType(payload_type_);
-            header.SetSequence(sequence_++);
-            header.SetTimestamp(timestamp);
-            header.SetSsrc(ssrc_);
-
-            packet.insert(packet.end(), 
-                         reinterpret_cast<uint8_t*>(&header),
-                         reinterpret_cast<uint8_t*>(&header) + 12);
-
-            // 写入负载（这里简化处理，实际需要根据编码格式添加分片头）
-            packet.insert(packet.end(),
-                         frame + offset,
-                         frame + offset + payload_size);
-
-            packets.push_back(std::move(packet));
-            offset += payload_size;
-        }
-
-        return !packets.empty();
-    }
-
-private:
-    uint8_t payload_type_;
-    uint32_t ssrc_;
-    uint16_t sequence_;
-};
-
-} // namespace live
+// 解决方案：允许地址重用
+int reuse = 1;
+setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 ```
 
-### 3.6 H.264 over RTP
+### Q3：UDP 会丢包吗？丢包怎么办？
 
-H.264 视频需要通过 RTP 分片传输，主要有两种方式：
+**A**：UDP 本身不保证可靠性，丢包是正常现象。
 
-**单 NAL 单元模式**（NALU < 1400 字节）：
-```
-RTP 头部 (12 字节) + H.264 NAL 头部 (1 字节) + NAL 负载
-```
+解决方案：
+1. **应用层重传**：自己实现 ACK 和重传机制
+2. **前向纠错（FEC）**：发送冗余数据
+3. **接受一定丢包**：音视频场景可以容忍少量丢包
 
-**FU-A 分片模式**（NALU >= 1400 字节）：
-```
-RTP 头部 (12 字节) + FU 指示器 (1 字节) + FU 头部 (1 字节) + 片段
-```
+### Q4：select 的 1024 限制怎么破？
+
+**A**：`select` 有文件描述符数量限制（通常是 1024）。
+
+替代方案：
+- **poll**：没有数量限制，但效率低
+- **epoll**（Linux）：高效，适合大量连接
+- **kqueue**（macOS/BSD）：类似 epoll
 
 ```cpp
-// H.264 NAL 单元类型
-enum H264NalType {
-    kNalSlice = 1,           // 非 IDR 片
-    kNalDPA = 2,             // 数据分区 A
-    kNalDPB = 3,             // 数据分区 B
-    kNalDPC = 4,             // 数据分区 C
-    kNalIDR = 5,             // IDR 片（关键帧）
-    kNalSEI = 6,             // 补充增强信息
-    kNalSPS = 7,             // 序列参数集
-    kNalPPS = 8,             // 图像参数集
-    kNalAUD = 9,             // 访问单元分隔符
-    kNalEndOfSequence = 10,
-    kNalEndOfStream = 11,
-    kNalFiller = 12,
-    kNalStapA = 24,          // 单时聚合包 A
-    kNalFuA = 28,            // 分片单元 A
-};
+// 使用 poll 替代 select
+#include <poll.h>
 
-// FU-A 分片打包
-void PackFuA(const uint8_t* nalu, size_t nalu_len, uint32_t timestamp,
-             std::vector<std::vector<uint8_t>>& packets) {
-    const size_t MAX_PAYLOAD = 1400;
-    uint8_t nal_header = nalu[0]; // 原始 NAL 头部
-    uint8_t nal_type = nal_header & 0x1F;
-    uint8_t nri = nal_header & 0x60;
+struct pollfd fds[100];
+fds[0].fd = sockfd;
+fds[0].events = POLLIN;
 
-    size_t offset = 1; // 跳过 NAL 头部
-    bool first = true;
-
-    while (offset < nalu_len) {
-        size_t remaining = nalu_len - offset;
-        size_t payload_size = std::min(remaining, MAX_PAYLOAD);
-        bool last = (offset + payload_size >= nalu_len);
-
-        std::vector<uint8_t> packet;
-        
-        // 添加 RTP 头部（省略，同上）
-        
-        // FU 指示器：F(1) + NRI(2) + Type(5) = 28 (FU-A)
-        uint8_t fu_indicator = nri | 28;
-        packet.push_back(fu_indicator);
-
-        // FU 头部：S(1) + E(1) + R(1) + Type(5)
-        uint8_t fu_header = nal_type;
-        if (first) fu_header |= 0x80; // S = 1
-        if (last) fu_header |= 0x40;  // E = 1
-        packet.push_back(fu_header);
-
-        // 添加负载片段
-        packet.insert(packet.end(), nalu + offset, 
-                     nalu + offset + payload_size);
-
-        packets.push_back(std::move(packet));
-        
-        offset += payload_size;
-        first = false;
-    }
+int ret = poll(fds, 1, 1000);  // 1秒超时
+if (ret > 0 && fds[0].revents & POLLIN) {
+    // 可读
 }
 ```
 
----
+### Q5：怎么测试网络延迟？
 
-## 4. RTCP 协议
-
-RTP 只负责传输数据，质量反馈需要 **RTCP（RTP Control Protocol）** 协议。
-
-### 4.1 RTCP 的作用
-
-![RTCP 反馈循环](./diagrams/rtcp-feedback.svg)
-
-```
-        发送端                                    接收端
-    ┌──────────┐                             ┌──────────┐
-    │  发送 RTP  │─────────────────────────────→│ 接收 RTP  │
-    │  数据包   │                             │  数据包   │
-    └──────────┘                             └──────────┘
-         ↑                                        │
-         │           定期发送 RTCP                  │
-         │           报告 (RR)                      │
-         │         ┌───────────────────────────────┘
-         │         ↓
-    ┌──────────┐  丢包率、抖动、延迟      ┌──────────┐
-    │  解析 RTCP │←───────────────────────│ 生成 RTCP │
-    │   报告    │                        │   报告    │
-    └──────────┘                        └──────────┘
-         │
-         ↓
-    ┌──────────────┐
-    │  调整编码码率  │
-    │  自适应网络   │
-    └──────────────┘
-```
-
-**RTCP 五大功能**：
-
-| 功能 | 说明 |
-|:---|:---|
-| **质量反馈** | 向发送端报告接收质量（丢包、抖动） |
-| **源标识** | CNAME 提供持久标识，SSRC 可能变化 |
-| **同步** | 关联不同源的时钟，实现音视频同步 |
-| **会话控制** | BYE 消息表示离开 |
-| **带宽控制** | 限制 RTCP 带宽占用（不超过 5%） |
-
-### 4.2 RTCP 包类型
-
-| 类型 | 名称 | 缩写 | 发送者 |
-|:---:|:---|:---:|:---|
-| 200 | 发送者报告 | SR | 发送端 |
-| 201 | 接收者报告 | RR | 接收端 |
-| 202 | 源描述 | SDES | 所有参与者 |
-| 203 | 再见 | BYE | 离开者 |
-| 204 | 应用特定 | APP | 应用自定义 |
-| 205 | 传输层反馈 | RTPFB | 接收端 |
-| 206 | 负载特定反馈 | PSFB | 接收端 |
-
-### 4.3 发送者报告（SR）
-
-```
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|V=2|P|    RC   |  PT=SR=200    |            长度               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                         同步源 (SSRC)                          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|              NTP 时间戳高位 (秒)                |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|              NTP 时间戳低位 (秒的小数部分)      |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                         RTP 时间戳                             |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                 发送者包计数 (Sender's packet count)           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                 发送者字节计数 (Sender's octet count)          |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-```
-
-**关键字段**：
-- **NTP 时间戳**：绝对时间，用于跨流同步
-- **RTP 时间戳**：与数据包时间戳对应
-- **包计数**：累计发送的 RTP 包数
-- **字节计数**：累计发送的字节数
-
-### 4.4 接收者报告（RR）
-
-```
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|V=2|P|    RC   |  PT=RR=201    |            长度               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                     报告者 SSRC                                |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|  丢失率 (8)   |   累计丢失 (24)                                |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|           接收到的最高序列号          |   到达抖动 (Jitter)     |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                  最后 SR 时间戳 (LSR)                           |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                  自最后 SR 以来的延迟 (DLSR)                    |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-```
-
-**关键字段**：
-- **丢包率（Fraction Lost）**：最近一个间隔的丢包比例
-- **累计丢失**：整个会话的丢包总数
-- **最高序列号**：已接收的最大 RTP 序列号
-- **抖动（Jitter）**：接收时延的统计方差
-
-### 4.5 丢包率和抖动计算
-
-**丢包率计算**：
+**A**：简单方法：
 
 ```cpp
-// 计算丢包率
-struct LossStats {
-    uint32_t expected;      // 期望接收的包数
-    uint32_t received;      // 实际接收的包数
-    uint32_t lost;          // 丢失的包数
-    uint8_t fraction_lost;  // 丢包率 (0-255, 255=100%)
-};
+// 发送时间戳，计算往返时间
+auto start = std::chrono::steady_clock::now();
+sendto(sockfd, "ping", 4, 0, ...);
+recvfrom(sockfd, buffer, sizeof(buffer), 0, ...);
+auto end = std::chrono::steady_clock::now();
 
-LossStats CalculateLoss(uint16_t highest_seq, 
-                        uint32_t cumulative_lost_prev,
-                        uint32_t expected_prev) {
-    LossStats stats;
-    
-    // 当前期望接收总数 = 最高序列号 - 初始序列号 + 1
-    uint32_t expected_now = highest_seq + 1;
-    uint32_t expected_interval = expected_now - expected_prev;
-    
-    // 实际接收数量（通过其他方式统计）
-    uint32_t received_interval = /* 实际接收数 */;
-    
-    // 本周期丢包数
-    int32_t lost_interval = expected_interval - received_interval;
-    if (lost_interval < 0) lost_interval = 0;
-    
-    // 丢包率 (0-255)
-    if (expected_interval > 0) {
-        stats.fraction_lost = (lost_interval * 256) / expected_interval;
-    }
-    
-    return stats;
-}
-```
-
-**抖动计算**：
-
-```cpp
-// 抖动计算（RFC 3550 推荐算法）
-class JitterCalculator {
-public:
-    void Update(uint32_t rtp_timestamp, 
-                uint32_t arrival_time_ms) {
-        // 传输时间差 = (到达时间 - RTP时间戳)
-        int32_t transit = arrival_time_ms - 
-                         (rtp_timestamp / 90); // 假设 90kHz
-        
-        if (first_packet_) {
-            transit_prev_ = transit;
-            first_packet_ = false;
-            return;
-        }
-        
-        // 本次与上次的差值
-        int32_t d = transit - transit_prev_;
-        if (d < 0) d = -d;
-        
-        // 指数加权移动平均：J = J + (|D| - J) / 16
-        jitter_ += (d - jitter_) / 16;
-        transit_prev_ = transit;
-    }
-    
-    uint32_t GetJitter() const { return jitter_; }
-
-private:
-    bool first_packet_ = true;
-    int32_t transit_prev_ = 0;
-    uint32_t jitter_ = 0;
-};
-```
-
-### 4.6 RTCP 实现代码
-
-```cpp
-// ============================================
-// RTCP 接收报告生成器
-// ============================================
-#pragma once
-#include <cstdint>
-#include <vector>
-#include <cstring>
-
-namespace live {
-
-// RTCP 头部
-struct RtcpHeader {
-    uint8_t flags;      // V(2) + P(1) + RC(5)
-    uint8_t packet_type;
-    uint16_t length;    // 长度（32位字为单位）- 1
-
-    void SetVersion(uint8_t v) { flags = (flags & 0x3F) | (v << 6); }
-    void SetCount(uint8_t c) { flags = (flags & 0xC0) | (c & 0x1F); }
-    void SetLength(uint16_t len) { length = htons(len); }
-};
-
-// 接收报告块
-struct ReceiverReportBlock {
-    uint32_t ssrc;          // 被报告源的 SSRC
-    uint8_t fraction_lost;  // 丢包率
-    uint8_t cumulative_lost[3]; // 累计丢包（24位）
-    uint32_t highest_seq;   // 最高序列号
-    uint32_t jitter;        // 抖动
-    uint32_t lsr;           // 最后 SR 时间戳
-    uint32_t dlsr;          // 自最后 SR 的延迟
-};
-
-class RtcpSender {
-public:
-    std::vector<uint8_t> CreateReceiverReport(
-        uint32_t reporter_ssrc,
-        const std::vector<ReceiverReportBlock>& blocks) {
-        
-        std::vector<uint8_t> packet;
-        
-        // RTCP 头部
-        RtcpHeader header{};
-        header.SetVersion(2);
-        header.SetCount(blocks.size());
-        header.packet_type = 201; // RR
-        // 长度 = (4 + blocks.size() * 6) / 4 - 1 = 3 + blocks.size() * 6 / 4
-        header.SetLength(3 + blocks.size() * 6 - 1);
-        
-        packet.push_back(header.flags);
-        packet.push_back(header.packet_type);
-        packet.push_back(header.length & 0xFF);
-        packet.push_back((header.length >> 8) & 0xFF);
-        
-        // 报告者 SSRC
-        uint32_t ssrc_net = htonl(reporter_ssrc);
-        packet.insert(packet.end(), 
-                     reinterpret_cast<uint8_t*>(&ssrc_net),
-                     reinterpret_cast<uint8_t*>(&ssrc_net) + 4);
-        
-        // 报告块
-        for (const auto& block : blocks) {
-            AddReportBlock(packet, block);
-        }
-        
-        return packet;
-    }
-
-private:
-    void AddReportBlock(std::vector<uint8_t>& packet,
-                       const ReceiverReportBlock& block) {
-        uint32_t val;
-        
-        // SSRC
-        val = htonl(block.ssrc);
-        packet.insert(packet.end(),
-                     reinterpret_cast<const uint8_t*>(&val),
-                     reinterpret_cast<const uint8_t*>(&val) + 4);
-        
-        // 丢包率 + 累计丢包
-        packet.push_back(block.fraction_lost);
-        packet.push_back(block.cumulative_lost[0]);
-        packet.push_back(block.cumulative_lost[1]);
-        packet.push_back(block.cumulative_lost[2]);
-        
-        // 最高序列号
-        val = htonl(block.highest_seq);
-        packet.insert(packet.end(),
-                     reinterpret_cast<const uint8_t*>(&val),
-                     reinterpret_cast<const uint8_t*>(&val) + 4);
-        
-        // 抖动
-        val = htonl(block.jitter);
-        packet.insert(packet.end(),
-                     reinterpret_cast<const uint8_t*>(&val),
-                     reinterpret_cast<const uint8_t*>(&val) + 4);
-        
-        // LSR
-        val = htonl(block.lsr);
-        packet.insert(packet.end(),
-                     reinterpret_cast<const uint8_t*>(&val),
-                     reinterpret_cast<const uint8_t*>(&val) + 4);
-        
-        // DLSR
-        val = htonl(block.dlsr);
-        packet.insert(packet.end(),
-                     reinterpret_cast<const uint8_t*>(&val),
-                     reinterpret_cast<const uint8_t*>(&val) + 4);
-    }
-};
-
-} // namespace live
-```
-
-### 4.7 带宽估计基础
-
-RTCP 提供的反馈是 **GCC（Google Congestion Control）** 等拥塞控制算法的基础：
-
-```cpp
-// 基于丢包的带宽估计
-class LossBasedBandwidthEstimator {
-public:
-    void Update(uint8_t fraction_lost) {
-        // 丢包率 < 2%：网络良好，增加码率
-        if (fraction_lost < 5) { // 约 2%
-            bitrate_bps_ = static_cast<uint32_t>(bitrate_bps_ * 1.08);
-        }
-        // 丢包率 2%-10%：保持当前码率
-        else if (fraction_lost < 26) { // 约 10%
-            // 码率不变
-        }
-        // 丢包率 > 10%：网络拥塞，降低码率
-        else {
-            bitrate_bps_ = static_cast<uint32_t>(bitrate_bps_ * 0.85);
-        }
-        
-        // 限制在合理范围
-        bitrate_bps_ = std::min(bitrate_bps_, max_bitrate_bps_);
-        bitrate_bps_ = std::max(bitrate_bps_, min_bitrate_bps_);
-    }
-    
-    uint32_t GetEstimate() const { return bitrate_bps_; }
-
-private:
-    uint32_t bitrate_bps_ = 1000000;     // 初始 1Mbps
-    uint32_t min_bitrate_bps_ = 150000;  // 最低 150kbps
-    uint32_t max_bitrate_bps_ = 5000000; // 最高 5Mbps
-};
+auto rtt = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+std::cout << "RTT: " << rtt.count() << " ms\n";
 ```
 
 ---
 
-## 5. JitterBuffer 抖动缓冲
+## 9. 本章小结
 
-网络传输的延迟不是恒定的，会有 **抖动（Jitter）**。JitterBuffer 的作用是平滑这种抖动，保证解码器获得稳定的输入。
+### 核心知识点
 
-### 5.1 抖动的来源
+1. **Socket API**：网络编程的基础接口，包括 socket、bind、listen、accept、connect、send/recv 等
+2. **地址与端口**：IPv4 地址结构、端口范围、地址转换函数
+3. **UDP 编程**：无连接通信，适合实时场景，需要自己处理可靠性
+4. **字节序**：主机字节序 vs 网络字节序，必须正确转换
+5. **数据序列化**：结构化数据到字节流的转换，TLV 格式
 
-![抖动来源](./diagrams/jitter-sources.svg)
+### 关键技能
 
-| 来源 | 说明 | 典型值 |
-|:---|:---|:---:|
-| **网络排队** | 路由器缓冲区排队时间变化 | 0-100ms |
-| **拥塞控制** | TCP/网络层主动降速 | 突发延迟 |
-| **多路径** | 负载均衡导致不同路径延迟 | 差异可达 50ms |
-| **无线干扰** | WiFi/4G 信号强度波动 | 0-200ms |
+| 技能 | 掌握程度 | 实践建议 |
+|:---|:---:|:---|
+| 编写 TCP 客户端/服务器 | ⭐⭐⭐ 必须掌握 | 完成本章示例代码 |
+| 编写 UDP 程序 | ⭐⭐⭐ 必须掌握 | UDP Echo 服务器 |
+| 字节序转换 | ⭐⭐⭐ 必须掌握 | 使用 htons/ntohs |
+| 数据序列化 | ⭐⭐ 建议掌握 | 实现 TLV 编解码 |
+| 使用 select/poll | ⭐⭐ 建议掌握 | 多路复用服务器 |
 
-**抖动可视化**：
-```
-时间(ms)
-  │
-50├─────────┐
-  │         │
-40├────┐    │     ┌──────────┐
-  │    │    │     │          │
-30├────┼────┼─────┼─────┐    │
-  │    │    │     │     │    │
-20├────┼────┼─────┼─────┼────┼─── 期望延迟线
-  │    │     ╲    │      ╲   │
-10├────┼──────╲───┼───────╲──┘
-  │    │        ╲ │         ╲
- 0├────┴─────────┴───────────┴─── 发送时间
-  │    A    B    C    D    E    F  → 数据包
-```
+### 本章产出
 
-### 5.2 JitterBuffer 工作原理
-
-![JitterBuffer 工作原理](./diagrams/jitterbuffer.svg)
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      JitterBuffer                           │
-├─────────────────────────────────────────────────────────────┤
-│  到达数据包                                                   │
-│     │                                                       │
-│     ▼                                                       │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │              接收队列 (按序列号排序)                    │  │
-│  │  [Pkt3] [Pkt4] [Pkt5] [Pkt6] [Pkt7] [Pkt8] [Pkt9]      │  │
-│  │    ↑                                    ↑              │  │
-│  │   已接收                               等待中           │  │
-│  └───────────────────────────────────────────────────────┘  │
-│     │                                                       │
-│     │ 等待直到目标延迟                                       │
-│     ▼                                                       │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │              播放缓冲区 (按时序输出)                    │  │
-│  │       [Pkt3] [Pkt4] [Pkt5] → 解码器                    │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 5.3 JitterBuffer 核心设计
-
-```cpp
-// ============================================
-// JitterBuffer 实现
-// ============================================
-#pragma once
-#include <map>
-#include <queue>
-#include <chrono>
-#include <functional>
-
-namespace live {
-
-struct JitterPacket {
-    uint16_t sequence;
-    uint32_t timestamp;
-    std::vector<uint8_t> payload;
-    std::chrono::steady_clock::time_point arrival_time;
-    bool is_keyframe;
-};
-
-class JitterBuffer {
-public:
-    using FrameCallback = std::function<void(
-        const JitterPacket& packet)>;
-
-    explicit JitterBuffer(FrameCallback callback)
-        : callback_(callback), target_delay_ms_(100) {}
-
-    // 插入收到的数据包
-    void InsertPacket(JitterPacket packet) {
-        // 计算当前抖动
-        UpdateJitterEstimate(packet);
-        
-        // 存储到缓冲区
-        buffer_[packet.sequence] = std::move(packet);
-        
-        // 尝试输出
-        TryOutput();
-    }
-
-    // 定期调用（如每 10ms）
-    void Process() {
-        TryOutput();
-        
-        // 动态调整目标延迟
-        AdaptTargetDelay();
-    }
-
-private:
-    void UpdateJitterEstimate(const JitterPacket& packet) {
-        auto now = std::chrono::steady_clock::now();
-        
-        // 计算传输时间（简化为到达时间差 - 时间戳差）
-        if (!last_arrival_.time_since_epoch().count()) {
-            last_arrival_ = now;
-            last_timestamp_ = packet.timestamp;
-            return;
-        }
-        
-        auto arrival_delta = std::chrono::duration_cast<
-            std::chrono::milliseconds>(now - last_arrival_).count();
-        int32_t timestamp_delta = static_cast<int32_t>(
-            packet.timestamp - last_timestamp_) / 90; // 假设 90kHz
-        
-        int32_t d = arrival_delta - timestamp_delta;
-        if (d < 0) d = -d;
-        
-        // 指数加权移动平均
-        jitter_estimate_ms_ += (d - jitter_estimate_ms_) / 16;
-        
-        last_arrival_ = now;
-        last_timestamp_ = packet.timestamp;
-    }
-
-    void TryOutput() {
-        auto now = std::chrono::steady_clock::now();
-        
-        while (!buffer_.empty()) {
-            auto it = buffer_.begin();
-            const auto& packet = it->second;
-            
-            // 计算包龄（到达后的等待时间）
-            auto age_ms = std::chrono::duration_cast<
-                std::chrono::milliseconds>(now - packet.arrival_time).count();
-            
-            // 如果已达到目标延迟，输出
-            if (age_ms >= target_delay_ms_) {
-                if (callback_) {
-                    callback_(packet);
-                }
-                buffer_.erase(it);
-            } else {
-                break; // 还没到输出时间
-            }
-        }
-    }
-
-    void AdaptTargetDelay() {
-        // 目标延迟 = 当前抖动估计 + 安全余量
-        int32_t new_target = jitter_estimate_ms_ + 50;
-        
-        // 限制范围
-        new_target = std::max(new_target, 30);   // 最小 30ms
-        new_target = std::min(new_target, 500);  // 最大 500ms
-        
-        // 平滑调整
-        target_delay_ms_ += (new_target - target_delay_ms_) / 4;
-    }
-
-    std::map<uint16_t, JitterPacket> buffer_;
-    FrameCallback callback_;
-    
-    int32_t jitter_estimate_ms_ = 0;
-    int32_t target_delay_ms_ = 100;
-    
-    std::chrono::steady_clock::time_point last_arrival_;
-    uint32_t last_timestamp_ = 0;
-};
-
-} // namespace live
-```
-
-### 5.4 JitterBuffer 策略优化
-
-| 策略 | 说明 | 适用场景 |
-|:---|:---|:---|
-| **固定延迟** | 延迟固定，简单但不够灵活 | 网络稳定的环境 |
-| **自适应延迟** | 根据网络状况动态调整 | 移动网络、WiFi |
-| **加速播放** | 缓冲区过大时加快播放 | 避免延迟累积 |
-| **丢包隐藏** | 包超时未到，用 PLC 填充 | 音频场景 |
+- `simple_tcp_client.cpp`：TCP 客户端示例
+- `udp_server.cpp` / `udp_client.cpp`：UDP 通信示例
+- `echo_server.cpp`：TCP + UDP Echo 服务器
 
 ---
 
-## 6. 本章总结
+## 10. 下章预告
 
-### 6.1 核心概念回顾
+### 第十七章：UDP 与实时传输
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    实时传输协议栈                             │
-├─────────────────────────────────────────────────────────────┤
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │  应用层：JitterBuffer、拥塞控制、丢包恢复、FEC          │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                          ↓                                   │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │  RTP：实时传输协议，提供时序和负载类型                  │  │
-│  │  RTCP：控制协议，提供质量反馈                           │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                          ↓                                   │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │  UDP：无连接、无阻塞、低开销                            │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                          ↓                                   │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │  IP：网络层路由                                          │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-```
+**为什么要学下一章？**
 
-### 6.2 关键知识点
+本章学习了基础的网络编程，第十七章将在此基础上引入实时传输协议：
 
-| 主题 | 核心要点 |
-|:---|:---|
-| **UDP vs TCP** | UDP 无队头阻塞，适合实时传输；可靠性由应用层控制 |
-| **RTP** | 序列号保序、时间戳同步、SSRC 标识源流、PT 标识编码 |
-| **RTCP** | SR/RR 报告质量、丢包率和抖动计算、带宽估计基础 |
-| **JitterBuffer** | 平滑网络抖动、自适应目标延迟、平衡延迟与流畅 |
+**你将学到**：
+- **RTP 协议**：实时传输协议的结构和使用
+- **RTCP 协议**：质量控制与统计
+- **JitterBuffer**：平滑网络抖动
+- **组播**：一对多传输
 
-### 6.3 从本章走向实践
+**关联项目**：P6 P2P通话工具的网络传输层。
 
-掌握了 UDP 和 RTP/RTCP，你已经具备了构建实时通信系统的 **传输层基础**。下一章，我们将在此基础上学习 **NAT 穿透和 P2P 连接建立**，解决"如何让两台内网主机直接通信"这一核心问题。
-
-### 6.4 下一章预告
-
-**第十八章：NAT 穿透与 P2P 连接**
-
-在下一章中，你将学习：
-- **NAT 原理**：为什么内网主机无法直接被访问
-- **STUN 协议**：发现自己的公网地址
-- **TURN 协议**：中继转发作为兜底方案
-- **ICE 框架**：系统化地建立 P2P 连接
-
-这些技术是现代实时通信（WebRTC、视频会议、直播连麦）的核心基础，让我们能够穿透复杂的网络环境，实现端到端的直接通信。
+**难度预警**：⭐⭐⭐ 较高。需要理解协议设计和实时系统的权衡。
 
 ---
 
-## 参考资源
+## 附录
 
-- **RFC 3550**：RTP: A Transport Protocol for Real-Time Applications
-- **RFC 3551**：RTP Profile for Audio and Video Conferences
-- **RFC 6184**：RTP Payload Format for H.264 Video
-- **《WebRTC 权威指南》**：第 3-5 章
+### A. 参考代码位置
 
----
+本章所有代码位于 `chapter-17/src/` 目录。
 
-*本章完*
+### B. 延伸阅读
+
+- 《UNIX网络编程》（W. Richard Stevens）
+- 《TCP/IP详解》
+- Linux man pages: `man 7 socket`, `man 7 udp`
+
+### C. 常用调试工具
+
+```bash
+# 查看端口占用
+netstat -tunlp | grep 8080
+lsof -i :8080
+
+# 抓包分析
+tcpdump -i lo port 8080
+
+# 网络测试工具
+nc -l 8080          # 监听端口
+nc localhost 8080   # 连接端口
+```

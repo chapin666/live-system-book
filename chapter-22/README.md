@@ -1,890 +1,1109 @@
-# 第二十二章：多人房间客户端
+# 第二十一章：SFU 转发服务器
 
-> **本章目标**：实现多人视频会议客户端，掌握多路视频管理、动态订阅和房间状态处理。
+> **本章目标**：理解 SFU 架构原理，掌握多人实时通信的服务器端技术。
 
-在前面的章节中，我们已经掌握了 P2P 通话（Ch18）、WebRTC 连接（Ch19-Ch20）和 SFU 服务器（Ch21）。现在要把这些技术组合起来，实现一个**真正的多人会议系统**。
+在上一章（第二十章）中，我们使用 WebRTC Native API 实现了 1v1 连麦客户端。P2P 连接在两人通信时非常高效，但当参与者超过两人时，纯 P2P 架构会遇到严重的可扩展性问题。
 
-本章你将学习：
-- 多人房间的架构设计（发布/订阅模型）
-- 多路视频的渲染布局（网格/主讲人模式）
-- 动态订阅策略（按需接收、带宽管理）
-- 房间事件处理（用户进出、音视频状态变化）
+本章将学习 **SFU（Selective Forwarding Unit，选择性转发单元）** 架构，这是现代多人视频会议的核心技术。通过 SFU，我们可以支持数十人甚至上百人同时参与的实时音视频通话。
 
 **学习本章后，你将能够**：
-- 设计多人会议的客户端架构
-- 实现自适应的视频布局
-- 优化多路视频的带宽使用
-- 处理复杂的房间状态同步
+- 理解 P2P 的局限性，掌握 SFU vs MCU 的技术选型
+- 设计 Publish/Subscribe 媒体转发模型
+- 实现 Simulcast 多路质量转发
+- 理解 GCC 拥塞控制算法
+- 编写一个简单的 SFU 服务器
 
 ---
 
 ## 目录
 
-1. [多人房间架构](#1-多人房间架构)
-2. [多路视频渲染](#2-多路视频渲染)
-3. [动态订阅策略](#3-动态订阅策略)
-4. [房间事件处理](#4-房间事件处理)
-5. [音频管理](#5-音频管理)
+1. [为什么需要 SFU？](#1-为什么需要-sfu)
+2. [SFU 架构设计](#2-sfu-架构设计)
+3. [Simulcast 多路质量](#3-simulcast-多路质量)
+4. [GCC 拥塞控制](#4-gcc-拥塞控制)
+5. [简单 SFU 实现](#5-简单-sfu-实现)
 6. [本章总结](#6-本章总结)
 
 ---
 
-## 1. 多人房间架构
+## 1. 为什么需要 SFU？
 
-### 1.1 从 P2P 到多人
+### 1.1 P2P 的局限性
 
-**P2P（一对一）**：
-```
-用户 A ←────WebRTC────→ 用户 B
-```
+当通话人数超过两人时，纯 P2P 架构面临三个严重问题：
 
-**多人会议（SFU 架构）**：
-```
-                    ┌─────────┐
-       ┌───────────→│   SFU   │←───────────┐
-       │            │  Server │            │
-       │            └────┬────┘            │
-   ┌───┴───┐        ┌────┴────┐        ┌───┴───┐
-   │用户 A │        │ 用户 B  │        │ 用户 C │
-   └───┬───┘        └────┬────┘        └───┬───┘
-       │                 │                 │
-    发布流            订阅 A/C          订阅 A/B
-```
+**问题 1：上传带宽爆炸**
 
-**关键区别**：
-- P2P：每个连接只有一个远端
-- 多人：每个连接有多个远端，需要管理多路流
-
-### 1.2 发布/订阅模型
-
-![多人房间架构](./diagrams/multi-room-arch.svg)
-
-**角色定义**：
-- **Publisher（发布者）**：发送音视频流到 SFU
-- **Subscriber（订阅者）**：从 SFU 接收其他用户的流
-- **一个用户可以同时是发布者和订阅者**
-
-**工作流程**：
-```
-1. 用户 A 加入房间
-   ├── 发布本地音视频（Publisher）
-   └── 订阅房间内的其他用户（Subscriber）
-
-2. 用户 B 加入房间
-   ├── 发布本地音视频
-   └── 订阅用户 A 的流
-   
-3. 用户 A 收到通知
-   └── 订阅用户 B 的流
-```
-
-### 1.3 客户端架构设计
+每个参与者需要向其他所有参与者发送媒体流：
 
 ```
-┌─────────────────────────────────────────────────┐
-│                  UI 层                           │
-│  ┌──────────────┐  ┌──────────────────────────┐ │
-│  │ 视频网格布局  │  │      控制面板            │ │
-│  └──────────────┘  └──────────────────────────┘ │
-├─────────────────────────────────────────────────┤
-│              业务逻辑层                          │
-│  ┌───────────┐  ┌───────────┐  ┌─────────────┐ │
-│  │  RoomManager│  │   Layout  │  │ EventHandler│ │
-│  └───────────┘  └───────────┘  └─────────────┘ │
-├─────────────────────────────────────────────────┤
-│              WebRTC 层                           │
-│  ┌───────────┐  ┌───────────┐  ┌─────────────┐ │
-│  │  PeerConn │  │  TrackMgr │  │  Subscribe  │ │
-│  └───────────┘  └───────────┘  └─────────────┘ │
-├─────────────────────────────────────────────────┤
-│              网络层                              │
-│  ┌───────────┐  ┌───────────┐                   │
-│  │  Signaling│  │   SFU     │                   │
-│  │ (WebSocket)│  │  (RTP)    │                   │
-│  └───────────┘  └───────────┘                   │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    3 人 P2P 通话                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│           ┌─────────┐                                       │
+│           │  Alice  │                                       │
+│           │ 2 Mbps  │                                       │
+│           └────┬────┘                                       │
+│                │                                            │
+│      ┌─────────┼─────────┐                                  │
+│      ↓         ↓         ↓                                  │
+│ ┌─────────┐ ┌─────────┐ ┌─────────┐                         │
+│ │  Bob    │ │ Charlie │ │  Alice  │                         │
+│ └─────────┘ └─────────┘ └─────────┘                         │
+│                                                             │
+│ Alice 的上行: 2 Mbps × 2 = 4 Mbps (发给 Bob 和 Charlie)      │
+│ 总带宽消耗: 每个人 4 Mbps 上行 + 4 Mbps 下行 = 8 Mbps         │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-**核心模块职责**：
+对于 N 人通话，每个参与者需要：
+- **上行带宽**：(N-1) × 个人码率
+- **下行带宽**：(N-1) × 个人码率
 
-| 模块 | 职责 |
-|:---|:---|
-| RoomManager | 房间生命周期、成员管理 |
-| Layout | 视频布局计算、窗口分配 |
-| TrackMgr | 音视频轨道管理、设备控制 |
-| Subscribe | 订阅管理、带宽分配 |
-| EventHandler | 房间事件处理、状态同步 |
+| 人数 | 每人上行 (1080p@2Mbps) | 每人下行 | 总带宽/人 |
+|:---:|:---:|:---:|:---:|
+| 2 | 2 Mbps | 2 Mbps | 4 Mbps |
+| 4 | 6 Mbps | 6 Mbps | 12 Mbps |
+| 8 | 14 Mbps | 14 Mbps | 28 Mbps |
+| 16 | 30 Mbps | 30 Mbps | 60 Mbps |
+
+普通家庭宽带（通常 20-100 Mbps）难以支持 4 人以上的高清通话。
+
+**问题 2：设备性能瓶颈**
+
+每个参与者需要：
+- 编码 N-1 路视频（发给其他人）
+- 解码 N-1 路视频（接收其他人）
+
+对于 4 人 1080p@30fps 通话，设备需要同时：
+- 编码 3 路 1080p
+- 解码 3 路 1080p
+
+这对移动设备是巨大负担，发热、掉帧、卡顿随之而来。
+
+**问题 3：连接可靠性**
+
+P2P 需要建立 N×(N-1)/2 条连接：
+- 4 人通话：6 条连接
+- 8 人通话：28 条连接
+- 16 人通话：120 条连接
+
+任何一条连接失败都会影响通信质量。
+
+### 1.2 SFU vs MCU vs Mesh
+
+![SFU vs P2P 对比](./diagrams/sfu-vs-p2p.svg)
+
+**Mesh（网状，纯 P2P）**：
+```
+A ←──→ B
+↑  ↘   ↑
+└──→ C ←─┘
+```
+- 优点：服务器不参与媒体处理，隐私性好
+- 缺点：带宽和 CPU 消耗随人数平方增长
+- 适用：2-3 人小规模通话
+
+**MCU（Multipoint Control Unit）**：
+```
+    ┌─────────────┐
+A ──→│   Server    │──→ A看到B+C的合屏
+B ──→│  (Mixing)   │──→ B看到A+C的合屏
+C ──→│  合成一路   │──→ C看到A+B的合屏
+    └─────────────┘
+```
+- 优点：客户端消耗最小，只收 1 路
+- 缺点：服务器 CPU 消耗大（需要解码+合成+编码），延迟高（100-500ms）
+- 适用：Webinar（ webinar 只需看主讲人），大规模直播
+
+**SFU（Selective Forwarding Unit）**：
+```
+    ┌─────────────┐
+A ──→│   Server    │──→ 转发 B 给 A
+B ──→│  (Routing)  │──→ 转发 C 给 A
+C ──→│  只转发不处理 │──→ 转发 A 给 B/C
+    └─────────────┘
+```
+- 优点：服务器只转发不处理，延迟低（10-50ms），灵活控制订阅
+- 缺点：客户端需要解码多路，带宽消耗中等
+- 适用：多人视频会议（4-50 人）
+
+### 1.3 三种架构对比
+
+| 特性 | Mesh (P2P) | MCU | SFU |
+|:---|:---:|:---:|:---:|
+| **服务器角色** | 仅信令 | 混音合成 | 转发 |
+| **服务器 CPU** | 低 | 极高 | 低 |
+| **服务器带宽** | 低 | 中等 | 高 |
+| **客户端上行** | 高 | 低 | 低 |
+| **客户端下行** | 高 | 极低 | 中等 |
+| **客户端 CPU** | 高 | 极低 | 中等 |
+| **延迟** | 低 | 高 | 低 |
+| **布局灵活性** | 高 | 低 | 高 |
+| **最大人数** | 3-4 | 100+ | 50+ |
+
+**现代会议系统的主流选择**：SFU 为主，MCU 为辅（用于录制或超大会议室）。
 
 ---
 
-## 2. 多路视频渲染
+## 2. SFU 架构设计
 
-### 2.1 视频布局策略
+### 2.1 整体架构
 
-![视频布局类型](./diagrams/video-layouts.svg)
+![SFU 架构](./diagrams/sfu-arch.svg)
 
-**常见布局模式**：
-
-#### 1) 网格布局（Gallery View）
 ```
-┌────────┬────────┬────────┐
-│   A    │   B    │   C    │
-├────────┼────────┼────────┤
-│   D    │   E    │   F    │
-└────────┴────────┴────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                        SFU Server                               │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    Signaling Layer                       │   │
+│  │   (WebSocket / HTTP / gRPC - Room Management)            │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                            ↓                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    Router Layer                          │   │
+│  │   (Track Management - Publisher/Subscriber Model)        │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                            ↓                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    Transport Layer                       │   │
+│  │   (ICE/DTLS/SRTP - Per-participant PeerConnection)       │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                            ↓                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    RTP Routing Engine                    │   │
+│  │   (Packet Forwarding - No Decoding/Encoding)             │   │
+│  └─────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                              ↑↓
+                        ┌───────────┐
+                        │  Clients  │
+                        └───────────┘
 ```
-**适用**：平等会议，所有人可见
 
-#### 2) 主讲人模式（Speaker View）
-```
-┌─────────────────────────┐
-│                         │
-│        主讲人           │
-│       (大图)            │
-│                         │
-├───────┬───────┬─────────┤
-│   A   │   B   │   ...   │
-└───────┴───────┴─────────┘
-```
-**适用**：讲座、培训
+### 2.2 Publish/Subscribe 模型
 
-#### 3) 画中画模式（PIP）
-```
-┌─────────────────────────┐
-│                         │
-│       主讲人            │
-│                         │
-│   ┌─────┐               │
-│   │自己 │               │
-│   └─────┘               │
-└─────────────────────────┘
-```
-**适用**：自己也需要看到
-
-### 2.2 布局计算算法
+SFU 采用 **发布/订阅** 模式管理媒体流：
 
 ```cpp
-// layout_manager.h
-#pragma once
-
-#include <vector>
-#include <math>
-
 namespace live {
 
-struct VideoCell {
-    int x, y;           // 位置
-    int width, height;  // 大小
-    std::string user_id; // 用户ID
-    bool is_speaking;   // 是否正在说话
-};
-
-enum class LayoutMode {
-    GRID,       // 网格
-    SPEAKER,    // 主讲人
-    PIP         // 画中画
-};
-
-class LayoutManager {
+// 发布者：向 SFU 发送媒体
+class Publisher {
 public:
-    LayoutManager(int container_width, int container_height);
+    // 发布音频轨道
+    void PublishAudio(const std::string& track_id,
+                      std::shared_ptr<RtpSender> sender);
     
-    // 设置布局模式
-    void SetMode(LayoutMode mode);
+    // 发布视频轨道（支持 Simulcast）
+    void PublishVideo(const std::string& track_id,
+                      const std::vector<RtpSender>& simulcast_senders);
     
-    // 计算布局
-    std::vector<VideoCell> CalculateLayout(
-        const std::vector<std::string>& user_ids,
-        const std::string& speaker_id);
-    
-    // 获取最佳行列数
-    static void GetGridSize(int count, int* rows, int* cols);
-    
-private:
-    std::vector<VideoCell> CalculateGrid(
-        const std::vector<std::string>& user_ids);
-    
-    std::vector<VideoCell> CalculateSpeaker(
-        const std::vector<std::string>& user_ids,
-        const std::string& speaker_id);
-    
-    std::vector<VideoCell> CalculatePIP(
-        const std::vector<std::string>& user_ids);
-    
-    int container_width_;
-    int container_height_;
-    LayoutMode mode_;
-    static constexpr int kMinCellWidth = 200;
-    static constexpr int kMinCellHeight = 150;
+    // 停止发布
+    void Unpublish(const std::string& track_id);
 };
 
-} // namespace live
-```
-
-```cpp
-// layout_manager.cpp
-
-#include "layout_manager.h"
-
-namespace live {
-
-LayoutManager::LayoutManager(int container_width, int container_height)
-    : container_width_(container_width)
-    , container_height_(container_height)
-    , mode_(LayoutMode::GRID) {}
-
-void LayoutManager::SetMode(LayoutMode mode) {
-    mode_ = mode;
-}
-
-std::vector<VideoCell> LayoutManager::CalculateLayout(
-    const std::vector<std::string>& user_ids,
-    const std::string& speaker_id) {
-    
-    switch (mode_) {
-    case LayoutMode::GRID:
-        return CalculateGrid(user_ids);
-    case LayoutMode::SPEAKER:
-        return CalculateSpeaker(user_ids, speaker_id);
-    case LayoutMode::PIP:
-        return CalculatePIP(user_ids);
-    }
-    return {};
-}
-
-void LayoutManager::GetGridSize(int count, int* rows, int* cols) {
-    // 计算最接近正方形的行列数
-    *cols = static_cast<int>(std::ceil(std::sqrt(count)));
-    *rows = static_cast<int>(std::ceil(static_cast<double>(count) / *cols));
-}
-
-std::vector<VideoCell> LayoutManager::CalculateGrid(
-    const std::vector<std::string>& user_ids) {
-    
-    std::vector<VideoCell> cells;
-    int count = static_cast<int>(user_ids.size());
-    if (count == 0) return cells;
-    
-    int rows, cols;
-    GetGridSize(count, &rows, &cols);
-    
-    // 计算每个单元格大小
-    int cell_width = container_width_ / cols;
-    int cell_height = container_height_ / rows;
-    
-    // 确保最小尺寸
-    if (cell_width < kMinCellWidth || cell_height < kMinCellHeight) {
-        // 需要滚动，这里简化处理
-        cell_width = std::max(cell_width, kMinCellWidth);
-        cell_height = std::max(cell_height, kMinCellHeight);
-    }
-    
-    // 分配位置
-    for (int i = 0; i < count; ++i) {
-        VideoCell cell;
-        cell.user_id = user_ids[i];
-        cell.col = i % cols;
-        cell.row = i / cols;
-        cell.x = cell.col * cell_width;
-        cell.y = cell.row * cell_height;
-        cell.width = cell_width;
-        cell.height = cell_height;
-        cell.is_speaking = false;
-        cells.push_back(cell);
-    }
-    
-    return cells;
-}
-
-std::vector<VideoCell> LayoutManager::CalculateSpeaker(
-    const std::vector<std::string>& user_ids,
-    const std::string& speaker_id) {
-    
-    std::vector<VideoCell> cells;
-    if (user_ids.empty()) return cells;
-    
-    // 主讲人占 70% 高度
-    int main_height = static_cast<int>(container_height_ * 0.7);
-    int thumb_height = container_height_ - main_height;
-    
-    // 主讲人
-    auto speaker_it = std::find(user_ids.begin(), user_ids.end(), speaker_id);
-    if (speaker_it != user_ids.end()) {
-        VideoCell main;
-        main.user_id = speaker_id;
-        main.x = 0;
-        main.y = 0;
-        main.width = container_width_;
-        main.height = main_height;
-        main.is_speaking = true;
-        cells.push_back(main);
-    }
-    
-    // 缩略图
-    int other_count = static_cast<int>(user_ids.size()) - 1;
-    if (other_count > 0) {
-        int thumb_width = container_width_ / other_count;
-        int idx = 0;
-        for (const auto& user_id : user_ids) {
-            if (user_id == speaker_id) continue;
-            
-            VideoCell thumb;
-            thumb.user_id = user_id;
-            thumb.x = idx * thumb_width;
-            thumb.y = main_height;
-            thumb.width = thumb_width;
-            thumb.height = thumb_height;
-            thumb.is_speaking = false;
-            cells.push_back(thumb);
-            ++idx;
-        }
-    }
-    
-    return cells;
-}
-
-} // namespace live
-```
-
-### 2.3 SDL2 多窗口渲染
-
-```cpp
-// multi_video_renderer.h
-#pragma once
-
-#include <SDL2/SDL.h>
-#include <map>
-#include <string>
-#include "layout_manager.h"
-
-namespace live {
-
-class MultiVideoRenderer {
+// 订阅者：从 SFU 接收媒体
+class Subscriber {
 public:
-    MultiVideoRenderer(int width, int height);
-    ~MultiVideoRenderer();
+    // 订阅某人的音频
+    void SubscribeAudio(const std::string& publisher_id,
+                        const std::string& track_id);
     
-    bool Initialize();
-    void Shutdown();
-    
-    // 更新布局
-    void UpdateLayout(const std::vector<VideoCell>& cells);
-    
-    // 渲染视频帧
-    void RenderFrame(const std::string& user_id,
-                     const uint8_t* y_plane, const uint8_t* u_plane, 
-                     const uint8_t* v_plane,
-                     int y_pitch, int u_pitch, int v_pitch,
-                     int width, int height);
-    
-    // 渲染所有（包括背景、边框等）
-    void Render();
-    
-private:
-    struct VideoTexture {
-        SDL_Texture* texture = nullptr;
-        int width = 0;
-        int height = 0;
-        std::string user_id;
-        VideoCell cell;
-    };
-    
-    SDL_Window* window_ = nullptr;
-    SDL_Renderer* renderer_ = nullptr;
-    std::map<std::string, VideoTexture> textures_;
-    std::vector<VideoCell> current_layout_;
-    
-    int container_width_;
-    int container_height_;
-};
-
-} // namespace live
-```
-
----
-
-## 3. 动态订阅策略
-
-### 3.1 为什么需要动态订阅？
-
-**问题**：
-- 10 人会议，每人发送 2Mbps
-- 如果订阅所有 9 路流，需要 18Mbps 下行带宽
-- 大部分用户没有这么高的带宽
-
-**解决方案**：动态订阅
-
-![订阅模型](./diagrams/subscription-model.svg)
-
-### 3.2 订阅策略类型
-
-| 策略 | 描述 | 适用场景 |
-|:---|:---|:---|
-| **全订阅** | 订阅所有参与者的流 | ≤4 人会议 |
-| **按需订阅** | 只订阅正在说话的人 | 大型会议 |
-| **分页订阅** | 订阅当前页的人 |  webinars |
-| **分层订阅** | 根据 Simulcast 层选择质量 | 自适应带宽 |
-
-### 3.3 Simulcast 分层订阅
-
-SFU 支持 Simulcast（分层编码），发送端同时发送多路质量：
-```
-发送端:
-├── 高清层 (1080p) ──┐
-├── 标清层 (720p) ──┼──→ SFU 选择一路转发给订阅者
-└── 低清层 (360p) ──┘
-```
-
-**订阅决策**：
-```cpp
-enum class SimulcastLayer {
-    HIGH,   // 1080p, 2Mbps
-    MEDIUM, // 720p, 1Mbps
-    LOW     // 360p, 0.5Mbps
-};
-
-class SubscriptionManager {
-public:
-    // 根据带宽和窗口大小选择层
-    SimulcastLayer SelectLayer(
-        int available_bandwidth,  // kbps
-        int video_width,          // 渲染窗口宽度
-        const std::string& user_id
-    ) {
-        // 1. 带宽检查
-        if (available_bandwidth < 600) {
-            return SimulcastLayer::LOW;
-        } else if (available_bandwidth < 1200) {
-            return SimulcastLayer::MEDIUM;
-        }
-        
-        // 2. 窗口大小检查
-        if (video_width < 480) {
-            return SimulcastLayer::LOW;
-        } else if (video_width < 960) {
-            return SimulcastLayer::MEDIUM;
-        }
-        
-        return SimulcastLayer::HIGH;
-    }
-    
-    // 订阅指定层
-    void SubscribeLayer(const std::string& user_id, SimulcastLayer layer);
+    // 订阅某人的视频（指定质量层）
+    void SubscribeVideo(const std::string& publisher_id,
+                        const std::string& track_id,
+                        VideoQualityLayer layer);
     
     // 取消订阅
-    void Unsubscribe(const std::string& user_id);
-    
-private:
-    struct Subscription {
-        std::string user_id;
-        SimulcastLayer current_layer;
-        bool audio_enabled;
-        bool video_enabled;
-    };
-    
-    std::map<std::string, Subscription> subscriptions_;
-    int total_bandwidth_used_ = 0;
-    static constexpr int kBandwidthReserve = 200; // 保留 200kbps
-};
-```
-
-### 3.4 带宽自适应
-
-```cpp
-class BandwidthEstimator {
-public:
-    // 基于 RTCP Receiver Report 估计带宽
-    void OnReceiverReport(const ReceiverReport& rr);
-    
-    // 获取估计带宽 (kbps)
-    int GetEstimatedBandwidth() const {
-        return estimated_bandwidth_;
-    }
-    
-    // 检测拥塞
-    bool IsCongested() const {
-        return packet_loss_rate_ > 0.05; // 5% 丢包视为拥塞
-    }
-    
-private:
-    int estimated_bandwidth_ = 2000; // 初始估计 2Mbps
-    float packet_loss_rate_ = 0.0;
-    int rtt_ms_ = 50;
-    
-    // 指数移动平均系数
-    static constexpr float kAlpha = 0.8;
-};
-
-void BandwidthEstimator::OnReceiverReport(const ReceiverReport& rr) {
-    // 更新丢包率
-    packet_loss_rate_ = rr.fraction_lost / 255.0f;
-    
-    // 基于丢包调整带宽估计
-    if (packet_loss_rate_ > 0.1) {
-        // 严重拥塞，大幅降低
-        estimated_bandwidth_ = static_cast<int>(
-            estimated_bandwidth_ * 0.7);
-    } else if (packet_loss_rate_ > 0.02) {
-        // 轻微拥塞，适当降低
-        estimated_bandwidth_ = static_cast<int>(
-            estimated_bandwidth_ * 0.9);
-    } else {
-        // 网络良好，可以尝试增加
-        estimated_bandwidth_ = static_cast<int>(
-            estimated_bandwidth_ * 1.05);
-    }
-    
-    // 限制范围
-    estimated_bandwidth_ = std::clamp(estimated_bandwidth_, 200, 10000);
-}
-```
-
----
-
-## 4. 房间事件处理
-
-### 4.1 房间状态模型
-
-```
-Room State:
-├── room_id: string
-├── local_user: UserInfo
-├── remote_users: Map<user_id, UserInfo>
-├── connections: Map<user_id, PeerConnection>
-└── layout: LayoutState
-
-UserInfo:
-├── user_id: string
-├── nickname: string
-├── has_audio: bool
-├── has_video: bool
-├── is_speaking: bool
-├── is_screen_sharing: bool
-└── join_time: timestamp
-```
-
-### 4.2 事件类型
-
-| 事件 | 描述 | 处理动作 |
-|:---|:---|:---|
-| `user-joined` | 新用户加入 | 创建订阅、添加视频格子 |
-| `user-left` | 用户离开 | 关闭订阅、移除视频格子 |
-| `stream-added` | 用户发布流 | 订阅流、绑定渲染 |
-| `stream-removed` | 用户停止发布 | 取消订阅 |
-| `audio-status-changed` | 音频开关 | 更新 UI 状态 |
-| `video-status-changed` | 视频开关 | 更新 UI 状态 |
-| `speaking-changed` | 说话状态 | 高亮显示 |
-| `active-speaker` | 当前主讲人 | 切换布局 |
-
-### 4.3 事件处理器实现
-
-```cpp
-// room_event_handler.h
-#pragma once
-
-#include <functional>
-#include <json/json.h>
-
-namespace live {
-
-enum class RoomEventType {
-    USER_JOINED,
-    USER_LEFT,
-    STREAM_ADDED,
-    STREAM_REMOVED,
-    AUDIO_STATUS_CHANGED,
-    VIDEO_STATUS_CHANGED,
-    SPEAKING_CHANGED,
-    ACTIVE_SPEAKER_CHANGED,
-    CONNECTION_STATE_CHANGED,
-    ERROR
-};
-
-struct RoomEvent {
-    RoomEventType type;
-    std::string user_id;
-    Json::Value data;
-};
-
-class RoomEventHandler {
-public:
-    using EventCallback = std::function<void(const RoomEvent&)>;
-    
-    void RegisterCallback(RoomEventType type, EventCallback callback);
-    void HandleEvent(const RoomEvent& event);
-    
-    // 具体事件处理
-    void OnUserJoined(const std::string& user_id, const Json::Value& user_info);
-    void OnUserLeft(const std::string& user_id);
-    void OnStreamAdded(const std::string& user_id, const std::string& stream_type);
-    void OnStreamRemoved(const std::string& user_id);
-    void OnSpeakingChanged(const std::string& user_id, bool is_speaking);
-    void OnActiveSpeakerChanged(const std::string& user_id);
-    
-private:
-    std::map<RoomEventType, std::vector<EventCallback>> callbacks_;
+    void Unsubscribe(const std::string& publisher_id,
+                     const std::string& track_id);
 };
 
 } // namespace live
 ```
 
+**关键设计决策**：
+1. **每个参与者维护一个 PeerConnection** 与 SFU 通信
+2. **上行（Publish）**：发送者将自己的音视频推送到 SFU
+3. **下行（Subscribe）**：接收者从 SFU 拉取其他人的音视频
+4. **SFU 不解码媒体**：只解析 RTP 头部，根据 SSRC 路由
+
+### 2.3 RTP 路由引擎
+
 ```cpp
-// room_event_handler.cpp
-
-#include "room_event_handler.h"
-
 namespace live {
 
-void RoomEventHandler::RegisterCallback(RoomEventType type, 
-                                         EventCallback callback) {
-    callbacks_[type].push_back(callback);
-}
+// RTP 包路由表条目
+struct RoutingEntry {
+    uint32_t ssrc;                    // 源 SSRC
+    std::string publisher_id;          // 发布者 ID
+    std::string track_id;              // 轨道 ID
+    VideoQualityLayer layer;          // 质量层（用于 Simulcast）
+    std::vector<std::string> subscribers;  // 订阅者列表
+};
 
-void RoomEventHandler::HandleEvent(const RoomEvent& event) {
-    auto it = callbacks_.find(event.type);
-    if (it != callbacks_.end()) {
-        for (const auto& callback : it->second) {
-            callback(event);
-        }
-    }
-}
-
-void RoomEventHandler::OnUserJoined(const std::string& user_id,
-                                     const Json::Value& user_info) {
-    RoomEvent event;
-    event.type = RoomEventType::USER_JOINED;
-    event.user_id = user_id;
-    event.data = user_info;
-    HandleEvent(event);
+// RTP 路由器
+class RtpRouter {
+public:
+    // 注册发布流
+    void RegisterPublisher(const std::string& publisher_id,
+                           const std::string& track_id,
+                           uint32_t ssrc);
     
-    LOG_INFO("User joined: %s, nickname: %s", 
-             user_id.c_str(), 
-             user_info["nickname"].asString().c_str());
-}
-
-void RoomEventHandler::OnUserLeft(const std::string& user_id) {
-    RoomEvent event;
-    event.type = RoomEventType::USER_LEFT;
-    event.user_id = user_id;
-    HandleEvent(event);
+    // 添加订阅关系
+    void AddSubscription(uint32_t ssrc, const std::string& subscriber_id);
+    void RemoveSubscription(uint32_t ssrc, const std::string& subscriber_id);
     
-    LOG_INFO("User left: %s", user_id.c_str());
-}
-
-void RoomEventHandler::OnSpeakingChanged(const std::string& user_id,
-                                          bool is_speaking) {
-    RoomEvent event;
-    event.type = RoomEventType::SPEAKING_CHANGED;
-    event.user_id = user_id;
-    event.data["is_speaking"] = is_speaking;
-    HandleEvent(event);
+    // 路由 RTP 包（核心转发逻辑）
+    void RouteRtpPacket(const std::string& publisher_id,
+                        const uint8_t* rtp_packet,
+                        size_t len);
     
-    LOG_DEBUG("User %s speaking state: %s",
-              user_id.c_str(), is_speaking ? "true" : "false");
-}
+    // 处理 RTCP（反馈控制）
+    void ProcessRtcpPacket(const std::string& subscriber_id,
+                           const uint8_t* rtcp_packet,
+                           size_t len);
 
-void RoomEventHandler::OnActiveSpeakerChanged(const std::string& user_id) {
-    RoomEvent event;
-    event.type = RoomEventType::ACTIVE_SPEAKER_CHANGED;
-    event.user_id = user_id;
-    HandleEvent(event);
+private:
+    // SSRC → 路由条目
+    std::unordered_map<uint32_t, RoutingEntry> routing_table_;
     
-    LOG_INFO("Active speaker changed to: %s", user_id.c_str());
-}
+    // Subscriber ID → PeerConnection
+    std::unordered_map<std::string, std::shared_ptr<PeerConnection>> subscribers_;
+    
+    // 转发统计
+    struct ForwardStats {
+        uint64_t packets_forwarded = 0;
+        uint64_t bytes_forwarded = 0;
+        uint64_t packets_dropped = 0;
+    };
+    std::unordered_map<uint32_t, ForwardStats> stats_;
+};
 
 } // namespace live
 ```
 
-### 4.4 信令消息格式
-
-```json
-// 用户加入通知
-{
-  "type": "user-joined",
-  "user_id": "user_123",
-  "nickname": "张三",
-  "timestamp": 1699000000000
-}
-
-// 流发布通知
-{
-  "type": "stream-added",
-  "user_id": "user_123",
-  "stream_id": "stream_456",
-  "audio": true,
-  "video": true,
-  "simulcast": ["high", "medium", "low"]
-}
-
-// 说话检测通知
-{
-  "type": "speaking-changed",
-  "user_id": "user_123",
-  "is_speaking": true,
-  "audio_level": 0.75
-}
-
-// 订阅请求
-{
-  "type": "subscribe",
-  "target_user_id": "user_123",
-  "audio": true,
-  "video": true,
-  "layer": "medium"
-}
-```
-
----
-
-## 5. 音频管理
-
-### 5.1 客户端音频混音
-
-多人会议中，如果同时播放多个远端音频，需要混音处理：
+### 2.4 房间管理
 
 ```cpp
-class AudioMixer {
+namespace live {
+
+// 参与者信息
+struct Participant {
+    std::string id;
+    std::string name;
+    bool audio_muted = false;
+    bool video_muted = false;
+    std::shared_ptr<PeerConnection> pc;
+    
+    // 发布的轨道
+    std::unordered_map<std::string, std::shared_ptr<MediaStreamTrack>> published_tracks;
+    
+    // 订阅的轨道
+    std::unordered_set<std::string> subscribed_tracks;
+};
+
+// 房间
+class Room {
 public:
-    // 添加音频源
-    void AddSource(const std::string& user_id);
+    Room(const std::string& room_id, size_t max_participants = 50);
     
-    // 移除音频源
-    void RemoveSource(const std::string& user_id);
+    // 参与者管理
+    bool Join(const std::string& participant_id,
+              std::shared_ptr<PeerConnection> pc);
+    void Leave(const std::string& participant_id);
     
-    // 输入音频帧
-    void PushAudio(const std::string& user_id, 
-                   const int16_t* pcm_data, 
-                   int samples);
+    // 发布/订阅管理
+    void PublishTrack(const std::string& participant_id,
+                      const std::string& track_id,
+                      std::shared_ptr<MediaStreamTrack> track);
+    void UnpublishTrack(const std::string& participant_id,
+                        const std::string& track_id);
     
-    // 获取混音后的音频
-    void GetMixedAudio(int16_t* output, int samples);
+    void SubscribeTrack(const std::string& subscriber_id,
+                        const std::string& publisher_id,
+                        const std::string& track_id);
+    void UnsubscribeTrack(const std::string& subscriber_id,
+                          const std::string& publisher_id,
+                          const std::string& track_id);
+    
+    // 获取房间信息
+    size_t GetParticipantCount() const;
+    std::vector<std::string> GetParticipantList() const;
+    
+    // 广播控制消息
+    void BroadcastMessage(const std::string& from,
+                          const json& message);
+
+private:
+    std::string room_id_;
+    size_t max_participants_;
+    
+    std::unordered_map<std::string, std::unique_ptr<Participant>> participants_;
+    std::shared_mutex mutex_;
+    
+    // RTP 路由器
+    std::unique_ptr<RtpRouter> router_;
+};
+
+// 房间管理器
+class RoomManager {
+public:
+    std::shared_ptr<Room> CreateRoom(const std::string& room_id);
+    void DestroyRoom(const std::string& room_id);
+    std::shared_ptr<Room> GetRoom(const std::string& room_id);
     
 private:
-    struct AudioSource {
-        std::queue<std::vector<int16_t>> buffer;
-        float volume = 1.0f;
-        bool muted = false;
-    };
-    
-    std::map<std::string, AudioSource> sources_;
+    std::unordered_map<std::string, std::shared_ptr<Room>> rooms_;
     std::mutex mutex_;
 };
 
-void AudioMixer::GetMixedAudio(int16_t* output, int samples) {
-    std::lock_guard<std::mutex> lock(mutex_);
+} // namespace live
+```
+
+---
+
+## 3. Simulcast 多路质量
+
+### 3.1 为什么需要 Simulcast？
+
+在多人会议中，不同参与者有不同的：
+- **屏幕尺寸**：手机小屏 vs 电脑大屏
+- **网络条件**：WiFi vs 4G vs 弱网
+- **关注重点**：主讲人大窗口 vs 其他人小窗口
+
+**Simulcast（多播）** 让发送者同时发送多路不同质量的视频：
+
+```
+发送者 (Alice)
+    │
+    ├─→ 高清层 (1080p @ 2Mbps) ──→ 大屏显示、主讲人
+    ├─→ 标清层 (540p @ 500Kbps) ──→ 中等窗口
+    └─→ 低清层 (270p @ 150Kbps) ──→ 小窗口、弱网用户
+```
+
+### 3.2 Simulcast 分层结构
+
+![Simulcast 分层](./diagrams/simulcast-layers.svg)
+
+```cpp
+namespace live {
+
+// 视频质量层
+enum class VideoQualityLayer {
+    HIGH,      // 高清 (1080p)
+    MEDIUM,    // 标清 (540p)
+    LOW        // 低清 (270p)
+};
+
+// Simulcast 配置
+struct SimulcastConfig {
+    bool enabled = true;
     
-    // 清零输出
-    std::fill(output, output + samples, 0);
+    struct LayerConfig {
+        int width;
+        int height;
+        int max_framerate;
+        int max_bitrate_bps;
+        double scale_resolution_down_by;
+    };
     
-    // 混音
-    for (auto& [user_id, source] : sources_) {
-        if (source.muted || source.buffer.empty()) continue;
+    std::array<LayerConfig, 3> layers = {{
+        // High layer (L0) - original resolution
+        {1920, 1080, 30, 2500000, 1.0},
+        // Medium layer (L1) - 1/2 resolution
+        {960, 540, 30, 600000, 2.0},
+        // Low layer (L2) - 1/4 resolution
+        {480, 270, 15, 200000, 4.0}
+    }};
+};
+
+// Simulcast 流管理
+class SimulcastManager {
+public:
+    // 解析 SSRC 对应的层
+    VideoQualityLayer GetLayerBySSRC(uint32_t ssrc) const;
+    
+    // 为订阅者选择最佳层
+    VideoQualityLayer SelectOptimalLayer(
+        const std::string& subscriber_id,
+        int target_width,
+        int target_height,
+        int available_bandwidth_bps);
+    
+    // 层切换（平滑过渡）
+    void SwitchLayer(const std::string& subscriber_id,
+                     uint32_t from_ssrc,
+                     uint32_t to_ssrc);
+
+private:
+    // SSRC 到层的映射
+    std::unordered_map<uint32_t, VideoQualityLayer> ssrc_to_layer_;
+    
+    // 当前订阅状态
+    struct SubscriptionState {
+        uint32_t current_ssrc;
+        VideoQualityLayer current_layer;
+        uint64_t switch_timestamp;
+    };
+    std::unordered_map<std::string, SubscriptionState> subscriptions_;
+};
+
+} // namespace live
+```
+
+### 3.3 层选择策略
+
+```cpp
+namespace live {
+
+// 基于窗口大小的层选择
+VideoQualityLayer SelectLayerByViewport(
+    int viewport_width,
+    int viewport_height,
+    const SimulcastConfig& config) {
+    
+    // 根据显示区域大小选择最合适的层
+    // 避免过度采样（小窗口看高清是浪费）
+    
+    if (viewport_width >= config.layers[0].width * 0.8 ||
+        viewport_height >= config.layers[0].height * 0.8) {
+        return VideoQualityLayer::HIGH;
+    }
+    
+    if (viewport_width >= config.layers[1].width * 0.8 ||
+        viewport_height >= config.layers[1].height * 0.8) {
+        return VideoQualityLayer::MEDIUM;
+    }
+    
+    return VideoQualityLayer::LOW;
+}
+
+// 基于带宽的层选择
+VideoQualityLayer SelectLayerByBandwidth(
+    int available_bandwidth_bps,
+    const SimulcastConfig& config) {
+    
+    // 预留 20% 缓冲
+    int safe_bandwidth = available_bandwidth_bps * 0.8;
+    
+    if (safe_bandwidth >= config.layers[0].max_bitrate_bps) {
+        return VideoQualityLayer::HIGH;
+    }
+    
+    if (safe_bandwidth >= config.layers[1].max_bitrate_bps) {
+        return VideoQualityLayer::MEDIUM;
+    }
+    
+    return VideoQualityLayer::LOW;
+}
+
+// 综合选择（考虑窗口和带宽）
+VideoQualityLayer SelectOptimalLayer(
+    int viewport_width,
+    int viewport_height,
+    int available_bandwidth_bps,
+    const SimulcastConfig& config) {
+    
+    auto layer_by_viewport = SelectLayerByViewport(
+        viewport_width, viewport_height, config);
+    auto layer_by_bandwidth = SelectLayerByBandwidth(
+        available_bandwidth_bps, config);
+    
+    // 取两者中较低的（受限因素决定）
+    return std::min(layer_by_viewport, layer_by_bandwidth);
+}
+
+} // namespace live
+```
+
+### 3.4 平滑层切换
+
+```cpp
+namespace live {
+
+// 层切换管理器（防止频繁切换）
+class LayerSwitchManager {
+public:
+    static constexpr int64_t kMinSwitchIntervalMs = 2000;  // 最少 2 秒切换一次
+    static constexpr int kQualityHysteresis = 10;  // 10% 缓冲避免抖动
+    
+    bool ShouldSwitchLayer(VideoQualityLayer current,
+                           VideoQualityLayer proposed,
+                           int64_t last_switch_time_ms,
+                           int current_bandwidth_bps,
+                           int proposed_layer_bitrate) {
         
-        auto& frame = source.buffer.front();
-        int frame_samples = static_cast<int>(frame.size());
-        int mix_samples = std::min(samples, frame_samples);
-        
-        for (int i = 0; i < mix_samples; ++i) {
-            // 简单叠加（实际需要溢出处理）
-            int32_t sum = output[i] + static_cast<int32_t>(
-                frame[i] * source.volume);
-            output[i] = static_cast<int16_t>(
-                std::clamp(sum, -32768, 32767));
+        int64_t now = GetCurrentTimeMs();
+        if (now - last_switch_time_ms < kMinSwitchIntervalMs) {
+            return false;  // 切换太频繁
         }
         
-        source.buffer.pop();
+        if (proposed > current) {
+            // 升层：需要足够带宽（+缓冲）
+            return current_bandwidth_bps > proposed_layer_bitrate * (100 + kQualityHysteresis) / 100;
+        } else if (proposed < current) {
+            // 降层：带宽不足（-缓冲）
+            return current_bandwidth_bps < proposed_layer_bitrate * (100 - kQualityHysteresis) / 100;
+        }
+        
+        return false;
     }
+    
+    // 关键帧请求（切换后需要立即刷新）
+    void RequestKeyframe(uint32_t ssrc);
+};
+
+} // namespace live
+```
+
+---
+
+## 4. GCC 拥塞控制
+
+### 4.1 为什么需要拥塞控制？
+
+网络带宽是动态变化的：
+- WiFi 信号强弱变化
+- 其他应用占用带宽
+- 网络拥堵时段
+
+**拥塞控制的目标**：
+1. 充分利用可用带宽
+2. 避免网络拥塞导致丢包
+3. 快速适应带宽变化
+
+### 4.2 GCC 算法概述
+
+**GCC（Google Congestion Control）** 是 WebRTC 默认的拥塞控制算法，结合发送端和接收端估计：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    GCC 架构                                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   发送端                        接收端                       │
+│  ┌──────────────┐              ┌──────────────┐            │
+│  │  发送码率控制  │              │  延迟变化检测  │            │
+│  │  (基于丢包)   │              │  (基于到达时间)│            │
+│  └──────┬───────┘              └──────┬───────┘            │
+│         │                             │                    │
+│         │      带宽估计 ←─────────────┘                    │
+│         │      (通过 RTCP TransportCC)                     │
+│         ↓                                                   │
+│  ┌──────────────┐                                           │
+│  │  最终目标码率  │ ← 取两者最小值                            │
+│  │  = min(丢包,  │                                           │
+│  │         延迟) │                                           │
+│  └──────┬───────┘                                           │
+│         ↓                                                   │
+│    编码器码率调整                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 4.3 GCC 算法流程
+
+![GCC 算法流程](./diagrams/gcc-algorithm.svg)
+
+**发送端估计（基于丢包）**：
+
+```cpp
+namespace live {
+
+// 发送端带宽估计器
+class SendSideBandwidthEstimator {
+public:
+    // 处理 RTCP Receiver Report
+    void OnReceiverReport(const ReceiverReport& report);
+    
+    // 计算目标码率
+    int64_t GetTargetBitrateBps() const { return target_bitrate_bps_; }
+
+private:
+    // 丢包率 → 码率调整
+    void UpdateTargetBitrate(float loss_rate);
+    
+    static constexpr float kLossLowThreshold = 0.02f;   // 2%
+    static constexpr float kLossHighThreshold = 0.10f;  // 10%
+    
+    // 码率调整规则：
+    // loss < 2%:   增加码率 (带宽充足)
+    // 2% < loss < 10%: 保持当前码率
+    // loss > 10%:   降低码率 (拥塞)
+    
+    int64_t target_bitrate_bps_ = 1000000;  // 初始 1 Mbps
+    float loss_rate_ = 0.0f;
+};
+
+void SendSideBandwidthEstimator::UpdateTargetBitrate(float loss_rate) {
+    if (loss_rate < kLossLowThreshold) {
+        // 丢包率低，增加码率
+        target_bitrate_bps_ = static_cast<int64_t>(
+            target_bitrate_bps_ * 1.05);  // 增加 5%
+    } else if (loss_rate > kLossHighThreshold) {
+        // 丢包率高，降低码率
+        target_bitrate_bps_ = static_cast<int64_t>(
+            target_bitrate_bps_ * (1 - 0.5f * loss_rate));
+    }
+    // 否则保持当前码率
+    
+    // 限制范围
+    target_bitrate_bps_ = std::clamp(target_bitrate_bps_,
+                                      kMinBitrateBps,
+                                      kMaxBitrateBps);
+}
+
+} // namespace live
+```
+
+**接收端估计（基于延迟）**：
+
+```cpp
+namespace live {
+
+// 到达时间过滤器（卡尔曼滤波）
+class ArrivalTimeFilter {
+public:
+    // 处理包到达事件
+    void OnPacketArrival(int64_t send_time_ms,
+                         int64_t arrival_time_ms,
+                         size_t payload_size);
+    
+    // 获取延迟变化趋势
+    double GetDelayTrend() const;
+
+private:
+    // 卡尔曼滤波状态
+    double slope_;      // 延迟变化斜率
+    double offset_;     // 偏移
+    
+    // 状态噪声协方差
+    double process_noise_cov_[2][2];
+    double measurement_noise_var_;
+};
+
+// 接收端带宽估计器
+class ReceiveSideBandwidthEstimator {
+public:
+    void OnReceivedPacket(const RtpPacket& packet,
+                          int64_t arrival_time_ms);
+    
+    // 生成 TransportCC 反馈（通过 RTCP）
+    std::vector<uint8_t> BuildTransportCcFeedback();
+    
+    int64_t GetEstimatedBitrateBps() const;
+
+private:
+    ArrivalTimeFilter arrival_filter_;
+    
+    // 基于延迟趋势的码率调整
+    void UpdateEstimate(double delay_trend);
+    
+    // 自适应阈值
+    double threshold_ = 12.5;  // 初始阈值 (ms)
+    bool overusing_ = false;
+    
+    int64_t estimated_bitrate_bps_ = 1000000;
+};
+
+void ReceiveSideBandwidthEstimator::UpdateEstimate(double delay_trend) {
+    if (delay_trend > threshold_) {
+        // 延迟增加，网络拥塞
+        if (!overusing_) {
+            overusing_ = true;
+            // 开始降速
+            estimated_bitrate_bps_ *= 0.85;
+        }
+    } else if (delay_trend < -threshold_) {
+        // 延迟减少，网络空闲
+        overusing_ = false;
+        // 可以提速
+        estimated_bitrate_bps_ *= 1.05;
+    } else {
+        overusing_ = false;
+    }
+}
+
+} // namespace live
+```
+
+### 4.4 码率分配
+
+```cpp
+namespace live {
+
+// 码率分配器（处理多轨道）
+class BitrateAllocator {
+public:
+    struct TrackConfig {
+        std::string track_id;
+        int64_t min_bitrate_bps;
+        int64_t max_bitrate_bps;
+        int priority;  // 优先级（音频 > 主讲人视频 > 其他视频）
+    };
+    
+    // 分配码率给各个轨道
+    std::map<std::string, int64_t> Allocate(
+        int64_t total_bitrate_bps,
+        const std::vector<TrackConfig>& tracks);
+
+private:
+    // 优先保证最低码率
+    // 剩余带宽按优先级分配
+};
+
+std::map<std::string, int64_t> BitrateAllocator::Allocate(
+    int64_t total_bitrate_bps,
+    const std::vector<TrackConfig>& tracks) {
+    
+    std::map<std::string, int64_t> allocation;
+    int64_t remaining = total_bitrate_bps;
+    
+    // 第一步：分配最低码率
+    for (const auto& track : tracks) {
+        int64_t allocated = std::min(track.min_bitrate_bps, remaining);
+        allocation[track.track_id] = allocated;
+        remaining -= allocated;
+    }
+    
+    // 第二步：按优先级分配剩余带宽
+    if (remaining > 0) {
+        // 按优先级排序
+        auto sorted_tracks = tracks;
+        std::sort(sorted_tracks.begin(), sorted_tracks.end(),
+                  [](const auto& a, const auto& b) {
+                      return a.priority > b.priority;
+                  });
+        
+        for (const auto& track : sorted_tracks) {
+            int64_t current = allocation[track.track_id];
+            int64_t desired = track.max_bitrate_bps;
+            int64_t additional = std::min(desired - current, remaining);
+            
+            allocation[track.track_id] += additional;
+            remaining -= additional;
+            
+            if (remaining <= 0) break;
+        }
+    }
+    
+    return allocation;
+}
+
+} // namespace live
+```
+
+---
+
+## 5. 简单 SFU 实现
+
+### 5.1 项目结构
+
+```
+simple-sfu/
+├── CMakeLists.txt
+├── src/
+│   ├── main.cpp
+│   ├── sfu_server.{h,cpp}
+│   ├── room.{h,cpp}
+│   ├── rtp_router.{h,cpp}
+│   ├── signaling_handler.{h,cpp}
+│   └── bandwidth_controller.{h,cpp}
+└── include/
+    └── live/
+        └── sfu/
+```
+
+### 5.2 CMakeLists.txt
+
+```cmake
+cmake_minimum_required(VERSION 3.16)
+project(simple_sfu VERSION 1.0.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 依赖
+find_package(WebRTC REQUIRED)
+find_package(Threads REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
+
+# SFU 可执行文件
+add_executable(simple_sfu
+    src/main.cpp
+    src/sfu_server.cpp
+    src/room.cpp
+    src/rtp_router.cpp
+    src/signaling_handler.cpp
+    src/bandwidth_controller.cpp
+)
+
+target_include_directories(simple_sfu PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    ${WEBRTC_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
+)
+
+target_link_libraries(simple_sfu PRIVATE
+    ${WEBRTC_LIBRARIES}
+    Threads::Threads
+    Boost::system
+)
+
+target_compile_options(simple_sfu PRIVATE -O2 -Wall)
+```
+
+### 5.3 SFU 服务器主类
+
+```cpp
+// include/live/sfu/sfu_server.h
+#pragma once
+
+#include <memory>
+#include <unordered_map>
+#include <boost/asio.hpp>
+
+namespace live {
+
+class Room;
+class SignalingHandler;
+
+// SFU 服务器配置
+struct SfuServerConfig {
+    std::string bind_address = "0.0.0.0";
+    uint16_t signaling_port = 8080;
+    uint16_t media_port_min = 10000;
+    uint16_t media_port_max = 20000;
+    size_t max_rooms = 100;
+    size_t max_participants_per_room = 50;
+};
+
+// SFU 服务器
+class SfuServer {
+public:
+    explicit SfuServer(const SfuServerConfig& config);
+    ~SfuServer();
+    
+    // 启动/停止
+    bool Start();
+    void Stop();
+    
+    // 获取统计信息
+    struct Stats {
+        size_t active_rooms;
+        size_t total_participants;
+        uint64_t packets_forwarded;
+        uint64_t bytes_forwarded;
+    };
+    Stats GetStats() const;
+
+private:
+    SfuServerConfig config_;
+    
+    // IO 服务
+    boost::asio::io_context io_context_;
+    std::unique_ptr<boost::asio::io_context::work> work_;
+    std::vector<std::thread> worker_threads_;
+    
+    // 房间管理
+    std::unordered_map<std::string, std::shared_ptr<Room>> rooms_;
+    std::mutex rooms_mutex_;
+    
+    // 信令处理器
+    std::unique_ptr<SignalingHandler> signaling_handler_;
+    
+    void WorkerThread();
+    std::shared_ptr<Room> GetOrCreateRoom(const std::string& room_id);
+};
+
+} // namespace live
+```
+
+### 5.4 主程序
+
+```cpp
+// src/main.cpp
+#include <iostream>
+#include <signal.h>
+#include "live/sfu/sfu_server.h"
+
+using namespace live;
+
+static std::atomic<bool> g_running{true};
+
+void SignalHandler(int sig) {
+    std::cout << "\nReceived signal " << sig << ", shutting down...\n";
+    g_running = false;
+}
+
+int main(int argc, char* argv[]) {
+    // 配置
+    SfuServerConfig config;
+    config.signaling_port = 8080;
+    config.max_participants_per_room = 50;
+    
+    // 解析命令行参数
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--port" && i + 1 < argc) {
+            config.signaling_port = std::stoi(argv[++i]);
+        } else if (arg == "--max-participants" && i + 1 < argc) {
+            config.max_participants_per_room = std::stoi(argv[++i]);
+        } else if (arg == "--help") {
+            std::cout << "Usage: simple_sfu [options]\n"
+                      << "Options:\n"
+                      << "  --port <port>       Signaling port (default: 8080)\n"
+                      << "  --max-participants <n>  Max participants per room\n"
+                      << "  --help              Show this help\n";
+            return 0;
+        }
+    }
+    
+    // 设置信号处理
+    signal(SIGINT, SignalHandler);
+    signal(SIGTERM, SignalHandler);
+    
+    std::cout << "Starting Simple SFU Server...\n"
+              << "Signaling port: " << config.signaling_port << "\n"
+              << "Max participants per room: " << config.max_participants_per_room << "\n\n";
+    
+    // 创建并启动服务器
+    SfuServer server(config);
+    if (!server.Start()) {
+        std::cerr << "Failed to start server\n";
+        return 1;
+    }
+    
+    std::cout << "SFU Server running. Press Ctrl+C to stop.\n";
+    
+    // 主循环：定期打印统计
+    while (g_running) {
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+        
+        auto stats = server.GetStats();
+        std::cout << "[Stats] Rooms: " << stats.active_rooms
+                  << ", Participants: " << stats.total_participants
+                  << ", Packets forwarded: " << stats.packets_forwarded
+                  << "\n";
+    }
+    
+    // 停止服务器
+    server.Stop();
+    std::cout << "Server stopped.\n";
+    
+    return 0;
 }
 ```
 
-### 5.2 音量检测（VU Meter）
+### 5.5 RTP 转发核心实现
 
 ```cpp
-class VolumeDetector {
-public:
-    // 计算音频帧的 RMS 音量
-    float CalculateVolume(const int16_t* pcm_data, int samples) {
-        double sum_squares = 0.0;
-        for (int i = 0; i < samples; ++i) {
-            sum_squares += pcm_data[i] * pcm_data[i];
-        }
-        double rms = std::sqrt(sum_squares / samples);
-        
-        // 归一化到 0-1
-        return static_cast<float>(
-            std::min(rms / 32768.0, 1.0));
+// src/rtp_router.cpp
+#include "live/sfu/rtp_router.h"
+
+namespace live {
+
+void RtpRouter::RouteRtpPacket(const std::string& publisher_id,
+                                const uint8_t* rtp_packet,
+                                size_t len) {
+    if (len < 12) return;  // RTP 头至少 12 字节
+    
+    // 解析 RTP 头
+    uint8_t version = (rtp_packet[0] >> 6) & 0x03;
+    if (version != 2) return;  // 只支持 RTPv2
+    
+    uint8_t payload_type = rtp_packet[1] & 0x7F;
+    uint16_t seq_num = (rtp_packet[2] << 8) | rtp_packet[3];
+    uint32_t ssrc = (rtp_packet[8] << 24) |
+                    (rtp_packet[9] << 16) |
+                    (rtp_packet[10] << 8) |
+                    rtp_packet[11];
+    
+    std::lock_guard<std::mutex> lock(mutex_);
+    
+    // 查找路由表
+    auto it = routing_table_.find(ssrc);
+    if (it == routing_table_.end()) {
+        // 新 SSRC，注册到路由表
+        RegisterSsrcInternal(publisher_id, ssrc, payload_type);
+        it = routing_table_.find(ssrc);
+        if (it == routing_table_.end()) return;
     }
     
-    // 检测是否正在说话（阈值检测）
-    bool IsSpeaking(const int16_t* pcm_data, int samples) {
-        float volume = CalculateVolume(pcm_data, samples);
-        
-        // 应用平滑
-        smoothed_volume_ = smoothed_volume_ * 0.8f + volume * 0.2f;
-        
-        // 迟滞比较，避免抖动
-        if (smoothed_volume_ > kSpeakingThreshold) {
-            is_speaking_ = true;
-        } else if (smoothed_volume_ < kSpeakingThreshold * 0.7f) {
-            is_speaking_ = false;
-        }
-        
-        return is_speaking_;
-    }
+    const auto& entry = it->second;
     
-private:
-    float smoothed_volume_ = 0.0f;
-    bool is_speaking_ = false;
-    static constexpr float kSpeakingThreshold = 0.05f;
-};
+    // 转发给所有订阅者
+    for (const auto& subscriber_id : entry.subscribers) {
+        auto sub_it = subscribers_.find(subscriber_id);
+        if (sub_it != subscribers_.end()) {
+            sub_it->second->SendRtp(rtp_packet, len);
+            stats_[ssrc].packets_forwarded++;
+            stats_[ssrc].bytes_forwarded += len;
+        }
+    }
+}
+
+void RtpRouter::AddSubscription(uint32_t ssrc, const std::string& subscriber_id) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    
+    auto it = routing_table_.find(ssrc);
+    if (it != routing_table_.end()) {
+        auto& subscribers = it->second.subscribers;
+        if (std::find(subscribers.begin(), subscribers.end(), subscriber_id) 
+            == subscribers.end()) {
+            subscribers.push_back(subscriber_id);
+        }
+    }
+}
+
+} // namespace live
 ```
 
 ---
 
 ## 6. 本章总结
 
-### 6.1 核心概念回顾
+### 6.1 核心知识点
+
+| 概念 | 作用 | 关键决策 |
+|:---|:---|:---|
+| **SFU** | 服务器转发媒体 | 不解码，只路由 |
+| **Publish/Subscribe** | 媒体流管理 | 灵活订阅，按需转发 |
+| **Simulcast** | 多质量适配 | 根据带宽/窗口选择层 |
+| **GCC** | 拥塞控制 | 发送端+接收端联合估计 |
+| **RTP 路由** | 包转发 | 基于 SSRC 查表转发 |
+
+### 6.2 SFU 设计要点
 
 ```
-多人会议客户端技术栈：
-
-┌─────────────────────────────────────────┐
-│  布局管理（网格/主讲人/PIP）              │
-├─────────────────────────────────────────┤
-│  动态订阅（Simulcast 层选择）             │
-├─────────────────────────────────────────┤
-│  带宽自适应（RTCP 反馈）                  │
-├─────────────────────────────────────────┤
-│  事件处理（用户/流/状态）                 │
-├─────────────────────────────────────────┤
-│  音频混音 + 音量检测                      │
-├─────────────────────────────────────────┤
-│  WebRTC 连接管理                          │
-└─────────────────────────────────────────┘
+1. 每个参与者一个 PeerConnection 与 SFU 通信
+2. SFU 只解析 RTP 头，不解码媒体 payload
+3. Simulcast 发送多路，SFU 根据订阅选择转发
+4. GCC 动态调整码率，适应网络变化
+5. RTCP 反馈闭环，保证服务质量
 ```
-
-### 6.2 关键学习点
-
-1. **发布/订阅模型**：灵活控制接收哪些流
-2. **动态布局**：根据人数和模式自动调整
-3. **带宽管理**：Simulcast + 自适应层选择
-4. **事件驱动**：房间状态变化及时响应
-5. **音频处理**：混音 + 说话检测
 
 ### 6.3 与下一章的衔接
 
-本章完成了**客户端**的多人会议功能。但要支持更多用户（如 100+ 人），单靠 SFU 还不够，需要考虑 **MCU 混音混画** 来降低下行带宽。
+本章我们学习了 SFU 服务器的设计与实现，实现了媒体流的转发。但在客户端侧，多人房间还有许多挑战：
 
-下一章 **MCU 混音混画详解** 将介绍服务端如何混合多路音视频，让每个人都能以较低带宽观看统一画面。
+- 多路视频的渲染布局
+- 音频混音和音量检测
+- 动态订阅管理（只看主讲人 vs 看所有人）
+- 房间事件处理（进出、静音等）
+
+下一章（第二十二章）**多人房间客户端** 将带你完成最后一块拼图，实现完整的多人视频会议客户端。
 
 ---
 
-## 课后思考
+## 课后实践
 
-1. **布局算法优化**：当用户超过 16 人时，网格布局需要分页或滚动。如何设计合理的分页策略？
+1. **实现完整的 SFU 服务器**：基于本章代码框架，实现剩余模块
 
-2. **带宽分配**：假设总带宽 2Mbps，房间内 6 个远端用户，如何分配每个人的订阅质量？是平均分配还是按需分配？
+2. **添加录制功能**：将某个房间的所有视频合成为一路文件
 
-3. **说话检测延迟**：说话检测通常有 100-200ms 的检测延迟，如何让用户感知不到切换主讲人的延迟？
+3. **优化层切换**：实现预测性层切换，提前准备更高质量流
 
-4. **音频混音性能**：10 人会议意味着 10 路音频混音。如何优化混音算法以降低 CPU 占用？（提示：只混活跃说话者）
+4. **压力测试**：测试 SFU 在 50 人、100 人场景下的性能表现
