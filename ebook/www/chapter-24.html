@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="index.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html" class="active">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="第24章mcu-混音混画详解">第24章：MCU 混音混画详解</h1>
+<blockquote>
+<p><strong>本章目标</strong>：理解 MCU
+架构原理，掌握音频混音和视频混画的核心技术。</p>
+</blockquote>
+<p>在上一章（第23章）中，我们实现了多人房间的客户端，使用 SFU
+架构实现了灵活的多路视频管理。但是，当会议人数增加到一定规模，或者需要进行云端录制时，SFU
+的局限性就开始显现。</p>
+<p>本章将学习 <strong>MCU（Multipoint Control
+Unit，多点控制单元）</strong>
+架构，这是处理大规模会议和云端录制的核心技术。通过
+MCU，服务器可以将多路音视频流混合成一路合流，大幅降低客户端的带宽和性能消耗。</p>
+<p><strong>学习本章后，你将能够</strong>： - 理解 MCU 与 SFU
+的区别和适用场景 - 掌握音频混音的数学原理和溢出处理 -
+理解视频混画的布局设计和 GPU 加速 - 设计 MCU 的完整处理流水线 -
+实现一个简单的 MCU 服务器</p>
+<hr />
+<h2 id="目录">目录</h2>
+<ol type="1">
+<li><a href="#1-为什么需要-mcu">为什么需要 MCU？</a></li>
+<li><a href="#2-音频混音原理">音频混音原理</a></li>
+<li><a href="#3-视频混画原理">视频混画原理</a></li>
+<li><a href="#4-mcu-流水线设计">MCU 流水线设计</a></li>
+<li><a href="#5-简单-mcu-实现">简单 MCU 实现</a></li>
+<li><a href="#6-本章总结">本章总结</a></li>
+</ol>
+<hr />
+<h2 id="为什么需要-mcu">1. 为什么需要 MCU？</h2>
+<h3 id="sfu-的局限性">1.1 SFU 的局限性</h3>
+<p>在第22章中，我们学习了 SFU
+架构，它的核心优势是服务器只转发不解码，延迟低、性能好。但当遇到以下场景时，SFU
+就显得力不从心了：</p>
+<p><strong>场景 1：大规模会议（50+ 人）</strong></p>
+<p>使用 SFU 时，每个参与者需要接收其他所有参与者的视频流：</p>
+<pre><code>50 人会议，每人需要接收 49 路视频
+假设每路 500kbps，每人下行带宽 = 49 × 500kbps = 24.5 Mbps</code></pre>
+<p>普通家庭宽带（通常 20-100 Mbps）根本无法支撑这样的带宽需求。</p>
+<p><strong>场景 2：移动端弱网环境</strong></p>
+<p>移动设备的网络环境复杂，4G/5G 信号不稳定，WiFi 质量参差不齐。SFU
+要求客户端接收多路流，在弱网环境下很容易出现卡顿、花屏。</p>
+<p><strong>场景 3：云端录制需求</strong></p>
+<p>如果要将整场会议录制下来，使用 SFU 需要： - 同时录制每一路单独的流 -
+录制后再进行离线混流合成 - 流程复杂，实时性差</p>
+<h3 id="mcu-vs-sfu-对比">1.2 MCU vs SFU 对比</h3>
+<figure>
+<img src="./diagrams/sfu-vs-mcu.svg" alt="SFU vs MCU 架构对比" />
+<figcaption aria-hidden="true">SFU vs MCU 架构对比</figcaption>
+</figure>
+<p><strong>SFU（选择性转发单元）</strong>：</p>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    SFU 架构                             │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│   用户 A ──→┌─────────┐←── 用户 B                       │
+│   发送1路    │  Server  │    收到1路 (A的)               │
+│             │ (转发)   │                               │
+│   用户 B ──→│ 不解码   │←── 用户 A                       │
+│   发送1路    │ 不编码   │    收到1路 (B的)               │
+│             └─────────┘                               │
+│                                                         │
+│  特点: N人会议，每人接收 N-1 路流                       │
+│  延迟: 极低 (&lt; 50ms)                                    │
+│  适用: 小型会议 (4-20人)                                │
+└─────────────────────────────────────────────────────────┘</code></pre>
+<p><strong>MCU（多点控制单元）</strong>：</p>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    MCU 架构                             │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│   用户 A ──┐                                          │
+│             ↓                                          │
+│   用户 B ──→┌─────────┐                               │
+│             │  Server  │                               │
+│   用户 C ──→│ (混音   │──→ 所有用户收到 1 路合流        │
+│             │  混画)   │      包含 A+B+C               │
+│   用户 D ──→│ 解码→合成→编码│                               │
+│             └─────────┘                               │
+│                                                         │
+│  特点: N人会议，每人只接收 1 路合流                     │
+│  延迟: 较高 (100-500ms)                                 │
+│  适用: 大型会议、直播、录制                             │
+└─────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="三种架构详细对比">1.3 三种架构详细对比</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">特性</th>
+<th style="text-align: center;">Mesh (P2P)</th>
+<th style="text-align: center;">SFU</th>
+<th style="text-align: center;">MCU</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>服务器角色</strong></td>
+<td style="text-align: center;">仅信令</td>
+<td style="text-align: center;">转发</td>
+<td style="text-align: center;">混音混画</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>服务器 CPU</strong></td>
+<td style="text-align: center;">极低</td>
+<td style="text-align: center;">低</td>
+<td style="text-align: center;">高</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>服务器带宽</strong></td>
+<td style="text-align: center;">低</td>
+<td style="text-align: center;">高</td>
+<td style="text-align: center;">低</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>客户端上行</strong></td>
+<td style="text-align: center;">高</td>
+<td style="text-align: center;">低</td>
+<td style="text-align: center;">低</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>客户端下行</strong></td>
+<td style="text-align: center;">高</td>
+<td style="text-align: center;">高</td>
+<td style="text-align: center;">极低</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>客户端 CPU</strong></td>
+<td style="text-align: center;">高</td>
+<td style="text-align: center;">中等</td>
+<td style="text-align: center;">低</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>延迟</strong></td>
+<td style="text-align: center;">低</td>
+<td style="text-align: center;">极低 (&lt;50ms)</td>
+<td style="text-align: center;">高 (100-500ms)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>布局灵活性</strong></td>
+<td style="text-align: center;">高</td>
+<td style="text-align: center;">高</td>
+<td style="text-align: center;">低</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>最大人数</strong></td>
+<td style="text-align: center;">3-4</td>
+<td style="text-align: center;">20-50</td>
+<td style="text-align: center;">100+</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>云端录制</strong></td>
+<td style="text-align: center;">困难</td>
+<td style="text-align: center;">复杂</td>
+<td style="text-align: center;">简单</td>
+</tr>
+</tbody>
+</table>
+<h3 id="适用场景分析">1.4 适用场景分析</h3>
+<p><strong>选择 SFU 的场景</strong>： - 视频会议（4-20 人） -
+需要灵活布局（用户可以自定义谁大谁小） -
+对延迟敏感（远程协作、在线教育） - 参与者的设备和网络较好</p>
+<p><strong>选择 MCU 的场景</strong>： - 大型会议（50+ 人） - Webinar /
+大型直播 - 移动端弱网环境 - 需要云端录制存档 - 需要向 CDN
+推流（HLS/DASH）</p>
+<p><strong>混合架构（SFU + MCU）</strong>：</p>
+<p>现代大型会议系统通常采用混合架构：</p>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    混合架构                             │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│    ┌─────────┐                                         │
+│    │   SFU   │←── 互动参与者 (10-20人)                 │
+│    │  Server │    低延迟、灵活布局                     │
+│    └────┬────┘                                         │
+│         │                                              │
+│         ↓ 转发                                         │
+│    ┌─────────┐                                         │
+│    │   MCU   │←── 大规模观众 (1000+人)                │
+│    │  Server │    接收合流，也可录制成 HLS             │
+│    └────┬────┘                                         │
+│         │                                              │
+│         ↓ CDN                                          │
+│    ┌─────────┐                                         │
+│    │  HLS/CDN│←── 仅观看用户                          │
+│    └─────────┘                                         │
+└─────────────────────────────────────────────────────────┘</code></pre>
+<p><strong>核心参与者</strong>使用 SFU
+进行实时互动，<strong>普通观众</strong>通过 MCU 接收合流或 CDN
+直播。</p>
+<hr />
+<h2 id="音频混音原理">2. 音频混音原理</h2>
+<h3 id="为什么需要混音">2.1 为什么需要混音？</h3>
+<p>在多路通话中，每个参与者需要同时听到其他所有参与者的声音。如果不进行混音，就需要在客户端同时播放多个独立的音频流，这会带来两个问题：</p>
+<ol type="1">
+<li><strong>同步问题</strong>：多个独立流的播放难以精确同步，会产生回声或重叠</li>
+<li><strong>资源消耗</strong>：同时解码和播放多路音频，对移动端是负担</li>
+</ol>
+<p><strong>混音的本质</strong>：将多路音频的 PCM
+数据按采样点相加，生成一路混合后的音频。</p>
+<h3 id="pcm-数据相加原理">2.2 PCM 数据相加原理</h3>
+<p>音频混音的核心是数学上的<strong>采样点相加</strong>：</p>
+<figure>
+<img src="./diagrams/audio-mixing.svg" alt="音频混音原理" />
+<figcaption aria-hidden="true">音频混音原理</figcaption>
+</figure>
+<p><strong>基本原理</strong>：</p>
+<pre><code>假设有两个音频流：
+- 流 A 的采样点序列: [a₁, a₂, a₃, ...]
+- 流 B 的采样点序列: [b₁, b₂, b₃, ...]
+
+混音后的采样点序列: [a₁+b₁, a₂+b₂, a₃+b₃, ...]</code></pre>
+<p><strong>用代码表示</strong>：</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 简单的两路混音 (16-bit PCM)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> MixAudioSimple<span class="op">(</span><span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> input1<span class="op">,</span> </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> input2<span class="op">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">int16_t</span><span class="op">*</span> output<span class="op">,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">size_t</span> sample_count<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> sample_count<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int32_t</span> mixed <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int32_t</span><span class="op">&gt;(</span>input1<span class="op">[</span>i<span class="op">])</span> </span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                      <span class="op">+</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int32_t</span><span class="op">&gt;(</span>input2<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 溢出保护：硬限幅</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>mixed <span class="op">&gt;</span> INT16_MAX<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            output<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> INT16_MAX<span class="op">;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>mixed <span class="op">&lt;</span> INT16_MIN<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>            output<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> INT16_MIN<span class="op">;</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>            output<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int16_t</span><span class="op">&gt;(</span>mixed<span class="op">);</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="溢出处理策略">2.3 溢出处理策略</h3>
+<p>当多路音频叠加时，很容易出现<strong>溢出问题</strong>。例如，两路音量都接近最大值的音频相加，结果会超出
+16-bit PCM 的范围（-32768 ~ 32767）。</p>
+<h4 id="策略-1硬限幅-hard-clipping">策略 1：硬限幅 (Hard Clipping)</h4>
+<p>最简单的溢出处理，超出范围直接截断：</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 硬限幅</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int16_t</span> Clip<span class="op">(</span><span class="dt">int32_t</span> value<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>value <span class="op">&gt;</span> INT16_MAX<span class="op">)</span> <span class="cf">return</span> INT16_MAX<span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>value <span class="op">&lt;</span> INT16_MIN<span class="op">)</span> <span class="cf">return</span> INT16_MIN<span class="op">;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int16_t</span><span class="op">&gt;(</span>value<span class="op">);</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>优点</strong>：简单、计算量小<br />
+<strong>缺点</strong>：会产生削波失真，音质下降</p>
+<h4 id="策略-2动态压缩-dynamic-compression">策略 2：动态压缩 (Dynamic
+Compression)</h4>
+<p>根据总音量动态调整混音系数：</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AudioMixer <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 动态压缩混音</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> MixWithCompression<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="at">const</span> <span class="dt">int16_t</span><span class="op">*&gt;&amp;</span> inputs<span class="op">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                           <span class="dt">int16_t</span><span class="op">*</span> output<span class="op">,</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                           <span class="dt">size_t</span> sample_count<span class="op">);</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算自适应增益</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> CalculateAttenuation<span class="op">(</span><span class="dt">size_t</span> active_stream_count<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 经验公式：增益 = 1 / sqrt(N)</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">// N 越大，每路的音量衰减越多</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>active_stream_count <span class="op">&lt;=</span> <span class="dv">1</span><span class="op">)</span> <span class="cf">return</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fl">1.0</span><span class="bu">f</span> <span class="op">/</span> <span class="bu">std::</span>sqrt<span class="op">(</span><span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span>active_stream_count<span class="op">));</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> AudioMixer<span class="op">::</span>MixWithCompression<span class="op">(</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="at">const</span> <span class="dt">int16_t</span><span class="op">*&gt;&amp;</span> inputs<span class="op">,</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int16_t</span><span class="op">*</span> output<span class="op">,</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> sample_count<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">size_t</span> stream_count <span class="op">=</span> inputs<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">float</span> attenuation <span class="op">=</span> CalculateAttenuation<span class="op">(</span>stream_count<span class="op">);</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> sample_count<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> mixed <span class="op">=</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">*</span> input <span class="op">:</span> inputs<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>            mixed <span class="op">+=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span>input<span class="op">[</span>i<span class="op">])</span> <span class="op">*</span> attenuation<span class="op">;</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 最终限幅</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>        output<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> Clip<span class="op">(</span><span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int32_t</span><span class="op">&gt;(</span>mixed<span class="op">));</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<p><strong>优点</strong>：音质较好，多人混音时自动降低音量<br />
+<strong>缺点</strong>：计算量稍大，需要浮点运算</p>
+<h4 id="策略-3自适应归一化-agc---automatic-gain-control">策略
+3：自适应归一化 (AGC - Automatic Gain Control)</h4>
+<p>实时监测音频峰值，动态调整混音系数：</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AdaptiveMixer <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 自适应混音</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> MixAdaptive<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span>AudioStream<span class="op">&gt;&amp;</span> inputs<span class="op">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">int16_t</span><span class="op">*</span> output<span class="op">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">size_t</span> sample_count<span class="op">);</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算当前帧的峰值</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int16_t</span> CalculatePeak<span class="op">(</span><span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> count<span class="op">);</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 自适应增益 (平滑调整)</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> <span class="va">current_gain_</span> <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">float</span> kGainAttack <span class="op">=</span> <span class="fl">0.9</span><span class="bu">f</span><span class="op">;</span>   <span class="co">// 快速降低</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">float</span> kGainDecay <span class="op">=</span> <span class="fl">0.999</span><span class="bu">f</span><span class="op">;</span>  <span class="co">// 缓慢恢复</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> AdaptiveMixer<span class="op">::</span>MixAdaptive<span class="op">(</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span>AudioStream<span class="op">&gt;&amp;</span> inputs<span class="op">,</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int16_t</span><span class="op">*</span> output<span class="op">,</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> sample_count<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 第一遍：计算原始混音和峰值</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">int32_t</span><span class="op">&gt;</span> mixed<span class="op">(</span>sample_count<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int32_t</span> max_abs_value <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> stream <span class="op">:</span> inputs<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span>stream<span class="op">.</span>is_muted <span class="op">&amp;&amp;</span> stream<span class="op">.</span>is_active<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> sample_count<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>                mixed<span class="op">[</span>i<span class="op">]</span> <span class="op">+=</span> stream<span class="op">.</span>data<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>                max_abs_value <span class="op">=</span> <span class="bu">std::</span>max<span class="op">(</span>max_abs_value<span class="op">,</span> </span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">std::</span>abs<span class="op">(</span>mixed<span class="op">[</span>i<span class="op">]));</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算需要的增益</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> target_gain <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>max_abs_value <span class="op">&gt;</span> INT16_MAX<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>        target_gain <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span>INT16_MAX<span class="op">)</span> <span class="op">/</span> max_abs_value<span class="op">;</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 平滑调整增益</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>target_gain <span class="op">&lt;</span> <span class="va">current_gain_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>        <span class="va">current_gain_</span> <span class="op">=</span> target_gain <span class="op">*</span> kGainAttack </span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>                       <span class="op">+</span> <span class="va">current_gain_</span> <span class="op">*</span> <span class="op">(</span><span class="dv">1</span> <span class="op">-</span> kGainAttack<span class="op">);</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>        <span class="va">current_gain_</span> <span class="op">=</span> target_gain <span class="op">*</span> <span class="op">(</span><span class="dv">1</span> <span class="op">-</span> kGain_decay<span class="op">)</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>                       <span class="op">+</span> <span class="va">current_gain_</span> <span class="op">*</span> kGainDecay<span class="op">;</span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 应用增益输出</span></span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> sample_count<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>        output<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> Clip<span class="op">(</span><span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int32_t</span><span class="op">&gt;(</span>mixed<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> <span class="va">current_gain_</span><span class="op">));</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="vad-语音检测优化">2.4 VAD 语音检测优化</h3>
+<p>在多人会议中，通常只有少数人同时说话。我们可以使用 <strong>VAD（Voice
+Activity Detection，语音活动检测）</strong>
+来识别谁在说话，只对活跃的音频流进行混音。</p>
+<p><strong>VAD 的基本原理</strong>：</p>
+<pre><code>1. 计算音频帧的能量（采样点的平方和）
+2. 与阈值比较：能量 &gt; 阈值 → 有语音
+3. 添加迟滞：避免在静音边界频繁切换</code></pre>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VadDetector <span class="op">{</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 检测是否有语音活动</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Detect<span class="op">(</span><span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> pcm_data<span class="op">,</span> <span class="dt">size_t</span> sample_count<span class="op">);</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 设置阈值 (默认 -40dB)</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetThreshold<span class="op">(</span><span class="dt">float</span> db_threshold<span class="op">);</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> <span class="va">energy_threshold_</span> <span class="op">=</span> <span class="fl">0.01</span><span class="bu">f</span><span class="op">;</span>  <span class="co">// -40dB</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">hold_frames_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span>              <span class="co">// 保持计数</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> kHoldFrames <span class="op">=</span> <span class="dv">10</span><span class="op">;</span>  <span class="co">// 保持10帧</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> VadDetector<span class="op">::</span>Detect<span class="op">(</span><span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> pcm_data<span class="op">,</span> <span class="dt">size_t</span> sample_count<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算帧能量</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> energy <span class="op">=</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> sample_count<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> sample <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span>pcm_data<span class="op">[</span>i<span class="op">])</span> <span class="op">/</span> INT16_MAX<span class="op">;</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>        energy <span class="op">+=</span> sample <span class="op">*</span> sample<span class="op">;</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    energy <span class="op">/=</span> sample_count<span class="op">;</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>energy <span class="op">&gt;</span> <span class="va">energy_threshold_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>        <span class="va">hold_frames_</span> <span class="op">=</span> kHoldFrames<span class="op">;</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 迟滞：保持一段时间</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span><span class="va">hold_frames_</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>        <span class="op">--</span><span class="va">hold_frames_</span><span class="op">;</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="co">// 在混音器中使用 VAD</span></span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SmartMixer <span class="op">{</span></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> AddStream<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> stream_id<span class="op">,</span> </span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>                   <span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> pcm_data<span class="op">,</span></span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">size_t</span> sample_count<span class="op">);</span></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Mix<span class="op">(</span><span class="dt">int16_t</span><span class="op">*</span> output<span class="op">,</span> <span class="dt">size_t</span> sample_count<span class="op">);</span></span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> StreamInfo <span class="op">{</span></span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">int16_t</span><span class="op">&gt;</span> buffer<span class="op">;</span></span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>        VadDetector vad<span class="op">;</span></span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>        <span class="dt">bool</span> is_active <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> StreamInfo<span class="op">&gt;</span> <span class="va">streams_</span><span class="op">;</span></span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<p><strong>VAD 的优化效果</strong>： - 减少计算量：只混音活跃的流 -
+降低底噪：静音流不混入噪声 - 提升音质：避免无效音频的叠加</p>
+<hr />
+<h2 id="视频混画原理">3. 视频混画原理</h2>
+<h3 id="混画的基本概念">3.1 混画的基本概念</h3>
+<p>视频混画（Video
+Composition）是将多路视频按照一定布局合并成一路视频的过程。与音频混音不同，视频混画涉及<strong>二维空间的操作</strong>，需要考虑：</p>
+<ol type="1">
+<li><strong>布局设计</strong>：每个视频放在什么位置，多大尺寸</li>
+<li><strong>图像处理</strong>：缩放、裁剪、格式转换</li>
+<li><strong>合成算法</strong>：多路视频的叠加、Alpha 混合</li>
+</ol>
+<h3 id="常见布局类型">3.2 常见布局类型</h3>
+<figure>
+<img src="./diagrams/video-composition.svg" alt="视频混画布局设计" />
+<figcaption aria-hidden="true">视频混画布局设计</figcaption>
+</figure>
+<h4 id="布局-1网格布局-grid">布局 1：网格布局 (Grid)</h4>
+<pre><code>┌─────────┬─────────┬─────────┐
+│    A    │    B    │    C    │
+├─────────┼─────────┼─────────┤
+│    D    │    E    │    F    │
+└─────────┴─────────┴─────────┘
+
+特点：所有参与者平等显示
+适用：小型会议、讨论模式
+计算：自动计算行列数，均匀分配空间</code></pre>
+<p><strong>网格布局计算算法</strong>：</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> VideoCell <span class="op">{</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> x<span class="op">,</span> y<span class="op">;</span>           <span class="co">// 左上角坐标</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> width<span class="op">,</span> height<span class="op">;</span>  <span class="co">// 尺寸</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string stream_id<span class="op">;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GridLayout <span class="op">{</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算网格布局</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>VideoCell<span class="op">&gt;</span> Calculate<span class="op">(</span><span class="dt">int</span> stream_count<span class="op">,</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>                                      <span class="dt">int</span> canvas_width<span class="op">,</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>                                      <span class="dt">int</span> canvas_height<span class="op">);</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算最佳行列数</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> GetGridSize<span class="op">(</span><span class="dt">int</span> count<span class="op">,</span> <span class="dt">int</span><span class="op">*</span> rows<span class="op">,</span> <span class="dt">int</span><span class="op">*</span> cols<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>cols <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span><span class="bu">std::</span>ceil<span class="op">(</span><span class="bu">std::</span>sqrt<span class="op">(</span>count<span class="op">)));</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>rows <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span><span class="bu">std::</span>ceil<span class="op">(</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>            <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;(</span>count<span class="op">)</span> <span class="op">/</span> <span class="op">*</span>cols<span class="op">));</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="bu">std::</span>vector<span class="op">&lt;</span>VideoCell<span class="op">&gt;</span> GridLayout<span class="op">::</span>Calculate<span class="op">(</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> stream_count<span class="op">,</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> canvas_width<span class="op">,</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> canvas_height<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>VideoCell<span class="op">&gt;</span> cells<span class="op">;</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> rows<span class="op">,</span> cols<span class="op">;</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    GetGridSize<span class="op">(</span>stream_count<span class="op">,</span> <span class="op">&amp;</span>rows<span class="op">,</span> <span class="op">&amp;</span>cols<span class="op">);</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> cell_width <span class="op">=</span> canvas_width <span class="op">/</span> cols<span class="op">;</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> cell_height <span class="op">=</span> canvas_height <span class="op">/</span> rows<span class="op">;</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 保持 16:9 比例</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> target_aspect <span class="op">=</span> <span class="fl">16.0</span><span class="bu">f</span> <span class="op">/</span> <span class="fl">9.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> cell_aspect <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span>cell_width<span class="op">)</span> <span class="op">/</span> cell_height<span class="op">;</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> final_width<span class="op">,</span> final_height<span class="op">;</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>cell_aspect <span class="op">&gt;</span> target_aspect<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 太宽，以高度为基准</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>        final_height <span class="op">=</span> cell_height<span class="op">;</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>        final_width <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span>cell_height <span class="op">*</span> target_aspect<span class="op">);</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 太高，以宽度为基准</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>        final_width <span class="op">=</span> cell_width<span class="op">;</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>        final_height <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span>cell_width <span class="op">/</span> target_aspect<span class="op">);</span></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 居中计算</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> stream_count<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> row <span class="op">=</span> i <span class="op">/</span> cols<span class="op">;</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> col <span class="op">=</span> i <span class="op">%</span> cols<span class="op">;</span></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> x <span class="op">=</span> col <span class="op">*</span> cell_width <span class="op">+</span> <span class="op">(</span>cell_width <span class="op">-</span> final_width<span class="op">)</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> y <span class="op">=</span> row <span class="op">*</span> cell_height <span class="op">+</span> <span class="op">(</span>cell_height <span class="op">-</span> final_height<span class="op">)</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a>        cells<span class="op">.</span>push_back<span class="op">({</span>x<span class="op">,</span> y<span class="op">,</span> final_width<span class="op">,</span> final_height<span class="op">,</span> <span class="st">&quot;&quot;</span><span class="op">});</span></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cells<span class="op">;</span></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h4 id="布局-2主讲人模式-speaker-view">布局 2：主讲人模式 (Speaker
+View)</h4>
+<pre><code>┌─────────────────────────────────────┐
+│                                     │
+│              主讲人                 │
+│            (大图 70%)               │
+│                                     │
+├───────────┬───────────┬─────────────┤
+│    A      │     B     │      C      │
+│  (小图)   │   (小图)  │    (小图)   │
+└───────────┴───────────┴─────────────┘
+
+特点：主讲人占据主要区域，其他人小图显示
+适用：讲座、培训、直播
+动态：根据语音活动自动切换主讲人</code></pre>
+<h4 id="布局-3画中画模式-pip---picture-in-picture">布局 3：画中画模式
+(PIP - Picture In Picture)</h4>
+<pre><code>┌─────────────────────────────────────┐
+│                                     │
+│                                     │
+│           主画面                    │
+│        (对方视频)                   │
+│                                     │
+│    ┌──────────────┐                 │
+│    │              │                 │
+│    │    小窗      │                 │
+│    │  (自己画面)  │                 │
+│    └──────────────┘                 │
+│                                     │
+└─────────────────────────────────────┘
+
+特点：小窗悬浮在主画面上
+适用：1v1 通话、小班课
+位置：通常右下角，可拖动</code></pre>
+<h3 id="yuv-图像处理">3.3 YUV 图像处理</h3>
+<p>视频混画需要对图像进行缩放、裁剪和格式转换。在 MCU 中，通常使用
+<strong>YUV420P</strong> 格式进行处理。</p>
+<p><strong>YUV420P 格式回顾</strong>：</p>
+<pre><code>YUV420P 是一种平面格式：
+- Y 平面：亮度信息，分辨率 = width × height
+- U 平面：色度信息，分辨率 = width/2 × height/2
+- V 平面：色度信息，分辨率 = width/2 × height/2
+
+总大小 = width × height × 1.5</code></pre>
+<p><strong>YUV 缩放算法</strong>：</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">// YUV420P 图像缩放 (双线性插值)</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> YuvScaler <span class="op">{</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 缩放 YUV420P 图像</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Scale<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> src_y<span class="op">,</span> <span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> src_u<span class="op">,</span> </span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>               <span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> src_v<span class="op">,</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>               <span class="dt">int</span> src_width<span class="op">,</span> <span class="dt">int</span> src_height<span class="op">,</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>               <span class="dt">uint8_t</span><span class="op">*</span> dst_y<span class="op">,</span> <span class="dt">uint8_t</span><span class="op">*</span> dst_u<span class="op">,</span> <span class="dt">uint8_t</span><span class="op">*</span> dst_v<span class="op">,</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>               <span class="dt">int</span> dst_width<span class="op">,</span> <span class="dt">int</span> dst_height<span class="op">);</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 缩放单平面</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> ScalePlane<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> src<span class="op">,</span> <span class="dt">int</span> src_width<span class="op">,</span> </span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">int</span> src_height<span class="op">,</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">uint8_t</span><span class="op">*</span> dst<span class="op">,</span> <span class="dt">int</span> dst_width<span class="op">,</span> <span class="dt">int</span> dst_height<span class="op">);</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> YuvScaler<span class="op">::</span>ScalePlane<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> src<span class="op">,</span> <span class="dt">int</span> src_width<span class="op">,</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>                           <span class="dt">int</span> src_height<span class="op">,</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>                           <span class="dt">uint8_t</span><span class="op">*</span> dst<span class="op">,</span> <span class="dt">int</span> dst_width<span class="op">,</span> </span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>                           <span class="dt">int</span> dst_height<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">float</span> x_ratio <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span>src_width<span class="op">)</span> <span class="op">/</span> dst_width<span class="op">;</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">float</span> y_ratio <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span>src_height<span class="op">)</span> <span class="op">/</span> dst_height<span class="op">;</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> y <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> y <span class="op">&lt;</span> dst_height<span class="op">;</span> <span class="op">++</span>y<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> x <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> x <span class="op">&lt;</span> dst_width<span class="op">;</span> <span class="op">++</span>x<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 源坐标</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> src_x <span class="op">=</span> x <span class="op">*</span> x_ratio<span class="op">;</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> src_y <span class="op">=</span> y <span class="op">*</span> y_ratio<span class="op">;</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 双线性插值</span></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> x0 <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span>src_x<span class="op">);</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> y0 <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span>src_y<span class="op">);</span></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> x1 <span class="op">=</span> <span class="bu">std::</span>min<span class="op">(</span>x0 <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> src_width <span class="op">-</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> y1 <span class="op">=</span> <span class="bu">std::</span>min<span class="op">(</span>y0 <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> src_height <span class="op">-</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> fx <span class="op">=</span> src_x <span class="op">-</span> x0<span class="op">;</span></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> fy <span class="op">=</span> src_y <span class="op">-</span> y0<span class="op">;</span></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 四个角的像素值</span></span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>            <span class="dt">uint8_t</span> p00 <span class="op">=</span> src<span class="op">[</span>y0 <span class="op">*</span> src_width <span class="op">+</span> x0<span class="op">];</span></span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>            <span class="dt">uint8_t</span> p01 <span class="op">=</span> src<span class="op">[</span>y0 <span class="op">*</span> src_width <span class="op">+</span> x1<span class="op">];</span></span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>            <span class="dt">uint8_t</span> p10 <span class="op">=</span> src<span class="op">[</span>y1 <span class="op">*</span> src_width <span class="op">+</span> x0<span class="op">];</span></span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>            <span class="dt">uint8_t</span> p11 <span class="op">=</span> src<span class="op">[</span>y1 <span class="op">*</span> src_width <span class="op">+</span> x1<span class="op">];</span></span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 插值计算</span></span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> val <span class="op">=</span> p00 <span class="op">*</span> <span class="op">(</span><span class="dv">1</span><span class="op">-</span>fx<span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="dv">1</span><span class="op">-</span>fy<span class="op">)</span></span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>                      <span class="op">+</span> p01 <span class="op">*</span> fx <span class="op">*</span> <span class="op">(</span><span class="dv">1</span><span class="op">-</span>fy<span class="op">)</span></span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a>                      <span class="op">+</span> p10 <span class="op">*</span> <span class="op">(</span><span class="dv">1</span><span class="op">-</span>fx<span class="op">)</span> <span class="op">*</span> fy</span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a>                      <span class="op">+</span> p11 <span class="op">*</span> fx <span class="op">*</span> fy<span class="op">;</span></span>
+<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a>            dst<span class="op">[</span>y <span class="op">*</span> dst_width <span class="op">+</span> x<span class="op">]</span> <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;(</span>val<span class="op">);</span></span>
+<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<p><strong>注意</strong>：实际生产环境通常使用 FFmpeg 的
+<code>libswscale</code> 或 GPU 加速，而不是纯 CPU 实现。</p>
+<h3 id="alpha-混合与边框">3.4 Alpha 混合与边框</h3>
+<p>为了让混画效果更好看，通常会在视频之间添加边框，并可能使用圆角或阴影效果。</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 将一路视频复制到画布指定位置</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> CopyToCanvas<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> src_y<span class="op">,</span> <span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> src_u<span class="op">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> src_v<span class="op">,</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                  <span class="dt">int</span> src_width<span class="op">,</span> <span class="dt">int</span> src_height<span class="op">,</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                  <span class="dt">uint8_t</span><span class="op">*</span> canvas_y<span class="op">,</span> <span class="dt">uint8_t</span><span class="op">*</span> canvas_u<span class="op">,</span> </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                  <span class="dt">uint8_t</span><span class="op">*</span> canvas_v<span class="op">,</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>                  <span class="dt">int</span> canvas_width<span class="op">,</span> <span class="dt">int</span> canvas_height<span class="op">,</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>                  <span class="dt">int</span> pos_x<span class="op">,</span> <span class="dt">int</span> pos_y<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算实际复制区域</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> copy_width <span class="op">=</span> <span class="bu">std::</span>min<span class="op">(</span>src_width<span class="op">,</span> canvas_width <span class="op">-</span> pos_x<span class="op">);</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> copy_height <span class="op">=</span> <span class="bu">std::</span>min<span class="op">(</span>src_height<span class="op">,</span> canvas_height <span class="op">-</span> pos_y<span class="op">);</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 复制 Y 平面</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> y <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> y <span class="op">&lt;</span> copy_height<span class="op">;</span> <span class="op">++</span>y<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>        memcpy<span class="op">(</span>canvas_y <span class="op">+</span> <span class="op">(</span>pos_y <span class="op">+</span> y<span class="op">)</span> <span class="op">*</span> canvas_width <span class="op">+</span> pos_x<span class="op">,</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>               src_y <span class="op">+</span> y <span class="op">*</span> src_width<span class="op">,</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>               copy_width<span class="op">);</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 复制 U/V 平面 (注意 UV 是半分辨率)</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> copy_uv_width <span class="op">=</span> copy_width <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> copy_uv_height <span class="op">=</span> copy_height <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> uv_canvas_width <span class="op">=</span> canvas_width <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> uv_src_width <span class="op">=</span> src_width <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> uv_pos_x <span class="op">=</span> pos_x <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> uv_pos_y <span class="op">=</span> pos_y <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> y <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> y <span class="op">&lt;</span> copy_uv_height<span class="op">;</span> <span class="op">++</span>y<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>        memcpy<span class="op">(</span>canvas_u <span class="op">+</span> <span class="op">(</span>uv_pos_y <span class="op">+</span> y<span class="op">)</span> <span class="op">*</span> uv_canvas_width <span class="op">+</span> uv_pos_x<span class="op">,</span></span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>               src_u <span class="op">+</span> y <span class="op">*</span> uv_src_width<span class="op">,</span></span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>               copy_uv_width<span class="op">);</span></span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>        memcpy<span class="op">(</span>canvas_v <span class="op">+</span> <span class="op">(</span>uv_pos_y <span class="op">+</span> y<span class="op">)</span> <span class="op">*</span> uv_canvas_width <span class="op">+</span> uv_pos_x<span class="op">,</span></span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>               src_v <span class="op">+</span> y <span class="op">*</span> uv_src_width<span class="op">,</span></span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>               copy_uv_width<span class="op">);</span></span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a><span class="co">// 绘制边框</span></span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> DrawBorder<span class="op">(</span><span class="dt">uint8_t</span><span class="op">*</span> canvas_y<span class="op">,</span> <span class="dt">uint8_t</span><span class="op">*</span> canvas_u<span class="op">,</span> <span class="dt">uint8_t</span><span class="op">*</span> canvas_v<span class="op">,</span></span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>                <span class="dt">int</span> canvas_width<span class="op">,</span> <span class="dt">int</span> canvas_height<span class="op">,</span></span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>                <span class="dt">int</span> x<span class="op">,</span> <span class="dt">int</span> y<span class="op">,</span> <span class="dt">int</span> width<span class="op">,</span> <span class="dt">int</span> height<span class="op">,</span></span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>                <span class="dt">int</span> border_width<span class="op">,</span> <span class="dt">uint8_t</span> y_val<span class="op">,</span> <span class="dt">uint8_t</span> u_val<span class="op">,</span> </span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>                <span class="dt">uint8_t</span> v_val<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 白色边框 YUV 值 (近似)</span></span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Y=255, U=128, V=128 为白色</span></span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 上边框</span></span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> by <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> by <span class="op">&lt;</span> border_width<span class="op">;</span> <span class="op">++</span>by<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>        memset<span class="op">(</span>canvas_y <span class="op">+</span> <span class="op">(</span>y <span class="op">+</span> by<span class="op">)</span> <span class="op">*</span> canvas_width <span class="op">+</span> x<span class="op">,</span> y_val<span class="op">,</span> width<span class="op">);</span></span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 下边框</span></span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> by <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> by <span class="op">&lt;</span> border_width<span class="op">;</span> <span class="op">++</span>by<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>        memset<span class="op">(</span>canvas_y <span class="op">+</span> <span class="op">(</span>y <span class="op">+</span> height <span class="op">-</span> border_width <span class="op">+</span> by<span class="op">)</span> <span class="op">*</span> canvas_width <span class="op">+</span> x<span class="op">,</span> </span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>               y_val<span class="op">,</span> width<span class="op">);</span></span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 左右边框</span></span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> by <span class="op">=</span> border_width<span class="op">;</span> by <span class="op">&lt;</span> height <span class="op">-</span> border_width<span class="op">;</span> <span class="op">++</span>by<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>        memset<span class="op">(</span>canvas_y <span class="op">+</span> <span class="op">(</span>y <span class="op">+</span> by<span class="op">)</span> <span class="op">*</span> canvas_width <span class="op">+</span> x<span class="op">,</span> y_val<span class="op">,</span> border_width<span class="op">);</span></span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>        memset<span class="op">(</span>canvas_y <span class="op">+</span> <span class="op">(</span>y <span class="op">+</span> by<span class="op">)</span> <span class="op">*</span> canvas_width <span class="op">+</span> x <span class="op">+</span> width <span class="op">-</span> border_width<span class="op">,</span></span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>               y_val<span class="op">,</span> border_width<span class="op">);</span></span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="gpu-加速混画">3.5 GPU 加速混画</h3>
+<p>对于高分辨率、多路视频的混画，CPU 处理会非常吃力。现代 MCU 都使用 GPU
+进行加速。</p>
+<figure>
+<img src="./diagrams/gpu-compositing.svg" alt="GPU 混画加速架构" />
+<figcaption aria-hidden="true">GPU 混画加速架构</figcaption>
+</figure>
+<p><strong>GPU 混画的核心流程</strong>：</p>
+<pre><code>1. 解码后的视频帧作为 GPU 纹理 (Texture)
+2. 使用 Fragment Shader 进行多纹理采样
+3. 在 Shader 中完成缩放、位置计算、Alpha 混合
+4. 输出到帧缓冲 (FBO - Frame Buffer Object)
+5. 直接从 FBO 进行硬件编码</code></pre>
+<p><strong>OpenGL ES Shader 示例</strong>：</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 顶点着色器 (vertex shader)</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="dt">attribute</span> <span class="dt">vec2</span> a_position<span class="op">;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="dt">attribute</span> <span class="dt">vec2</span> a_texCoord<span class="op">;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="dt">varying</span> <span class="dt">vec2</span> v_texCoord<span class="op">;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">gl_Position</span> <span class="op">=</span> <span class="dt">vec4</span><span class="op">(</span>a_position<span class="op">,</span> <span class="fl">0.0</span><span class="op">,</span> <span class="fl">1.0</span><span class="op">);</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    v_texCoord <span class="op">=</span> a_texCoord<span class="op">;</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co">// 片段着色器 (fragment shader)</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="dt">precision</span> <span class="dt">mediump</span> <span class="dt">float</span><span class="op">;</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="dt">varying</span> <span class="dt">vec2</span> v_texCoord<span class="op">;</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">sampler2D</span> u_texture0<span class="op">;</span>  <span class="co">// 视频1</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">sampler2D</span> u_texture1<span class="op">;</span>  <span class="co">// 视频2</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">sampler2D</span> u_texture2<span class="op">;</span>  <span class="co">// 视频3</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">sampler2D</span> u_texture3<span class="op">;</span>  <span class="co">// 视频4</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">vec4</span> u_rect0<span class="op">;</span>  <span class="co">// x, y, w, h (归一化 0-1)</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">vec4</span> u_rect1<span class="op">;</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">vec4</span> u_rect2<span class="op">;</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">vec4</span> u_rect3<span class="op">;</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">vec2</span> coord <span class="op">=</span> v_texCoord<span class="op">;</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">vec4</span> color <span class="op">=</span> <span class="dt">vec4</span><span class="op">(</span><span class="fl">0.0</span><span class="op">,</span> <span class="fl">0.0</span><span class="op">,</span> <span class="fl">0.0</span><span class="op">,</span> <span class="fl">1.0</span><span class="op">);</span>  <span class="co">// 黑色背景</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 判断当前像素属于哪个视频区域</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>coord<span class="op">.</span><span class="fu">x</span> <span class="op">&gt;=</span> u_rect0<span class="op">.</span><span class="fu">x</span> <span class="op">&amp;&amp;</span> coord<span class="op">.</span><span class="fu">x</span> <span class="op">&lt;=</span> u_rect0<span class="op">.</span><span class="fu">x</span> <span class="op">+</span> u_rect0<span class="op">.</span><span class="fu">z</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>        coord<span class="op">.</span><span class="fu">y</span> <span class="op">&gt;=</span> u_rect0<span class="op">.</span><span class="fu">y</span> <span class="op">&amp;&amp;</span> coord<span class="op">.</span><span class="fu">y</span> <span class="op">&lt;=</span> u_rect0<span class="op">.</span><span class="fu">y</span> <span class="op">+</span> u_rect0<span class="op">.</span><span class="fu">w</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 计算在视频1中的相对坐标</span></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>        <span class="dt">vec2</span> localCoord <span class="op">=</span> <span class="op">(</span>coord <span class="op">-</span> u_rect0<span class="op">.</span><span class="fu">xy</span><span class="op">)</span> <span class="op">/</span> u_rect0<span class="op">.</span><span class="fu">zw</span><span class="op">;</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> <span class="dt">texture2D</span><span class="op">(</span>u_texture0<span class="op">,</span> localCoord<span class="op">);</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span>coord<span class="op">.</span><span class="fu">x</span> <span class="op">&gt;=</span> u_rect1<span class="op">.</span><span class="fu">x</span> <span class="op">&amp;&amp;</span> coord<span class="op">.</span><span class="fu">x</span> <span class="op">&lt;=</span> u_rect1<span class="op">.</span><span class="fu">x</span> <span class="op">+</span> u_rect1<span class="op">.</span><span class="fu">z</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>        <span class="dt">vec2</span> localCoord <span class="op">=</span> <span class="op">(</span>coord <span class="op">-</span> u_rect1<span class="op">.</span><span class="fu">xy</span><span class="op">)</span> <span class="op">/</span> u_rect1<span class="op">.</span><span class="fu">zw</span><span class="op">;</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> <span class="dt">texture2D</span><span class="op">(</span>u_texture1<span class="op">,</span> localCoord<span class="op">);</span></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... 其他视频</span></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>    <span class="va">gl_FragColor</span> <span class="op">=</span> color<span class="op">;</span></span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>GPU vs CPU 性能对比</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">场景</th>
+<th style="text-align: center;">CPU (软混画)</th>
+<th style="text-align: center;">GPU (硬混画)</th>
+<th style="text-align: center;">提升</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">4路 1080p → 1080p</td>
+<td style="text-align: center;">100ms</td>
+<td style="text-align: center;">2ms</td>
+<td style="text-align: center;">50x</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">16路 1080p → 720p</td>
+<td style="text-align: center;">500ms</td>
+<td style="text-align: center;">5ms</td>
+<td style="text-align: center;">100x</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CPU/GPU 占用</td>
+<td style="text-align: center;">80-100%</td>
+<td style="text-align: center;">20-30%</td>
+<td style="text-align: center;">-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="mcu-流水线设计">4. MCU 流水线设计</h2>
+<h3 id="整体架构">4.1 整体架构</h3>
+<p>一个完整的 MCU 服务器由多个处理模块组成，形成流水线式处理：</p>
+<figure>
+<img src="./diagrams/mcu-pipeline.svg" alt="MCU 处理流水线" />
+<figcaption aria-hidden="true">MCU 处理流水线</figcaption>
+</figure>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                        MCU Pipeline                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Input → JitterBuffer → Decode → Mixer/Compositor → Encode → Output
+│   (RTP)      (5-20ms)    (10ms)    (10-100ms)      (30ms)   (5ms)
+│                                                                 │
+│   ├─ Audio ─→ PCM Mixing ───────────────────→ Audio Encode ─┤  │
+│   │                                                           │  │
+│   └─ Video ─→ YUV Compositing (GPU) ────────→ Video Encode ─┘  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+                         Total Latency: 100-300ms</code></pre>
+<h3 id="输入处理模块">4.2 输入处理模块</h3>
+<p><strong>职责</strong>： - 接收来自各参与者的 RTP 包 - 使用
+JitterBuffer 消除网络抖动 - 将 RTP 包交给解码器</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> InputProcessor <span class="op">{</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 添加 RTP 包</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnRtpPacket<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> stream_id<span class="op">,</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>                    <span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> rtp_data<span class="op">,</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">size_t</span> len<span class="op">);</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取解码后的帧</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>AudioFrame<span class="op">&gt;</span> GetNextAudioFrame<span class="op">(</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> stream_id<span class="op">);</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>VideoFrame<span class="op">&gt;</span> GetNextVideoFrame<span class="op">(</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> stream_id<span class="op">);</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// stream_id -&gt; JitterBuffer</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> </span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>                       <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>JitterBuffer<span class="op">&gt;&gt;</span> <span class="va">jitter_buffers_</span><span class="op">;</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">// stream_id -&gt; Decoder</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> </span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>                       <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>AudioDecoder<span class="op">&gt;&gt;</span> <span class="va">audio_decoders_</span><span class="op">;</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>                       <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>VideoDecoder<span class="op">&gt;&gt;</span> <span class="va">video_decoders_</span><span class="op">;</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="混音模块">4.3 混音模块</h3>
+<p><strong>职责</strong>： - 收集各路音频的 PCM 数据 - 进行混音处理 -
+输出混合后的 PCM</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AudioMixerModule <span class="op">{</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> MixedResult <span class="op">{</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">int16_t</span><span class="op">&gt;</span> pcm_data<span class="op">;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> sample_rate<span class="op">;</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> channels<span class="op">;</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 添加一路音频帧</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> AddFrame<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> stream_id<span class="op">,</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>                  <span class="at">const</span> AudioFrame<span class="op">&amp;</span> frame<span class="op">);</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 执行混音</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    MixedResult Mix<span class="op">();</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 设置混音参数</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetMaxStreams<span class="op">(</span><span class="dt">size_t</span> max_streams<span class="op">)</span> <span class="op">{</span> <span class="va">max_streams_</span> <span class="op">=</span> max_streams<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> StreamBuffer <span class="op">{</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>queue<span class="op">&lt;</span>AudioFrame<span class="op">&gt;</span> frames<span class="op">;</span></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>        VadDetector vad<span class="op">;</span></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> volume_level <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> StreamBuffer<span class="op">&gt;</span> <span class="va">streams_</span><span class="op">;</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>    AdaptiveMixer <span class="va">mixer_</span><span class="op">;</span></span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> <span class="va">max_streams_</span> <span class="op">=</span> <span class="dv">16</span><span class="op">;</span></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 选择最活跃的 N 路进行混音</span></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">&gt;</span> SelectActiveStreams<span class="op">();</span></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="混画模块">4.4 混画模块</h3>
+<p><strong>职责</strong>： - 收集各路视频帧 - 按布局进行合成 -
+输出合成后的视频帧</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VideoCompositorModule <span class="op">{</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> CompositedResult <span class="op">{</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;</span> yuv_data<span class="op">;</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> width<span class="op">;</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> height<span class="op">;</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 设置布局模式</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetLayout<span class="op">(</span>LayoutMode mode<span class="op">);</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 添加视频帧</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> AddFrame<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> stream_id<span class="op">,</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>                  <span class="at">const</span> VideoFrame<span class="op">&amp;</span> frame<span class="op">);</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 执行合成</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    CompositedResult Composite<span class="op">();</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    LayoutMode <span class="va">layout_mode_</span> <span class="op">=</span> LayoutMode<span class="op">::</span>GRID<span class="op">;</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> VideoFrame<span class="op">&gt;</span> <span class="va">current_frames_</span><span class="op">;</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// GPU 合成器</span></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>GpuCompositor<span class="op">&gt;</span> <span class="va">gpu_compositor_</span><span class="op">;</span></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 合成画布尺寸</span></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> kCanvasWidth <span class="op">=</span> <span class="dv">1280</span><span class="op">;</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> kCanvasHeight <span class="op">=</span> <span class="dv">720</span><span class="op">;</span></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="编码输出模块">4.5 编码输出模块</h3>
+<p><strong>职责</strong>： - 对混音后的音频进行编码 -
+对混画后的视频进行编码 - 打包成 RTP 发送给订阅者</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> EncoderModule <span class="op">{</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 初始化编码器</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">(</span>AudioCodec audio_codec<span class="op">,</span> </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>                    VideoCodec video_codec<span class="op">);</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 编码音频</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>RtpPacket<span class="op">&gt;</span> EncodeAudio<span class="op">(</span><span class="at">const</span> AudioFrame<span class="op">&amp;</span> frame<span class="op">);</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 编码视频</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>RtpPacket<span class="op">&gt;</span> EncodeVideo<span class="op">(</span><span class="at">const</span> VideoFrame<span class="op">&amp;</span> frame<span class="op">);</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>AudioEncoder<span class="op">&gt;</span> <span class="va">audio_encoder_</span><span class="op">;</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>VideoEncoder<span class="op">&gt;</span> <span class="va">video_encoder_</span><span class="op">;</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> <span class="va">audio_ssrc_</span><span class="op">;</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> <span class="va">video_ssrc_</span><span class="op">;</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint16_t</span> <span class="va">audio_seq_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint16_t</span> <span class="va">video_seq_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> <span class="va">audio_timestamp_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> <span class="va">video_timestamp_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="延迟分析">4.6 延迟分析</h3>
+<p>MCU 的延迟是不可避免的，我们需要理解延迟的来源并尽量优化：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">阶段</th>
+<th style="text-align: center;">延迟</th>
+<th style="text-align: left;">优化方法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">JitterBuffer</td>
+<td style="text-align: center;">5-20ms</td>
+<td style="text-align: left;">动态调整缓冲区大小</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">解码</td>
+<td style="text-align: center;">5-10ms</td>
+<td style="text-align: left;">使用硬件解码</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">混音</td>
+<td style="text-align: center;">1-5ms</td>
+<td style="text-align: left;">使用优化的算法</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">混画</td>
+<td style="text-align: center;">2-10ms</td>
+<td style="text-align: left;"><strong>必须使用 GPU 加速</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">编码</td>
+<td style="text-align: center;">10-50ms</td>
+<td style="text-align: left;">使用硬件编码</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">网络传输</td>
+<td style="text-align: center;">5-20ms</td>
+<td style="text-align: left;">选择优质的机房和网络</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>总计</strong></td>
+<td style="text-align: center;"><strong>50-150ms</strong></td>
+<td style="text-align: left;">-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>延迟优化技巧</strong>：</p>
+<ol type="1">
+<li><strong>零拷贝传输</strong>：从解码到混画到编码，数据始终留在 GPU
+内存</li>
+<li><strong>并行处理</strong>：音频和视频可以并行处理</li>
+<li><strong>流水线优化</strong>：当前帧处理的同时，预取下一帧数据</li>
+<li><strong>快速编码器参数</strong>：使用低延迟编码模式（x264 的
+<code>tune=zerolatency</code>）</li>
+</ol>
+<hr />
+<h2 id="简单-mcu-实现">5. 简单 MCU 实现</h2>
+<h3 id="整体设计">5.1 整体设计</h3>
+<p>让我们设计一个简化的 MCU 服务器，支持基本的混音混画功能：</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">// mcu_server.h</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;memory&gt;</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string&gt;</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;unordered_map&gt;</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;functional&gt;</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">// 前向声明</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> InputProcessor<span class="op">;</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AudioMixerModule<span class="op">;</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VideoCompositorModule<span class="op">;</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> EncoderModule<span class="op">;</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="co">// MCU 配置</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> McuConfig <span class="op">{</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 音频配置</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> audio_sample_rate <span class="op">=</span> <span class="dv">48000</span><span class="op">;</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> audio_channels <span class="op">=</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 视频配置</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> video_width <span class="op">=</span> <span class="dv">1280</span><span class="op">;</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> video_height <span class="op">=</span> <span class="dv">720</span><span class="op">;</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> video_fps <span class="op">=</span> <span class="dv">30</span><span class="op">;</span></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 混音配置</span></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> max_audio_streams <span class="op">=</span> <span class="dv">16</span><span class="op">;</span></span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 混画配置</span></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>    LayoutMode layout_mode <span class="op">=</span> LayoutMode<span class="op">::</span>GRID<span class="op">;</span></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> max_video_streams <span class="op">=</span> <span class="dv">16</span><span class="op">;</span></span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a><span class="co">// MCU 房间</span></span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> McuRoom <span class="op">{</span></span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">explicit</span> McuRoom<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> room_id<span class="op">,</span> </span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>                     <span class="at">const</span> McuConfig<span class="op">&amp;</span> config<span class="op">);</span></span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>    <span class="op">~</span>McuRoom<span class="op">();</span></span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 参与者管理</span></span>
+<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> AddParticipant<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> participant_id<span class="op">);</span></span>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> RemoveParticipant<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> participant_id<span class="op">);</span></span>
+<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 接收 RTP 包</span></span>
+<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnAudioRtp<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> participant_id<span class="op">,</span></span>
+<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a>                   <span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">);</span></span>
+<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnVideoRtp<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> participant_id<span class="op">,</span></span>
+<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a>                   <span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">);</span></span>
+<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 设置输出回调</span></span>
+<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> OutputCallback <span class="op">=</span> <span class="bu">std::</span>function<span class="op">&lt;</span><span class="dt">void</span><span class="op">(</span></span>
+<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;&amp;</span> rtp_data<span class="op">,</span></span>
+<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a>        <span class="dt">bool</span> is_audio<span class="op">)&gt;;</span></span>
+<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetOutputCallback<span class="op">(</span><span class="at">const</span> OutputCallback<span class="op">&amp;</span> callback<span class="op">);</span></span>
+<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-60"><a href="#cb26-60" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 开始/停止处理</span></span>
+<span id="cb26-61"><a href="#cb26-61" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Start<span class="op">();</span></span>
+<span id="cb26-62"><a href="#cb26-62" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Stop<span class="op">();</span></span>
+<span id="cb26-63"><a href="#cb26-63" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-64"><a href="#cb26-64" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb26-65"><a href="#cb26-65" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> ProcessLoop<span class="op">();</span>  <span class="co">// 处理线程</span></span>
+<span id="cb26-66"><a href="#cb26-66" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-67"><a href="#cb26-67" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string <span class="va">room_id_</span><span class="op">;</span></span>
+<span id="cb26-68"><a href="#cb26-68" aria-hidden="true" tabindex="-1"></a>    McuConfig <span class="va">config_</span><span class="op">;</span></span>
+<span id="cb26-69"><a href="#cb26-69" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-70"><a href="#cb26-70" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>InputProcessor<span class="op">&gt;</span> <span class="va">input_processor_</span><span class="op">;</span></span>
+<span id="cb26-71"><a href="#cb26-71" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>AudioMixerModule<span class="op">&gt;</span> <span class="va">audio_mixer_</span><span class="op">;</span></span>
+<span id="cb26-72"><a href="#cb26-72" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>VideoCompositorModule<span class="op">&gt;</span> <span class="va">video_compositor_</span><span class="op">;</span></span>
+<span id="cb26-73"><a href="#cb26-73" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>EncoderModule<span class="op">&gt;</span> <span class="va">encoder_</span><span class="op">;</span></span>
+<span id="cb26-74"><a href="#cb26-74" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-75"><a href="#cb26-75" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_set<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">&gt;</span> <span class="va">participants_</span><span class="op">;</span></span>
+<span id="cb26-76"><a href="#cb26-76" aria-hidden="true" tabindex="-1"></a>    OutputCallback <span class="va">output_callback_</span><span class="op">;</span></span>
+<span id="cb26-77"><a href="#cb26-77" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-78"><a href="#cb26-78" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">bool</span><span class="op">&gt;</span> <span class="va">running_</span><span class="op">{</span><span class="kw">false</span><span class="op">};</span></span>
+<span id="cb26-79"><a href="#cb26-79" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>thread <span class="va">process_thread_</span><span class="op">;</span></span>
+<span id="cb26-80"><a href="#cb26-80" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb26-81"><a href="#cb26-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-82"><a href="#cb26-82" aria-hidden="true" tabindex="-1"></a><span class="co">// MCU 服务器</span></span>
+<span id="cb26-83"><a href="#cb26-83" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> McuServer <span class="op">{</span></span>
+<span id="cb26-84"><a href="#cb26-84" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb26-85"><a href="#cb26-85" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">(</span><span class="at">const</span> McuConfig<span class="op">&amp;</span> default_config<span class="op">);</span></span>
+<span id="cb26-86"><a href="#cb26-86" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-87"><a href="#cb26-87" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 创建房间</span></span>
+<span id="cb26-88"><a href="#cb26-88" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>shared_ptr<span class="op">&lt;</span>McuRoom<span class="op">&gt;</span> CreateRoom<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> room_id<span class="op">);</span></span>
+<span id="cb26-89"><a href="#cb26-89" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> DestroyRoom<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> room_id<span class="op">);</span></span>
+<span id="cb26-90"><a href="#cb26-90" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-91"><a href="#cb26-91" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取房间</span></span>
+<span id="cb26-92"><a href="#cb26-92" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>shared_ptr<span class="op">&lt;</span>McuRoom<span class="op">&gt;</span> GetRoom<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> room_id<span class="op">);</span></span>
+<span id="cb26-93"><a href="#cb26-93" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-94"><a href="#cb26-94" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb26-95"><a href="#cb26-95" aria-hidden="true" tabindex="-1"></a>    McuConfig <span class="va">default_config_</span><span class="op">;</span></span>
+<span id="cb26-96"><a href="#cb26-96" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> <span class="bu">std::</span>shared_ptr<span class="op">&lt;</span>McuRoom<span class="op">&gt;&gt;</span> <span class="va">rooms_</span><span class="op">;</span></span>
+<span id="cb26-97"><a href="#cb26-97" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>shared_mutex <span class="va">rooms_mutex_</span><span class="op">;</span></span>
+<span id="cb26-98"><a href="#cb26-98" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb26-99"><a href="#cb26-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-100"><a href="#cb26-100" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="音频混音实现">5.2 音频混音实现</h3>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">// audio_mixer_impl.cpp</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;audio_mixer.h&quot;</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;math&gt;</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co">// 混音实现</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">int16_t</span><span class="op">&gt;</span> AudioMixerImpl<span class="op">::</span>Mix<span class="op">(</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span>StreamData<span class="op">&gt;&amp;</span> inputs<span class="op">,</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> sample_count<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">int16_t</span><span class="op">&gt;</span> output<span class="op">(</span>sample_count<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>inputs<span class="op">.</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> output<span class="op">;</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算自适应增益</span></span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">float</span> attenuation <span class="op">=</span> CalculateAttenuation<span class="op">(</span>inputs<span class="op">.</span>size<span class="op">());</span></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 逐采样点混音</span></span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> sample_count<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> mixed <span class="op">=</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> input <span class="op">:</span> inputs<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>            mixed <span class="op">+=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span>input<span class="op">.</span>pcm<span class="op">[</span>i<span class="op">])</span> <span class="op">*</span> attenuation<span class="op">;</span></span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 限幅</span></span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>        output<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int16_t</span><span class="op">&gt;(</span></span>
+<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>max<span class="op">(</span><span class="bu">std::</span>min<span class="op">(</span>mixed<span class="op">,</span> <span class="fl">32767.0</span><span class="bu">f</span><span class="op">),</span> <span class="op">-</span><span class="fl">32768.0</span><span class="bu">f</span><span class="op">));</span></span>
+<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> output<span class="op">;</span></span>
+<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a><span class="co">// 选择最活跃的流</span></span>
+<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a><span class="bu">std::</span>vector<span class="op">&lt;</span>AudioMixerImpl<span class="op">::</span>StreamData<span class="op">&gt;</span> </span>
+<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a>AudioMixerImpl<span class="op">::</span>SelectActiveStreams<span class="op">(</span></span>
+<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> StreamInfo<span class="op">&gt;&amp;</span> streams<span class="op">,</span></span>
+<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> max_count<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>StreamData<span class="op">&gt;</span> active_streams<span class="op">;</span></span>
+<span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> <span class="op">[</span>id<span class="op">,</span> info<span class="op">]</span> <span class="op">:</span> streams<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>info<span class="op">.</span>vad<span class="op">.</span>IsActive<span class="op">()</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>info<span class="op">.</span>pcm_buffer<span class="op">.</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a>            active_streams<span class="op">.</span>push_back<span class="op">({</span>id<span class="op">,</span> info<span class="op">.</span>pcm_buffer<span class="op">});</span></span>
+<span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb27-50"><a href="#cb27-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-51"><a href="#cb27-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-52"><a href="#cb27-52" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 如果太多，按音量排序取前 N 个</span></span>
+<span id="cb27-53"><a href="#cb27-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>active_streams<span class="op">.</span>size<span class="op">()</span> <span class="op">&gt;</span> max_count<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-54"><a href="#cb27-54" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>partial_sort<span class="op">(</span>active_streams<span class="op">.</span>begin<span class="op">(),</span></span>
+<span id="cb27-55"><a href="#cb27-55" aria-hidden="true" tabindex="-1"></a>                         active_streams<span class="op">.</span>begin<span class="op">()</span> <span class="op">+</span> max_count<span class="op">,</span></span>
+<span id="cb27-56"><a href="#cb27-56" aria-hidden="true" tabindex="-1"></a>                         active_streams<span class="op">.</span>end<span class="op">(),</span></span>
+<span id="cb27-57"><a href="#cb27-57" aria-hidden="true" tabindex="-1"></a>                         <span class="op">[](</span><span class="at">const</span> StreamData<span class="op">&amp;</span> a<span class="op">,</span> <span class="at">const</span> StreamData<span class="op">&amp;</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb27-58"><a href="#cb27-58" aria-hidden="true" tabindex="-1"></a>                             <span class="cf">return</span> a<span class="op">.</span>volume <span class="op">&gt;</span> b<span class="op">.</span>volume<span class="op">;</span></span>
+<span id="cb27-59"><a href="#cb27-59" aria-hidden="true" tabindex="-1"></a>                         <span class="op">});</span></span>
+<span id="cb27-60"><a href="#cb27-60" aria-hidden="true" tabindex="-1"></a>        active_streams<span class="op">.</span>resize<span class="op">(</span>max_count<span class="op">);</span></span>
+<span id="cb27-61"><a href="#cb27-61" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb27-62"><a href="#cb27-62" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb27-63"><a href="#cb27-63" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> active_streams<span class="op">;</span></span>
+<span id="cb27-64"><a href="#cb27-64" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb27-65"><a href="#cb27-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-66"><a href="#cb27-66" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="视频混画实现">5.3 视频混画实现</h3>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">// video_compositor_impl.cpp</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;video_compositor.h&quot;</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 网格布局计算</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="bu">std::</span>vector<span class="op">&lt;</span>VideoLayout<span class="op">&gt;</span> VideoCompositorImpl<span class="op">::</span>CalculateGridLayout<span class="op">(</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> stream_count<span class="op">,</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> canvas_width<span class="op">,</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> canvas_height<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>VideoLayout<span class="op">&gt;</span> layouts<span class="op">;</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>stream_count <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> layouts<span class="op">;</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算行列</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> cols <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span><span class="bu">std::</span>ceil<span class="op">(</span><span class="bu">std::</span>sqrt<span class="op">(</span>stream_count<span class="op">)));</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> rows <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>ceil<span class="op">(</span><span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;(</span>stream_count<span class="op">)</span> <span class="op">/</span> cols<span class="op">));</span></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> cell_w <span class="op">=</span> canvas_width <span class="op">/</span> cols<span class="op">;</span></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> cell_h <span class="op">=</span> canvas_height <span class="op">/</span> rows<span class="op">;</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 保持 16:9</span></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> target_ratio <span class="op">=</span> <span class="fl">16.0</span><span class="bu">f</span> <span class="op">/</span> <span class="fl">9.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> video_w<span class="op">,</span> video_h<span class="op">;</span></span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span><span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;(</span>cell_w<span class="op">)</span> <span class="op">/</span> cell_h <span class="op">&gt;</span> target_ratio<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>        video_h <span class="op">=</span> cell_h <span class="op">-</span> <span class="dv">4</span><span class="op">;</span>  <span class="co">// 留2像素边框</span></span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>        video_w <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span>video_h <span class="op">*</span> target_ratio<span class="op">);</span></span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>        video_w <span class="op">=</span> cell_w <span class="op">-</span> <span class="dv">4</span><span class="op">;</span></span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a>        video_h <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span>video_w <span class="op">/</span> target_ratio<span class="op">);</span></span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算每个视频的位置</span></span>
+<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> stream_count<span class="op">;</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> row <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span>i<span class="op">)</span> <span class="op">/</span> cols<span class="op">;</span></span>
+<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> col <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span>i<span class="op">)</span> <span class="op">%</span> cols<span class="op">;</span></span>
+<span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> x <span class="op">=</span> col <span class="op">*</span> cell_w <span class="op">+</span> <span class="op">(</span>cell_w <span class="op">-</span> video_w<span class="op">)</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> y <span class="op">=</span> row <span class="op">*</span> cell_h <span class="op">+</span> <span class="op">(</span>cell_h <span class="op">-</span> video_h<span class="op">)</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a>        layouts<span class="op">.</span>push_back<span class="op">({</span>x<span class="op">,</span> y<span class="op">,</span> video_w<span class="op">,</span> video_h<span class="op">});</span></span>
+<span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-47"><a href="#cb28-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> layouts<span class="op">;</span></span>
+<span id="cb28-48"><a href="#cb28-48" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb28-49"><a href="#cb28-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-50"><a href="#cb28-50" aria-hidden="true" tabindex="-1"></a><span class="co">// CPU 软合成 (简化版)</span></span>
+<span id="cb28-51"><a href="#cb28-51" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> VideoCompositorImpl<span class="op">::</span>CompositeCPU<span class="op">(</span></span>
+<span id="cb28-52"><a href="#cb28-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span>VideoFrame<span class="op">&gt;&amp;</span> frames<span class="op">,</span></span>
+<span id="cb28-53"><a href="#cb28-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span>VideoLayout<span class="op">&gt;&amp;</span> layouts<span class="op">,</span></span>
+<span id="cb28-54"><a href="#cb28-54" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span><span class="op">*</span> output_yuv<span class="op">,</span></span>
+<span id="cb28-55"><a href="#cb28-55" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> canvas_width<span class="op">,</span></span>
+<span id="cb28-56"><a href="#cb28-56" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> canvas_height<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb28-57"><a href="#cb28-57" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-58"><a href="#cb28-58" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> y_size <span class="op">=</span> canvas_width <span class="op">*</span> canvas_height<span class="op">;</span></span>
+<span id="cb28-59"><a href="#cb28-59" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span><span class="op">*</span> y_plane <span class="op">=</span> output_yuv<span class="op">;</span></span>
+<span id="cb28-60"><a href="#cb28-60" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span><span class="op">*</span> u_plane <span class="op">=</span> output_yuv <span class="op">+</span> y_size<span class="op">;</span></span>
+<span id="cb28-61"><a href="#cb28-61" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span><span class="op">*</span> v_plane <span class="op">=</span> output_yuv <span class="op">+</span> y_size <span class="op">+</span> y_size <span class="op">/</span> <span class="dv">4</span><span class="op">;</span></span>
+<span id="cb28-62"><a href="#cb28-62" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-63"><a href="#cb28-63" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 清空画布 (黑色)</span></span>
+<span id="cb28-64"><a href="#cb28-64" aria-hidden="true" tabindex="-1"></a>    memset<span class="op">(</span>y_plane<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> y_size<span class="op">);</span></span>
+<span id="cb28-65"><a href="#cb28-65" aria-hidden="true" tabindex="-1"></a>    memset<span class="op">(</span>u_plane<span class="op">,</span> <span class="dv">128</span><span class="op">,</span> y_size <span class="op">/</span> <span class="dv">4</span><span class="op">);</span></span>
+<span id="cb28-66"><a href="#cb28-66" aria-hidden="true" tabindex="-1"></a>    memset<span class="op">(</span>v_plane<span class="op">,</span> <span class="dv">128</span><span class="op">,</span> y_size <span class="op">/</span> <span class="dv">4</span><span class="op">);</span></span>
+<span id="cb28-67"><a href="#cb28-67" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb28-68"><a href="#cb28-68" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 合成每个视频</span></span>
+<span id="cb28-69"><a href="#cb28-69" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> frames<span class="op">.</span>size<span class="op">()</span> <span class="op">&amp;&amp;</span> i <span class="op">&lt;</span> layouts<span class="op">.</span>size<span class="op">();</span> <span class="op">++</span>i<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb28-70"><a href="#cb28-70" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> frame <span class="op">=</span> frames<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb28-71"><a href="#cb28-71" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> layout <span class="op">=</span> layouts<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb28-72"><a href="#cb28-72" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb28-73"><a href="#cb28-73" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 缩放并复制到画布 (简化版，实际应使用更好的缩放算法)</span></span>
+<span id="cb28-74"><a href="#cb28-74" aria-hidden="true" tabindex="-1"></a>        ScaleAndCopy<span class="op">(</span>frame<span class="op">,</span> layout<span class="op">,</span> </span>
+<span id="cb28-75"><a href="#cb28-75" aria-hidden="true" tabindex="-1"></a>                    y_plane<span class="op">,</span> u_plane<span class="op">,</span> v_plane<span class="op">,</span></span>
+<span id="cb28-76"><a href="#cb28-76" aria-hidden="true" tabindex="-1"></a>                    canvas_width<span class="op">,</span> canvas_height<span class="op">);</span></span>
+<span id="cb28-77"><a href="#cb28-77" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb28-78"><a href="#cb28-78" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb28-79"><a href="#cb28-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-80"><a href="#cb28-80" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="主流程实现">5.4 主流程实现</h3>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">// mcu_room.cpp</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;mcu_room.h&quot;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> McuRoom<span class="op">::</span>ProcessLoop<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="kw">auto</span> frame_duration <span class="op">=</span> <span class="bu">std::</span>chrono::milliseconds<span class="op">(</span><span class="dv">1000</span> <span class="op">/</span> <span class="dv">30</span><span class="op">);</span>  <span class="co">// 30fps</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span><span class="va">running_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> start <span class="op">=</span> <span class="bu">std::</span>chrono::steady_clock::now<span class="op">();</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 1. 从输入模块获取解码后的帧</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> audio_frames <span class="op">=</span> <span class="va">input_processor_</span><span class="op">-&gt;</span>GetAudioFrames<span class="op">();</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> video_frames <span class="op">=</span> <span class="va">input_processor_</span><span class="op">-&gt;</span>GetVideoFrames<span class="op">();</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 2. 音频混音</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span>audio_frames<span class="op">.</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> frame <span class="op">:</span> audio_frames<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>                <span class="va">audio_mixer_</span><span class="op">-&gt;</span>AddFrame<span class="op">(</span>frame<span class="op">.</span>stream_id<span class="op">,</span> frame<span class="op">);</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>            <span class="kw">auto</span> mixed_audio <span class="op">=</span> <span class="va">audio_mixer_</span><span class="op">-&gt;</span>Mix<span class="op">();</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 编码并输出</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>            <span class="kw">auto</span> rtp_packets <span class="op">=</span> <span class="va">encoder_</span><span class="op">-&gt;</span>EncodeAudio<span class="op">(</span>mixed_audio<span class="op">);</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> packet <span class="op">:</span> rtp_packets<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span><span class="va">output_callback_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>                    <span class="va">output_callback_</span><span class="op">(</span>packet<span class="op">.</span>data<span class="op">,</span> <span class="kw">true</span><span class="op">);</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 3. 视频混画</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span>video_frames<span class="op">.</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> frame <span class="op">:</span> video_frames<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>                <span class="va">video_compositor_</span><span class="op">-&gt;</span>AddFrame<span class="op">(</span>frame<span class="op">.</span>stream_id<span class="op">,</span> frame<span class="op">);</span></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>            <span class="kw">auto</span> composited_video <span class="op">=</span> <span class="va">video_compositor_</span><span class="op">-&gt;</span>Composite<span class="op">();</span></span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 编码并输出</span></span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>            <span class="kw">auto</span> rtp_packets <span class="op">=</span> <span class="va">encoder_</span><span class="op">-&gt;</span>EncodeVideo<span class="op">(</span>composited_video<span class="op">);</span></span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> packet <span class="op">:</span> rtp_packets<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span><span class="va">output_callback_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>                    <span class="va">output_callback_</span><span class="op">(</span>packet<span class="op">.</span>data<span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 4. 控制帧率</span></span>
+<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> elapsed <span class="op">=</span> <span class="bu">std::</span>chrono::steady_clock::now<span class="op">()</span> <span class="op">-</span> start<span class="op">;</span></span>
+<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>elapsed <span class="op">&lt;</span> frame_duration<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>this_thread::sleep_for<span class="op">(</span>frame_duration <span class="op">-</span> elapsed<span class="op">);</span></span>
+<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<hr />
+<h2 id="本章总结">6. 本章总结</h2>
+<h3 id="核心知识点回顾">6.1 核心知识点回顾</h3>
+<p>本章我们学习了 MCU 混音混画的核心技术：</p>
+<p><strong>1. MCU vs SFU</strong>： -
+SFU：选择性转发，低延迟，客户端接收多路流 -
+MCU：混音混画，高延迟，客户端只接收 1 路合流 -
+选择依据：会议规模、网络环境、录制需求</p>
+<p><strong>2. 音频混音</strong>： - 核心原理：PCM 采样点相加 -
+溢出处理：硬限幅、动态压缩、自适应归一化 - VAD
+优化：只混音活跃的音频流</p>
+<p><strong>3. 视频混画</strong>： - 布局设计：网格、主讲人、画中画 -
+图像处理：YUV 缩放、裁剪、格式转换 - GPU 加速：使用 Shader
+进行并行合成</p>
+<p><strong>4. MCU 流水线</strong>： - 输入处理 → 混音/混画 → 编码 → 输出
+- 延迟来源：JitterBuffer、解码、合成、编码 - 优化方向：GPU
+加速、零拷贝、流水线并行</p>
+<h3 id="mcu-选型建议">6.2 MCU 选型建议</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">场景</th>
+<th style="text-align: left;">推荐方案</th>
+<th style="text-align: left;">原因</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">小型会议 (4-20人)</td>
+<td style="text-align: left;">纯 SFU</td>
+<td style="text-align: left;">低延迟、布局灵活</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">中型会议 (20-50人)</td>
+<td style="text-align: left;">SFU + 可选 MCU</td>
+<td style="text-align: left;">参与者用 SFU，观众用 MCU</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">大型会议 (50+人)</td>
+<td style="text-align: left;">纯 MCU 或 CDN</td>
+<td style="text-align: left;">客户端只需接收 1 路</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">需要录制</td>
+<td style="text-align: left;">MCU</td>
+<td style="text-align: left;">直接录制合流</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">移动优先</td>
+<td style="text-align: left;">MCU</td>
+<td style="text-align: left;">弱网环境下更稳定</td>
+</tr>
+</tbody>
+</table>
+<h3 id="常见陷阱">6.3 常见陷阱</h3>
+<p><strong>陷阱 1：CPU 软混画</strong></p>
+<pre><code>错误：使用纯 CPU 进行 16 路 1080p 混画
+结果：单帧处理 500ms，完全不可用
+正确：必须使用 GPU 加速</code></pre>
+<p><strong>陷阱 2：忽略音频同步</strong></p>
+<pre><code>问题：视频和音频处理延迟不同步
+结果：口型对不上，用户体验差
+解决：统一时间戳，保持同步</code></pre>
+<p><strong>陷阱 3：混音溢出</strong></p>
+<pre><code>问题：多路音频直接相加导致削波失真
+结果：音质严重下降
+解决：使用动态压缩或自适应归一化</code></pre>
+<h3 id="课后练习">6.4 课后练习</h3>
+<ol type="1">
+<li><strong>思考题</strong>：
+<ul>
+<li>为什么 MCU 的延迟比 SFU 高？延迟主要来自哪些环节？</li>
+<li>如果要支持 100 人会议，你会如何设计 MCU 的混音策略？</li>
+<li>GPU 混画相比 CPU 混画有哪些优势？实现难点在哪里？</li>
+</ul></li>
+<li><strong>编程题</strong>：
+<ul>
+<li>实现一个简单的双路音频混音器，支持溢出保护</li>
+<li>实现网格布局计算算法，支持 1-16 路视频</li>
+<li>使用 OpenGL 编写一个简单的双路视频混画 Shader</li>
+</ul></li>
+<li><strong>拓展阅读</strong>：
+<ul>
+<li>研究 FFmpeg 的 <code>libswscale</code> 库，了解 YUV
+缩放的高效实现</li>
+<li>学习 OpenGL FBO（Frame Buffer Object）的使用方法</li>
+<li>了解现代 GPU 的 NVENC/VA-API 硬件编码</li>
+</ul></li>
+</ol>
+<h3 id="下一章预告">6.5 下一章预告</h3>
+<p>在第25章《录制与回放》中，我们将学习：</p>
+<ul>
+<li><strong>录制需求分析</strong>：单流录制 vs 合流录制，格式选择</li>
+<li><strong>服务端录制</strong>：从 SFU/MCU 录制，文件分段策略</li>
+<li><strong>HLS 时移回放</strong>：实现直播的时移功能</li>
+<li><strong>DASH 协议</strong>：多码率自适应播放</li>
+</ul>
+<p>录制是直播系统的核心功能之一，云端录制可以为业务提供回放、审核、剪辑等能力。下一章将带你深入理解录制的技术原理和实现方法。</p>
+<hr />
+<p><strong>课后思考</strong>：如果你要设计一个支持 1000
+人同时在线的大型直播系统，你会如何组合使用 SFU、MCU 和 CDN？</p>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="index.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html" class="active">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="第15章美颜与滤镜">第15章：美颜与滤镜</h1>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">项目</th>
+<th style="text-align: left;">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>本章目标</strong></td>
+<td style="text-align: left;">掌握美颜与滤镜的核心概念和实践</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>难度</strong></td>
+<td style="text-align: left;">⭐⭐⭐⭐ 高</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>前置知识</strong></td>
+<td style="text-align: left;">Ch14：高级采集、GPU基础</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>预计时间</strong></td>
+<td style="text-align: left;">4-5 小时</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>本章引言</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>本章目标</strong>：理解 GPU
+图像处理原理，掌握美颜算法，学会设计滤镜链。</p>
+</blockquote>
+<p>在第十四章中，我们学习了如何高效采集视频源。但采集的原始画面往往不够理想——肤色暗沉、皮肤瑕疵、光线不均。美颜处理是直播的标配功能，它能显著提升画面观感，让主播呈现出更好的状态。</p>
+<p><strong>美颜的技术挑战</strong>： -
+<strong>实时性</strong>：直播不能卡顿，美颜处理必须 &lt; 5ms/帧 -
+<strong>自然度</strong>：磨皮不能磨掉五官细节，要”美得自然” -
+<strong>可调节</strong>：不同主播、不同场景需要不同的美颜强度</p>
+<p><strong>本章与前后章的关系</strong>： - Ch14：采集原始画面 -
+<strong>Ch15：美颜处理（本章）</strong> - Ch16：整合为完整主播端</p>
+<p>⚠️ <strong>前置知识</strong>：本章涉及 GPU 和 Shader
+概念。如果对这些不熟悉，建议先阅读第 0 节快速入门。</p>
+<hr />
+<h2 id="目录">目录</h2>
+<ol start="0" type="1">
+<li><a href="#0-前置知识gpu-与-shader-基础">前置知识：GPU 与 Shader
+基础</a></li>
+<li><a
+href="#1-磨皮算法从均值滤波到双边滤波">磨皮算法：从均值滤波到双边滤波</a></li>
+<li><a href="#2-双边滤波深度解析">双边滤波深度解析</a></li>
+<li><a href="#3-美白与-lut-调色">美白与 LUT 调色</a></li>
+<li><a href="#4-滤镜链架构设计">滤镜链架构设计</a></li>
+<li><a href="#5-性能优化实战">性能优化实战</a></li>
+<li><a href="#6-本章总结">本章总结</a></li>
+</ol>
+<hr />
+<h2 id="前置知识gpu-与-shader-基础">0. 前置知识：GPU 与 Shader 基础</h2>
+<h3 id="为什么美颜必须用-gpu">0.1 为什么美颜必须用 GPU</h3>
+<p><strong>CPU 处理的问题</strong>： 1080p 视频每帧 207 万像素，30fps
+时每秒处理 6220 万像素。</p>
+<p>假设一个简单的磨皮算法需要 100 次浮点运算/像素： - 每帧：207万 × 100
+= 2.07 亿次运算 - 每秒：2.07亿 × 30 = 62.1 亿次运算</p>
+<p>CPU（如 Intel i7）单核峰值约 100 GFLOPS，但串行处理限制了实际性能： -
+实际处理一帧需要 50-100ms - 每秒只能处理 10-20 帧 - <strong>无法满足
+30fps 实时要求</strong></p>
+<p><strong>GPU 的优势</strong>： - 数千个并行计算核心 -
+专门优化图像/矩阵运算 - 1080p 美颜处理 &lt; 2ms/帧</p>
+<h3 id="什么是-shader">0.2 什么是 Shader</h3>
+<p><strong>Shader（着色器）</strong> 是运行在 GPU
+上的小程序，专门处理图像像素。</p>
+<p><strong>GPU 并行处理模型</strong>：</p>
+<pre><code>CPU 串行处理：
+for (每个像素) { 处理像素; }  // 一个一个来
+
+GPU 并行处理：
+处理所有像素同时;  // 数千个核心一起上</code></pre>
+<p><strong>最简单的 Shader（亮度提升）</strong>：</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Fragment Shader：每个像素运行一次</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 读取当前像素颜色</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">vec4</span> color <span class="op">=</span> <span class="bu">texture</span><span class="op">(</span>inputImage<span class="op">,</span> textureCoord<span class="op">);</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 提升亮度 20%</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    color<span class="op">.</span><span class="fu">rgb</span> <span class="op">*=</span> <span class="fl">1.2</span><span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 输出处理后的颜色</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    outputColor <span class="op">=</span> color<span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="gpu-图像处理管线">0.3 GPU 图像处理管线</h3>
+<pre class="mermaid">flowchart TB
+    A[&quot;输入纹理\nYUV/RGB&quot;] --&gt; B[&quot;顶点着色器\n确定像素位置&quot;]
+    B --&gt; C[&quot;片段着色器\n处理像素颜色\n美颜算法在这里&quot;]
+    C --&gt; D[&quot;帧缓冲\n输出结果&quot;]
+    D --&gt; E[&quot;下一级滤镜的输入纹理&quot;]
+    
+    style A fill:#e3f2fd,stroke:#4a90d9
+    style B fill:#fff3e0,stroke:#f0ad4e
+    style C fill:#e8f5e9,stroke:#5cb85c
+    style D fill:#fce4ec,stroke:#e91e63
+    style E fill:#f3e5f5,stroke:#9c27b0</pre>
+<p><strong>管线各阶段</strong>：</p>
+<pre><code>输入纹理（YUV/RGB）
+    ↓
+[顶点着色器] - 确定像素位置
+    ↓
+[片段着色器] - 处理像素颜色（美颜算法在这里）
+    ↓
+[帧缓冲] - 输出结果
+    ↓
+下一级滤镜的输入纹理</code></pre>
+<h3 id="离屏渲染off-screen-rendering">0.4 离屏渲染（Off-screen
+Rendering）</h3>
+<p>美颜处理不需要显示到屏幕，只需要处理后的数据传给编码器。</p>
+<p><strong>离屏渲染的核心概念</strong>： - <strong>FBO（Frame Buffer
+Object）</strong>：离屏渲染的目标 - <strong>纹理绑定</strong>：将 FBO
+的输出绑定为纹理，供下一级使用 -
+<strong>纹理链</strong>：多级滤镜串联，每级输出作为下一级输入</p>
+<hr />
+<h2 id="磨皮算法从均值滤波到双边滤波">1.
+磨皮算法：从均值滤波到双边滤波</h2>
+<h3 id="磨皮的核心矛盾">1.1 磨皮的核心矛盾</h3>
+<p><strong>理想效果</strong>： - 皮肤光滑、无瑕疵 - 眼睛、嘴巴轮廓清晰 -
+毛发、衣物纹理保留</p>
+<p><strong>传统滤波的问题</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">算法</th>
+<th style="text-align: left;">原理</th>
+<th style="text-align: left;">问题</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>均值滤波</strong></td>
+<td style="text-align: left;">取周围像素的平均值</td>
+<td style="text-align: left;">边缘模糊，整体发虚</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>高斯滤波</strong></td>
+<td style="text-align: left;">加权平均，权重随距离衰减</td>
+<td style="text-align: left;">比均值好，但边缘仍模糊</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>双边滤波</strong></td>
+<td style="text-align: left;">加权平均，权重考虑距离+颜色差异</td>
+<td style="text-align: left;">平滑皮肤，保留边缘 ✓</td>
+</tr>
+</tbody>
+</table>
+<h3 id="均值滤波与高斯滤波">1.2 均值滤波与高斯滤波</h3>
+<p><strong>均值滤波</strong>：</p>
+<pre><code>当前像素 = 周围 3×3 像素的平均值</code></pre>
+<p>问题：对边缘和细节一视同仁，导致整体模糊。</p>
+<p><strong>高斯滤波</strong>：</p>
+<pre><code>当前像素 = 周围像素的加权平均
+权重 = 高斯函数(距离中心点的距离)</code></pre>
+<p>距离越远的像素影响越小，但仍然会模糊边缘。</p>
+<h3 id="双边滤波的直觉理解">1.3 双边滤波的直觉理解</h3>
+<p><strong>关键洞察</strong>： 皮肤区域的像素颜色相似，可以平滑处理；
+边缘（如皮肤→眼睛）的像素颜色差异大，应该保留。</p>
+<p><strong>类比</strong>： 想象你在整理一盒混合的积木： -
+<strong>均值/高斯滤波</strong>：不管颜色，全部混在一起（结果一团糟） -
+<strong>双边滤波</strong>：相似颜色的积木才混在一起，不同颜色的保持分离</p>
+<hr />
+<h2 id="双边滤波深度解析">2. 双边滤波深度解析</h2>
+<h3 id="双边滤波的数学原理">2.1 双边滤波的数学原理</h3>
+<p>双边滤波的权重由两个因子相乘得到：</p>
+<pre><code>权重 = 空间权重 × 颜色权重
+
+空间权重：距离越近，权重越大（和高斯一样）
+颜色权重：颜色越相似，权重越大（双边滤波的关键）</code></pre>
+<p><strong>公式</strong>：</p>
+<pre><code>I&#39;(x) = (1/W) × Σ I(y) × Gs(||x-y||) × Gr(|I(x)-I(y)|)
+
+其中：
+- I(x)：像素 x 的颜色
+- Gs：空间高斯函数（距离权重）
+- Gr：颜色高斯函数（颜色相似度权重）
+- W：归一化因子</code></pre>
+<h3 id="双边滤波的可视化">2.2 双边滤波的可视化</h3>
+<p><img src="diagrams/bilateral-filter.svg" width="100%"/></p>
+<p><strong>平滑区域（如脸颊）</strong>： - 周围像素颜色相似 - 颜色权重 ≈
+1 - 效果类似于高斯滤波 → 平滑</p>
+<p><strong>边缘区域（如眼睛轮廓）</strong>： - 皮肤像素 vs
+眼睛像素，颜色差异大 - 颜色权重 ≈ 0 - 眼睛像素几乎不影响皮肤像素 →
+边缘保留</p>
+<h3 id="双边滤波-shader-实现">2.3 双边滤波 Shader 实现</h3>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">sampler2D</span> inputImage<span class="op">;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">vec2</span> <span class="bu">imageSize</span><span class="op">;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">float</span> sigmaSpace<span class="op">;</span>  <span class="co">// 空间 sigma</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">float</span> sigmaColor<span class="op">;</span>  <span class="co">// 颜色 sigma</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="dt">vec3</span> <span class="fu">BilateralFilter</span><span class="op">(</span><span class="dt">vec2</span> uv<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">vec3</span> center <span class="op">=</span> <span class="bu">texture</span><span class="op">(</span>inputImage<span class="op">,</span> uv<span class="op">).</span><span class="fu">rgb</span><span class="op">;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">vec3</span> result <span class="op">=</span> <span class="dt">vec3</span><span class="op">(</span><span class="fl">0.0</span><span class="op">);</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> weightSum <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 遍历周围 5×5 区域</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">for</span> <span class="op">(</span><span class="dt">int</span> x <span class="op">=</span> <span class="op">-</span><span class="dv">2</span><span class="op">;</span> x <span class="op">&lt;=</span> <span class="dv">2</span><span class="op">;</span> x<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">for</span> <span class="op">(</span><span class="dt">int</span> y <span class="op">=</span> <span class="op">-</span><span class="dv">2</span><span class="op">;</span> y <span class="op">&lt;=</span> <span class="dv">2</span><span class="op">;</span> y<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">vec2</span> <span class="dt">offset</span> <span class="op">=</span> <span class="dt">vec2</span><span class="op">(</span><span class="dt">float</span><span class="op">(</span>x<span class="op">),</span> <span class="dt">float</span><span class="op">(</span>y<span class="op">))</span> <span class="op">/</span> <span class="bu">imageSize</span><span class="op">;</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">vec2</span> sampleUV <span class="op">=</span> uv <span class="op">+</span> <span class="dt">offset</span><span class="op">;</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">vec3</span> <span class="dt">sample</span> <span class="op">=</span> <span class="bu">texture</span><span class="op">(</span>inputImage<span class="op">,</span> sampleUV<span class="op">).</span><span class="fu">rgb</span><span class="op">;</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 空间权重：基于像素距离</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> spatialDist <span class="op">=</span> <span class="bu">length</span><span class="op">(</span><span class="dt">vec2</span><span class="op">(</span><span class="dt">float</span><span class="op">(</span>x<span class="op">),</span> <span class="dt">float</span><span class="op">(</span>y<span class="op">)));</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> spatialWeight <span class="op">=</span> <span class="bu">exp</span><span class="op">(-(</span>spatialDist <span class="op">*</span> spatialDist<span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2.0</span> <span class="op">*</span> sigmaSpace <span class="op">*</span> sigmaSpace<span class="op">));</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 颜色权重：基于颜色差异</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> colorDist <span class="op">=</span> <span class="bu">length</span><span class="op">(</span>center <span class="op">-</span> <span class="dt">sample</span><span class="op">);</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> colorWeight <span class="op">=</span> <span class="bu">exp</span><span class="op">(-(</span>colorDist <span class="op">*</span> colorDist<span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2.0</span> <span class="op">*</span> sigmaColor <span class="op">*</span> sigmaColor<span class="op">));</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 双边权重</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> weight <span class="op">=</span> spatialWeight <span class="op">*</span> colorWeight<span class="op">;</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>            result <span class="op">+=</span> <span class="dt">sample</span> <span class="op">*</span> weight<span class="op">;</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>            weightSum <span class="op">+=</span> weight<span class="op">;</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">return</span> result <span class="op">/</span> weightSum<span class="op">;</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="参数调优指南">2.4 参数调优指南</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: center;">推荐值</th>
+<th style="text-align: left;">影响</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>sigmaSpace</code></td>
+<td style="text-align: left;">空间影响范围</td>
+<td style="text-align: center;">3-5</td>
+<td style="text-align: left;">越大磨皮范围越大</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>sigmaColor</code></td>
+<td style="text-align: left;">颜色敏感度</td>
+<td style="text-align: center;">0.1-0.3</td>
+<td style="text-align: left;">越小边缘保留越好</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>kernelSize</code></td>
+<td style="text-align: left;">滤波窗口大小</td>
+<td style="text-align: center;">5×5 ~ 9×9</td>
+<td style="text-align: left;">越大计算量越大</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>blend</code></td>
+<td style="text-align: left;">原图与磨皮图混合比例</td>
+<td style="text-align: center;">0.3-0.7</td>
+<td style="text-align: left;">越大磨皮效果越明显</td>
+</tr>
+</tbody>
+</table>
+<p><strong>调参技巧</strong>： - <code>sigmaColor</code>
+是关键：太小磨不干净，太大边缘会糊 -
+可先降采样做双边滤波，再放大，速度提升 4 倍</p>
+<hr />
+<h2 id="美白与-lut-调色">3. 美白与 LUT 调色</h2>
+<h3 id="亮度与对比度调节">3.1 亮度与对比度调节</h3>
+<p><strong>简单美白（提升亮度）</strong>：</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">vec3</span> <span class="fu">Brightness</span><span class="op">(</span><span class="dt">vec3</span> color<span class="op">,</span> <span class="dt">float</span> level<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// level: 0.0~2.0，1.0 为原亮度</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">return</span> color <span class="op">*</span> level<span class="op">;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>问题</strong>：单纯提升亮度会让画面”发白”，失去层次感。</p>
+<p><strong>对比度调节</strong>：</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">vec3</span> <span class="fu">Contrast</span><span class="op">(</span><span class="dt">vec3</span> color<span class="op">,</span> <span class="dt">float</span> contrast<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// contrast: 0.0~2.0，1.0 为原对比度</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 先减 0.5 移到中心，乘对比度，再加 0.5 移回去</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">return</span> <span class="op">(</span>color <span class="op">-</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">*</span> contrast <span class="op">+</span> <span class="fl">0.5</span><span class="op">;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>美白 + 对比度联合调节</strong>：</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dt">vec3</span> <span class="fu">BeautyAdjust</span><span class="op">(</span><span class="dt">vec3</span> color<span class="op">,</span> <span class="dt">float</span> brightness<span class="op">,</span> <span class="dt">float</span> contrast<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> <span class="fu">Brightness</span><span class="op">(</span>color<span class="op">,</span> brightness<span class="op">);</span>  <span class="co">// 先提亮</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> <span class="fu">Contrast</span><span class="op">(</span>color<span class="op">,</span> contrast<span class="op">);</span>       <span class="co">// 再调对比度</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">return</span> color<span class="op">;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="lutlookup-table调色">3.2 LUT（Lookup Table）调色</h3>
+<p><strong>问题</strong>：如何实现”日系清新”、“复古胶片”、“电影感”等不同风格？</p>
+<p><strong>LUT 方案</strong>： - 不做实时计算，而是”查表” - 输入颜色 →
+查表 → 输出颜色 - 换一张表 = 换一种风格</p>
+<p><img src="diagrams/lut-color-grading.svg" width="80%"/></p>
+<p><strong>3D LUT 原理</strong>：</p>
+<pre><code>输入 RGB (256×256×256 种可能)
+    ↓
+3D LUT 纹理（通常是 64×64×64 或 33×33×33）
+    ↓
+输出 RGB（变换后的颜色）</code></pre>
+<p><strong>LUT 的优势</strong>： 1. <strong>速度极快</strong>：O(1)
+查找，无计算 2. <strong>效果一致</strong>：同样的 LUT
+文件在任何平台效果相同 3. <strong>专业调色</strong>：可以用 Photoshop
+制作 LUT，直接应用到直播</p>
+<h3 id="lut-shader-实现">3.3 LUT Shader 实现</h3>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">sampler2D</span> inputImage<span class="op">;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">sampler3D</span> lutTexture<span class="op">;</span>  <span class="co">// 3D LUT 纹理</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">float</span> lutSize<span class="op">;</span>         <span class="co">// 通常是 33 或 64</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="dt">vec3</span> <span class="fu">ApplyLUT</span><span class="op">(</span><span class="dt">vec3</span> color<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 将 RGB (0.0~1.0) 映射到 LUT 坐标空间</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">vec3</span> lutCoord <span class="op">=</span> color <span class="op">*</span> <span class="op">((</span>lutSize <span class="op">-</span> <span class="fl">1.0</span><span class="op">)</span> <span class="op">/</span> lutSize<span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="fl">0.5</span> <span class="op">/</span> lutSize<span class="op">);</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 采样 3D LUT</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">return</span> <span class="bu">texture</span><span class="op">(</span>lutTexture<span class="op">,</span> lutCoord<span class="op">).</span><span class="fu">rgb</span><span class="op">;</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>常用 LUT 风格</strong>： | 风格 | 特点 | 适用场景 |
+|:—|:—|:—| | 日系清新 | 提高亮度，降低对比度，偏青 | 户外、美食 | |
+复古胶片 | 增加颗粒感，偏暖黄 | 文艺、怀旧 | | 电影感 |
+低饱和度，高对比度，偏青橙 | 人物、故事 | | 冷白皮 | 提亮，偏蓝 |
+人像、美妆 |</p>
+<hr />
+<h2 id="滤镜链架构设计">4. 滤镜链架构设计</h2>
+<h3 id="设计目标">4.1 设计目标</h3>
+<p>一个完整的直播美颜系统需要支持： - <strong>多级处理</strong>：磨皮 →
+美白 → 调色 → 锐化 - <strong>动态开关</strong>：主播可以随时开关某个效果
+- <strong>参数调节</strong>：实时调整美颜强度 -
+<strong>性能优化</strong>：不用的滤镜不消耗资源</p>
+<h3 id="滤镜链架构">4.2 滤镜链架构</h3>
+<pre class="mermaid">flowchart LR
+    subgraph &quot;滤镜链&quot;
+        A[&quot;输入帧&quot;] --&gt; B[&quot;双边滤波\n磨皮&quot;]
+        B --&gt; C[&quot;亮度/对比度\n美白&quot;]
+        C --&gt; D[&quot;LUT 调色\n风格化&quot;]
+        D --&gt; E[&quot;锐化\n细节增强&quot;]
+        E --&gt; F[&quot;输出帧&quot;]
+    end
+    
+    subgraph &quot;控制接口&quot;
+        C1[&quot;强度调节&quot;]
+        C2[&quot;开关控制&quot;]
+        C3[&quot;参数配置&quot;]
+    end
+    
+    C1 -.-&gt; B
+    C1 -.-&gt; C
+    C1 -.-&gt; D
+    C2 -.-&gt; B
+    C2 -.-&gt; C
+    C2 -.-&gt; D
+    
+    style A fill:#e3f2fd,stroke:#4a90d9
+    style F fill:#e8f5e9,stroke:#5cb85c
+    style B fill:#fff3e0,stroke:#f0ad4e
+    style C fill:#fff3e0,stroke:#f0ad4e
+    style D fill:#fff3e0,stroke:#f0ad4e
+    style E fill:#fff3e0,stroke:#f0ad4e</pre>
+<p><strong>设计原则</strong>： 1.
+<strong>接口统一</strong>：所有滤镜实现相同的接口 2.
+<strong>可组合</strong>：任意组合，顺序可调 3.
+<strong>懒加载</strong>：未启用的滤镜不绑定、不渲染</p>
+<h3 id="接口设计">4.3 接口设计</h3>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 滤镜基类</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IFilter <span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="op">~</span>IFilter<span class="op">()</span> <span class="op">=</span> <span class="cf">default</span><span class="op">;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 初始化（创建 GPU 资源）</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">bool</span> Initialize<span class="op">(</span><span class="dt">int</span> width<span class="op">,</span> <span class="dt">int</span> height<span class="op">)</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 处理一帧</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">void</span> Process<span class="op">(</span>GpuTexture<span class="op">*</span> input<span class="op">,</span> GpuTexture<span class="op">*</span> output<span class="op">)</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 是否启用</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">bool</span> IsEnabled<span class="op">()</span> <span class="at">const</span> <span class="op">{</span> <span class="cf">return</span> <span class="va">enabled_</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">void</span> SetEnabled<span class="op">(</span><span class="dt">bool</span> enabled<span class="op">)</span> <span class="op">{</span> <span class="va">enabled_</span> <span class="op">=</span> enabled<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 释放资源</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">void</span> Release<span class="op">()</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="kw">protected</span><span class="op">:</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="va">enabled_</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">width_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">height_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="co">// 双边滤波实现</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BilateralFilter <span class="op">:</span> <span class="kw">public</span> IFilter <span class="op">{</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetStrength<span class="op">(</span><span class="dt">float</span> strength<span class="op">)</span> <span class="op">{</span> <span class="va">strength_</span> <span class="op">=</span> strength<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetSigmaColor<span class="op">(</span><span class="dt">float</span> sigma<span class="op">)</span> <span class="op">{</span> <span class="va">sigma_color_</span> <span class="op">=</span> sigma<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Process<span class="op">(</span>GpuTexture<span class="op">*</span> input<span class="op">,</span> GpuTexture<span class="op">*</span> output<span class="op">)</span> <span class="kw">override</span> <span class="op">{</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span><span class="va">enabled_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 如果禁用，直接拷贝</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>            CopyTexture<span class="op">(</span>input<span class="op">,</span> output<span class="op">);</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 绑定 Shader 参数</span></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>        <span class="va">shader_</span><span class="op">.</span>SetUniform<span class="op">(</span><span class="st">&quot;sigmaColor&quot;</span><span class="op">,</span> <span class="va">sigma_color_</span><span class="op">);</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>        <span class="va">shader_</span><span class="op">.</span>SetUniform<span class="op">(</span><span class="st">&quot;sigmaSpace&quot;</span><span class="op">,</span> <span class="fl">3.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 渲染</span></span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>        RenderFullscreenQuad<span class="op">(</span><span class="va">shader_</span><span class="op">,</span> input<span class="op">,</span> output<span class="op">);</span></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> <span class="va">strength_</span> <span class="op">=</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> <span class="va">sigma_color_</span> <span class="op">=</span> <span class="fl">0.15</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a>    Shader <span class="va">shader_</span><span class="op">;</span></span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a><span class="co">// 亮度调节实现</span></span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BrightnessFilter <span class="op">:</span> <span class="kw">public</span> IFilter <span class="op">{</span></span>
+<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetLevel<span class="op">(</span><span class="dt">float</span> level<span class="op">)</span> <span class="op">{</span> <span class="va">level_</span> <span class="op">=</span> level<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Process<span class="op">(</span>GpuTexture<span class="op">*</span> input<span class="op">,</span> GpuTexture<span class="op">*</span> output<span class="op">)</span> <span class="kw">override</span> <span class="op">{</span></span>
+<span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span><span class="va">enabled_</span> <span class="op">||</span> <span class="va">level_</span> <span class="op">==</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-59"><a href="#cb16-59" aria-hidden="true" tabindex="-1"></a>            CopyTexture<span class="op">(</span>input<span class="op">,</span> output<span class="op">);</span></span>
+<span id="cb16-60"><a href="#cb16-60" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb16-61"><a href="#cb16-61" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb16-62"><a href="#cb16-62" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-63"><a href="#cb16-63" aria-hidden="true" tabindex="-1"></a>        <span class="va">shader_</span><span class="op">.</span>SetUniform<span class="op">(</span><span class="st">&quot;brightness&quot;</span><span class="op">,</span> <span class="va">level_</span><span class="op">);</span></span>
+<span id="cb16-64"><a href="#cb16-64" aria-hidden="true" tabindex="-1"></a>        RenderFullscreenQuad<span class="op">(</span><span class="va">shader_</span><span class="op">,</span> input<span class="op">,</span> output<span class="op">);</span></span>
+<span id="cb16-65"><a href="#cb16-65" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-66"><a href="#cb16-66" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-67"><a href="#cb16-67" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb16-68"><a href="#cb16-68" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> <span class="va">level_</span> <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb16-69"><a href="#cb16-69" aria-hidden="true" tabindex="-1"></a>    Shader <span class="va">shader_</span><span class="op">;</span></span>
+<span id="cb16-70"><a href="#cb16-70" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="滤镜链管理器">4.4 滤镜链管理器</h3>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FilterChain <span class="op">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 添加滤镜到链尾</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> AddFilter<span class="op">(</span><span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>IFilter<span class="op">&gt;</span> filter<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">filters_</span><span class="op">.</span>push_back<span class="op">(</span><span class="bu">std::</span>move<span class="op">(</span>filter<span class="op">));</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 处理一帧</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> ProcessFrame<span class="op">(</span>GpuTexture<span class="op">*</span> input<span class="op">,</span> GpuTexture<span class="op">*</span> output<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">filters_</span><span class="op">.</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>            CopyTexture<span class="op">(</span>input<span class="op">,</span> output<span class="op">);</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        GpuTexture<span class="op">*</span> current_input <span class="op">=</span> input<span class="op">;</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>        GpuTexture temp_texture<span class="op">;</span>  <span class="co">// 临时纹理</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="va">filters_</span><span class="op">.</span>size<span class="op">();</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 确定输出目标</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>            GpuTexture<span class="op">*</span> current_output <span class="op">=</span> <span class="op">(</span>i <span class="op">==</span> <span class="va">filters_</span><span class="op">.</span>size<span class="op">()</span> <span class="op">-</span> <span class="dv">1</span><span class="op">)</span> </span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>                <span class="op">?</span> output <span class="op">:</span> <span class="op">&amp;</span>temp_texture<span class="op">;</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 处理</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>            <span class="va">filters_</span><span class="op">[</span>i<span class="op">]-&gt;</span>Process<span class="op">(</span>current_input<span class="op">,</span> current_output<span class="op">);</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 当前输出成为下一级输入</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>            current_input <span class="op">=</span> current_output<span class="op">;</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 动态调整滤镜参数</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetFilterParam<span class="op">(</span><span class="dt">size_t</span> index<span class="op">,</span> <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> name<span class="op">,</span> <span class="dt">float</span> value<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>index <span class="op">&lt;</span> <span class="va">filters_</span><span class="op">.</span>size<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 根据 name 设置对应参数</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 具体实现取决于滤镜类型</span></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>IFilter<span class="op">&gt;&gt;</span> <span class="va">filters_</span><span class="op">;</span></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="使用示例">4.5 使用示例</h3>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 创建滤镜链</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>FilterChain chain<span class="op">;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">// 添加磨皮滤镜</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> bilateral <span class="op">=</span> <span class="bu">std::</span>make_unique<span class="op">&lt;</span>BilateralFilter<span class="op">&gt;();</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>bilateral<span class="op">-&gt;</span>SetStrength<span class="op">(</span><span class="fl">0.6</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>chain<span class="op">.</span>AddFilter<span class="op">(</span><span class="bu">std::</span>move<span class="op">(</span>bilateral<span class="op">));</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co">// 添加美白滤镜</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> brightness <span class="op">=</span> <span class="bu">std::</span>make_unique<span class="op">&lt;</span>BrightnessFilter<span class="op">&gt;();</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>brightness<span class="op">-&gt;</span>SetLevel<span class="op">(</span><span class="fl">1.15</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>chain<span class="op">.</span>AddFilter<span class="op">(</span><span class="bu">std::</span>move<span class="op">(</span>brightness<span class="op">));</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="co">// 添加 LUT 调色滤镜</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> lut <span class="op">=</span> <span class="bu">std::</span>make_unique<span class="op">&lt;</span>LUTFilter<span class="op">&gt;();</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>lut<span class="op">-&gt;</span>LoadLUT<span class="op">(</span><span class="st">&quot;skin_warm.cube&quot;</span><span class="op">);</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>chain<span class="op">.</span>AddFilter<span class="op">(</span><span class="bu">std::</span>move<span class="op">(</span>lut<span class="op">));</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="co">// 处理视频帧</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>chain<span class="op">.</span>ProcessFrame<span class="op">(</span>cameraTexture<span class="op">,</span> outputTexture<span class="op">);</span></span></code></pre></div>
+<hr />
+<h2 id="性能优化实战">5. 性能优化实战</h2>
+<h3 id="美颜性能预算">5.1 美颜性能预算</h3>
+<p>以 1080p@30fps 直播为例： -
+<strong>总时间预算</strong>：33ms/帧（1000ms/30fps） -
+<strong>美颜处理预算</strong>：&lt;
+5ms（留给采集、编码、网络更多时间）</p>
+<p><strong>各级处理时间参考</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">滤镜</th>
+<th style="text-align: center;">1080p 处理时间</th>
+<th style="text-align: center;">优化后</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">双边滤波（全分辨率）</td>
+<td style="text-align: center;">8-10ms</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">双边滤波（降采样）</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">2-3ms</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">亮度/对比度调节</td>
+<td style="text-align: center;">0.5ms</td>
+<td style="text-align: center;">0.5ms</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LUT 调色</td>
+<td style="text-align: center;">1ms</td>
+<td style="text-align: center;">1ms</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>完整滤镜链</strong></td>
+<td style="text-align: center;"><strong>~12ms</strong></td>
+<td style="text-align: center;"><strong>&lt; 5ms</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="优化技巧-1降采样双边滤波">5.2 优化技巧 1：降采样双边滤波</h3>
+<p><strong>原理</strong>： - 将 1080p 降到 540p 做双边滤波 - 再放大回
+1080p - 效果损失很小，速度快 4 倍</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> FastBilateralFilter<span class="op">(</span>GpuTexture<span class="op">*</span> input<span class="op">,</span> GpuTexture<span class="op">*</span> output<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 1. 创建降采样纹理（540p）</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    GpuTexture downsampled<span class="op">(</span>input<span class="op">-&gt;</span>GetWidth<span class="op">()</span> <span class="op">/</span> <span class="dv">2</span><span class="op">,</span> input<span class="op">-&gt;</span>GetHeight<span class="op">()</span> <span class="op">/</span> <span class="dv">2</span><span class="op">);</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 2. 降采样</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    Downsample<span class="op">(</span>input<span class="op">,</span> <span class="op">&amp;</span>downsampled<span class="op">);</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 3. 在降采样分辨率做双边滤波</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    GpuTexture filtered<span class="op">(</span>downsampled<span class="op">.</span>GetWidth<span class="op">(),</span> downsampled<span class="op">.</span>GetHeight<span class="op">());</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    BilateralFilter<span class="op">(&amp;</span>downsampled<span class="op">,</span> <span class="op">&amp;</span>filtered<span class="op">);</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 4. 上采样回原始分辨率</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    Upsample<span class="op">(&amp;</span>filtered<span class="op">,</span> output<span class="op">);</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="优化技巧-2shader-合并">5.3 优化技巧 2：Shader 合并</h3>
+<p><strong>问题</strong>：每个滤镜都是一个渲染 Pass，切换开销大。</p>
+<p><strong>方案</strong>：将简单滤镜合并到一个 Shader。</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 合并亮度、对比度、饱和度调节</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">sampler2D</span> inputImage<span class="op">;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">float</span> brightness<span class="op">;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">float</span> contrast<span class="op">;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">float</span> saturation<span class="op">;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">vec3</span> color <span class="op">=</span> <span class="bu">texture</span><span class="op">(</span>inputImage<span class="op">,</span> uv<span class="op">).</span><span class="fu">rgb</span><span class="op">;</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 亮度</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    color <span class="op">*=</span> brightness<span class="op">;</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 对比度</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> <span class="op">(</span>color <span class="op">-</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">*</span> contrast <span class="op">+</span> <span class="fl">0.5</span><span class="op">;</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 饱和度</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> gray <span class="op">=</span> <span class="bu">dot</span><span class="op">(</span>color<span class="op">,</span> <span class="dt">vec3</span><span class="op">(</span><span class="fl">0.299</span><span class="op">,</span> <span class="fl">0.587</span><span class="op">,</span> <span class="fl">0.114</span><span class="op">));</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    color <span class="op">=</span> <span class="bu">mix</span><span class="op">(</span><span class="dt">vec3</span><span class="op">(</span>gray<span class="op">),</span> color<span class="op">,</span> saturation<span class="op">);</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    outputColor <span class="op">=</span> <span class="dt">vec4</span><span class="op">(</span>color<span class="op">,</span> <span class="fl">1.0</span><span class="op">);</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="优化技巧-3跳过未启用的滤镜">5.4 优化技巧
+3：跳过未启用的滤镜</h3>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> FilterChain<span class="op">::</span>ProcessFrame<span class="op">(</span>GpuTexture<span class="op">*</span> input<span class="op">,</span> GpuTexture<span class="op">*</span> output<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 统计实际启用的滤镜数</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> enabled_count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> filter <span class="op">:</span> <span class="va">filters_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>filter<span class="op">-&gt;</span>IsEnabled<span class="op">())</span> enabled_count<span class="op">++;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>enabled_count <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 全部禁用，直接拷贝</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        CopyTexture<span class="op">(</span>input<span class="op">,</span> output<span class="op">);</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 只处理启用的滤镜</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ...</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="优化技巧-4硬件预处理">5.5 优化技巧 4：硬件预处理</h3>
+<p>部分硬件编码器（如 NVIDIA NVENC）支持内置降噪：</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 使用 NVENC 的降噪功能替代软件双边滤波</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>encoder_config<span class="op">.</span>enableNoiseReduction <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>encoder_config<span class="op">.</span>noiseReductionLevel <span class="op">=</span> <span class="dv">3</span><span class="op">;</span>  <span class="co">// 1-5</span></span></code></pre></div>
+<p>优点：不占用 GPU 计算资源，速度快。
+缺点：效果不如软件算法精细，参数不可调。</p>
+<hr />
+<h2 id="本章总结">6. 本章总结</h2>
+<h3 id="核心概念回顾">6.1 核心概念回顾</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">概念</th>
+<th style="text-align: left;">关键点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>双边滤波</strong></td>
+<td style="text-align: left;">磨皮 + 保边，权重 = 空间权重 ×
+颜色权重</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>LUT 调色</strong></td>
+<td style="text-align: left;">查表实现风格化，速度快、效果可控</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>滤镜链</strong></td>
+<td style="text-align: left;">多级滤镜串联，接口统一，动态开关</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>降采样优化</strong></td>
+<td style="text-align: left;">540p 做双边滤波再放大，速度提升 4 倍</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Shader 合并</strong></td>
+<td style="text-align: left;">简单滤镜合并，减少渲染 Pass</td>
+</tr>
+</tbody>
+</table>
+<h3 id="美颜算法选择指南">6.2 美颜算法选择指南</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">需求</th>
+<th style="text-align: left;">推荐方案</th>
+<th style="text-align: center;">处理时间</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">基础磨皮</td>
+<td style="text-align: left;">降采样双边滤波</td>
+<td style="text-align: center;">2-3ms</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">高级磨皮</td>
+<td style="text-align: left;">全分辨率双边滤波 + 皮肤 mask</td>
+<td style="text-align: center;">8-10ms</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">美白</td>
+<td style="text-align: left;">亮度 + 对比度调节</td>
+<td style="text-align: center;">0.5ms</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">风格化</td>
+<td style="text-align: left;">3D LUT</td>
+<td style="text-align: center;">1ms</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">瘦脸/大眼</td>
+<td style="text-align: left;">顶点变形（Mesh Warp）</td>
+<td style="text-align: center;">3-5ms</td>
+</tr>
+</tbody>
+</table>
+<h3 id="滤镜链设计最佳实践">6.3 滤镜链设计最佳实践</h3>
+<ol type="1">
+<li><strong>顺序优化</strong>：磨皮 → 美白 → 调色 → 锐化</li>
+<li><strong>降采样</strong>：复杂滤镜（如双边滤波）在降采样分辨率执行</li>
+<li><strong>懒加载</strong>：未启用的滤镜不创建 GPU 资源</li>
+<li><strong>参数缓存</strong>：Shader Uniform 值变化时才更新</li>
+</ol>
+<h3 id="本章与前后章的衔接">6.4 本章与前后章的衔接</h3>
+<p><strong>本章（Ch15）解决</strong>：如何实时美化视频画面</p>
+<p><strong>来自 Ch14（高级采集）</strong>： - 采集的原始画面作为美颜输入
+- GPU 纹理共享技术（采集的 GPU 纹理直接传给美颜处理）</p>
+<p><strong>衔接 Ch16（主播端架构）</strong>： - 美颜滤镜作为 Pipeline
+的一个模块 - 与采集、编码模块通过接口解耦</p>
+<hr />
+<p><strong>延伸阅读</strong>： - 双边滤波论文：“Bilateral Filtering for
+Gray and Color Images” - GPU Gems：实时图像处理技术 - 3D LUT
+制作：Photoshop 导出 .cube 文件格式 —</p>
+<h2 id="faq-常见问题">FAQ 常见问题</h2>
+<h3 id="q1本章的核心难点是什么">Q1：本章的核心难点是什么？</h3>
+<p><strong>A</strong>：美颜与滤镜涉及的核心难点包括： -
+理解新概念的内在原理 - 将理论知识转化为实际代码 -
+处理边界情况和错误恢复</p>
+<p>建议多动手实践，遇到问题及时查阅官方文档。</p>
+<hr />
+<h3 id="q2学习本章需要哪些前置知识">Q2：学习本章需要哪些前置知识？</h3>
+<p><strong>A</strong>：请参考章节头部的前置知识表格。如果某些基础不牢固，建议先复习相关章节。</p>
+<hr />
+<h3 id="q3如何验证本章的学习效果">Q3：如何验证本章的学习效果？</h3>
+<p><strong>A</strong>：建议完成以下检查： - [ ] 理解所有核心概念 - [ ]
+能独立编写本章的示例代码 - [ ] 能解释代码的工作原理 - [ ]
+能排查常见问题</p>
+<hr />
+<h3
+id="q4本章代码在实际项目中的应用场景">Q4：本章代码在实际项目中的应用场景？</h3>
+<p><strong>A</strong>：本章代码是渐进式案例「小直播」的组成部分，所有代码都可以在实际项目中使用。具体应用场景请参考「本章与项目的关系」部分。</p>
+<hr />
+<h3 id="q5遇到问题时如何调试">Q5：遇到问题时如何调试？</h3>
+<p><strong>A</strong>：调试建议： 1. 先阅读 FAQ 和本章的「常见问题」部分
+2. 检查前置知识是否掌握 3. 使用日志和调试工具定位问题 4.
+参考示例代码进行对比 5. 在 GitHub Issues 中搜索类似问题 —</p>
+<h2 id="本章小结">本章小结</h2>
+<h3 id="核心知识点">核心知识点</h3>
+<p>通过本章学习，你应该掌握： 1. 美颜与滤镜的核心概念和原理 2. 相关的
+API 和工具使用 3. 实际项目中的应用方法 4. 常见问题的解决方案</p>
+<h3 id="关键技能">关键技能</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">技能</th>
+<th style="text-align: center;">掌握程度</th>
+<th style="text-align: left;">实践建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">理解核心概念</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">能向他人解释原理</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">编写示例代码</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">独立编写本章代码</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">排查常见问题</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">遇到问题时能自行解决</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">应用到项目</td>
+<td style="text-align: center;">⭐⭐ 建议掌握</td>
+<td style="text-align: left;">将本章代码集成到项目中</td>
+</tr>
+</tbody>
+</table>
+<h3 id="本章产出">本章产出</h3>
+<ul>
+<li>完成本章所有示例代码</li>
+<li>理解 美颜与滤镜的工作原理</li>
+<li><h2 id="为后续章节打下基础">为后续章节打下基础</h2></li>
+</ul>
+<h2 id="下章预告">下章预告</h2>
+<h3
+id="ch16.5网络编程基础新增-ch17udp与实时传输">Ch16.5：网络编程基础（新增）→
+Ch17：UDP与实时传输</h3>
+<p><strong>为什么要学下一章？</strong></p>
+<p>每章都是渐进式案例「小直播」的有机组成部分，下一章将在本章基础上进一步扩展功能。</p>
+<p><strong>学习建议</strong>： - 确保本章内容已经掌握 -
+提前浏览下一章的目录 - 准备好相关的开发环境</p>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+</div>
+</body>
+</html>

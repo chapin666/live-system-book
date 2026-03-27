@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="index.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html" class="active">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="第14章高级采集技术">第14章：高级采集技术</h1>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">项目</th>
+<th style="text-align: left;">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>本章目标</strong></td>
+<td style="text-align: left;">掌握高级采集技术的核心概念和实践</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>难度</strong></td>
+<td style="text-align: left;">⭐⭐⭐ 较高</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>前置知识</strong></td>
+<td style="text-align: left;">Ch10-13：采集与编码基础</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>预计时间</strong></td>
+<td style="text-align: left;">3-4 小时</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>本章引言</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>本章目标</strong>：掌握屏幕采集、窗口采集、多摄像头切换，实现专业级采集能力。</p>
+</blockquote>
+<p>在第十章中，我们学习了基础的摄像头和麦克风采集。对于普通视频通话，这些基础功能已经足够。但对于专业直播场景——无论是游戏直播、在线教学还是多机位直播——我们需要更强大的采集能力：</p>
+<ul>
+<li><strong>屏幕采集</strong>：捕捉游戏画面、软件演示、PPT 讲解</li>
+<li><strong>多摄像头</strong>：主摄 + 特写 + 广角，专业直播标配</li>
+<li><strong>画中画合成</strong>：将多路画面叠加为一路输出</li>
+<li><strong>性能优化</strong>：4K 屏幕采集的数据量巨大，必须优化</li>
+</ul>
+<p><strong>本章与前后章的关系</strong>： - Ch10：基础采集（摄像头 +
+麦克风） - <strong>Ch14：高级采集（屏幕 + 多摄像头 + 优化）</strong> -
+Ch15：采集后的美颜处理 - Ch16：整合为完整的主播端</p>
+<hr />
+<h2 id="目录">目录</h2>
+<ol type="1">
+<li><a href="#1-屏幕采集的原理与挑战">屏幕采集的原理与挑战</a></li>
+<li><a href="#2-gpu-纹理共享零拷贝优化">GPU
+纹理共享：零拷贝优化</a></li>
+<li><a href="#3-窗口采集与区域采集">窗口采集与区域采集</a></li>
+<li><a href="#4-画中画pip-合成技术">画中画（PiP）合成技术</a></li>
+<li><a href="#5-多摄像头管理与同步">多摄像头管理与同步</a></li>
+<li><a href="#6-采集参数优化策略">采集参数优化策略</a></li>
+<li><a href="#7-本章总结">本章总结</a></li>
+</ol>
+<hr />
+<h2 id="屏幕采集的原理与挑战">1. 屏幕采集的原理与挑战</h2>
+<h3 id="屏幕采集-vs-摄像头采集">1.1 屏幕采集 vs 摄像头采集</h3>
+<pre class="mermaid">flowchart TB
+    subgraph &quot;摄像头采集&quot;
+        C1[&quot;📹 摄像头设备&quot;] --&gt; C2[&quot;设备驱动&quot;]
+        C2 --&gt; C3[&quot;YUV 数据输出&quot;]
+        C3 --&gt; C4[&quot;固定分辨率\n1920×1080&quot;]
+        C3 --&gt; C5[&quot;固定帧率\n30/60fps&quot;]
+        C3 --&gt; C6[&quot;低延迟\n10-50ms&quot;]
+    end
+    
+    subgraph &quot;屏幕采集&quot;
+        S1[&quot;🖥️ 显示器&quot;] --&gt; S2[&quot;显卡帧缓冲\nFrame Buffer&quot;]
+        S2 --&gt; S3[&quot;RGB 数据读取&quot;]
+        S3 --&gt; S4[&quot;动态分辨率\n最高 4K/8K&quot;]
+        S3 --&gt; S5[&quot;与刷新率同步\n60/144Hz&quot;]
+        S3 --&gt; S6[&quot;极低延迟\n1-5ms&quot;]
+    end
+    
+    style C1 fill:#e3f2fd,stroke:#4a90d9,stroke-width:2px
+    style S1 fill:#fff3e0,stroke:#f0ad4e,stroke-width:2px
+    style C3 fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px
+    style S3 fill:#fce4ec,stroke:#e91e63,stroke-width:2px</pre>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">特性</th>
+<th style="text-align: left;">摄像头采集</th>
+<th style="text-align: left;">屏幕采集</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>数据源</strong></td>
+<td style="text-align: left;">摄像头设备驱动</td>
+<td style="text-align: left;">显卡帧缓冲（Frame Buffer）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>分辨率</strong></td>
+<td style="text-align: left;">固定（如 1920×1080）</td>
+<td style="text-align: left;">随显示器变化（可能 4K/8K）</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>帧率</strong></td>
+<td style="text-align: left;">固定 30/60fps</td>
+<td style="text-align: left;">与显示器刷新率同步（60/144Hz）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>数据格式</strong></td>
+<td style="text-align: left;">YUV（摄像头直接输出）</td>
+<td style="text-align: left;">RGB（显卡帧缓冲格式）</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>数据量</strong></td>
+<td style="text-align: left;">较小（1920×1080 @ 30fps ≈ 186 MB/s）</td>
+<td style="text-align: left;">巨大（3840×2160 @ 60fps ≈ 1.5 GB/s）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>延迟</strong></td>
+<td style="text-align: left;">10-50ms（硬件处理）</td>
+<td style="text-align: left;">1-5ms（直接内存读取）</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>CPU 占用</strong></td>
+<td style="text-align: left;">低（DMA 传输）</td>
+<td style="text-align: left;">高（需要优化）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="屏幕采集的技术原理">1.2 屏幕采集的技术原理</h3>
+<p><strong>什么是帧缓冲（Frame Buffer）</strong>：
+显卡将渲染好的画面存储在显存中的特定区域，这个区域就是帧缓冲。屏幕采集的本质就是<strong>读取帧缓冲中的像素数据</strong>。</p>
+<p><strong>单缓冲 vs 双缓冲</strong>：
+现代显示系统使用<strong>双缓冲</strong>避免画面撕裂： -
+<strong>前台缓冲（Front Buffer）</strong>：当前正在显示的画面 -
+<strong>后台缓冲（Back Buffer）</strong>：显卡正在渲染的下一帧 -
+采集时读取前台缓冲，不会干扰渲染</p>
+<p><strong>采集时序</strong>：</p>
+<pre><code>显示器刷新（60Hz）
+    ↓
+垂直同步信号（VSync）
+    ↓
+交换前后缓冲
+    ↓
+采集线程读取前台缓冲 ← 采集发生在这里
+    ↓
+下一帧渲染开始</code></pre>
+<h3 id="屏幕采集的性能挑战">1.3 屏幕采集的性能挑战</h3>
+<p><strong>数据量计算</strong>： 4K 显示器 @ 60fps： - 每帧大小：3840 ×
+2160 × 4 bytes（RGBA）= 33.2 MB - 每秒数据量：33.2 MB × 60 = 1.99 GB/s -
+每分钟数据量：约 120 GB</p>
+<p><strong>性能瓶颈</strong>： 1.
+<strong>显存到内存的拷贝</strong>：PCIe 带宽有限（通常 16 GB/s 双向） 2.
+<strong>格式转换</strong>：RGBA → YUV 需要计算 3.
+<strong>缩放</strong>：4K 采集后通常需要缩放到 1080p 编码</p>
+<h3 id="ffmpeg-屏幕采集实现">1.4 FFmpeg 屏幕采集实现</h3>
+<p><strong>Linux（X11）</strong>：</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 采集整个屏幕</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-f</span> x11grab <span class="at">-r</span> 30 <span class="at">-s</span> 1920x1080 <span class="at">-i</span> :0.0 output.mp4</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 采集指定显示器（多显示器时）</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-f</span> x11grab <span class="at">-r</span> 30 <span class="at">-s</span> 1920x1080 <span class="at">-i</span> :0.0+1920,0 output.mp4</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 采集指定区域</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-f</span> x11grab <span class="at">-r</span> 30 <span class="at">-s</span> 1280x720 <span class="at">-i</span> :0.0+100,200 output.mp4</span></code></pre></div>
+<p><strong>参数说明</strong>： - <code>-f x11grab</code>：使用 X11
+屏幕采集 -
+<code>-s 1920x1080</code>：采集分辨率（可小于屏幕分辨率，自动缩放） -
+<code>-i :0.0</code>：显示器编号（<code>:0.0</code> 是主显示器） -
+<code>+100,200</code>：从屏幕左上角偏移 (100,200) 开始采集</p>
+<p><strong>macOS</strong>：</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 需要授予屏幕录制权限</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-f</span> avfoundation <span class="at">-r</span> 30 <span class="at">-i</span> <span class="st">&quot;0:0&quot;</span> output.mp4</span></code></pre></div>
+<p><strong>关键限制</strong>： - macOS 10.15+ 需要用户授权屏幕录制权限 -
+采集时鼠标光标默认不包含，需要特殊处理</p>
+<hr />
+<h2 id="gpu-纹理共享零拷贝优化">2. GPU 纹理共享：零拷贝优化</h2>
+<h3 id="传统方式的问题">2.1 传统方式的问题</h3>
+<p><strong>CPU 拷贝路径</strong>：</p>
+<pre><code>┌──────────┐    PCIe 拷贝    ┌──────────┐    CPU处理    ┌──────────┐
+│ GPU 显存 │ ─────────────→ │ 系统内存 │ ───────────→ │ 编码器   │
+│ 帧缓冲   │   1.5GB/s     │ RGB数据  │  格式转换    │ 输入    │
+└──────────┘                └──────────┘              └──────────┘
+         ↑____________________瓶颈___________________________↑</code></pre>
+<p>问题： 1. PCIe 带宽被占满，影响其他设备（如 NVMe SSD） 2. CPU
+需要处理格式转换和缩放 3. 延迟增加，CPU 占用高</p>
+<h3 id="gpu-纹理共享方案">2.2 GPU 纹理共享方案</h3>
+<p><img src="diagrams/gpu-texture-sharing.svg" width="100%"/></p>
+<p><strong>核心思想</strong>： 数据始终留在 GPU 显存，不经过 CPU
+内存：</p>
+<pre><code>┌──────────┐    纹理共享    ┌──────────┐    硬件编码    ┌──────────┐
+│ GPU 显存 │ ────────────→ │ GPU 显存 │ ───────────→ │ 编码器   │
+│ 帧缓冲   │   零拷贝      │ 处理纹理 │   NVENC     │ 输出    │
+└──────────┘                └──────────┘              └──────────┘</code></pre>
+<h3 id="平台实现详解">2.3 平台实现详解</h3>
+<p><strong>macOS（CoreGraphics + VideoToolbox）</strong>：</p>
+<p>macOS 提供 <code>CGDisplayStream</code> API，可以直接获取
+<code>IOSurface</code>：</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 创建显示流</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>CGDisplayStreamRef stream <span class="op">=</span> CGDisplayStreamCreate<span class="op">(</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    display_id<span class="op">,</span>           <span class="co">// 显示器 ID</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    width<span class="op">,</span> height<span class="op">,</span>        <span class="co">// 分辨率</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange<span class="op">,</span>  <span class="co">// YUV 格式</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">nullptr</span><span class="op">,</span>              <span class="co">// 选项</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">^(</span>CGDisplayStreamFrameStatus status<span class="op">,</span> </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">uint64_t</span> time<span class="op">,</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      IOSurfaceRef surface<span class="op">,</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>      CGDisplayStreamUpdateRef ref<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// surface 可以直接传给 VideoToolbox</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>surface<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            EncodeWithVideoToolbox<span class="op">(</span>surface<span class="op">);</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">// 启动采集</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>CGDisplayStreamStart<span class="op">(</span>stream<span class="op">);</span></span></code></pre></div>
+<p><strong>关键优势</strong>： - <code>IOSurface</code>
+是显存中的共享缓冲区 - VideoToolbox 可以直接消费
+<code>IOSurface</code>，无需拷贝 - 全程 GPU 处理，CPU 占用接近 0</p>
+<p><strong>Linux（DMA-BUF + VAAPI）</strong>：</p>
+<p>较新的 Linux 内核支持 DMA-BUF（Direct Memory Access Buffer）：</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 从 Wayland/X11 获取 DMA-BUF</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> dma_buf_fd <span class="op">=</span> GetDmaBufFromCompositor<span class="op">();</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">// 导入到 VAAPI</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>VASurfaceID va_surface<span class="op">;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>vaCreateSurfacesFromFD<span class="op">(</span>va_display<span class="op">,</span> dma_buf_fd<span class="op">,</span> <span class="op">&amp;</span>va_surface<span class="op">);</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">// 直接编码</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>vaEncodePicture<span class="op">(</span>va_context<span class="op">,</span> va_surface<span class="op">);</span></span></code></pre></div>
+<p><strong>限制</strong>： - 需要 Wayland 或较新的 X11 + Mesa -
+需要显卡驱动支持（Intel/AMD 支持较好）</p>
+<h3 id="抽象接口设计">2.4 抽象接口设计</h3>
+<p>为了跨平台，需要抽象一层：</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 平台无关的 GPU 纹理接口</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IGpuTexture <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="op">~</span>IGpuTexture<span class="op">()</span> <span class="op">=</span> <span class="cf">default</span><span class="op">;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取尺寸</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">int</span> GetWidth<span class="op">()</span> <span class="at">const</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">int</span> GetHeight<span class="op">()</span> <span class="at">const</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> PixelFormat GetFormat<span class="op">()</span> <span class="at">const</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 平台特定的原生句柄</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// macOS: IOSurfaceRef</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Linux: DMA-BUF fd</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Windows: ID3D11Texture2D</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">void</span><span class="op">*</span> GetNativeHandle<span class="op">()</span> <span class="at">const</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">// 硬件编码器接口</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IHardwareEncoder <span class="op">{</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">bool</span> Initialize<span class="op">(</span><span class="at">const</span> EncoderConfig<span class="op">&amp;</span> config<span class="op">)</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 直接消费 GPU 纹理，零拷贝</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">bool</span> Encode<span class="op">(</span>IGpuTexture<span class="op">*</span> texture<span class="op">)</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> EncodedPacket<span class="op">*</span> GetPacket<span class="op">()</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<hr />
+<h2 id="窗口采集与区域采集">3. 窗口采集与区域采集</h2>
+<h3 id="窗口采集-vs-屏幕采集">3.1 窗口采集 vs 屏幕采集</h3>
+<p><strong>屏幕采集的问题</strong>： -
+采集整个屏幕，包含桌面、任务栏等无关内容 -
+涉及隐私问题（可能采集到通知、聊天窗口） - 数据量大，性能开销高</p>
+<p><strong>窗口采集的优势</strong>： - 只采集特定应用窗口 - 更小的数据量
+- 更好的隐私保护</p>
+<h3 id="窗口采集的实现方式">3.2 窗口采集的实现方式</h3>
+<p><strong>方式 1：操作系统 API（推荐）</strong></p>
+<p>macOS：</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 使用 CGWindowListCopyWindowInfo 枚举窗口</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 使用 CGWindowCreateImage 捕获特定窗口</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>CGImageRef image <span class="op">=</span> CGWindowCreateImage<span class="op">(</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    window_id<span class="op">,</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    kCGWindowBoundsIgnoreMinimum<span class="op">,</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    kCGWindowImageDefault</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="op">);</span></span></code></pre></div>
+<p><strong>方式 2：区域采集（通用）</strong></p>
+<p>如果不能直接获取窗口，可以先获取屏幕，然后裁剪：</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 获取窗口位置（使用 xwininfo 等工具）</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 假设窗口在 (100, 200)，大小 1280x720</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-f</span> x11grab <span class="at">-s</span> 1280x720 <span class="at">-i</span> :0.0+100,200 output.mp4</span></code></pre></div>
+<h3 id="区域采集的应用场景">3.3 区域采集的应用场景</h3>
+<p><strong>场景 1：游戏直播</strong> - 只采集游戏窗口，不采集桌面 -
+避免直播时暴露隐私</p>
+<p><strong>场景 2：在线教学</strong> - 采集 PPT 区域 + 摄像头画中画 -
+保持画面整洁</p>
+<p><strong>场景 3：多路采集</strong> - 同时采集多个小区域 -
+用于画中画的素材准备</p>
+<hr />
+<h2 id="画中画pip合成技术">4. 画中画（PiP）合成技术</h2>
+<h3 id="什么是画中画">4.1 什么是画中画</h3>
+<p>画中画（Picture-in-Picture,
+PiP）是将一个小视频画面叠加到主视频画面上的技术： -
+主画面：游戏/PPT/屏幕分享（全屏或大部分） - 小窗：主播摄像头（角落）</p>
+<p><img src="diagrams/pip-composition.svg" width="100%"/></p>
+<h3 id="合成原理">4.2 合成原理</h3>
+<p><strong>图层概念</strong>：</p>
+<pre><code>┌─────────────────────────────────┐
+│         主画面（底层）            │
+│   ┌───────────┐                 │
+│   │           │                 │
+│   │   小窗    │  ← 叠加层        │
+│   │  (右上角)  │                 │
+│   └───────────┘                 │
+└─────────────────────────────────┘</code></pre>
+<p><strong>GPU 合成步骤</strong>： 1. 将主画面渲染到全屏四边形 2.
+在目标位置（如右上角）设置视口 3. 渲染缩放后的小窗画面 4. 使用 Alpha
+混合处理边缘</p>
+<h3 id="合成-shader-伪代码">4.3 合成 Shader 伪代码</h3>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 画中画合成 Shader</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">sampler2D</span> mainTexture<span class="op">;</span>    <span class="co">// 主画面</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">sampler2D</span> pipTexture<span class="op">;</span>     <span class="co">// 小窗画面</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">uniform</span> <span class="dt">vec4</span> pipRect<span class="op">;</span>             <span class="co">// 小窗位置 (x, y, w, h)</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="fu">main</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">vec2</span> uv <span class="op">=</span> <span class="bu">gl_FragCoord</span><span class="op">.</span><span class="fu">xy</span> <span class="op">/</span> screenSize<span class="op">;</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">vec4</span> color<span class="op">;</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 判断是否在小窗区域内</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> <span class="op">(</span>uv<span class="op">.</span><span class="fu">x</span> <span class="op">&gt;=</span> pipRect<span class="op">.</span><span class="fu">x</span> <span class="op">&amp;&amp;</span> uv<span class="op">.</span><span class="fu">x</span> <span class="op">&lt;=</span> pipRect<span class="op">.</span><span class="fu">x</span> <span class="op">+</span> pipRect<span class="op">.</span><span class="fu">z</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        uv<span class="op">.</span><span class="fu">y</span> <span class="op">&gt;=</span> pipRect<span class="op">.</span><span class="fu">y</span> <span class="op">&amp;&amp;</span> uv<span class="op">.</span><span class="fu">y</span> <span class="op">&lt;=</span> pipRect<span class="op">.</span><span class="fu">y</span> <span class="op">+</span> pipRect<span class="op">.</span><span class="fu">w</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 计算小窗 UV</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">vec2</span> pipUV <span class="op">=</span> <span class="op">(</span>uv <span class="op">-</span> pipRect<span class="op">.</span><span class="fu">xy</span><span class="op">)</span> <span class="op">/</span> pipRect<span class="op">.</span><span class="fu">zw</span><span class="op">;</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> <span class="bu">texture</span><span class="op">(</span>pipTexture<span class="op">,</span> pipUV<span class="op">);</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 主画面</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> <span class="bu">texture</span><span class="op">(</span>mainTexture<span class="op">,</span> uv<span class="op">);</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="va">gl_FragColor</span> <span class="op">=</span> color<span class="op">;</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="常见布局模式">4.4 常见布局模式</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">布局</th>
+<th style="text-align: left;">主画面</th>
+<th style="text-align: left;">小窗位置</th>
+<th style="text-align: left;">适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">经典布局</td>
+<td style="text-align: left;">游戏/内容</td>
+<td style="text-align: left;">右下角</td>
+<td style="text-align: left;">游戏直播、教学</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">反转布局</td>
+<td style="text-align: left;">主播</td>
+<td style="text-align: left;">全屏</td>
+<td style="text-align: left;">主播为主，内容小窗</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">左右分屏</td>
+<td style="text-align: left;">内容</td>
+<td style="text-align: left;">左侧</td>
+<td style="text-align: left;">演示 + 讲解</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">三画面</td>
+<td style="text-align: left;">内容</td>
+<td style="text-align: left;">左上+右上</td>
+<td style="text-align: left;">多人连线</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="多摄像头管理与同步">5. 多摄像头管理与同步</h2>
+<h3 id="为什么需要多摄像头">5.1 为什么需要多摄像头</h3>
+<p><strong>专业直播的需求</strong>： -
+<strong>主机位</strong>：全景，展示主播全身 -
+<strong>特写机位</strong>：面部特写，表情细节 -
+<strong>侧机位</strong>：展示手部动作（如乐器演奏） -
+<strong>物品机位</strong>：展示产品细节</p>
+<p><strong>应用场景</strong>： - 电商直播：主播 + 产品特写 -
+音乐直播：全景 + 乐器特写 - 教学直播：板书 + 讲师</p>
+<p><img src="diagrams/multi-camera.svg" width="100%"/></p>
+<h3 id="多摄像头架构设计">5.2 多摄像头架构设计</h3>
+<p><strong>核心组件</strong>：</p>
+<pre><code>┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  摄像头 1    │    │  摄像头 2    │    │  摄像头 3    │
+│ /dev/video0 │    │ /dev/video1 │    │ /dev/video2 │
+└──────┬──────┘    └──────┬──────┘    └──────┬──────┘
+       │                  │                  │
+       └──────────────────┼──────────────────┘
+                          ↓
+              ┌─────────────────┐
+              │   设备管理器     │
+              │  - 枚举设备      │
+              │  - 打开/关闭     │
+              └────────┬────────┘
+                       ↓
+              ┌─────────────────┐
+              │    同步器        │
+              │  - 时间戳对齐    │
+              │  - 帧率匹配      │
+              └────────┬────────┘
+                       ↓
+              ┌─────────────────┐
+              │    切换器        │
+              │  - 主副切换      │
+              │  - 画中画合成    │
+              └─────────────────┘</code></pre>
+<h3 id="设备枚举与管理">5.3 设备枚举与管理</h3>
+<p><strong>Linux V4L2 枚举</strong>：</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CameraManager <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>CameraInfo<span class="op">&gt;</span> EnumerateCameras<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>vector<span class="op">&lt;</span>CameraInfo<span class="op">&gt;</span> cameras<span class="op">;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">64</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>string device <span class="op">=</span> <span class="st">&quot;/dev/video&quot;</span> <span class="op">+</span> <span class="bu">std::</span>to_string<span class="op">(</span>i<span class="op">);</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> fd <span class="op">=</span> open<span class="op">(</span>device<span class="op">.</span>c_str<span class="op">(),</span> O_RDWR<span class="op">);</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>fd <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">continue</span><span class="op">;</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 查询设备能力</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>            <span class="kw">struct</span> v4l2_capability cap<span class="op">;</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>ioctl<span class="op">(</span>fd<span class="op">,</span> VIDIOC_QUERYCAP<span class="op">,</span> <span class="op">&amp;</span>cap<span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>                CameraInfo info<span class="op">;</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>                info<span class="op">.</span>device <span class="op">=</span> device<span class="op">;</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>                info<span class="op">.</span>name <span class="op">=</span> <span class="op">(</span><span class="dt">char</span><span class="op">*)</span>cap<span class="op">.</span>card<span class="op">;</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>                info<span class="op">.</span>is_capture_device <span class="op">=</span> cap<span class="op">.</span>capabilities <span class="op">&amp;</span> V4L2_CAP_VIDEO_CAPTURE<span class="op">;</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>                <span class="co">// 只添加视频采集设备</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>info<span class="op">.</span>is_capture_device<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>                    cameras<span class="op">.</span>push_back<span class="op">(</span>info<span class="op">);</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>            close<span class="op">(</span>fd<span class="op">);</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> cameras<span class="op">;</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="多摄像头同步问题">5.4 多摄像头同步问题</h3>
+<p><strong>问题描述</strong>：
+每个摄像头有独立的硬件时钟，帧率可能有微小差异： - 摄像头 A：30.00 fps -
+摄像头 B：30.02 fps（快 0.07%）</p>
+<p>运行 5 分钟后，B 比 A 多出约 6 帧，导致不同步。</p>
+<p><strong>解决方案</strong>：</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CameraSync <span class="op">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 注册摄像头</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> RegisterCamera<span class="op">(</span><span class="dt">int</span> camera_id<span class="op">,</span> <span class="dt">int</span> fps<span class="op">);</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 接收一帧</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnFrame<span class="op">(</span><span class="dt">int</span> camera_id<span class="op">,</span> VideoFrame frame<span class="op">);</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取同步的帧组</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>VideoFrame<span class="op">&gt;</span> GetSyncedFrames<span class="op">();</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 使用 PTS（Presentation Time Stamp）对齐</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 允许的最大时间差：33ms（1帧@30fps）</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> kMaxSyncDiffMs <span class="op">=</span> <span class="dv">33</span><span class="op">;</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 根据时间戳排序和匹配</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>map<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> <span class="bu">std::</span>queue<span class="op">&lt;</span>VideoFrame<span class="op">&gt;&gt;</span> <span class="va">frame_buffers_</span><span class="op">;</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><strong>时间戳生成</strong>：</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 使用单调时钟生成 PTS</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int64_t</span> GeneratePTS<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">auto</span> start <span class="op">=</span> <span class="bu">std::</span>chrono::steady_clock::now<span class="op">();</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> now <span class="op">=</span> <span class="bu">std::</span>chrono::steady_clock::now<span class="op">();</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">std::</span>chrono::duration_cast<span class="op">&lt;</span><span class="bu">std::</span>chrono::milliseconds<span class="op">&gt;(</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        now <span class="op">-</span> start<span class="op">).</span>count<span class="op">();</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="采集参数优化策略">6. 采集参数优化策略</h2>
+<h3 id="完整的采集-pipeline">6.1 完整的采集 Pipeline</h3>
+<pre class="mermaid">flowchart LR
+    subgraph &quot;视频流&quot;
+        V1[&quot;📹 视频采集\n摄像头/屏幕&quot;] --&gt; V2[&quot;✨ 美颜滤镜\nGPU 处理&quot;]
+        V2 --&gt; V3[&quot;🎬 视频编码\nH.264/H.265&quot;]
+    end
+    
+    subgraph &quot;音频流&quot;
+        A1[&quot;🎤 音频采集\n麦克风&quot;] --&gt; A2[&quot;🔊 3A 处理\nAEC/ANS/AGC&quot;]
+        A2 --&gt; A3[&quot;🎵 音频编码\nAAC&quot;]
+    end
+    
+    V3 --&gt; M[&quot;📦 封装器\nFLV&quot;]
+    A3 --&gt; M
+    M --&gt; P[&quot;📤 推流器\nRTMP&quot;]
+    P --&gt; S[&quot;☁️ CDN 服务器&quot;]
+    
+    style V1 fill:#4a90d9,stroke:#357abd,color:#fff
+    style V2 fill:#9c27b0,stroke:#7b1fa2,color:#fff
+    style V3 fill:#5cb85c,stroke:#4cae4c,color:#fff
+    style A1 fill:#f0ad4e,stroke:#ec971f,color:#fff
+    style A2 fill:#ff5722,stroke:#d84315,color:#fff
+    style A3 fill:#5cb85c,stroke:#4cae4c,color:#fff
+    style M fill:#607d8b,stroke:#455a64,color:#fff
+    style P fill:#795548,stroke:#5d4037,color:#fff</pre>
+<p><strong>Pipeline 各阶段</strong>：</p>
+<pre><code>采集（摄像头/屏幕）→ 处理（美颜/滤镜）→ 编码 → 封装 → 推流
+   ↓                      ↓                  ↓        ↓       ↓
+ 30fps                  30fps              30fps    30fps   网络
+ YUV420                 RGB/YUV            H.264    FLV    RTMP</code></pre>
+<h3 id="采集参数调优">6.2 采集参数调优</h3>
+<p><strong>分辨率选择</strong>： | 场景 | 显示器分辨率 | 采集分辨率 |
+理由 | |:—|:—:|:—:|:—| | 普通直播 | 1920×1080 | 1920×1080 | 原生分辨率 |
+| 4K 屏幕直播 | 3840×2160 | 1920×1080 | 降采样减少数据量 | | 游戏直播 |
+2560×1440 | 1920×1080 | 平衡画质与性能 |</p>
+<p><strong>帧率选择</strong>：</p>
+<pre><code>显示器刷新率：144Hz
+    ↓
+采集帧率：30fps（每 4.8 帧取 1 帧）
+    ↓
+编码帧率：30fps
+    ↓
+推流帧率：30fps</code></pre>
+<p><strong>为什么采集帧率可以低于刷新率？</strong> - 直播通常只需要
+30fps - 高刷新率主要用于降低输入延迟（对直播不重要） -
+减少采集数据量，节省 CPU/GPU</p>
+<h3 id="性能优化技巧">6.3 性能优化技巧</h3>
+<p><strong>技巧 1：降分辨率采集</strong></p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 4K 显示器采集 1080p</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>capture_config<span class="op">.</span>width <span class="op">=</span> <span class="dv">1920</span><span class="op">;</span>   <span class="co">// 不是 3840</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>capture_config<span class="op">.</span>height <span class="op">=</span> <span class="dv">1080</span><span class="op">;</span>  <span class="co">// 不是 2160</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co">// 数据量减少 75%</span></span></code></pre></div>
+<p><strong>技巧 2：限制采集帧率</strong></p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 即使显示器 144Hz，也只采集 30fps</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 跳过 114 帧/秒，大幅节省资源</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>capture_config<span class="op">.</span>fps <span class="op">=</span> <span class="dv">30</span><span class="op">;</span></span></code></pre></div>
+<p><strong>技巧 3：使用硬件编码</strong></p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 避免 CPU 编码占用</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>encoder_config<span class="op">.</span>codec <span class="op">=</span> <span class="st">&quot;h264_nvenc&quot;</span><span class="op">;</span>     <span class="co">// NVIDIA</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 或</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>encoder_config<span class="op">.</span>codec <span class="op">=</span> <span class="st">&quot;h264_videotoolbox&quot;</span><span class="op">;</span>  <span class="co">// macOS</span></span></code></pre></div>
+<p><strong>技巧 4：GPU 纹理共享</strong></p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 屏幕采集 → GPU 处理 → GPU 编码</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 全程不经过 CPU 内存</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>EnableGpuTextureSharing<span class="op">(</span><span class="kw">true</span><span class="op">);</span></span></code></pre></div>
+<h3 id="性能基准参考">6.4 性能基准参考</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">配置</th>
+<th style="text-align: center;">CPU 占用</th>
+<th style="text-align: center;">内存占用</th>
+<th style="text-align: left;">适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1080p 摄像头</td>
+<td style="text-align: center;">5-10%</td>
+<td style="text-align: center;">200MB</td>
+<td style="text-align: left;">笔记本直播</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1080p 屏幕采集</td>
+<td style="text-align: center;">15-20%</td>
+<td style="text-align: center;">300MB</td>
+<td style="text-align: left;">桌面直播</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4K 屏幕（优化后）</td>
+<td style="text-align: center;">25-35%</td>
+<td style="text-align: center;">500MB</td>
+<td style="text-align: left;">高端配置</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">多摄像头（2路）</td>
+<td style="text-align: center;">20-30%</td>
+<td style="text-align: center;">400MB</td>
+<td style="text-align: left;">专业直播</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="本章总结">7. 本章总结</h2>
+<h3 id="核心概念回顾">7.1 核心概念回顾</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">概念</th>
+<th style="text-align: left;">关键点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>帧缓冲</strong></td>
+<td
+style="text-align: left;">显卡存储画面的显存区域，屏幕采集的数据源</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>GPU 纹理共享</strong></td>
+<td style="text-align: left;">数据不经过 CPU 内存，全程 GPU 处理</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>画中画</strong></td>
+<td style="text-align: left;">多路视频叠加，常见于游戏直播和教学</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>多摄像头同步</strong></td>
+<td style="text-align: left;">使用 PTS 时间戳对齐不同摄像头的时序</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>降采样采集</strong></td>
+<td style="text-align: left;">4K 屏幕采集 1080p，减少 75% 数据量</td>
+</tr>
+</tbody>
+</table>
+<h3 id="技术选型建议">7.2 技术选型建议</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">场景</th>
+<th style="text-align: left;">推荐方案</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">游戏直播</td>
+<td style="text-align: left;">屏幕采集 + GPU 纹理共享 + NVENC</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">在线教学</td>
+<td style="text-align: left;">屏幕采集（PPT区域）+ 摄像头画中画</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">电商直播</td>
+<td style="text-align: left;">多摄像头 + 自动切换</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">音乐直播</td>
+<td style="text-align: left;">多机位 + 手动切换</td>
+</tr>
+</tbody>
+</table>
+<h3 id="本章与前后章的衔接">7.3 本章与前后章的衔接</h3>
+<p><strong>本章（Ch14）解决</strong>：如何高效、灵活地采集视频源</p>
+<p><strong>衔接 Ch15（美颜与滤镜）</strong>：
+采集后的原始画面需要美化处理，下一章将学习： - GPU 图像处理管线 -
+双边滤波磨皮算法 - 滤镜链架构设计</p>
+<p><strong>衔接 Ch16（主播端架构）</strong>： Ch14（采集）+
+Ch15（处理）+ Ch13（编码）+ Ch12（推流）= 完整主播端</p>
+<hr />
+<p><strong>延伸阅读</strong>： - X11 屏幕采集：X11grab 文档 - macOS
+屏幕采集：CGDisplayStream API 文档 - GPU 纹理共享：DMA-BUF 和 IOSurface
+规范 —</p>
+<h2 id="faq-常见问题">FAQ 常见问题</h2>
+<h3 id="q1本章的核心难点是什么">Q1：本章的核心难点是什么？</h3>
+<p><strong>A</strong>：高级采集技术涉及的核心难点包括： -
+理解新概念的内在原理 - 将理论知识转化为实际代码 -
+处理边界情况和错误恢复</p>
+<p>建议多动手实践，遇到问题及时查阅官方文档。</p>
+<hr />
+<h3 id="q2学习本章需要哪些前置知识">Q2：学习本章需要哪些前置知识？</h3>
+<p><strong>A</strong>：请参考章节头部的前置知识表格。如果某些基础不牢固，建议先复习相关章节。</p>
+<hr />
+<h3 id="q3如何验证本章的学习效果">Q3：如何验证本章的学习效果？</h3>
+<p><strong>A</strong>：建议完成以下检查： - [ ] 理解所有核心概念 - [ ]
+能独立编写本章的示例代码 - [ ] 能解释代码的工作原理 - [ ]
+能排查常见问题</p>
+<hr />
+<h3
+id="q4本章代码在实际项目中的应用场景">Q4：本章代码在实际项目中的应用场景？</h3>
+<p><strong>A</strong>：本章代码是渐进式案例「小直播」的组成部分，所有代码都可以在实际项目中使用。具体应用场景请参考「本章与项目的关系」部分。</p>
+<hr />
+<h3 id="q5遇到问题时如何调试">Q5：遇到问题时如何调试？</h3>
+<p><strong>A</strong>：调试建议： 1. 先阅读 FAQ 和本章的「常见问题」部分
+2. 检查前置知识是否掌握 3. 使用日志和调试工具定位问题 4.
+参考示例代码进行对比 5. 在 GitHub Issues 中搜索类似问题 —</p>
+<h2 id="本章小结">本章小结</h2>
+<h3 id="核心知识点">核心知识点</h3>
+<p>通过本章学习，你应该掌握： 1. 高级采集技术的核心概念和原理 2. 相关的
+API 和工具使用 3. 实际项目中的应用方法 4. 常见问题的解决方案</p>
+<h3 id="关键技能">关键技能</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">技能</th>
+<th style="text-align: center;">掌握程度</th>
+<th style="text-align: left;">实践建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">理解核心概念</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">能向他人解释原理</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">编写示例代码</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">独立编写本章代码</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">排查常见问题</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">遇到问题时能自行解决</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">应用到项目</td>
+<td style="text-align: center;">⭐⭐ 建议掌握</td>
+<td style="text-align: left;">将本章代码集成到项目中</td>
+</tr>
+</tbody>
+</table>
+<h3 id="本章产出">本章产出</h3>
+<ul>
+<li>完成本章所有示例代码</li>
+<li>理解 高级采集技术的工作原理</li>
+<li><h2 id="为后续章节打下基础">为后续章节打下基础</h2></li>
+</ul>
+<h2 id="下章预告">下章预告</h2>
+<h3 id="ch15美颜与滤镜">Ch15：美颜与滤镜</h3>
+<p><strong>为什么要学下一章？</strong></p>
+<p>每章都是渐进式案例「小直播」的有机组成部分，下一章将在本章基础上进一步扩展功能。</p>
+<p><strong>学习建议</strong>： - 确保本章内容已经掌握 -
+提前浏览下一章的目录 - 准备好相关的开发环境</p>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+</div>
+</body>
+</html>

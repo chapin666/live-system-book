@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="index.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html" class="active">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="第11章音频-3a-处理">第11章：音频 3A 处理</h1>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">项目</th>
+<th style="text-align: left;">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>本章目标</strong></td>
+<td style="text-align: left;">掌握音频 3A 处理的核心概念和实践</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>难度</strong></td>
+<td style="text-align: left;">⭐⭐⭐ 较高</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>前置知识</strong></td>
+<td style="text-align: left;">Ch10：音频采集、信号处理基础</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>预计时间</strong></td>
+<td style="text-align: left;">3-4 小时</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>本章引言</strong></p>
+</blockquote>
+<p><strong>本章与项目的关系</strong>：</p>
+<pre class="mermaid">flowchart LR
+    subgraph &quot;P5 完整主播端&quot;
+        A[&quot;Ch10-12 渐进开发&quot;] --&gt; B[&quot;📍 Ch11 音频 3A 处理&quot;]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px</pre>
+<p><strong>代码演进关系</strong>：</p>
+<pre class="mermaid">flowchart LR
+    subgraph &quot;P4→P5 演进&quot;
+        A[&quot;Ch10 音频采集&quot;] --&gt; B[&quot;📍 Ch11 音频3A处理&quot;]
+        B --&gt; C[&quot;Ch12 视频编码&quot;]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px</pre>
+<ul>
+<li><strong>当前阶段</strong>：音频处理</li>
+<li><strong>本章产出</strong>：AEC/ANS/AGC回声消除降噪</li>
+</ul>
+<blockquote>
+<p><strong>本章目标</strong>：理解并实现音频
+3A（AEC/ANS/AGC）处理，提升直播音频质量。</p>
+</blockquote>
+<p>上一章我们实现了音视频采集。但直接采集的音频往往存在问题： -
+<strong>回声</strong>：扬声器声音被麦克风采集，产生恼人的回音 -
+<strong>噪声</strong>：键盘声、空调声等环境噪声干扰 -
+<strong>音量不均</strong>：说话声音忽大忽小</p>
+<p>这就是<strong>音频 3A 处理</strong>要解决的问题。本章将深入讲解
+AEC（回声消除）、ANS（降噪）、AGC（自动增益）的原理和实现。</p>
+<hr />
+<h2 id="目录">目录</h2>
+<ol type="1">
+<li><a href="#1-音频-3a-概述">音频 3A 概述</a></li>
+<li><a href="#2-aec回声消除">AEC：回声消除</a></li>
+<li><a href="#3-ans降噪">ANS：降噪</a></li>
+<li><a href="#4-agc自动增益">AGC：自动增益</a></li>
+<li><a href="#5-webrtc-apm-集成">WebRTC APM 集成</a></li>
+<li><a href="#6-简化实现">简化实现</a></li>
+<li><a href="#7-性能优化">性能优化</a></li>
+<li><a href="#8-本章总结">本章总结</a></li>
+</ol>
+<hr />
+<h2 id="音频-3a-概述">1. 音频 3A 概述</h2>
+<h3 id="为什么需要-3a">1.1 为什么需要 3A</h3>
+<p><strong>回声问题</strong>：</p>
+<pre><code>主播说话 → 扬声器播放 → 麦克风采集 → 推流 → 观众听到回声</code></pre>
+<p>观众会听到自己的声音延迟后传回来，体验极差。</p>
+<p><strong>噪声问题</strong>： - 机械键盘敲击声 - 空调/风扇声 -
+环境人声</p>
+<p><strong>音量问题</strong>： - 有人离麦克风远，声音太小 -
+有人情绪激动声音太大 - 同一主播说话忽大忽小</p>
+<h3 id="a-简介">1.2 3A 简介</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">缩写</th>
+<th style="text-align: left;">全称</th>
+<th style="text-align: left;">功能</th>
+<th style="text-align: left;">效果</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>AEC</strong></td>
+<td style="text-align: left;">Acoustic Echo Cancellation</td>
+<td style="text-align: left;">回声消除</td>
+<td style="text-align: left;">消除扬声器→麦克风的回声</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>ANS</strong></td>
+<td style="text-align: left;">Active Noise Suppression</td>
+<td style="text-align: left;">主动降噪</td>
+<td style="text-align: left;">消除环境噪声</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>AGC</strong></td>
+<td style="text-align: left;">Automatic Gain Control</td>
+<td style="text-align: left;">自动增益</td>
+<td style="text-align: left;">音量自动均衡</td>
+</tr>
+</tbody>
+</table>
+<h3 id="处理流程">1.3 处理流程</h3>
+<pre><code>麦克风输入
+    ↓
+┌─────────────────────────────────────┐
+│  AEC：回声消除                        │
+│  减去扬声器参考信号                   │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│  ANS：降噪                           │
+│  抑制环境噪声                         │
+└─────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────┐
+│  AGC：自动增益                       │
+│  调整音量到合适范围                   │
+└─────────────────────────────────────┘
+    ↓
+处理后音频 → 编码 → 推流</code></pre>
+<figure>
+<img src="./diagrams/3a-processing.svg" alt="3A 处理流程" />
+<figcaption aria-hidden="true">3A 处理流程</figcaption>
+</figure>
+<hr />
+<h2 id="aec回声消除">2. AEC：回声消除</h2>
+<h3 id="回声产生原理">2.1 回声产生原理</h3>
+<pre><code>远端语音 → 扬声器播放 ─────┐
+                           ↓
+                        房间声学环境
+                           ↓
+麦克风采集 ←───────────── 回声
+    ↓
+推流到远端（包含回声）</code></pre>
+<h3 id="aec-原理">2.2 AEC 原理</h3>
+<p><strong>核心思想</strong>：既然知道扬声器播放了什么，就可以从麦克风输入中”减去”这部分。</p>
+<pre><code>麦克风信号 = 近端语音 + 回声 + 噪声
+                      ↑
+            扬声器参考信号 × 房间冲激响应
+
+目标：估计房间冲激响应，从麦克风信号中减去回声</code></pre>
+<h3 id="自适应滤波">2.3 自适应滤波</h3>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 简化的 NLMS（归一化最小均方）自适应滤波</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SimpleAEC <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Process<span class="op">(</span><span class="at">const</span> <span class="dt">float</span><span class="op">*</span> mic<span class="op">,</span>      <span class="co">// 麦克风输入</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">const</span> <span class="dt">float</span><span class="op">*</span> speaker<span class="op">,</span>  <span class="co">// 扬声器参考</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                 <span class="dt">float</span><span class="op">*</span> out<span class="op">,</span>            <span class="co">// 输出</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                 <span class="dt">int</span> samples<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> n <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> n <span class="op">&lt;</span> samples<span class="op">;</span> n<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 1. 更新参考信号缓冲区</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="va">x_buffer_</span><span class="op">[</span><span class="va">write_pos_</span><span class="op">]</span> <span class="op">=</span> speaker<span class="op">[</span>n<span class="op">];</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 2. 计算估计的回声</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> echo_estimate <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> FILTER_LENGTH<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>                <span class="dt">int</span> idx <span class="op">=</span> <span class="op">(</span><span class="va">write_pos_</span> <span class="op">-</span> i <span class="op">+</span> FILTER_LENGTH<span class="op">)</span> <span class="op">%</span> FILTER_LENGTH<span class="op">;</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                echo_estimate <span class="op">+=</span> <span class="va">filter_</span><span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> <span class="va">x_buffer_</span><span class="op">[</span>idx<span class="op">];</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 3. 计算误差（近端语音）</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> error <span class="op">=</span> mic<span class="op">[</span>n<span class="op">]</span> <span class="op">-</span> echo_estimate<span class="op">;</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>            out<span class="op">[</span>n<span class="op">]</span> <span class="op">=</span> error<span class="op">;</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 4. 更新滤波器系数（NLMS）</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> power <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> FILTER_LENGTH<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>                <span class="dt">int</span> idx <span class="op">=</span> <span class="op">(</span><span class="va">write_pos_</span> <span class="op">-</span> i <span class="op">+</span> FILTER_LENGTH<span class="op">)</span> <span class="op">%</span> FILTER_LENGTH<span class="op">;</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>                power <span class="op">+=</span> <span class="va">x_buffer_</span><span class="op">[</span>idx<span class="op">]</span> <span class="op">*</span> <span class="va">x_buffer_</span><span class="op">[</span>idx<span class="op">];</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> step <span class="op">=</span> MU <span class="op">/</span> <span class="op">(</span>power <span class="op">+</span> EPSILON<span class="op">);</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> FILTER_LENGTH<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>                <span class="dt">int</span> idx <span class="op">=</span> <span class="op">(</span><span class="va">write_pos_</span> <span class="op">-</span> i <span class="op">+</span> FILTER_LENGTH<span class="op">)</span> <span class="op">%</span> FILTER_LENGTH<span class="op">;</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>                <span class="va">filter_</span><span class="op">[</span>i<span class="op">]</span> <span class="op">+=</span> step <span class="op">*</span> error <span class="op">*</span> <span class="va">x_buffer_</span><span class="op">[</span>idx<span class="op">];</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>            <span class="va">write_pos_</span> <span class="op">=</span> <span class="op">(</span><span class="va">write_pos_</span> <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> FILTER_LENGTH<span class="op">;</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> FILTER_LENGTH <span class="op">=</span> <span class="dv">1024</span><span class="op">;</span>  <span class="co">// 滤波器长度</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">float</span> MU <span class="op">=</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">;</span>           <span class="co">// 步长</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">float</span> EPSILON <span class="op">=</span> <span class="fl">1e-10</span><span class="bu">f</span><span class="op">;</span>    <span class="co">// 防止除零</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> <span class="va">filter_</span><span class="op">[</span>FILTER_LENGTH<span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> <span class="va">x_buffer_</span><span class="op">[</span>FILTER_LENGTH<span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">write_pos_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><strong>关键参数</strong>： -
+<code>FILTER_LENGTH</code>：滤波器长度，决定可消除的回声延迟范围 -
+<code>MU</code>：步长，控制收敛速度（太大不稳定，太小收敛慢）</p>
+<hr />
+<h2 id="ans降噪">3. ANS：降噪</h2>
+<h3 id="噪声类型">3.1 噪声类型</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">特征</th>
+<th style="text-align: left;">处理方法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>平稳噪声</strong></td>
+<td style="text-align: left;">频谱稳定（空调声）</td>
+<td style="text-align: left;">频谱减法</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>非平稳噪声</strong></td>
+<td style="text-align: left;">时变（键盘声）</td>
+<td style="text-align: left;">统计模型</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>瞬态噪声</strong></td>
+<td style="text-align: left;">突发（关门声）</td>
+<td style="text-align: left;">瞬态检测</td>
+</tr>
+</tbody>
+</table>
+<h3 id="频谱减法">3.2 频谱减法</h3>
+<pre><code>带噪信号频谱 = 语音频谱 + 噪声频谱
+                        ↓ 估计
+处理后频谱 = 带噪信号频谱 - α × 估计噪声频谱</code></pre>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SimpleNS <span class="op">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Process<span class="op">(</span><span class="dt">float</span><span class="op">*</span> audio<span class="op">,</span> <span class="dt">int</span> samples<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 1. FFT 到频域</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        fft<span class="op">(</span>audio<span class="op">,</span> <span class="va">freq_domain_</span><span class="op">);</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 2. 估计噪声频谱（使用语音间隙）</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>is_silence<span class="op">(</span><span class="va">freq_domain_</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            UpdateNoiseEstimate<span class="op">(</span><span class="va">freq_domain_</span><span class="op">);</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 3. 频谱减法</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> FFT_SIZE<span class="op">/</span><span class="dv">2</span> <span class="op">+</span> <span class="dv">1</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> magnitude <span class="op">=</span> abs<span class="op">(</span><span class="va">freq_domain_</span><span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> phase <span class="op">=</span> arg<span class="op">(</span><span class="va">freq_domain_</span><span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 减去估计的噪声</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>            <span class="dt">float</span> new_mag <span class="op">=</span> magnitude <span class="op">-</span> <span class="fl">1.5</span><span class="bu">f</span> <span class="op">*</span> <span class="va">noise_estimate_</span><span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>            new_mag <span class="op">=</span> <span class="bu">std::</span>max<span class="op">(</span>new_mag<span class="op">,</span> <span class="fl">0.1</span><span class="bu">f</span> <span class="op">*</span> magnitude<span class="op">);</span>  <span class="co">// 防止过度减法</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>            <span class="va">freq_domain_</span><span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="bu">std::</span>polar<span class="op">(</span>new_mag<span class="op">,</span> phase<span class="op">);</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 4. IFFT 回时域</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>        ifft<span class="op">(</span><span class="va">freq_domain_</span><span class="op">,</span> audio<span class="op">);</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="语音活动检测vad">3.3 语音活动检测（VAD）</h3>
+<p>判断当前是否有语音，用于： - 噪声估计更新（只在无语音时更新） -
+节省编码带宽（无语音时降低码率）</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> DetectVoiceActivity<span class="op">(</span><span class="at">const</span> <span class="dt">float</span><span class="op">*</span> audio<span class="op">,</span> <span class="dt">int</span> samples<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算短时能量</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> energy <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> samples<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        energy <span class="op">+=</span> audio<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> audio<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    energy <span class="op">/=</span> samples<span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算过零率</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> zero_crossings <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> i <span class="op">&lt;</span> samples<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">((</span>audio<span class="op">[</span>i<span class="op">-</span><span class="dv">1</span><span class="op">]</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">!=</span> <span class="op">(</span>audio<span class="op">[</span>i<span class="op">]</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            zero_crossings<span class="op">++;</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> zcr <span class="op">=</span> <span class="op">(</span><span class="dt">float</span><span class="op">)</span>zero_crossings <span class="op">/</span> samples<span class="op">;</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 决策：能量高且过零率适中 → 有语音</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> energy <span class="op">&gt;</span> ENERGY_THRESHOLD <span class="op">&amp;&amp;</span> zcr <span class="op">&lt;</span> ZCR_THRESHOLD<span class="op">;</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="agc自动增益">4. AGC：自动增益</h2>
+<h3 id="为什么需要-agc">4.1 为什么需要 AGC</h3>
+<ul>
+<li>不同主播音量差异大</li>
+<li>同一人说话距离变化</li>
+<li>情绪变化导致音量波动</li>
+</ul>
+<h3 id="agc-原理">4.2 AGC 原理</h3>
+<p><strong>目标</strong>：将输出音量稳定在目标范围内</p>
+<pre><code>输入音量 ──┐
+           ├──→ 增益计算 ──→ 应用增益 ──→ 输出音量
+目标音量 ──┘</code></pre>
+<h3 id="压缩器实现">4.3 压缩器实现</h3>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SimpleAGC <span class="op">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Process<span class="op">(</span><span class="dt">float</span><span class="op">*</span> audio<span class="op">,</span> <span class="dt">int</span> samples<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 1. 计算输入 RMS</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> rms <span class="op">=</span> ComputeRMS<span class="op">(</span>audio<span class="op">,</span> samples<span class="op">);</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 2. 计算所需增益</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> target_rms <span class="op">=</span> <span class="fl">0.1</span><span class="bu">f</span><span class="op">;</span>  <span class="co">// 目标 RMS</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> desired_gain <span class="op">=</span> target_rms <span class="op">/</span> <span class="op">(</span>rms <span class="op">+</span> <span class="fl">1e-10</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 3. 限制增益范围</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        desired_gain <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span>desired_gain<span class="op">,</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span> <span class="fl">10.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 4. 平滑增益变化（防止音量跳变）</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">current_gain_</span> <span class="op">+=</span> <span class="op">(</span>desired_gain <span class="op">-</span> <span class="va">current_gain_</span><span class="op">)</span> <span class="op">*</span> <span class="va">attack_rate_</span><span class="op">;</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 5. 应用增益</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> samples<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>            audio<span class="op">[</span>i<span class="op">]</span> <span class="op">*=</span> <span class="va">current_gain_</span><span class="op">;</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 硬限幅防止削波</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>            audio<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span>audio<span class="op">[</span>i<span class="op">],</span> <span class="op">-</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> <span class="va">current_gain_</span> <span class="op">=</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">;</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> <span class="va">attack_rate_</span> <span class="op">=</span> <span class="fl">0.1</span><span class="bu">f</span><span class="op">;</span>  <span class="co">// 增益变化速度</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<hr />
+<h2 id="webrtc-apm-集成">5. WebRTC APM 集成</h2>
+<h3 id="为什么选择-webrtc-apm">5.1 为什么选择 WebRTC APM</h3>
+<ul>
+<li><strong>工业级</strong>： billions of users 验证</li>
+<li><strong>实时性</strong>：低延迟处理（10ms 级别）</li>
+<li><strong>鲁棒性</strong>：各种场景自适应</li>
+</ul>
+<h3 id="集成步骤">5.2 集成步骤</h3>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;modules/audio_processing/include/audio_processing.h&quot;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> WebRTCAPMWrapper <span class="op">{</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 创建 APM 实例</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">apm_</span> <span class="op">=</span> webrtc<span class="op">::</span>AudioProcessingBuilder<span class="op">().</span>Create<span class="op">();</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 配置 APM</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        webrtc<span class="op">::</span>AudioProcessing<span class="op">::</span>Config config<span class="op">;</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span>echo_canceller<span class="op">.</span>enabled <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span>echo_canceller<span class="op">.</span>mobile_mode <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span>noise_suppression<span class="op">.</span>enabled <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span>noise_suppression<span class="op">.</span>level <span class="op">=</span> webrtc<span class="op">::</span>AudioProcessing<span class="op">::</span>Config<span class="op">::</span>NoiseSuppression<span class="op">::</span>kHigh<span class="op">;</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span>gain_control1<span class="op">.</span>enabled <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>        config<span class="op">.</span>gain_control1<span class="op">.</span>mode <span class="op">=</span> webrtc<span class="op">::</span>AudioProcessing<span class="op">::</span>Config<span class="op">::</span>GainControl1<span class="op">::</span>kAdaptiveAnalog<span class="op">;</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        apm<span class="op">-&gt;</span>ApplyConfig<span class="op">(</span>config<span class="op">);</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 初始化</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>        apm<span class="op">-&gt;</span>Initialize<span class="op">(</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>            PLAYBACK_SAMPLE_RATE<span class="op">,</span>   <span class="co">// 扬声器采样率</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>            CAPTURE_SAMPLE_RATE<span class="op">,</span>    <span class="co">// 麦克风采样率</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>            CAPTURE_SAMPLE_RATE<span class="op">,</span>    <span class="co">// 输出采样率</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>            webrtc<span class="op">::</span>AudioProcessing<span class="op">::</span>kMonoAndMono   <span class="co">// 声道配置</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">);</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Process<span class="op">(</span><span class="at">const</span> <span class="dt">float</span><span class="op">*</span> mic<span class="op">,</span>      <span class="co">// 麦克风</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>                 <span class="at">const</span> <span class="dt">float</span><span class="op">*</span> speaker<span class="op">,</span>  <span class="co">// 扬声器参考</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>                 <span class="dt">float</span><span class="op">*</span> out<span class="op">,</span>            <span class="co">// 输出</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>                 <span class="dt">int</span> samples<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 分析扬声器信号</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>        apm<span class="op">-&gt;</span>ProcessReverseStream<span class="op">(</span>speaker<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 处理麦克风信号</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>        apm<span class="op">-&gt;</span>ProcessStream<span class="op">(</span>mic<span class="op">,</span> <span class="op">...,</span> out<span class="op">,</span> <span class="op">...);</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>webrtc<span class="op">::</span>AudioProcessing<span class="op">&gt;</span> <span class="va">apm_</span><span class="op">;</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<hr />
+<h2 id="简化实现">6. 简化实现</h2>
+<p>对于学习目的，这里提供一个简化的 3A 处理器：</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// audio_3a_processor.hpp</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cstdint&gt;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;memory&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> AudioConfig <span class="op">{</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> sample_rate <span class="op">=</span> <span class="dv">48000</span><span class="op">;</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> channels <span class="op">=</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> frame_duration_ms <span class="op">=</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Audio3AProcessor <span class="op">{</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">explicit</span> Audio3AProcessor<span class="op">(</span><span class="at">const</span> AudioConfig<span class="op">&amp;</span> config<span class="op">);</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">~</span>Audio3AProcessor<span class="op">();</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Init<span class="op">();</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 处理音频帧</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">// mic: 麦克风输入（interleaved PCM）</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// speaker: 扬声器参考信号（用于 AEC）</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">// out: 处理后输出</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Process<span class="op">(</span><span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> mic<span class="op">,</span> <span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> speaker<span class="op">,</span> <span class="dt">int16_t</span><span class="op">*</span> out<span class="op">);</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 设置开关</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> EnableAEC<span class="op">(</span><span class="dt">bool</span> enable<span class="op">);</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> EnableNS<span class="op">(</span><span class="dt">bool</span> enable<span class="op">);</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> EnableAGC<span class="op">(</span><span class="dt">bool</span> enable<span class="op">);</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">class</span> Impl<span class="op">;</span></span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>Impl<span class="op">&gt;</span> <span class="va">impl_</span><span class="op">;</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// audio_3a_processor.cpp</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;audio_3a_processor.hpp&quot;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;algorithm&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cmath&gt;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Audio3AProcessor<span class="op">::</span>Impl <span class="op">{</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">explicit</span> Impl<span class="op">(</span><span class="at">const</span> AudioConfig<span class="op">&amp;</span> cfg<span class="op">)</span> <span class="op">:</span> <span class="va">config_</span><span class="op">(</span>cfg<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">samples_per_frame_</span> <span class="op">=</span> <span class="va">config_</span><span class="op">.</span>sample_rate <span class="op">*</span> <span class="va">config_</span><span class="op">.</span>frame_duration_ms <span class="op">/</span> <span class="dv">1000</span><span class="op">;</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Process<span class="op">(</span><span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> mic<span class="op">,</span> <span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> speaker<span class="op">,</span> <span class="dt">int16_t</span><span class="op">*</span> out<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        <span class="dt">size_t</span> samples <span class="op">=</span> <span class="va">samples_per_frame_</span> <span class="op">*</span> <span class="va">config_</span><span class="op">.</span>channels<span class="op">;</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 1. AEC：简单回声消除</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">aec_enabled_</span> <span class="op">&amp;&amp;</span> speaker<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> samples<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>                <span class="dt">int32_t</span> val <span class="op">=</span> mic<span class="op">[</span>i<span class="op">]</span> <span class="op">-</span> <span class="op">(</span>speaker<span class="op">[</span>i<span class="op">]</span> <span class="op">&gt;&gt;</span> <span class="dv">2</span><span class="op">);</span>  <span class="co">// 减去 25%</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>                out<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int16_t</span><span class="op">&gt;(</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">std::</span>max<span class="op">(-</span><span class="dv">32768</span><span class="op">,</span> <span class="bu">std::</span>min<span class="op">(</span><span class="dv">32767</span><span class="op">,</span> val<span class="op">)));</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>memcpy<span class="op">(</span>out<span class="op">,</span> mic<span class="op">,</span> samples <span class="op">*</span> <span class="kw">sizeof</span><span class="op">(</span><span class="dt">int16_t</span><span class="op">));</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 2. NS：简单门限降噪</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">ns_enabled_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> samples<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span><span class="bu">std::</span>abs<span class="op">(</span>out<span class="op">[</span>i<span class="op">])</span> <span class="op">&lt;</span> <span class="dv">500</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>                    out<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 3. AGC：简单自动增益</span></span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">agc_enabled_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 计算 RMS</span></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int64_t</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> samples<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>                sum <span class="op">+=</span> out<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> out<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> rms <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span></span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>                <span class="bu">std::</span>sqrt<span class="op">(</span><span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">double</span><span class="op">&gt;(</span>sum<span class="op">)</span> <span class="op">/</span> samples<span class="op">));</span></span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 目标 RMS：3000</span></span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>rms <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> rms <span class="op">&lt;</span> <span class="dv">3000</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>                <span class="dt">int</span> gain <span class="op">=</span> <span class="bu">std::</span>min<span class="op">(</span><span class="dv">3000</span> <span class="op">/</span> rms<span class="op">,</span> <span class="dv">10</span><span class="op">);</span></span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> samples<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">int32_t</span> val <span class="op">=</span> out<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> gain<span class="op">;</span></span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>                    out<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int16_t</span><span class="op">&gt;(</span></span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>                        <span class="bu">std::</span>max<span class="op">(-</span><span class="dv">32768</span><span class="op">,</span> <span class="bu">std::</span>min<span class="op">(</span><span class="dv">32767</span><span class="op">,</span> val<span class="op">)));</span></span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="va">aec_enabled_</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="va">ns_enabled_</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="va">agc_enabled_</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a>    AudioConfig <span class="va">config_</span><span class="op">;</span></span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">samples_per_frame_</span><span class="op">;</span></span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a>Audio3AProcessor<span class="op">::</span>Audio3AProcessor<span class="op">(</span><span class="at">const</span> AudioConfig<span class="op">&amp;</span> config<span class="op">)</span></span>
+<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a>    <span class="op">:</span> <span class="va">impl_</span><span class="op">(</span><span class="bu">std::</span>make_unique<span class="op">&lt;</span>Impl<span class="op">&gt;(</span>config<span class="op">))</span> <span class="op">{}</span></span>
+<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a>Audio3AProcessor<span class="op">::~</span>Audio3AProcessor<span class="op">()</span> <span class="op">=</span> <span class="cf">default</span><span class="op">;</span></span>
+<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> Audio3AProcessor<span class="op">::</span>Init<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> Audio3AProcessor<span class="op">::</span>Process<span class="op">(</span><span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> mic<span class="op">,</span> <span class="at">const</span> <span class="dt">int16_t</span><span class="op">*</span> speaker<span class="op">,</span> <span class="dt">int16_t</span><span class="op">*</span> out<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a>    <span class="va">impl_</span><span class="op">&gt;</span>Process<span class="op">(</span>mic<span class="op">,</span> speaker<span class="op">,</span> out<span class="op">);</span></span>
+<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> Audio3AProcessor<span class="op">::</span>EnableAEC<span class="op">(</span><span class="dt">bool</span> enable<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a>    <span class="va">impl_</span><span class="op">&gt;</span><span class="va">aec_enabled_</span> <span class="op">=</span> enable<span class="op">;</span></span>
+<span id="cb15-82"><a href="#cb15-82" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> Audio3AProcessor<span class="op">::</span>EnableNS<span class="op">(</span><span class="dt">bool</span> enable<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a>    <span class="va">impl_</span><span class="op">&gt;</span><span class="va">ns_enabled_</span> <span class="op">=</span> enable<span class="op">;</span></span>
+<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> Audio3AProcessor<span class="op">::</span>EnableAGC<span class="op">(</span><span class="dt">bool</span> enable<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a>    <span class="va">impl_</span><span class="op">&gt;</span><span class="va">agc_enabled_</span> <span class="op">=</span> enable<span class="op">;</span></span>
+<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<hr />
+<h2 id="性能优化">7. 性能优化</h2>
+<h3 id="处理延迟优化">7.1 处理延迟优化</h3>
+<p>3A 处理引入的延迟必须可控：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">模块</th>
+<th style="text-align: center;">典型延迟</th>
+<th style="text-align: left;">优化方向</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">AEC</td>
+<td style="text-align: center;">10-40ms</td>
+<td style="text-align: left;">自适应滤波器长度</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ANS</td>
+<td style="text-align: center;">5-10ms</td>
+<td style="text-align: left;">帧大小、FFT 优化</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">AGC</td>
+<td style="text-align: center;">&lt;1ms</td>
+<td style="text-align: left;">查表法、SIMD</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>总计</strong></td>
+<td style="text-align: center;"><strong>20-50ms</strong></td>
+<td style="text-align: left;"><strong>端到端预算 100ms</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="cpu-优化">7.2 CPU 优化</h3>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 使用 SIMD 加速（AVX/SSE）</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;immintrin.h&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> ProcessSIMD<span class="op">(</span><span class="dt">float</span><span class="op">*</span> audio<span class="op">,</span> <span class="dt">int</span> samples<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> samples<span class="op">;</span> i <span class="op">+=</span> <span class="dv">8</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        __m256 vec <span class="op">=</span> _mm256_loadu_ps<span class="op">(&amp;</span>audio<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">// SIMD 处理...</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        _mm256_storeu_ps<span class="op">(&amp;</span>audio<span class="op">[</span>i<span class="op">],</span> vec<span class="op">);</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="内存优化">7.3 内存优化</h3>
+<ul>
+<li>预分配缓冲区，避免运行时分配</li>
+<li>使用环形缓冲区管理音频帧</li>
+<li>缓存 FFT 计划（plan）</li>
+</ul>
+<hr />
+<h2 id="本章总结">8. 本章总结</h2>
+<h3 id="核心概念">核心概念</h3>
+<ol type="1">
+<li><strong>AEC</strong>：自适应滤波消除回声，需要扬声器参考信号</li>
+<li><strong>ANS</strong>：频谱减法抑制噪声，需要 VAD 区分语音/噪声</li>
+<li><strong>AGC</strong>：压缩器自动调整音量，保持输出稳定</li>
+</ol>
+<h3 id="实现要点">实现要点</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">模块</th>
+<th style="text-align: left;">核心算法</th>
+<th style="text-align: left;">关键参数</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">AEC</td>
+<td style="text-align: left;">NLMS 自适应滤波</td>
+<td style="text-align: left;">滤波器长度、步长</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ANS</td>
+<td style="text-align: left;">频谱减法</td>
+<td style="text-align: left;">过减因子、噪声估计</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">AGC</td>
+<td style="text-align: left;">动态范围压缩</td>
+<td style="text-align: left;">目标电平、压缩比</td>
+</tr>
+</tbody>
+</table>
+<h3 id="生产环境建议">生产环境建议</h3>
+<ul>
+<li><strong>WebRTC APM</strong>：成熟稳定，推荐直接使用</li>
+<li><strong>SpeexDSP</strong>：轻量级替代，适合嵌入式</li>
+<li><strong>自研</strong>：仅在有特殊需求时考虑</li>
+</ul>
+<h3 id="下一步">下一步</h3>
+<p>完成音频处理后，音视频数据需要<strong>同步</strong>并送入编码器。下一章将介绍：
+- 音视频同步策略 - H.264 视频编码 - RTMP 推流实现</p>
+<hr />
+<h2
+id="本章代码完整实现见-includeliveaudio_3a_processor.hpp"><strong>本章代码</strong>：完整实现见
+<code>include/live/audio_3a_processor.hpp</code></h2>
+<h2 id="faq-常见问题">FAQ 常见问题</h2>
+<h3 id="q1本章的核心难点是什么">Q1：本章的核心难点是什么？</h3>
+<p><strong>A</strong>：音频 3A 处理涉及的核心难点包括： -
+理解新概念的内在原理 - 将理论知识转化为实际代码 -
+处理边界情况和错误恢复</p>
+<p>建议多动手实践，遇到问题及时查阅官方文档。</p>
+<hr />
+<h3 id="q2学习本章需要哪些前置知识">Q2：学习本章需要哪些前置知识？</h3>
+<p><strong>A</strong>：请参考章节头部的前置知识表格。如果某些基础不牢固，建议先复习相关章节。</p>
+<hr />
+<h3 id="q3如何验证本章的学习效果">Q3：如何验证本章的学习效果？</h3>
+<p><strong>A</strong>：建议完成以下检查： - [ ] 理解所有核心概念 - [ ]
+能独立编写本章的示例代码 - [ ] 能解释代码的工作原理 - [ ]
+能排查常见问题</p>
+<hr />
+<h3
+id="q4本章代码在实际项目中的应用场景">Q4：本章代码在实际项目中的应用场景？</h3>
+<p><strong>A</strong>：本章代码是渐进式案例「小直播」的组成部分，所有代码都可以在实际项目中使用。具体应用场景请参考「本章与项目的关系」部分。</p>
+<hr />
+<h3 id="q5遇到问题时如何调试">Q5：遇到问题时如何调试？</h3>
+<p><strong>A</strong>：调试建议： 1. 先阅读 FAQ 和本章的「常见问题」部分
+2. 检查前置知识是否掌握 3. 使用日志和调试工具定位问题 4.
+参考示例代码进行对比 5. 在 GitHub Issues 中搜索类似问题 —</p>
+<h2 id="本章小结">本章小结</h2>
+<h3 id="核心知识点">核心知识点</h3>
+<p>通过本章学习，你应该掌握： 1. 音频 3A 处理的核心概念和原理 2. 相关的
+API 和工具使用 3. 实际项目中的应用方法 4. 常见问题的解决方案</p>
+<h3 id="关键技能">关键技能</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">技能</th>
+<th style="text-align: center;">掌握程度</th>
+<th style="text-align: left;">实践建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">理解核心概念</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">能向他人解释原理</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">编写示例代码</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">独立编写本章代码</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">排查常见问题</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">遇到问题时能自行解决</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">应用到项目</td>
+<td style="text-align: center;">⭐⭐ 建议掌握</td>
+<td style="text-align: left;">将本章代码集成到项目中</td>
+</tr>
+</tbody>
+</table>
+<h3 id="本章产出">本章产出</h3>
+<ul>
+<li>完成本章所有示例代码</li>
+<li>理解 音频 3A 处理的工作原理</li>
+<li><h2 id="为后续章节打下基础">为后续章节打下基础</h2></li>
+</ul>
+<h2 id="下章预告">下章预告</h2>
+<h3 id="ch12编码与推流">Ch12：编码与推流</h3>
+<p><strong>为什么要学下一章？</strong></p>
+<p>每章都是渐进式案例「小直播」的有机组成部分，下一章将在本章基础上进一步扩展功能。</p>
+<p><strong>学习建议</strong>： - 确保本章内容已经掌握 -
+提前浏览下一章的目录 - 准备好相关的开发环境</p>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+</div>
+</body>
+</html>
