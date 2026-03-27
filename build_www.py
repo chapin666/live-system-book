@@ -136,7 +136,8 @@ def convert_file(src_file, html_name):
     mermaid.initialize({ 
       startOnLoad: true, 
       theme: 'default',
-      securityLevel: 'loose'
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
     });
   });
 </script>
@@ -181,6 +182,14 @@ pre { background: var(--code-bg); padding: 16px; border-radius: 8px; overflow-x:
 code { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 14px; }
 pre code { background: none; padding: 0; }
 p code, li code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; }
+
+/* Mermaid 图表样式 */
+.mermaid { background: #fff !important; border: 1px solid var(--border); margin: 20px 0; }
+.mermaid svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+
+/* 隐藏 Mermaid 渲染前的代码 */
+.mermaid:not([data-processed="true"]) { color: transparent; }
+
 table { width: 100%; border-collapse: collapse; margin: 20px 0; }
 th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
 th { background: var(--sidebar-bg); font-weight: 600; }
