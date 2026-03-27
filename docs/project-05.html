@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html" class="active">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="项目实战5完整主播端">项目实战5：完整主播端</h1>
+<blockquote>
+<p><strong>前置要求</strong>：完成 Chapter 9-16
+<strong>目标</strong>：实现可开播的完整主播工具</p>
+</blockquote>
+<h2 id="项目概述">项目概述</h2>
+<p>本项目整合 Part 2
+全部内容（Ch9-Ch16），实现一个功能完整的主播端工具。你能够用它进行真正的直播推流。</p>
+<h2 id="功能需求">功能需求</h2>
+<h3 id="核心功能">核心功能</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />摄像头/屏幕采集切换</label></li>
+<li><label><input type="checkbox" />实时美颜调节</label></li>
+<li><label><input type="checkbox" />RTMP 推流</label></li>
+<li><label><input type="checkbox" />实时预览</label></li>
+<li><label><input
+type="checkbox" />推流统计（码率、帧率、延迟）</label></li>
+</ul>
+<h3 id="控制功能">控制功能</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />开始/停止推流</label></li>
+<li><label><input type="checkbox" />暂停/恢复</label></li>
+<li><label><input type="checkbox" />切换摄像头</label></li>
+<li><label><input type="checkbox" />调节美颜参数（滑块）</label></li>
+<li><label><input type="checkbox" />调节码率</label></li>
+</ul>
+<h3 id="状态显示">状态显示</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />连接状态</label></li>
+<li><label><input type="checkbox" />实时码率曲线</label></li>
+<li><label><input type="checkbox" />音量表</label></li>
+<li><label><input type="checkbox" />推流时长</label></li>
+</ul>
+<h2 id="架构设计">架构设计</h2>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                         完整主播端                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                      UI 层                               │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │   │
+│  │  │ 预览窗口  │ │ 控制面板  │ │ 统计面板  │ │ 设置面板  │   │   │
+│  │  │ (OpenGL) │ │ (ImGui)  │ │ (图表)    │ │ (配置)    │   │   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘   │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                              │                                   │
+│  ┌───────────────────────────┴───────────────────────────────┐ │
+│  │                    StreamerPipeline                        │ │
+│  │  (采集 → 美颜 → 编码 → 推流，详见 Chapter 16)              │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                              │                                   │
+│  ┌───────────────────────────┴───────────────────────────────┐ │
+│  │                    设备/网络层                             │ │
+│  │         摄像头 / 麦克风 / GPU / RTMP 连接                   │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+<h2 id="技术要点">技术要点</h2>
+<h3 id="ui-框架选择">UI 框架选择</h3>
+<p>使用 <strong>Dear ImGui</strong> —— 轻量级即时模式 GUI：</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ImGui 初始化</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>ImGui<span class="op">::</span>CreateContext<span class="op">();</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>ImGui_ImplSDL2_InitForOpenGL<span class="op">(</span>window<span class="op">,</span> gl_context<span class="op">);</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>ImGui_ImplOpenGL3_Init<span class="op">(</span><span class="st">&quot;#version 330&quot;</span><span class="op">);</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 主循环</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>running<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 开始帧</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    ImGui_ImplOpenGL3_NewFrame<span class="op">();</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    ImGui_ImplSDL2_NewFrame<span class="op">();</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    ImGui<span class="op">::</span>NewFrame<span class="op">();</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 构建 UI</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    RenderControlPanel<span class="op">();</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    RenderStatsWindow<span class="op">();</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 渲染</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    ImGui<span class="op">::</span>Render<span class="op">();</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    glClear<span class="op">(</span>GL_COLOR_BUFFER_BIT<span class="op">);</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    ImGui_ImplOpenGL3_RenderDrawData<span class="op">(</span>ImGui<span class="op">::</span>GetDrawData<span class="op">());</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    SDL_GL_SwapWindow<span class="op">(</span>window<span class="op">);</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="控制面板">控制面板</h3>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> RenderControlPanel<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    ImGui<span class="op">::</span>Begin<span class="op">(</span><span class="st">&quot;控制面板&quot;</span><span class="op">);</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 推流控制</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span><span class="va">streamer_</span><span class="op">.</span>GetState<span class="op">()</span> <span class="op">==</span> StreamerState<span class="op">::</span>IDLE<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>ImGui<span class="op">::</span>Button<span class="op">(</span><span class="st">&quot;开始推流&quot;</span><span class="op">,</span> ImVec2<span class="op">(</span><span class="dv">120</span><span class="op">,</span> <span class="dv">40</span><span class="op">)))</span> <span class="op">{</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            <span class="va">streamer_</span><span class="op">.</span>Start<span class="op">();</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span><span class="va">streamer_</span><span class="op">.</span>GetState<span class="op">()</span> <span class="op">==</span> StreamerState<span class="op">::</span>STREAMING<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>ImGui<span class="op">::</span>Button<span class="op">(</span><span class="st">&quot;停止推流&quot;</span><span class="op">,</span> ImVec2<span class="op">(</span><span class="dv">120</span><span class="op">,</span> <span class="dv">40</span><span class="op">)))</span> <span class="op">{</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            <span class="va">streamer_</span><span class="op">.</span>Stop<span class="op">();</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    ImGui<span class="op">::</span>Separator<span class="op">();</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 美颜参数</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> params <span class="op">=</span> <span class="va">streamer_</span><span class="op">.</span>GetBeautyParams<span class="op">();</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>ImGui<span class="op">::</span>SliderFloat<span class="op">(</span><span class="st">&quot;磨皮&quot;</span><span class="op">,</span> <span class="op">&amp;</span>params<span class="op">.</span>smooth<span class="op">,</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        <span class="va">streamer_</span><span class="op">.</span>SetBeautyParams<span class="op">(</span>params<span class="op">);</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>ImGui<span class="op">::</span>SliderFloat<span class="op">(</span><span class="st">&quot;美白&quot;</span><span class="op">,</span> <span class="op">&amp;</span>params<span class="op">.</span>whitening<span class="op">,</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">streamer_</span><span class="op">.</span>SetBeautyParams<span class="op">(</span>params<span class="op">);</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    ImGui<span class="op">::</span>Separator<span class="op">();</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 设备选择</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>ImGui<span class="op">::</span>BeginCombo<span class="op">(</span><span class="st">&quot;摄像头&quot;</span><span class="op">,</span> <span class="va">current_camera_</span><span class="op">.</span>c_str<span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> cam <span class="op">:</span> <span class="va">camera_list_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>ImGui<span class="op">::</span>Selectable<span class="op">(</span>cam<span class="op">.</span>name<span class="op">.</span>c_str<span class="op">()))</span> <span class="op">{</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>                <span class="va">streamer_</span><span class="op">.</span>SwitchCamera<span class="op">(</span>cam<span class="op">.</span>id<span class="op">);</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>                <span class="va">current_camera_</span> <span class="op">=</span> cam<span class="op">.</span>name<span class="op">;</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        ImGui<span class="op">::</span>EndCombo<span class="op">();</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    ImGui<span class="op">::</span>End<span class="op">();</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="实时统计面板">实时统计面板</h3>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> StatsPanel <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Update<span class="op">(</span><span class="at">const</span> StreamStats<span class="op">&amp;</span> stats<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 添加到历史</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">video_bitrate_history_</span><span class="op">.</span>push_back<span class="op">(</span>stats<span class="op">.</span>video_bitrate <span class="op">/</span> <span class="fl">1000.0</span><span class="bu">f</span><span class="op">);</span>  <span class="co">// kbps</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">video_bitrate_history_</span><span class="op">.</span>size<span class="op">()</span> <span class="op">&gt;</span> <span class="dv">100</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="va">video_bitrate_history_</span><span class="op">.</span>erase<span class="op">(</span><span class="va">video_bitrate_history_</span><span class="op">.</span>begin<span class="op">());</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Render<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        ImGui<span class="op">::</span>Begin<span class="op">(</span><span class="st">&quot;推流统计&quot;</span><span class="op">);</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 码率曲线</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        ImGui<span class="op">::</span>PlotLines<span class="op">(</span><span class="st">&quot;视频码率 (kbps)&quot;</span><span class="op">,</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                         <span class="va">video_bitrate_history_</span><span class="op">.</span>data<span class="op">(),</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                         <span class="va">video_bitrate_history_</span><span class="op">.</span>size<span class="op">(),</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                         <span class="dv">0</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">5000.0</span><span class="bu">f</span><span class="op">,</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                         ImVec2<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">100</span><span class="op">));</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 数字显示</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        ImGui<span class="op">::</span>Text<span class="op">(</span><span class="st">&quot;视频: </span><span class="sc">%.0f</span><span class="st"> kbps @ </span><span class="sc">%.1f</span><span class="st"> fps&quot;</span><span class="op">,</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>                    <span class="va">current_stats_</span><span class="op">.</span>video_bitrate <span class="op">/</span> <span class="fl">1000.0</span><span class="bu">f</span><span class="op">,</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>                    <span class="va">current_stats_</span><span class="op">.</span>video_fps<span class="op">);</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        ImGui<span class="op">::</span>Text<span class="op">(</span><span class="st">&quot;音频: </span><span class="sc">%.0f</span><span class="st"> kbps&quot;</span><span class="op">,</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>                    <span class="va">current_stats_</span><span class="op">.</span>audio_bitrate <span class="op">/</span> <span class="fl">1000.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        ImGui<span class="op">::</span>Text<span class="op">(</span><span class="st">&quot;已推流: </span><span class="sc">%02d</span><span class="st">:</span><span class="sc">%02d</span><span class="st">:</span><span class="sc">%02d</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>                    <span class="va">hours_</span><span class="op">,</span> <span class="va">minutes_</span><span class="op">,</span> <span class="va">seconds_</span><span class="op">);</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 连接状态</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">char</span><span class="op">*</span> status_str<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="st">&quot;空闲&quot;</span><span class="op">,</span> <span class="st">&quot;连接中&quot;</span><span class="op">,</span> <span class="st">&quot;推流中&quot;</span><span class="op">,</span> <span class="st">&quot;错误&quot;</span><span class="op">};</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        ImVec4 status_color<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>            ImVec4<span class="op">(</span><span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.5</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">),</span>  <span class="co">// 灰</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>            ImVec4<span class="op">(</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">),</span>  <span class="co">// 黄</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>            ImVec4<span class="op">(</span><span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">),</span>  <span class="co">// 绿</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>            ImVec4<span class="op">(</span><span class="fl">1.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">)</span>   <span class="co">// 红</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        ImGui<span class="op">::</span>TextColored<span class="op">(</span>status_color<span class="op">[</span><span class="va">status_</span><span class="op">],</span> <span class="st">&quot;状态: </span><span class="sc">%s</span><span class="st">&quot;</span><span class="op">,</span> status_str<span class="op">[</span><span class="va">status_</span><span class="op">]);</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        ImGui<span class="op">::</span>End<span class="op">();</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">float</span><span class="op">&gt;</span> <span class="va">video_bitrate_history_</span><span class="op">;</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    StreamStats <span class="va">current_stats_</span><span class="op">;</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">hours_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> <span class="va">minutes_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> <span class="va">seconds_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">status_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="音量表">音量表</h3>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> RenderVolumeMeter<span class="op">(</span><span class="dt">float</span> db<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 将 dB 映射到 0-1</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> level <span class="op">=</span> <span class="op">(</span>db <span class="op">+</span> <span class="fl">60.0</span><span class="bu">f</span><span class="op">)</span> <span class="op">/</span> <span class="fl">60.0</span><span class="bu">f</span><span class="op">;</span>  <span class="co">// -60dB ~ 0dB</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    level <span class="op">=</span> <span class="bu">std::</span>clamp<span class="op">(</span>level<span class="op">,</span> <span class="fl">0.0</span><span class="bu">f</span><span class="op">,</span> <span class="fl">1.0</span><span class="bu">f</span><span class="op">);</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    ImDrawList<span class="op">*</span> draw_list <span class="op">=</span> ImGui<span class="op">::</span>GetWindowDrawList<span class="op">();</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    ImVec2 pos <span class="op">=</span> ImGui<span class="op">::</span>GetCursorScreenPos<span class="op">();</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    ImVec2 size<span class="op">(</span><span class="dv">200</span><span class="op">,</span> <span class="dv">20</span><span class="op">);</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 背景</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    draw_list<span class="op">-&gt;</span>AddRectFilled<span class="op">(</span>pos<span class="op">,</span> ImVec2<span class="op">(</span>pos<span class="op">.</span>x <span class="op">+</span> size<span class="op">.</span>x<span class="op">,</span> pos<span class="op">.</span>y <span class="op">+</span> size<span class="op">.</span>y<span class="op">),</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                              IM_COL32<span class="op">(</span><span class="dv">64</span><span class="op">,</span> <span class="dv">64</span><span class="op">,</span> <span class="dv">64</span><span class="op">,</span> <span class="dv">255</span><span class="op">));</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 音量条</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    ImU32 color<span class="op">;</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>level <span class="op">&lt;</span> <span class="fl">0.7</span><span class="bu">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> IM_COL32<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">255</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">255</span><span class="op">);</span>    <span class="co">// 绿</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>level <span class="op">&lt;</span> <span class="fl">0.9</span><span class="bu">f</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> IM_COL32<span class="op">(</span><span class="dv">255</span><span class="op">,</span> <span class="dv">255</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">255</span><span class="op">);</span>  <span class="co">// 黄</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        color <span class="op">=</span> IM_COL32<span class="op">(</span><span class="dv">255</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">255</span><span class="op">);</span>    <span class="co">// 红</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    draw_list<span class="op">-&gt;</span>AddRectFilled<span class="op">(</span>pos<span class="op">,</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>                              ImVec2<span class="op">(</span>pos<span class="op">.</span>x <span class="op">+</span> size<span class="op">.</span>x <span class="op">*</span> level<span class="op">,</span> pos<span class="op">.</span>y <span class="op">+</span> size<span class="op">.</span>y<span class="op">),</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>                              color<span class="op">);</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    ImGui<span class="op">::</span>Dummy<span class="op">(</span>size<span class="op">);</span>  <span class="co">// 占位</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h2 id="项目结构">项目结构</h2>
+<pre><code>project-05/
+├── CMakeLists.txt
+├── README.md
+├── include/live/
+│   ├── streamer_app.h
+│   ├── ui_controller.h
+│   └── stats_panel.h
+└── src/
+    ├── main.cpp
+    ├── streamer_app.cpp
+    ├── ui_controller.cpp
+    └── stats_panel.cpp</code></pre>
+<h2 id="使用示例">使用示例</h2>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 构建</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> project-05 <span class="kw">&amp;&amp;</span> <span class="fu">mkdir</span> build <span class="kw">&amp;&amp;</span> <span class="bu">cd</span> build</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cmake</span> .. <span class="kw">&amp;&amp;</span> <span class="fu">make</span> <span class="at">-j4</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 运行（需要指定 RTMP 地址）</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">./streamer</span> <span class="st">&quot;rtmp://live.example.com/stream/key&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 或使用配置文件</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="ex">./streamer</span> <span class="at">--config</span> streamer.conf</span></code></pre></div>
+<p><strong>配置文件示例</strong> (<code>streamer.conf</code>)：</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode ini"><code class="sourceCode ini"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[video]</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">width</span><span class="ot">=</span><span class="dv">1280</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="dt">height</span><span class="ot">=</span><span class="dv">720</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="dt">fps</span><span class="ot">=</span><span class="dv">30</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="dt">bitrate</span><span class="ot">=</span><span class="dv">4000000</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="dt">codec</span><span class="ot">=</span><span class="st">h264</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="kw">[audio]</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="dt">sample_rate</span><span class="ot">=</span><span class="dv">48000</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="dt">channels</span><span class="ot">=</span><span class="dv">2</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="dt">bitrate</span><span class="ot">=</span><span class="dv">128000</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="kw">[beauty]</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="dt">smooth</span><span class="ot">=</span><span class="fl">0.3</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="dt">whitening</span><span class="ot">=</span><span class="fl">0.2</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="kw">[stream]</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="dt">rtmp_url</span><span class="ot">=</span><span class="st">rtmp://live.example.com/stream/key</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="dt">reconnect_attempts</span><span class="ot">=</span><span class="dv">3</span></span></code></pre></div>
+<h2 id="验收标准">验收标准</h2>
+<ul class="task-list">
+<li><label><input type="checkbox" />能成功推流到 RTMP
+服务器</label></li>
+<li><label><input type="checkbox" />美颜参数实时调节生效</label></li>
+<li><label><input type="checkbox" />切换摄像头不中断推流</label></li>
+<li><label><input
+type="checkbox" />统计显示准确（码率、帧率）</label></li>
+<li><label><input type="checkbox" />断网后能自动重连</label></li>
+<li><label><input type="checkbox" />CPU 占用 &lt; 50%
+(1080p@30fps)</label></li>
+</ul>
+<h2 id="测试方案">测试方案</h2>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 本地测试（使用 nginx-rtmp）</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-p</span> 1935:1935 <span class="at">-p</span> 8080:8080 alfg/nginx-rtmp</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 推流</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="ex">./streamer</span> <span class="st">&quot;rtmp://localhost/live/test&quot;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 播放（使用 ffplay 或 VLC）</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="ex">ffplay</span> <span class="st">&quot;rtmp://localhost/live/test&quot;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 公网测试（Bilibili/抖音等平台）</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 从平台获取推流地址和流密钥</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="ex">./streamer</span> <span class="st">&quot;rtmp://live-push.bilibili.com/live-bvc/?streamname=...&quot;</span></span></code></pre></div>
+<h2 id="扩展挑战">扩展挑战</h2>
+<ol type="1">
+<li><strong>多平台推流</strong>：同时推流到多个平台（B站、抖音、YouTube）</li>
+<li><strong>弹幕显示</strong>：从平台获取弹幕，叠加到画面上</li>
+<li><strong>场景切换</strong>：预设多个场景，快捷键切换</li>
+<li><strong>云导播</strong>：支持远程控制（WebSocket 协议）</li>
+</ol>
+<hr />
+<p><strong>完成本项目后，你将具备：</strong> - 完整主播端开发能力 -
+实际开播经验 - 实时系统调试技能</p>
+<p><strong>Part 2 完成！接下来进入 Part
+3：实时连麦（WebRTC）。</strong></p>
+</div>
+</body>
+</html>

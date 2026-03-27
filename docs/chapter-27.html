@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html" class="active">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="第27章质量监控体系">第27章：质量监控体系</h1>
+<blockquote>
+<p><strong>本章目标</strong>：建立完整的音视频质量监控体系，掌握关键指标的采集、分析和可视化方法。</p>
+</blockquote>
+<p>在生产环境中，监控是保障服务质量的关键。实时音视频系统涉及多个环节（采集、编码、传输、解码、渲染），任何环节出现问题都会影响用户体验。本章将详细介绍如何构建完整的质量监控体系。</p>
+<p><strong>本章你将学习</strong>： -
+监控指标体系的设计（音视频质量、网络、设备） - 端到端延迟测量方法 -
+音视频质量评估标准（MOS、VMAF） - 实时监控Dashboard设计 -
+告警与自动化处理</p>
+<p><strong>学习本章后，你将能够</strong>： - 设计全面的监控指标体系 -
+实现端到端延迟测量 - 搭建质量监控Dashboard - 配置有效告警策略 -
+基于监控数据优化系统</p>
+<hr />
+<h2 id="目录">目录</h2>
+<ol type="1">
+<li><a href="#1-监控指标体系">监控指标体系</a></li>
+<li><a href="#2-端到端延迟测量">端到端延迟测量</a></li>
+<li><a href="#3-音视频质量评估">音视频质量评估</a></li>
+<li><a href="#4-实时监控dashboard">实时监控Dashboard</a></li>
+<li><a href="#5-告警与自动化">告警与自动化</a></li>
+<li><a href="#6-本章总结">本章总结</a></li>
+</ol>
+<hr />
+<h2 id="监控指标体系">1. 监控指标体系</h2>
+<h3 id="监控指标分类">1.1 监控指标分类</h3>
+<figure>
+<img src="./diagrams/monitoring-metrics.svg" alt="监控指标体系" />
+<figcaption aria-hidden="true">监控指标体系</figcaption>
+</figure>
+<p><strong>监控指标三大维度</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">维度</th>
+<th style="text-align: left;">指标示例</th>
+<th style="text-align: left;">重要性</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>音视频质量</strong></td>
+<td style="text-align: left;">码率、帧率、分辨率、卡顿</td>
+<td style="text-align: left;">⭐⭐⭐⭐⭐</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>网络质量</strong></td>
+<td style="text-align: left;">延迟、丢包、抖动、带宽</td>
+<td style="text-align: left;">⭐⭐⭐⭐⭐</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>设备状态</strong></td>
+<td style="text-align: left;">CPU、内存、温度、电量</td>
+<td style="text-align: left;">⭐⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h3 id="监控理论基础">1.2 监控理论基础</h3>
+<h4 id="指标类型详解">1.2.1 指标类型详解</h4>
+<p><strong>时序数据的四种黄金指标类型</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 29%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">定义</th>
+<th style="text-align: left;">典型示例</th>
+<th style="text-align: center;">采集频率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>计数器 (Counter)</strong></td>
+<td style="text-align: left;">单调递增的累积值，只能增加或归零</td>
+<td style="text-align: left;">发送包数、接收字节数</td>
+<td style="text-align: center;">实时</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>仪表盘 (Gauge)</strong></td>
+<td style="text-align: left;">可增可减的瞬时值</td>
+<td style="text-align: left;">CPU使用率、内存占用、队列长度</td>
+<td style="text-align: center;">1-10秒</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>直方图 (Histogram)</strong></td>
+<td style="text-align: left;">采样值的分布情况</td>
+<td style="text-align: left;">延迟分布、请求大小分布</td>
+<td style="text-align: center;">事件触发</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>摘要 (Summary)</strong></td>
+<td
+style="text-align: left;">类似直方图，但计算滑动时间窗口内的分位数</td>
+<td style="text-align: left;">P99延迟、P95延迟</td>
+<td style="text-align: center;">事件触发</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么需要区分指标类型？</strong></p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Counter：适合计算速率（rate）</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 错误示例：直接用当前值判断</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>packets_sent <span class="op">&gt;</span> threshold<span class="op">)</span> <span class="op">{</span> <span class="co">/* 错误！ */</span> <span class="op">}</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">// 正确做法：计算速率</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="dt">float</span> packet_rate <span class="op">=</span> <span class="op">(</span>packets_sent <span class="op">-</span> last_packets_sent<span class="op">)</span> <span class="op">/</span> time_delta<span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Gauge：适合设置阈值告警</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>cpu_usage <span class="op">&gt;</span> <span class="fl">80.0</span><span class="op">)</span> <span class="op">{</span> <span class="co">/* 正确！ */</span> <span class="op">}</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">// Histogram：适合分析分布</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">// 不能只关注平均值， outliers 可能严重影响用户体验</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>LatencyHistogram<span class="op">.</span>Record<span class="op">(</span>rtt_ms<span class="op">);</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">// 分析：P50=50ms, P99=500ms → 部分用户体验极差</span></span></code></pre></div>
+<h4 id="采样策略">1.2.2 采样策略</h4>
+<p><strong>采样是监控系统的核心设计决策</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">采样策略</th>
+<th style="text-align: left;">原理</th>
+<th style="text-align: left;">适用场景</th>
+<th style="text-align: left;">优缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>周期性采样</strong></td>
+<td style="text-align: left;">固定时间间隔采集（如每秒一次）</td>
+<td style="text-align: left;">CPU、内存等连续指标</td>
+<td style="text-align: left;">实现简单，可能错过突发峰值</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>事件驱动采样</strong></td>
+<td style="text-align: left;">特定事件发生时采集</td>
+<td style="text-align: left;">错误、异常、状态变更</td>
+<td style="text-align: left;">精准捕获关键事件，数据量不可控</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>自适应采样</strong></td>
+<td style="text-align: left;">根据数据变化率动态调整采样频率</td>
+<td style="text-align: left;">网络抖动、码率变化</td>
+<td style="text-align: left;">平衡精度和开销，实现复杂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>头部采样</strong></td>
+<td style="text-align: left;">只采集前N个或按比例采样</td>
+<td style="text-align: left;">日志、追踪数据</td>
+<td style="text-align: left;">大幅降低数据量，可能丢失关键信息</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>尾部采样</strong></td>
+<td style="text-align: left;">延迟决策，根据完整上下文判断是否保留</td>
+<td style="text-align: left;">分布式追踪</td>
+<td style="text-align: left;">保留异常链路，需要缓存</td>
+</tr>
+</tbody>
+</table>
+<p><strong>采样率选择原则</strong>：</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 不同指标的推荐采样策略</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> SamplingConfig <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 关键指标：100%采样（不能丢数据）</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> CriticalMetrics <span class="op">{</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">float</span> packet_loss <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span>      <span class="co">// 丢包事件</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">float</span> connection_failure <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span> <span class="co">// 连接失败</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">float</span> mos_score <span class="op">=</span> <span class="fl">1.0</span><span class="op">;</span>         <span class="co">// MOS评分</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 高频指标：自适应采样</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> HighFreqMetrics <span class="op">{</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">float</span> rtp_packets <span class="op">=</span> <span class="fl">0.1</span><span class="op">;</span>       <span class="co">// 10%采样</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">float</span> frame_info <span class="op">=</span> <span class="fl">0.01</span><span class="op">;</span>       <span class="co">// 1%采样</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 聚合指标：周期性采样</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> PeriodicMetrics <span class="op">{</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> cpu_memory_ms <span class="op">=</span> <span class="dv">1000</span><span class="op">;</span>      <span class="co">// 1秒</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> bandwidth_ms <span class="op">=</span> <span class="dv">5000</span><span class="op">;</span>       <span class="co">// 5秒</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h4 id="聚合方法">1.2.3 聚合方法</h4>
+<p><strong>时间聚合（降采样）</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">方法</th>
+<th style="text-align: left;">公式</th>
+<th style="text-align: left;">适用场景</th>
+<th style="text-align: left;">注意事项</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>平均值 (Avg)</strong></td>
+<td style="text-align: left;"><span
+class="math inline">$\frac{1}{n}\sum_{i=1}^{n}x_i$</span></td>
+<td style="text-align: left;">平稳指标</td>
+<td style="text-align: left;">掩盖异常值</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>最大值 (Max)</strong></td>
+<td style="text-align: left;"><span
+class="math inline">max (<em>x</em><sub>1</sub>,<em>x</em><sub>2</sub>,...,<em>x</em><sub><em>n</em></sub>)</span></td>
+<td style="text-align: left;">延迟、资源峰值</td>
+<td style="text-align: left;">可能受噪声影响</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>最小值 (Min)</strong></td>
+<td style="text-align: left;"><span
+class="math inline">min (<em>x</em><sub>1</sub>,<em>x</em><sub>2</sub>,...,<em>x</em><sub><em>n</em></sub>)</span></td>
+<td style="text-align: left;">可用性指标</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>百分位数 (Px)</strong></td>
+<td style="text-align: left;">排序后第x%位置的值</td>
+<td style="text-align: left;">延迟、质量评估</td>
+<td style="text-align: left;">P99比Avg更能反映用户体验</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>标准差 (Std)</strong></td>
+<td style="text-align: left;"><span
+class="math inline">$\sqrt{\frac{1}{n}\sum_{i=1}^{n}(x_i-\bar{x})^2}$</span></td>
+<td style="text-align: left;">稳定性分析</td>
+<td style="text-align: left;">值越大波动越大</td>
+</tr>
+</tbody>
+</table>
+<p><strong>空间聚合（多实例合并）</strong>：</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 不同聚合方式的选择</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> <span class="kw">class</span> AggregationMethod <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    SUM<span class="op">,</span>      <span class="co">// 总和：总带宽、总连接数</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    AVG<span class="op">,</span>      <span class="co">// 平均：平均CPU、平均延迟</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    MAX<span class="op">,</span>      <span class="co">// 最大：最坏情况延迟</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    P99<span class="op">,</span>      <span class="co">// P99：用户体验边界</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    COUNT     <span class="co">// 计数：错误次数、异常数</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">// 示例：聚合10个SFU节点的指标</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> ClusterMetrics <span class="op">{</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 总出口带宽 = SUM(各节点出口带宽)</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> total_egress_bandwidth<span class="op">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 平均CPU = AVG(各节点CPU)</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> avg_cpu_usage<span class="op">;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 集群P99延迟 = P99(所有连接的延迟)</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> p99_latency_ms<span class="op">;</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 最大连接数 = MAX(各节点连接数)</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> max_connections<span class="op">;</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><strong>聚合粒度选择</strong>： -
+<strong>原始数据</strong>：1-10秒（用于实时告警和故障排查） -
+<strong>分钟级聚合</strong>：保留1-7天（用于趋势分析） -
+<strong>小时级聚合</strong>：保留30-90天（用于容量规划） -
+<strong>天级聚合</strong>：长期保留（用于业务报表）</p>
+<h3 id="音视频质量指标">1.2 音视频质量指标</h3>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 音视频质量指标</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> MediaQualityMetrics <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 视频指标</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> VideoMetrics <span class="op">{</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> target_bitrate<span class="op">;</span>        <span class="co">// 目标码率 (bps)</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> actual_bitrate<span class="op">;</span>        <span class="co">// 实际码率 (bps)</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> target_fps<span class="op">;</span>            <span class="co">// 目标帧率</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> actual_fps<span class="op">;</span>            <span class="co">// 实际帧率</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> encode_time_ms<span class="op">;</span>        <span class="co">// 编码耗时</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> width<span class="op">;</span>                 <span class="co">// 分辨率宽</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> height<span class="op">;</span>                <span class="co">// 分辨率高</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> keyframe_interval<span class="op">;</span>     <span class="co">// 关键帧间隔</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 质量相关</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> frame_drop_count<span class="op">;</span>      <span class="co">// 丢帧数</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> freeze_count<span class="op">;</span>          <span class="co">// 卡顿次数</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> freeze_duration_ms<span class="op">;</span>    <span class="co">// 卡顿时长</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> qp_average<span class="op">;</span>          <span class="co">// 平均量化参数 (越小越好)</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> video<span class="op">;</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 音频指标</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> AudioMetrics <span class="op">{</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> target_bitrate<span class="op">;</span>        <span class="co">// 目标码率</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> actual_bitrate<span class="op">;</span>        <span class="co">// 实际码率</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> sample_rate<span class="op">;</span>           <span class="co">// 采样率</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> channels<span class="op">;</span>              <span class="co">// 声道数</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> input_level<span class="op">;</span>         <span class="co">// 输入音量</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> output_level<span class="op">;</span>        <span class="co">// 输出音量</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 质量相关</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> audio_loss_count<span class="op">;</span>      <span class="co">// 音频丢包数</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> audio_expand_count<span class="op">;</span>    <span class="co">// 音频拉伸次数( concealment )</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        <span class="dt">float</span> echo_return_loss<span class="op">;</span>    <span class="co">// 回声消除效果</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> audio<span class="op">;</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 时间戳</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> timestamp_ms<span class="op">;</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="co">// 网络质量指标</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> NetworkMetrics <span class="op">{</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 往返延迟</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> rtt_ms<span class="op">;</span>                    <span class="co">// 往返时间</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 丢包</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> packet_loss_rate<span class="op">;</span>        <span class="co">// 丢包率 (0-1)</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> packets_sent<span class="op">;</span>              <span class="co">// 发送包数</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> packets_received<span class="op">;</span>          <span class="co">// 接收包数</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> packets_lost<span class="op">;</span>              <span class="co">// 丢包数</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 抖动</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> jitter_ms<span class="op">;</span>                 <span class="co">// 网络抖动</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 带宽</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> available_send_bandwidth<span class="op">;</span>  <span class="co">// 可用发送带宽</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> available_recv_bandwidth<span class="op">;</span>  <span class="co">// 可用接收带宽</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> target_bitrate<span class="op">;</span>            <span class="co">// 目标码率</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ICE状态</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string ice_state<span class="op">;</span>         <span class="co">// new/checking/connected/completed/failed</span></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string <span class="dt">connection_type</span><span class="op">;</span>   <span class="co">// udp/tcp/relay</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string <span class="dt">local_candidate_type</span><span class="op">;</span>   <span class="co">// host/srflx/relay</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string <span class="dt">remote_candidate_type</span><span class="op">;</span>  <span class="co">// host/srflx/relay</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 时间戳</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> timestamp_ms<span class="op">;</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a><span class="co">// 设备状态指标</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> DeviceMetrics <span class="op">{</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>    <span class="co">// CPU</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> cpu_usage_percent<span class="op">;</span>       <span class="co">// CPU使用率</span></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> cpu_cores<span class="op">;</span>                 <span class="co">// CPU核心数</span></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 内存</span></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> memory_total_mb<span class="op">;</span>       <span class="co">// 总内存</span></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> memory_used_mb<span class="op">;</span>        <span class="co">// 已用内存</span></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> memory_usage_percent<span class="op">;</span>    <span class="co">// 内存使用率</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 系统信息</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string os_name<span class="op">;</span>           <span class="co">// 操作系统</span></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string os_version<span class="op">;</span>        <span class="co">// 系统版本</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string device_model<span class="op">;</span>      <span class="co">// 设备型号</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 移动端特有</span></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> battery_level<span class="op">;</span>           <span class="co">// 电量 (0-1)</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> is_charging<span class="op">;</span>              <span class="co">// 是否充电</span></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> device_temperature<span class="op">;</span>      <span class="co">// 设备温度 (摄氏度)</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 时间戳</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> timestamp_ms<span class="op">;</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="指标采集实现">1.3 指标采集实现</h3>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// metrics_collector.h</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;memory&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;functional&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">// 指标采集器</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MetricsCollector <span class="op">{</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> MetricsCallback <span class="op">=</span> <span class="bu">std::</span>function<span class="op">&lt;</span><span class="dt">void</span><span class="op">(</span><span class="at">const</span> MediaQualityMetrics<span class="op">&amp;,</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">const</span> NetworkMetrics<span class="op">&amp;,</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">const</span> DeviceMetrics<span class="op">&amp;)&gt;&gt;;</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetCallback<span class="op">(</span>MetricsCallback callback<span class="op">);</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 启动采集</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Start<span class="op">(</span><span class="dt">int</span> interval_ms <span class="op">=</span> <span class="dv">1000</span><span class="op">);</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Stop<span class="op">();</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 上报原始数据</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnRtpSent<span class="op">(</span><span class="dt">int</span> packets<span class="op">,</span> <span class="dt">int</span> bytes<span class="op">);</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnRtpReceived<span class="op">(</span><span class="dt">int</span> packets<span class="op">,</span> <span class="dt">int</span> bytes<span class="op">,</span> <span class="dt">int</span> lost<span class="op">);</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnRttMeasured<span class="op">(</span><span class="dt">int</span> rtt_ms<span class="op">);</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnVideoEncoded<span class="op">(</span><span class="dt">int</span> width<span class="op">,</span> <span class="dt">int</span> height<span class="op">,</span> <span class="dt">int</span> bitrate<span class="op">,</span> <span class="dt">int</span> qp<span class="op">);</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnFrameRendered<span class="op">(</span><span class="dt">bool</span> was_dropped<span class="op">);</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取当前统计</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    MediaQualityMetrics GetMediaMetrics<span class="op">()</span> <span class="at">const</span><span class="op">;</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    NetworkMetrics GetNetworkMetrics<span class="op">()</span> <span class="at">const</span><span class="op">;</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    DeviceMetrics GetDeviceMetrics<span class="op">()</span> <span class="at">const</span><span class="op">;</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> CollectLoop<span class="op">();</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> CalculateMetrics<span class="op">();</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    MetricsCallback <span class="va">callback_</span><span class="op">;</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">bool</span><span class="op">&gt;</span> <span class="va">running_</span><span class="op">{</span><span class="kw">false</span><span class="op">};</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>thread <span class="va">collect_thread_</span><span class="op">;</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">interval_ms_</span> <span class="op">=</span> <span class="dv">1000</span><span class="op">;</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 原始数据统计</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> RawStats <span class="op">{</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> rtp_sent_packets<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> rtp_sent_bytes<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> rtp_recv_packets<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> rtp_recv_bytes<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> rtp_lost_packets<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> rtt_ms<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 视频统计</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> video_frames_encoded<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> video_frames_dropped<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> video_bitrate<span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 窗口统计（用于计算速率）</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>        <span class="kw">struct</span> WindowStat <span class="op">{</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int64_t</span> packets<span class="op">;</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int64_t</span> bytes<span class="op">;</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int64_t</span> timestamp_ms<span class="op">;</span></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>queue<span class="op">&lt;</span>WindowStat<span class="op">&gt;</span> <span class="va">send_window_</span><span class="op">;</span></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>queue<span class="op">&lt;</span>WindowStat<span class="op">&gt;</span> <span class="va">recv_window_</span><span class="op">;</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>    RawStats <span class="va">raw_stats_</span><span class="op">;</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算后的指标</span></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>    MediaQualityMetrics <span class="va">media_metrics_</span><span class="op">;</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>    NetworkMetrics <span class="va">network_metrics_</span><span class="op">;</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>    DeviceMetrics <span class="va">device_metrics_</span><span class="op">;</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">mutable</span> <span class="bu">std::</span>mutex <span class="va">metrics_mutex_</span><span class="op">;</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<hr />
+<h2 id="端到端延迟测量">2. 端到端延迟测量</h2>
+<h3 id="延迟组成分析">2.1 延迟组成分析</h3>
+<figure>
+<img src="./diagrams/e2e-latency.svg" alt="端到端延迟" />
+<figcaption aria-hidden="true">端到端延迟</figcaption>
+</figure>
+<p><strong>延迟组成</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">阶段</th>
+<th style="text-align: left;">典型值</th>
+<th style="text-align: left;">优化方法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>采集延迟</strong></td>
+<td style="text-align: left;">10-50ms</td>
+<td style="text-align: left;">减少buffer大小</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>编码延迟</strong></td>
+<td style="text-align: left;">10-100ms</td>
+<td style="text-align: left;">低延迟编码模式</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>发送端缓冲</strong></td>
+<td style="text-align: left;">20-100ms</td>
+<td style="text-align: left;">动态调整buffer</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>网络传输</strong></td>
+<td style="text-align: left;">20-200ms</td>
+<td style="text-align: left;">优化路由、减少跳数</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>接收端缓冲</strong></td>
+<td style="text-align: left;">50-200ms</td>
+<td style="text-align: left;">自适应jitter buffer</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>解码延迟</strong></td>
+<td style="text-align: left;">10-50ms</td>
+<td style="text-align: left;">硬件解码</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>渲染延迟</strong></td>
+<td style="text-align: left;">16-33ms</td>
+<td style="text-align: left;">垂直同步优化</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>总计</strong></td>
+<td style="text-align: left;"><strong>150-700ms</strong></td>
+<td style="text-align: left;">各环节优化</td>
+</tr>
+</tbody>
+</table>
+<h3 id="延迟测量方法对比">2.2 延迟测量方法对比</h3>
+<p><strong>三种主流延迟测量技术的深度对比</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">维度</th>
+<th style="text-align: left;">NTP同步法</th>
+<th style="text-align: left;">RTCP XR扩展</th>
+<th style="text-align: left;">音视频同步时差法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>精度</strong></td>
+<td style="text-align: left;">±5-10ms</td>
+<td style="text-align: left;">±1-5ms</td>
+<td style="text-align: left;">±1-3ms</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>实现复杂度</strong></td>
+<td style="text-align: left;">中</td>
+<td style="text-align: left;">低</td>
+<td style="text-align: left;">高</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>侵入性</strong></td>
+<td style="text-align: left;">低（水印）</td>
+<td style="text-align: left;">无（协议扩展）</td>
+<td style="text-align: left;">高（需改采集/渲染）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>时钟要求</strong></td>
+<td style="text-align: left;">两端NTP同步</td>
+<td style="text-align: left;">无需同步</td>
+<td style="text-align: left;">同一参考时钟</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>适用场景</strong></td>
+<td style="text-align: left;">实验室测试</td>
+<td style="text-align: left;">生产环境</td>
+<td style="text-align: left;">高精度需求</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>额外开销</strong></td>
+<td style="text-align: left;">水印编码/解码</td>
+<td style="text-align: left;">少量控制包</td>
+<td style="text-align: left;">无时钟同步开销</td>
+</tr>
+</tbody>
+</table>
+<h4 id="ntp同步法详解">2.2.1 NTP同步法详解</h4>
+<p><strong>原理</strong>： 1.
+发送端在视频帧中嵌入当前NTP时间戳（水印/二维码） 2.
+接收端解码识别水印，提取发送时间 3. 延迟 = 接收端当前时间 - 水印时间</p>
+<p><strong>数学推导</strong>：</p>
+<p>假设： - 发送端NTP时间：<span
+class="math inline"><em>T</em><sub><em>s</em></sub></span> -
+接收端NTP时间：<span
+class="math inline"><em>T</em><sub><em>r</em></sub></span> -
+真实延迟：<span class="math inline"><em>D</em></span> - 时钟偏差：<span
+class="math inline"><em>Δ</em> = <em>T</em><sub><em>s</em></sub><sup><em>r</em><em>e</em><em>a</em><em>l</em></sup> − <em>T</em><sub><em>r</em></sub><sup><em>r</em><em>e</em><em>a</em><em>l</em></sup></span></p>
+<p>则测量延迟：<span
+class="math inline"><em>D</em><sub><em>m</em><em>e</em><em>a</em><em>s</em><em>u</em><em>r</em><em>e</em><em>d</em></sub> = <em>T</em><sub><em>r</em></sub> − <em>T</em><sub><em>s</em></sub> = <em>D</em> + <em>Δ</em></span></p>
+<p><strong>精度限制</strong>：NTP同步精度通常为5-10ms，这是该方法的误差下限。</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 基于NTP的延迟测量</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NtpLatencyMeasurer <span class="op">{</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 发送端在视频中嵌入时间戳水印</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> EmbedTimestampWatermark<span class="op">(</span>VideoFrame<span class="op">*</span> frame<span class="op">,</span> <span class="dt">int64_t</span> ntp_time_ms<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 将时间戳编码为QR码</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint8_t</span> qr_data<span class="op">[</span><span class="dv">64</span><span class="op">];</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        EncodeTimestampToQR<span class="op">(</span>ntp_time_ms<span class="op">,</span> qr_data<span class="op">);</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 嵌入到帧的角落（通常右下角，不遮挡内容）</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        OverlayQRCode<span class="op">(</span>frame<span class="op">,</span> qr_data<span class="op">,</span> </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>                      frame<span class="op">-&gt;</span>width <span class="op">-</span> <span class="dv">100</span><span class="op">,</span>   <span class="co">// x</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>                      frame<span class="op">-&gt;</span>height <span class="op">-</span> <span class="dv">100</span><span class="op">,</span>  <span class="co">// y</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>                      <span class="dv">80</span><span class="op">,</span> <span class="dv">80</span><span class="op">);</span>              <span class="co">// size</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 接收端检测水印并计算延迟</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> DetectAndCalculateLatency<span class="op">(</span><span class="at">const</span> VideoFrame<span class="op">&amp;</span> frame<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 提取区域</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint8_t</span> extracted_qr<span class="op">[</span><span class="dv">64</span><span class="op">];</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        ExtractRegion<span class="op">(</span>frame<span class="op">,</span> </span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>                      frame<span class="op">.</span>width <span class="op">-</span> <span class="dv">100</span><span class="op">,</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>                      frame<span class="op">.</span>height <span class="op">-</span> <span class="dv">100</span><span class="op">,</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>                      <span class="dv">80</span><span class="op">,</span> <span class="dv">80</span><span class="op">,</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>                      extracted_qr<span class="op">);</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 解码时间戳</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> send_time <span class="op">=</span> DecodeQRCode<span class="op">(</span>extracted_qr<span class="op">);</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> receive_time <span class="op">=</span> GetCurrentNtpTimeMs<span class="op">();</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> receive_time <span class="op">-</span> send_time<span class="op">;</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> EncodeTimestampToQR<span class="op">(</span><span class="dt">int64_t</span> timestamp<span class="op">,</span> <span class="dt">uint8_t</span><span class="op">*</span> out<span class="op">);</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> DecodeQRCode<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> qr_data<span class="op">);</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OverlayQRCode<span class="op">(</span>VideoFrame<span class="op">*</span> frame<span class="op">,</span> <span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> qr<span class="op">,</span> <span class="dt">int</span> x<span class="op">,</span> <span class="dt">int</span> y<span class="op">,</span> <span class="dt">int</span> w<span class="op">,</span> <span class="dt">int</span> h<span class="op">);</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> ExtractRegion<span class="op">(</span><span class="at">const</span> VideoFrame<span class="op">&amp;</span> frame<span class="op">,</span> <span class="dt">int</span> x<span class="op">,</span> <span class="dt">int</span> y<span class="op">,</span> <span class="dt">int</span> w<span class="op">,</span> <span class="dt">int</span> h<span class="op">,</span> <span class="dt">uint8_t</span><span class="op">*</span> out<span class="op">);</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> GetCurrentNtpTimeMs<span class="op">();</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<p><strong>适用场景</strong>：实验室环境、自动化测试、需要精确测量但可接受少量侵入的场景。</p>
+<h4 id="rtcp-xr扩展详解">2.2.2 RTCP XR扩展详解</h4>
+<p><strong>原理</strong>：利用RTCP Extended Report (XR)
+协议扩展，通过往返时间推算单向延迟。</p>
+<p><strong>关键公式</strong>：</p>
+<p><span
+class="math display"><em>R</em><em>T</em><em>T</em> = (<em>T</em><sub><em>r</em><em>e</em><em>c</em><em>e</em><em>i</em><em>v</em><em>e</em></sub>−<em>T</em><sub><em>s</em><em>e</em><em>n</em><em>d</em></sub>) − (<em>T</em><sub><em>p</em><em>r</em><em>o</em><em>c</em><em>e</em><em>s</em><em>s</em></sub>)</span></p>
+<p><span class="math display">$$Delay_{one-way} \approx
+\frac{RTT}{2}$$</span></p>
+<p><strong>优点</strong>： - 无需修改媒体流 - 标准协议，兼容性好 -
+实现简单</p>
+<p><strong>局限</strong>： - 假设往返路径对称（实际往往不对称） -
+受网络抖动影响大 - 无法精确测量端到端（只能测量到对端协议栈）</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// RTCP Extended Report (XR) 用于延迟测量</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RtcpXrDelayReport <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// RFC 3611: RTCP XR</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> XrBlock <span class="op">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint8_t</span> <span class="dt">block_type</span><span class="op">;</span>      <span class="co">// BT = 4 (Receiver Reference Time)</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint8_t</span> reserved<span class="op">;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint16_t</span> block_length<span class="op">;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint32_t</span> ntp_timestamp_msw<span class="op">;</span>  <span class="co">// NTP timestamp (MSW)</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint32_t</span> ntp_timestamp_lsw<span class="op">;</span>  <span class="co">// NTP timestamp (LSW)</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 发送端发送LRR (Last Receiver Report)</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SendLRR<span class="op">(</span><span class="dt">uint32_t</span> ssrc<span class="op">,</span> <span class="dt">uint32_t</span> lrr<span class="op">,</span> <span class="dt">uint32_t</span> dlrr<span class="op">);</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算往返时间</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> CalculateRoundTripTime<span class="op">(</span><span class="dt">uint32_t</span> lrr<span class="op">,</span> <span class="dt">uint32_t</span> dlrr<span class="op">);</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算端到端延迟（需要时钟同步）</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> CalculateEndToEndDelay<span class="op">(</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> sender_ntp_time<span class="op">,</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> receiver_ntp_time<span class="op">,</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> rtt</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 单向延迟估算 = RTT/2</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 更精确的公式需要考虑时钟偏移</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> rtt <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 高级：使用时钟偏移补偿</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> CalculateOneWayDelayWithSkew<span class="op">(</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> t_send<span class="op">,</span>      <span class="co">// 发送时间（发送端时钟）</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> t_receive<span class="op">,</span>   <span class="co">// 接收时间（接收端时钟）</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> rtt<span class="op">,</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> skew_ppm      <span class="co">// 时钟漂移（ppm）</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h4 id="音视频同步时差法详解">2.2.3 音视频同步时差法详解</h4>
+<p><strong>原理</strong>：利用音视频采集时使用同一参考时钟的特性，通过音视频同步的时差来推算延迟。</p>
+<p><strong>核心洞察</strong>： - 音视频在采集端是同步的（同一时间戳） -
+在渲染端，音视频也是同步渲染的 - 延迟差异反映了传输路径的差异</p>
+<p><strong>公式推导</strong>：</p>
+<p>设： - 视频采集时间：<span
+class="math inline"><em>T</em><sub><em>v</em>, <em>c</em><em>a</em><em>p</em></sub></span>
+- 音频采集时间：<span
+class="math inline"><em>T</em><sub><em>a</em>, <em>c</em><em>a</em><em>p</em></sub></span>
+- 视频渲染时间：<span
+class="math inline"><em>T</em><sub><em>v</em>, <em>r</em><em>e</em><em>n</em></sub></span>
+- 音频渲染时间：<span
+class="math inline"><em>T</em><sub><em>a</em>, <em>r</em><em>e</em><em>n</em></sub></span></p>
+<p>由于采集同步：<span
+class="math inline"><em>T</em><sub><em>v</em>, <em>c</em><em>a</em><em>p</em></sub> = <em>T</em><sub><em>a</em>, <em>c</em><em>a</em><em>p</em></sub></span></p>
+<p>音视频延迟： <span
+class="math display"><em>D</em><sub><em>v</em></sub> = <em>T</em><sub><em>v</em>, <em>r</em><em>e</em><em>n</em></sub> − <em>T</em><sub><em>v</em>, <em>c</em><em>a</em><em>p</em></sub></span>
+<span
+class="math display"><em>D</em><sub><em>a</em></sub> = <em>T</em><sub><em>a</em>, <em>r</em><em>e</em><em>n</em></sub> − <em>T</em><sub><em>a</em>, <em>c</em><em>a</em><em>p</em></sub></span></p>
+<p>音视频时差：<span
+class="math inline"><em>Δ</em> = <em>D</em><sub><em>v</em></sub> − <em>D</em><sub><em>a</em></sub> = (<em>T</em><sub><em>v</em>, <em>r</em><em>e</em><em>n</em></sub>−<em>T</em><sub><em>a</em>, <em>r</em><em>e</em><em>n</em></sub>)</span></p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 利用音视频同步信息计算延迟</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AVSyncLatencyCalculator <span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 音视频采集时使用同一个参考时钟</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> RecordCaptureTimestamp<span class="op">(</span><span class="dt">int64_t</span> video_timestamp<span class="op">,</span> <span class="dt">int64_t</span> audio_timestamp<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 正常情况下 video_timestamp ≈ audio_timestamp</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">capture_sync_point_</span> <span class="op">=</span> <span class="op">(</span>video_timestamp <span class="op">+</span> audio_timestamp<span class="op">)</span> <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 渲染时记录时间</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> RecordRenderTimestamp<span class="op">(</span><span class="dt">int64_t</span> video_timestamp<span class="op">,</span> <span class="dt">int64_t</span> audio_timestamp<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> now <span class="op">=</span> GetMonotonicTimeMs<span class="op">();</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 视频延迟</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>video_timestamp <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>            <span class="va">video_delay_samples_</span><span class="op">.</span>push_back<span class="op">(</span>now <span class="op">-</span> video_timestamp<span class="op">);</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 音频延迟</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>audio_timestamp <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>            <span class="va">audio_delay_samples_</span><span class="op">.</span>push_back<span class="op">(</span>now <span class="op">-</span> audio_timestamp<span class="op">);</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算延迟统计</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> LatencyStats <span class="op">{</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> video_avg_ms<span class="op">;</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> video_p99_ms<span class="op">;</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> audio_avg_ms<span class="op">;</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> audio_p99_ms<span class="op">;</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> av_diff_ms<span class="op">;</span>  <span class="co">// 音视频延迟差</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    LatencyStats CalculateLatency<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>        LatencyStats stats<span class="op">;</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>        stats<span class="op">.</span>video_avg_ms <span class="op">=</span> CalculateAverage<span class="op">(</span><span class="va">video_delay_samples_</span><span class="op">);</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>        stats<span class="op">.</span>video_p99_ms <span class="op">=</span> CalculatePercentile<span class="op">(</span><span class="va">video_delay_samples_</span><span class="op">,</span> <span class="dv">99</span><span class="op">);</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>        stats<span class="op">.</span>audio_avg_ms <span class="op">=</span> CalculateAverage<span class="op">(</span><span class="va">audio_delay_samples_</span><span class="op">);</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>        stats<span class="op">.</span>audio_p99_ms <span class="op">=</span> CalculatePercentile<span class="op">(</span><span class="va">audio_delay_samples_</span><span class="op">,</span> <span class="dv">99</span><span class="op">);</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>        stats<span class="op">.</span>av_diff_ms <span class="op">=</span> stats<span class="op">.</span>video_avg_ms <span class="op">-</span> stats<span class="op">.</span>audio_avg_ms<span class="op">;</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> stats<span class="op">;</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> <span class="va">capture_sync_point_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> <span class="va">video_delay_samples_</span><span class="op">;</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> <span class="va">audio_delay_samples_</span><span class="op">;</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> CalculateAverage<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;&amp;</span> samples<span class="op">);</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> CalculatePercentile<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;&amp;</span> samples<span class="op">,</span> <span class="dt">int</span> p<span class="op">);</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> GetMonotonicTimeMs<span class="op">();</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><strong>三种方法选型建议</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">场景</th>
+<th style="text-align: left;">推荐方法</th>
+<th style="text-align: left;">理由</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">生产监控</td>
+<td style="text-align: left;">RTCP XR</td>
+<td style="text-align: left;">低开销、标准化</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">精度测试</td>
+<td style="text-align: left;">音视频同步法</td>
+<td style="text-align: left;">最高精度</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">实验室</td>
+<td style="text-align: left;">NTP水印法</td>
+<td style="text-align: left;">直观、可视化</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">移动端</td>
+<td style="text-align: left;">音视频同步法</td>
+<td style="text-align: left;">硬件时钟统一</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 基于NTP的延迟测量</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NtpLatencyMeasurer <span class="op">{</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 发送端在视频中嵌入时间戳水印</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> EmbedTimestampWatermark<span class="op">(</span>VideoFrame<span class="op">*</span> frame<span class="op">,</span> <span class="dt">int64_t</span> ntp_time_ms<span class="op">);</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 接收端检测水印并计算延迟</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> DetectAndCalculateLatency<span class="op">(</span><span class="at">const</span> VideoFrame<span class="op">&amp;</span> frame<span class="op">);</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 生成时间戳水印（二维码或数字）</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> GenerateTimestampQRCode<span class="op">(</span><span class="dt">int64_t</span> timestamp<span class="op">,</span> <span class="dt">uint8_t</span><span class="op">*</span> buffer<span class="op">);</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 解析水印</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> ParseTimestampQRCode<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> buffer<span class="op">);</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<p><strong>方法二：RTCP XR扩展</strong></p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// RTCP Extended Report (XR) 用于延迟测量</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RtcpXrDelayReport <span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 发送端发送LRR (Last Receiver Report)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SendLRR<span class="op">(</span><span class="dt">uint32_t</span> ssrc<span class="op">,</span> <span class="dt">uint32_t</span> lrr<span class="op">,</span> <span class="dt">uint32_t</span> dlrr<span class="op">);</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算往返时间</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> CalculateRoundTripTime<span class="op">(</span><span class="dt">uint32_t</span> lrr<span class="op">,</span> <span class="dt">uint32_t</span> dlrr<span class="op">);</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算端到端延迟（需要时钟同步）</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> CalculateEndToEndDelay<span class="op">(</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> sender_ntp_time<span class="op">,</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> receiver_ntp_time<span class="op">,</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> rtt</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">);</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><strong>方法三：音视频同步时差法</strong></p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 利用音视频同步信息计算延迟</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> A<span class="op">/</span>VSyncLatencyCalculator <span class="op">{</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 音视频采集时使用同一个参考时钟</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> RecordCaptureTimestamp<span class="op">(</span><span class="dt">int64_t</span> video_timestamp<span class="op">,</span> <span class="dt">int64_t</span> audio_timestamp<span class="op">);</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 渲染时记录时间</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> RecordRenderTimestamp<span class="op">(</span><span class="dt">int64_t</span> video_timestamp<span class="op">,</span> <span class="dt">int64_t</span> render_time<span class="op">);</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算延迟</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> CalculateLatency<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 延迟 = 渲染时间 - 采集时间</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">render_time_</span> <span class="op">-</span> <span class="va">capture_time_</span><span class="op">;</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<hr />
+<h2 id="音视频质量评估">3. 音视频质量评估</h2>
+<h3 id="mos评分系统">3.1 MOS评分系统</h3>
+<p><strong>MOS（Mean Opinion Score）</strong>是主观质量评分的标准：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">分值</th>
+<th style="text-align: left;">质量等级</th>
+<th style="text-align: left;">用户感受</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">优秀</td>
+<td style="text-align: left;">完全满意，无感知缺陷</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">良好</td>
+<td style="text-align: left;">满意，有轻微缺陷但不影响</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">一般</td>
+<td style="text-align: left;">有些不满意，有感知缺陷</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">较差</td>
+<td style="text-align: left;">不满意，有明显缺陷</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">很差</td>
+<td style="text-align: left;">完全不满意，无法使用</td>
+</tr>
+</tbody>
+</table>
+<h4 id="e-model理论详解">3.1.1 E-Model理论详解</h4>
+<p><strong>E-Model（ITU-T
+G.107）</strong>是业界广泛使用的语音质量客观评估模型，它通过传输参数计算期望的语音质量评分（R值），再转换为MOS。</p>
+<p><strong>R值计算公式</strong>：</p>
+<p><span
+class="math display"><em>R</em> = <em>R</em><sub>0</sub> − <em>I</em><sub><em>s</em></sub> − <em>I</em><sub><em>d</em></sub> − <em>I</em><sub><em>e</em>, <em>e</em><em>f</em><em>f</em></sub> + <em>A</em></span></p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">含义</th>
+<th style="text-align: center;">典型范围</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline"><em>R</em><sub>0</sub></span></td>
+<td style="text-align: left;">基本信噪比因子（理想条件下的最高分）</td>
+<td style="text-align: center;">90-100</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline"><em>I</em><sub><em>s</em></sub></span></td>
+<td style="text-align: left;">同时损伤因子（编解码、量化等）</td>
+<td style="text-align: center;">0-30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline"><em>I</em><sub><em>d</em></sub></span></td>
+<td style="text-align: left;">延迟损伤因子（网络延迟造成）</td>
+<td style="text-align: center;">0-50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline"><em>I</em><sub><em>e</em>, <em>e</em><em>f</em><em>f</em></sub></span></td>
+<td style="text-align: left;">设备损伤因子（丢包、抖动等）</td>
+<td style="text-align: center;">0-40</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline"><em>A</em></span></td>
+<td style="text-align: left;">优势因子（用户对技术的容忍度）</td>
+<td style="text-align: center;">0-20</td>
+</tr>
+</tbody>
+</table>
+<p><strong>延迟损伤因子 <span
+class="math inline"><em>I</em><sub><em>d</em></sub></span>
+的计算</strong>：</p>
+<p><span
+class="math display"><em>I</em><sub><em>d</em></sub> = 0.024<em>d</em> + 0.11(<em>d</em>−177.3) ⋅ <em>H</em>(<em>d</em>−177.3)</span></p>
+<p>其中： - <span
+class="math inline"><em>d</em></span>：单向端到端延迟（毫秒） - <span
+class="math inline"><em>H</em>(<em>x</em>)</span>：单位阶跃函数，<span
+class="math inline"><em>x</em> &lt; 0</span> 时为0，<span
+class="math inline"><em>x</em> ≥ 0</span> 时为1 -
+<strong>177.3ms</strong>：延迟损伤开始显著增加的临界点</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// E-Model延迟损伤计算</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> EModelCalculator <span class="op">{</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算延迟损伤因子 Id</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="dt">double</span> CalculateDelayImpairment<span class="op">(</span><span class="dt">double</span> one_way_delay_ms<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>one_way_delay_ms <span class="op">&lt;=</span> <span class="fl">177.3</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="fl">0.024</span> <span class="op">*</span> one_way_delay_ms<span class="op">;</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="fl">0.024</span> <span class="op">*</span> one_way_delay_ms <span class="op">+</span> </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                   <span class="fl">0.11</span> <span class="op">*</span> <span class="op">(</span>one_way_delay_ms <span class="op">-</span> <span class="fl">177.3</span><span class="op">);</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算丢包损伤因子 Ie_eff</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="dt">double</span> CalculatePacketLossImpairment<span class="op">(</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> packet_loss_rate<span class="op">,</span>  <span class="co">// 0-1</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> <span class="dt">codec_type</span>            <span class="co">// 编解码器类型</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 不同编解码器的丢包鲁棒性参数</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>        <span class="kw">struct</span> CodecParams <span class="op">{</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>            <span class="dt">double</span> Ie<span class="op">;</span>      <span class="co">// 设备损伤基准</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>            <span class="dt">double</span> Bpl<span class="op">;</span>     <span class="co">// 丢包鲁棒性因子</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">static</span> <span class="at">const</span> <span class="bu">std::</span>map<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> CodecParams<span class="op">&gt;</span> codec_params <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">{</span><span class="dv">0</span><span class="op">,</span> <span class="op">{</span><span class="dv">0</span><span class="op">,</span> <span class="fl">25.0</span><span class="op">}},</span>     <span class="co">// G.711</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>            <span class="op">{</span><span class="dv">1</span><span class="op">,</span> <span class="op">{</span><span class="dv">10</span><span class="op">,</span> <span class="fl">15.0</span><span class="op">}},</span>    <span class="co">// G.729</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>            <span class="op">{</span><span class="dv">2</span><span class="op">,</span> <span class="op">{</span><span class="dv">15</span><span class="op">,</span> <span class="fl">10.0</span><span class="op">}},</span>    <span class="co">// AMR</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>            <span class="op">{</span><span class="dv">3</span><span class="op">,</span> <span class="op">{</span><span class="dv">5</span><span class="op">,</span> <span class="fl">20.0</span><span class="op">}},</span>     <span class="co">// Opus</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> it <span class="op">=</span> codec_params<span class="op">.</span>find<span class="op">(</span><span class="dt">codec_type</span><span class="op">);</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>it <span class="op">==</span> codec_params<span class="op">.</span>end<span class="op">())</span> <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> params <span class="op">=</span> it<span class="op">-&gt;</span>second<span class="op">;</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> params<span class="op">.</span>Ie <span class="op">+</span> <span class="op">(</span><span class="dv">95</span> <span class="op">-</span> params<span class="op">.</span>Ie<span class="op">)</span> <span class="op">*</span> </span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>               <span class="op">(</span>packet_loss_rate <span class="op">/</span> <span class="op">(</span>packet_loss_rate <span class="op">+</span> params<span class="op">.</span>Bpl<span class="op">));</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算R值</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="dt">double</span> CalculateRValue<span class="op">(</span></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> rtt_ms<span class="op">,</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> packet_loss_rate<span class="op">,</span></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> <span class="dt">codec_type</span> <span class="op">=</span> <span class="dv">3</span><span class="op">,</span>    <span class="co">// 默认Opus</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> advantage_factor <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>    <span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">double</span> R0 <span class="op">=</span> <span class="fl">93.2</span><span class="op">;</span>  <span class="co">// 典型值</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> Is <span class="op">=</span> <span class="fl">15.0</span><span class="op">;</span>        <span class="co">// 编解码损伤（Opus）</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> Id <span class="op">=</span> CalculateDelayImpairment<span class="op">(</span>rtt_ms <span class="op">/</span> <span class="dv">2</span><span class="op">);</span>  <span class="co">// 单向延迟</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> Ie_eff <span class="op">=</span> CalculatePacketLossImpairment<span class="op">(</span>packet_loss_rate<span class="op">,</span> <span class="dt">codec_type</span><span class="op">);</span></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> R0 <span class="op">-</span> Is <span class="op">-</span> Id <span class="op">-</span> Ie_eff <span class="op">+</span> advantage_factor<span class="op">;</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>    <span class="co">// R值转MOS</span></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="dt">double</span> RtoMOS<span class="op">(</span><span class="dt">double</span> R<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>R <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> <span class="fl">1.0</span><span class="op">;</span></span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>R <span class="op">&gt;</span> <span class="dv">100</span><span class="op">)</span> <span class="cf">return</span> <span class="fl">4.5</span><span class="op">;</span></span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ITU-T G.107 标准转换公式</span></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span> <span class="op">+</span> <span class="fl">0.035</span> <span class="op">*</span> R <span class="op">+</span> R <span class="op">*</span> <span class="op">(</span>R <span class="op">-</span> <span class="dv">60</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="dv">100</span> <span class="op">-</span> R<span class="op">)</span> <span class="op">*</span> <span class="fl">7e-6</span><span class="op">;</span></span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><strong>关键阈值参考</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">R值</th>
+<th style="text-align: center;">MOS</th>
+<th style="text-align: left;">用户满意度</th>
+<th style="text-align: center;">对应延迟（无丢包）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">90-100</td>
+<td style="text-align: center;">4.3-4.5</td>
+<td style="text-align: left;">非常满意</td>
+<td style="text-align: center;">&lt;50ms</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">80-90</td>
+<td style="text-align: center;">4.0-4.3</td>
+<td style="text-align: left;">满意</td>
+<td style="text-align: center;">50-150ms</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">70-80</td>
+<td style="text-align: center;">3.6-4.0</td>
+<td style="text-align: left;">基本满意</td>
+<td style="text-align: center;">150-300ms</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">60-70</td>
+<td style="text-align: center;">3.1-3.6</td>
+<td style="text-align: left;">有些不满</td>
+<td style="text-align: center;">300-500ms</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">50-60</td>
+<td style="text-align: center;">2.6-3.1</td>
+<td style="text-align: left;">不满意</td>
+<td style="text-align: center;">500-700ms</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">&lt;50</td>
+<td style="text-align: center;">&lt;2.6</td>
+<td style="text-align: left;">无法接受</td>
+<td style="text-align: center;">&gt;700ms</td>
+</tr>
+</tbody>
+</table>
+<h4 id="视频mos模型">3.1.2 视频MOS模型</h4>
+<p>视频质量评估比音频更复杂，需要考虑：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">因素</th>
+<th style="text-align: center;">权重</th>
+<th style="text-align: left;">影响说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>分辨率</strong></td>
+<td style="text-align: center;">高</td>
+<td style="text-align: left;">低于期望值会显著降低满意度</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>帧率</strong></td>
+<td style="text-align: center;">中</td>
+<td style="text-align: left;">&lt;15fps明显感知卡顿</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>卡顿</strong></td>
+<td style="text-align: center;">极高</td>
+<td style="text-align: left;">freezes 是最差的用户体验</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>码率/压缩</strong></td>
+<td style="text-align: center;">中</td>
+<td style="text-align: left;">影响画面清晰度</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>延迟</strong></td>
+<td style="text-align: center;">中</td>
+<td style="text-align: left;">主要影响交互体验</td>
+</tr>
+</tbody>
+</table>
+<p><strong>客观MOS估算公式</strong>：</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 基于网络指标的MOS估算</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MosCalculator <span class="op">{</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 音频MOS (E-Model)</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="dt">double</span> CalculateAudioMOS<span class="op">(</span><span class="at">const</span> NetworkMetrics<span class="op">&amp;</span> network<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 简化的E-Model计算</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> delay_factor <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>network<span class="op">.</span>rtt_ms <span class="op">&lt;</span> <span class="dv">150</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>            delay_factor <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>network<span class="op">.</span>rtt_ms <span class="op">&lt;</span> <span class="dv">400</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>            delay_factor <span class="op">=</span> <span class="op">(</span>network<span class="op">.</span>rtt_ms <span class="op">-</span> <span class="dv">150</span><span class="op">)</span> <span class="op">*</span> <span class="fl">0.01</span><span class="op">;</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>            delay_factor <span class="op">=</span> <span class="fl">2.5</span> <span class="op">+</span> <span class="op">(</span>network<span class="op">.</span>rtt_ms <span class="op">-</span> <span class="dv">400</span><span class="op">)</span> <span class="op">*</span> <span class="fl">0.02</span><span class="op">;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> loss_factor <span class="op">=</span> network<span class="op">.</span>packet_loss_rate <span class="op">*</span> <span class="dv">100</span> <span class="op">*</span> <span class="fl">0.3</span><span class="op">;</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> r_value <span class="op">=</span> <span class="fl">93.2</span> <span class="op">-</span> delay_factor <span class="op">-</span> loss_factor<span class="op">;</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>        <span class="co">// R值转MOS</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>r_value <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>r_value <span class="op">&gt;</span> <span class="dv">100</span><span class="op">)</span> <span class="cf">return</span> <span class="fl">4.5</span><span class="op">;</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span> <span class="op">+</span> <span class="fl">0.035</span> <span class="op">*</span> r_value <span class="op">+</span> r_value <span class="op">*</span> <span class="op">(</span>r_value <span class="op">-</span> <span class="dv">60</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="dv">100</span> <span class="op">-</span> r_value<span class="op">)</span> <span class="op">*</span> <span class="fl">7e-6</span><span class="op">;</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 视频MOS (简化的质量模型)</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="dt">double</span> CalculateVideoMOS<span class="op">(</span><span class="at">const</span> MediaQualityMetrics<span class="op">&amp;</span> media<span class="op">,</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">const</span> NetworkMetrics<span class="op">&amp;</span> network<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> score <span class="op">=</span> <span class="fl">5.0</span><span class="op">;</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 帧率影响</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>media<span class="op">.</span>video<span class="op">.</span>actual_fps <span class="op">&lt;</span> <span class="dv">15</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>            score <span class="op">-=</span> <span class="op">(</span><span class="dv">15</span> <span class="op">-</span> media<span class="op">.</span>video<span class="op">.</span>actual_fps<span class="op">)</span> <span class="op">*</span> <span class="fl">0.1</span><span class="op">;</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 分辨率影响</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> pixels <span class="op">=</span> media<span class="op">.</span>video<span class="op">.</span>width <span class="op">*</span> media<span class="op">.</span>video<span class="op">.</span>height<span class="op">;</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>pixels <span class="op">&lt;</span> <span class="dv">640</span> <span class="op">*</span> <span class="dv">480</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>            score <span class="op">-=</span> <span class="fl">0.5</span><span class="op">;</span></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 卡顿影响</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>        score <span class="op">-=</span> media<span class="op">.</span>video<span class="op">.</span>freeze_count <span class="op">*</span> <span class="fl">0.3</span><span class="op">;</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 丢包影响</span></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>        score <span class="op">-=</span> network<span class="op">.</span>packet_loss_rate <span class="op">*</span> <span class="dv">100</span> <span class="op">*</span> <span class="fl">0.05</span><span class="op">;</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">std::</span>max<span class="op">(</span><span class="fl">1.0</span><span class="op">,</span> <span class="bu">std::</span>min<span class="op">(</span><span class="fl">5.0</span><span class="op">,</span> score<span class="op">));</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="vmaf视频质量评估">3.2 VMAF视频质量评估</h3>
+<p><strong>VMAF（Video Multi-method Assessment
+Fusion）</strong>是Netflix开源的视频质量评估算法。</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// VMAF集成</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifdef USE_VMAF</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VMAFAnalyzer <span class="op">{</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> model_path<span class="op">);</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 计算VMAF分数</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> CalculateVMAF<span class="op">(</span><span class="at">const</span> VideoFrame<span class="op">&amp;</span> reference<span class="op">,</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>                         <span class="at">const</span> VideoFrame<span class="op">&amp;</span> distorted<span class="op">);</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 批量计算</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> CalculateVMAF<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&amp;</span> reference_frames<span class="op">,</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>                         <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&amp;</span> distorted_frames<span class="op">);</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span><span class="op">*</span> <span class="va">vmaf_context_</span> <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif </span><span class="co">// USE_VMAF</span></span></code></pre></div>
+<hr />
+<h2 id="实时监控dashboard">4. 实时监控Dashboard</h2>
+<h3 id="dashboard设计">4.1 Dashboard设计</h3>
+<figure>
+<img src="./diagrams/quality-dashboard.svg" alt="质量监控Dashboard" />
+<figcaption aria-hidden="true">质量监控Dashboard</figcaption>
+</figure>
+<h3 id="数据上报系统">4.2 数据上报系统</h3>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// metrics_reporter.h</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 监控数据上报器</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MetricsReporter <span class="op">{</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> Config <span class="op">{</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string endpoint<span class="op">;</span>           <span class="co">// 上报地址</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> batch_size <span class="op">=</span> <span class="dv">100</span><span class="op">;</span>           <span class="co">// 批量上报大小</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> flush_interval_ms <span class="op">=</span> <span class="dv">5000</span><span class="op">;</span>   <span class="co">// 刷新间隔</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">bool</span> enable_compression <span class="op">=</span> <span class="kw">true</span><span class="op">;</span> <span class="co">// 启用压缩</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">(</span><span class="at">const</span> Config<span class="op">&amp;</span> config<span class="op">);</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Shutdown<span class="op">();</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 上报指标</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> ReportMetrics<span class="op">(</span><span class="at">const</span> MediaQualityMetrics<span class="op">&amp;</span> media<span class="op">,</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>                       <span class="at">const</span> NetworkMetrics<span class="op">&amp;</span> network<span class="op">,</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>                       <span class="at">const</span> DeviceMetrics<span class="op">&amp;</span> device<span class="op">);</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 上报事件</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> ReportEvent<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> <span class="dt">event_type</span><span class="op">,</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>                     <span class="at">const</span> <span class="bu">std::</span>map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> <span class="bu">std::</span>string<span class="op">&gt;&amp;</span> properties<span class="op">);</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 立即刷新</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Flush<span class="op">();</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> FlushLoop<span class="op">();</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> SendBatch<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">&gt;&amp;</span> batch<span class="op">);</span></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    Config <span class="va">config_</span><span class="op">;</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">&gt;</span> <span class="va">buffer_</span><span class="op">;</span></span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>mutex <span class="va">buffer_mutex_</span><span class="op">;</span></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>thread <span class="va">flush_thread_</span><span class="op">;</span></span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>atomic<span class="op">&lt;</span><span class="dt">bool</span><span class="op">&gt;</span> <span class="va">running_</span><span class="op">{</span><span class="kw">false</span><span class="op">};</span></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="grafana-dashboard-json">4.3 Grafana Dashboard JSON</h3>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;dashboard&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Live Streaming Quality&quot;</span><span class="fu">,</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;panels&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Video Bitrate&quot;</span><span class="fu">,</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;graph&quot;</span><span class="fu">,</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;targets&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>          <span class="fu">{</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;expr&quot;</span><span class="fu">:</span> <span class="st">&quot;video_bitrate{job=</span><span class="ch">\&quot;</span><span class="st">live-streaming</span><span class="ch">\&quot;</span><span class="st">}&quot;</span><span class="fu">,</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;legendFormat&quot;</span><span class="fu">:</span> <span class="st">&quot;{{user_id}}&quot;</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>          <span class="fu">}</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>        <span class="ot">]</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Packet Loss Rate&quot;</span><span class="fu">,</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;stat&quot;</span><span class="fu">,</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;targets&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>          <span class="fu">{</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;expr&quot;</span><span class="fu">:</span> <span class="st">&quot;packet_loss_rate{job=</span><span class="ch">\&quot;</span><span class="st">live-streaming</span><span class="ch">\&quot;</span><span class="st">}&quot;</span><span class="fu">,</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;thresholds&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">0.01</span><span class="ot">,</span> <span class="fl">0.05</span><span class="ot">]</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>          <span class="fu">}</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>        <span class="ot">]</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;MOS Score&quot;</span><span class="fu">,</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;gauge&quot;</span><span class="fu">,</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;targets&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>          <span class="fu">{</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;expr&quot;</span><span class="fu">:</span> <span class="st">&quot;mos_score{job=</span><span class="ch">\&quot;</span><span class="st">live-streaming</span><span class="ch">\&quot;</span><span class="st">}&quot;</span><span class="fu">,</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;min&quot;</span><span class="fu">:</span> <span class="dv">1</span><span class="fu">,</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;max&quot;</span><span class="fu">:</span> <span class="dv">5</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>          <span class="fu">}</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>        <span class="ot">]</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<hr />
+<h2 id="告警与自动化">5. 告警与自动化</h2>
+<h3 id="告警规则配置">5.1 告警规则配置</h3>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 告警规则</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> AlertRule <span class="op">{</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string name<span class="op">;</span>              <span class="co">// 规则名称</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string metric<span class="op">;</span>            <span class="co">// 监控指标</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string condition<span class="op">;</span>         <span class="co">// 条件: &gt;, &lt;, ==, !=</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> threshold<span class="op">;</span>              <span class="co">// 阈值</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> duration_sec<span class="op">;</span>              <span class="co">// 持续时间</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string severity<span class="op">;</span>          <span class="co">// 级别: info/warning/critical</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string message_template<span class="op">;</span>  <span class="co">// 消息模板</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co">// 告警管理器</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AlertManager <span class="op">{</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> AddRule<span class="op">(</span><span class="at">const</span> AlertRule<span class="op">&amp;</span> rule<span class="op">);</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> RemoveRule<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> name<span class="op">);</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 检查指标是否触发告警</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> CheckMetrics<span class="op">(</span><span class="at">const</span> MediaQualityMetrics<span class="op">&amp;</span> media<span class="op">,</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>                      <span class="at">const</span> NetworkMetrics<span class="op">&amp;</span> network<span class="op">);</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 设置告警回调</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> AlertCallback <span class="op">=</span> <span class="bu">std::</span>function<span class="op">&lt;</span><span class="dt">void</span><span class="op">(</span><span class="at">const</span> AlertRule<span class="op">&amp;,</span> </span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> user_id<span class="op">,</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>                                               <span class="dt">double</span> current_value<span class="op">)&gt;;</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetAlertCallback<span class="op">(</span>AlertCallback callback<span class="op">);</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>AlertRule<span class="op">&gt;</span> <span class="va">rules_</span><span class="op">;</span></span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    AlertCallback <span class="va">callback_</span><span class="op">;</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 记录告警触发时间，用于去重</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> <span class="dt">int64_t</span><span class="op">&gt;</span> <span class="va">last_alert_time_</span><span class="op">;</span></span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a><span class="co">// 预设告警规则</span></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a><span class="bu">std::</span>vector<span class="op">&lt;</span>AlertRule<span class="op">&gt;</span> GetDefaultAlertRules<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">{</span></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;high_packet_loss&quot;</span><span class="op">,</span></span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;packet_loss_rate&quot;</span><span class="op">,</span></span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;&gt;&quot;</span><span class="op">,</span></span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>            <span class="fl">0.05</span><span class="op">,</span>  <span class="co">// 5%</span></span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>            <span class="dv">10</span><span class="op">,</span>    <span class="co">// 持续10秒</span></span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;warning&quot;</span><span class="op">,</span></span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;User {user_id} packet loss rate is {value:.1%}&quot;</span></span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a>        <span class="op">},</span></span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span></span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;high_latency&quot;</span><span class="op">,</span></span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rtt_ms&quot;</span><span class="op">,</span></span>
+<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;&gt;&quot;</span><span class="op">,</span></span>
+<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a>            <span class="dv">300</span><span class="op">,</span>   <span class="co">// 300ms</span></span>
+<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a>            <span class="dv">30</span><span class="op">,</span>    <span class="co">// 持续30秒</span></span>
+<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;warning&quot;</span><span class="op">,</span></span>
+<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;User {user_id} RTT is {value}ms&quot;</span></span>
+<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a>        <span class="op">},</span></span>
+<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span></span>
+<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;video_freeze&quot;</span><span class="op">,</span></span>
+<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;freeze_count&quot;</span><span class="op">,</span></span>
+<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;&gt;&quot;</span><span class="op">,</span></span>
+<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a>            <span class="dv">3</span><span class="op">,</span>     <span class="co">// 3秒内卡顿超过3次</span></span>
+<span id="cb17-64"><a href="#cb17-64" aria-hidden="true" tabindex="-1"></a>            <span class="dv">3</span><span class="op">,</span></span>
+<span id="cb17-65"><a href="#cb17-65" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;critical&quot;</span><span class="op">,</span></span>
+<span id="cb17-66"><a href="#cb17-66" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;User {user_id} video freeze detected&quot;</span></span>
+<span id="cb17-67"><a href="#cb17-67" aria-hidden="true" tabindex="-1"></a>        <span class="op">},</span></span>
+<span id="cb17-68"><a href="#cb17-68" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span></span>
+<span id="cb17-69"><a href="#cb17-69" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;low_mos&quot;</span><span class="op">,</span></span>
+<span id="cb17-70"><a href="#cb17-70" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;mos_score&quot;</span><span class="op">,</span></span>
+<span id="cb17-71"><a href="#cb17-71" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;&lt;&quot;</span><span class="op">,</span></span>
+<span id="cb17-72"><a href="#cb17-72" aria-hidden="true" tabindex="-1"></a>            <span class="fl">3.0</span><span class="op">,</span>   <span class="co">// MOS &lt; 3</span></span>
+<span id="cb17-73"><a href="#cb17-73" aria-hidden="true" tabindex="-1"></a>            <span class="dv">60</span><span class="op">,</span>    <span class="co">// 持续60秒</span></span>
+<span id="cb17-74"><a href="#cb17-74" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;critical&quot;</span><span class="op">,</span></span>
+<span id="cb17-75"><a href="#cb17-75" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;User {user_id} MOS score is {value:.1f}&quot;</span></span>
+<span id="cb17-76"><a href="#cb17-76" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb17-77"><a href="#cb17-77" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb17-78"><a href="#cb17-78" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb17-79"><a href="#cb17-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-80"><a href="#cb17-80" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="自动化处理">5.2 自动化处理</h3>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 自动化处理</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AutoRemediation <span class="op">{</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 自动降低码率</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> AutoReduceBitrate<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> user_id<span class="op">,</span> </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                           <span class="dt">int</span> current_bitrate<span class="op">,</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                           <span class="dt">int</span> target_bitrate<span class="op">);</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 自动切换服务器</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> AutoSwitchServer<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> user_id<span class="op">,</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> current_server<span class="op">,</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                          <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> backup_server<span class="op">);</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 自动重连</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> AutoReconnect<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> user_id<span class="op">);</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 通知用户</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> NotifyUser<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> user_id<span class="op">,</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>                    <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> message<span class="op">);</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<hr />
+<h2 id="本章总结">6. 本章总结</h2>
+<h3 id="监控体系关键要素">6.1 监控体系关键要素</h3>
+<ol type="1">
+<li><strong>全面覆盖</strong>：音视频、网络、设备三维度</li>
+<li><strong>实时性</strong>：秒级数据采集和上报</li>
+<li><strong>可视化</strong>：直观的Dashboard展示</li>
+<li><strong>智能化</strong>：基于数据的自动优化</li>
+</ol>
+<h3 id="质量指标参考值">6.2 质量指标参考值</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">指标</th>
+<th style="text-align: left;">优秀</th>
+<th style="text-align: left;">良好</th>
+<th style="text-align: left;">一般</th>
+<th style="text-align: left;">差</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>MOS评分</strong></td>
+<td style="text-align: left;">&gt;4.0</td>
+<td style="text-align: left;">3.5-4.0</td>
+<td style="text-align: left;">3.0-3.5</td>
+<td style="text-align: left;">&lt;3.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>端到端延迟</strong></td>
+<td style="text-align: left;">&lt;200ms</td>
+<td style="text-align: left;">200-400ms</td>
+<td style="text-align: left;">400-800ms</td>
+<td style="text-align: left;">&gt;800ms</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>丢包率</strong></td>
+<td style="text-align: left;">&lt;1%</td>
+<td style="text-align: left;">1-3%</td>
+<td style="text-align: left;">3-5%</td>
+<td style="text-align: left;">&gt;5%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>卡顿率</strong></td>
+<td style="text-align: left;">0%</td>
+<td style="text-align: left;">&lt;1%</td>
+<td style="text-align: left;">1-3%</td>
+<td style="text-align: left;">&gt;3%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="课后思考">6.3 课后思考</h3>
+<ol type="1">
+<li><p><strong>监控设计</strong>：设计一个针对万人直播活动的监控方案，包括关键指标和告警规则。</p></li>
+<li><p><strong>延迟优化</strong>：测量并优化现有系统的端到端延迟，目标从500ms降到300ms。</p></li>
+<li><p><strong>MOS模型</strong>：基于你的系统特点，改进MOS计算模型，使其更准确。</p></li>
+<li><p><strong>告警降噪</strong>：如何减少误报，设计智能告警合并策略。</p></li>
+</ol>
+<hr />
+<p><strong>本章结束。下一章将学习安全防护，保障系统的安全性。</strong></p>
+</div>
+</body>
+</html>

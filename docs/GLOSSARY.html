@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html" class="active">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="术语表-glossary">术语表 (GLOSSARY)</h1>
+<blockquote>
+<p>《直播连麦系统：从零到一》技术术语速查表</p>
+</blockquote>
+<p>本术语表按字母顺序排列，涵盖了本书中涉及的核心概念和技术术语。</p>
+<hr />
+<h2 id="a">A</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>AAC</strong></td>
+<td style="text-align: center;">Advanced Audio Coding</td>
+<td
+style="text-align: left;">高级音频编码，一种有损音频压缩标准，广泛用于直播和流媒体</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>AEC</strong></td>
+<td style="text-align: center;">Acoustic Echo Cancellation</td>
+<td
+style="text-align: left;">回声消除，消除扬声器声音被麦克风回采产生的回声</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>AGC</strong></td>
+<td style="text-align: center;">Automatic Gain Control</td>
+<td style="text-align: left;">自动增益控制，自动调整麦克风输入音量</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>ANS</strong></td>
+<td style="text-align: center;">Ambient Noise Suppression</td>
+<td style="text-align: left;">环境噪声抑制，降低背景噪声</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>ARQ</strong></td>
+<td style="text-align: center;">Automatic Repeat reQuest</td>
+<td
+style="text-align: left;">自动重传请求，丢包后请求重传的数据恢复机制</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>AVFrame</strong></td>
+<td style="text-align: center;">Audio Video Frame</td>
+<td style="text-align: left;">FFmpeg 中的原始音视频帧数据结构</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>AVPacket</strong></td>
+<td style="text-align: center;">Audio Video Packet</td>
+<td style="text-align: left;">FFmpeg 中的压缩音视频数据包结构</td>
+</tr>
+</tbody>
+</table>
+<h2 id="b">B</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>B帧</strong></td>
+<td style="text-align: center;">Bidirectional Frame</td>
+<td
+style="text-align: left;">双向预测帧，参考前后帧编码，压缩率最高</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>BBR</strong></td>
+<td style="text-align: center;">Bottleneck Bandwidth and RTT</td>
+<td style="text-align: left;">Google 开发的拥塞控制算法，基于带宽和 RTT
+建模</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>比特率</strong></td>
+<td style="text-align: center;">Bitrate</td>
+<td style="text-align: left;">每秒传输的数据量，单位
+bps、Kbps、Mbps</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>编解码器</strong></td>
+<td style="text-align: center;">Codec</td>
+<td style="text-align: left;">Coder/Decoder
+的缩写，用于压缩和解压音视频数据</td>
+</tr>
+</tbody>
+</table>
+<h2 id="c">C</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>CBR</strong></td>
+<td style="text-align: center;">Constant Bitrate</td>
+<td style="text-align: left;">恒定码率，直播常用，码率稳定</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>CDN</strong></td>
+<td style="text-align: center;">Content Delivery Network</td>
+<td style="text-align: left;">内容分发网络，用于加速内容分发</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>CPU</strong></td>
+<td style="text-align: center;">Central Processing Unit</td>
+<td style="text-align: left;">中央处理器，软编解码的主要计算资源</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>CRF</strong></td>
+<td style="text-align: center;">Constant Rate Factor</td>
+<td style="text-align: left;">恒定质量因子，x264/x265
+的质量控制模式</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>CV</strong></td>
+<td style="text-align: center;">Computer Vision</td>
+<td style="text-align: left;">计算机视觉，用于美颜、滤镜等图像处理</td>
+</tr>
+</tbody>
+</table>
+<h2 id="d">D</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>解码</strong></td>
+<td style="text-align: center;">Decoding</td>
+<td style="text-align: left;">将压缩数据还原为原始数据的过程</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>DCT</strong></td>
+<td style="text-align: center;">Discrete Cosine Transform</td>
+<td style="text-align: left;">离散余弦变换，视频压缩的核心算法</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Docker</strong></td>
+<td style="text-align: center;">Docker</td>
+<td style="text-align: left;">容器化平台，用于应用打包和部署</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>DTLS</strong></td>
+<td style="text-align: center;">Datagram Transport Layer Security</td>
+<td style="text-align: left;">基于 UDP 的 TLS，用于 WebRTC 密钥交换</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>DTS</strong></td>
+<td style="text-align: center;">Decoding Time Stamp</td>
+<td style="text-align: left;">解码时间戳，告诉解码器何时解码该帧</td>
+</tr>
+</tbody>
+</table>
+<h2 id="e">E</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>编码</strong></td>
+<td style="text-align: center;">Encoding</td>
+<td style="text-align: left;">将原始数据压缩为特定格式的过程</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>EGL</strong></td>
+<td style="text-align: center;">Embedded Graphics Library</td>
+<td style="text-align: left;">嵌入式图形库，用于 GPU 渲染上下文管理</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>ES</strong></td>
+<td style="text-align: center;">Elementary Stream</td>
+<td style="text-align: left;">基本流，编码后的裸音视频流</td>
+</tr>
+</tbody>
+</table>
+<h2 id="f">F</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>FEC</strong></td>
+<td style="text-align: center;">Forward Error Correction</td>
+<td style="text-align: left;">前向纠错，通过发送冗余数据恢复丢包</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>FFmpeg</strong></td>
+<td style="text-align: center;">Fast Forward MPEG</td>
+<td style="text-align: left;">开源音视频处理框架，行业标准工具</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>FLV</strong></td>
+<td style="text-align: center;">Flash Video</td>
+<td style="text-align: left;">Adobe 开发的流媒体格式，RTMP 常用封装</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>FPS</strong></td>
+<td style="text-align: center;">Frames Per Second</td>
+<td style="text-align: left;">帧率，每秒显示的画面数</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>帧</strong></td>
+<td style="text-align: center;">Frame</td>
+<td style="text-align: left;">视频中的一幅静态图像</td>
+</tr>
+</tbody>
+</table>
+<h2 id="g">G</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>GCC</strong></td>
+<td style="text-align: center;">Google Congestion Control</td>
+<td style="text-align: left;">Google 拥塞控制算法，WebRTC 使用</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>GOP</strong></td>
+<td style="text-align: center;">Group of Pictures</td>
+<td style="text-align: left;">图像组，两个 I 帧之间的帧序列</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>GPU</strong></td>
+<td style="text-align: center;">Graphics Processing Unit</td>
+<td style="text-align: left;">图形处理器，用于硬件编解码和渲染</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Grafana</strong></td>
+<td style="text-align: center;">Grafana</td>
+<td style="text-align: left;">开源监控可视化平台</td>
+</tr>
+</tbody>
+</table>
+<h2 id="h">H</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>H.264</strong></td>
+<td style="text-align: center;">H.264/AVC</td>
+<td
+style="text-align: left;">高级视频编码，最广泛使用的视频编码标准</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>H.265</strong></td>
+<td style="text-align: center;">H.265/HEVC</td>
+<td style="text-align: left;">高效率视频编码，H.264
+的继任者，压缩率翻倍</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>HLS</strong></td>
+<td style="text-align: center;">HTTP Live Streaming</td>
+<td style="text-align: left;">苹果开发的基于 HTTP 的流媒体协议</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>HPA</strong></td>
+<td style="text-align: center;">Horizontal Pod Autoscaler</td>
+<td style="text-align: left;">Kubernetes 水平自动扩缩容</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>HTTP</strong></td>
+<td style="text-align: center;">HyperText Transfer Protocol</td>
+<td style="text-align: left;">超文本传输协议，Web 基础协议</td>
+</tr>
+</tbody>
+</table>
+<h2 id="i">I</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>I帧</strong></td>
+<td style="text-align: center;">Intra Frame</td>
+<td style="text-align: left;">关键帧，独立编码的完整图像</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>ICE</strong></td>
+<td style="text-align: center;">Interactive Connectivity
+Establishment</td>
+<td style="text-align: left;">交互式连接建立，NAT 穿透框架</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>IP</strong></td>
+<td style="text-align: center;">Internet Protocol</td>
+<td style="text-align: left;">互联网协议，网络层基础协议</td>
+</tr>
+</tbody>
+</table>
+<h2 id="j">J</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>JIT</strong></td>
+<td style="text-align: center;">Just In Time</td>
+<td style="text-align: left;">即时编译，如 JIT 编译优化</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>JitterBuffer</strong></td>
+<td style="text-align: center;">Jitter Buffer</td>
+<td
+style="text-align: left;">抖动缓冲区，平滑网络抖动导致的时间变化</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>JSON</strong></td>
+<td style="text-align: center;">JavaScript Object Notation</td>
+<td style="text-align: left;">轻量级数据交换格式</td>
+</tr>
+</tbody>
+</table>
+<h2 id="k">K</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>K8s</strong></td>
+<td style="text-align: center;">Kubernetes</td>
+<td style="text-align: left;">容器编排平台，源自希腊语”舵手”</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Keyframe</strong></td>
+<td style="text-align: center;">Keyframe</td>
+<td style="text-align: left;">关键帧，即 I 帧</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Kbps</strong></td>
+<td style="text-align: center;">Kilobits per second</td>
+<td style="text-align: left;">千比特每秒，码率单位</td>
+</tr>
+</tbody>
+</table>
+<h2 id="l">L</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>LATM</strong></td>
+<td style="text-align: center;">Low-overhead Audio Transport
+Multiplex</td>
+<td style="text-align: left;">AAC 音频封装格式</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>LL-HLS</strong></td>
+<td style="text-align: center;">Low Latency HLS</td>
+<td style="text-align: left;">低延迟 HLS，目标延迟 2-3 秒</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Lossy</strong></td>
+<td style="text-align: center;">Lossy Compression</td>
+<td style="text-align: left;">有损压缩，会丢失部分信息的压缩</td>
+</tr>
+</tbody>
+</table>
+<h2 id="m">M</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>MCU</strong></td>
+<td style="text-align: center;">Multipoint Control Unit</td>
+<td style="text-align: left;">多点控制单元，服务端混音混画</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>MOS</strong></td>
+<td style="text-align: center;">Mean Opinion Score</td>
+<td style="text-align: left;">主观平均评分，1-5 分评价音视频质量</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>MP4</strong></td>
+<td style="text-align: center;">MPEG-4 Part 14</td>
+<td style="text-align: left;">常见视频文件容器格式</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>MPEG</strong></td>
+<td style="text-align: center;">Moving Picture Experts Group</td>
+<td style="text-align: left;">动态图像专家组，制定视频标准的组织</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>MPEG-TS</strong></td>
+<td style="text-align: center;">MPEG Transport Stream</td>
+<td style="text-align: left;">MPEG 传输流，直播常用封装</td>
+</tr>
+</tbody>
+</table>
+<h2 id="n">N</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>NALU</strong></td>
+<td style="text-align: center;">Network Abstraction Layer Unit</td>
+<td style="text-align: left;">H.264/H.265 的网络抽象层单元</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>NAT</strong></td>
+<td style="text-align: center;">Network Address Translation</td>
+<td style="text-align: left;">网络地址转换，导致 P2P 困难的原因</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>NACK</strong></td>
+<td style="text-align: center;">Negative ACKnowledgement</td>
+<td style="text-align: left;">否定确认，用于请求重传丢失的包</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>NTP</strong></td>
+<td style="text-align: center;">Network Time Protocol</td>
+<td style="text-align: left;">网络时间协议，用于时间同步</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>NVENC</strong></td>
+<td style="text-align: center;">NVIDIA Encoder</td>
+<td style="text-align: left;">NVIDIA GPU 硬件编码器</td>
+</tr>
+</tbody>
+</table>
+<h2 id="o">O</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Opus</strong></td>
+<td style="text-align: center;">Opus</td>
+<td style="text-align: left;">开源低延迟音频编解码器，WebRTC
+默认使用</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>OS</strong></td>
+<td style="text-align: center;">Operating System</td>
+<td style="text-align: left;">操作系统</td>
+</tr>
+</tbody>
+</table>
+<h2 id="p">P</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>P帧</strong></td>
+<td style="text-align: center;">Predicted Frame</td>
+<td style="text-align: left;">预测帧，参考前一帧编码</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Packet</strong></td>
+<td style="text-align: center;">Packet</td>
+<td style="text-align: left;">数据包，网络传输的基本单位</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>PCM</strong></td>
+<td style="text-align: center;">Pulse Code Modulation</td>
+<td style="text-align: left;">脉冲编码调制，原始音频数据格式</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Pipeline</strong></td>
+<td style="text-align: center;">Pipeline</td>
+<td style="text-align: left;">流水线，数据顺序处理架构</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>Pod</strong></td>
+<td style="text-align: center;">Pod</td>
+<td style="text-align: left;">Kubernetes 中最小的部署单元</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>Prometheus</strong></td>
+<td style="text-align: center;">Prometheus</td>
+<td style="text-align: left;">开源监控和告警系统</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>P2P</strong></td>
+<td style="text-align: center;">Peer to Peer</td>
+<td style="text-align: left;">点对点通信，直接连接两个客户端</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>PTS</strong></td>
+<td style="text-align: center;">Presentation Time Stamp</td>
+<td style="text-align: left;">显示时间戳，告诉播放器何时显示该帧</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>PV</strong></td>
+<td style="text-align: center;">Persistent Volume</td>
+<td style="text-align: left;">Kubernetes 持久化存储</td>
+</tr>
+</tbody>
+</table>
+<h2 id="q">Q</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>QoE</strong></td>
+<td style="text-align: center;">Quality of Experience</td>
+<td style="text-align: left;">体验质量，用户对服务的整体感受</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>QoS</strong></td>
+<td style="text-align: center;">Quality of Service</td>
+<td style="text-align: left;">服务质量，网络服务的性能指标</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>QUIC</strong></td>
+<td style="text-align: center;">Quick UDP Internet Connections</td>
+<td style="text-align: left;">Google 开发的基于 UDP 的传输协议</td>
+</tr>
+</tbody>
+</table>
+<h2 id="r">R</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>RAII</strong></td>
+<td style="text-align: center;">Resource Acquisition Is
+Initialization</td>
+<td style="text-align: left;">资源获取即初始化，C++ 资源管理原则</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>RTP</strong></td>
+<td style="text-align: center;">Real-time Transport Protocol</td>
+<td style="text-align: left;">实时传输协议，用于传输音视频数据</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>RTCP</strong></td>
+<td style="text-align: center;">RTP Control Protocol</td>
+<td style="text-align: left;">RTP 控制协议，传输统计信息</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>RTMP</strong></td>
+<td style="text-align: center;">Real-Time Messaging Protocol</td>
+<td style="text-align: left;">实时消息协议，Flash 时代的直播协议</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>RTSP</strong></td>
+<td style="text-align: center;">Real Time Streaming Protocol</td>
+<td style="text-align: left;">实时流协议，用于控制媒体服务器</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>RTT</strong></td>
+<td style="text-align: center;">Round Trip Time</td>
+<td style="text-align: left;">往返时间，数据包一去一回的时间</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s">S</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>SFU</strong></td>
+<td style="text-align: center;">Selective Forwarding Unit</td>
+<td style="text-align: left;">选择性转发单元，服务端只转发不解码</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>SDP</strong></td>
+<td style="text-align: center;">Session Description Protocol</td>
+<td style="text-align: left;">会话描述协议，描述媒体协商参数</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>SDL</strong></td>
+<td style="text-align: center;">Simple DirectMedia Layer</td>
+<td style="text-align: left;">跨平台多媒体开发库</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>SIMD</strong></td>
+<td style="text-align: center;">Single Instruction Multiple Data</td>
+<td style="text-align: left;">单指令多数据，并行计算技术</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>SRTP</strong></td>
+<td style="text-align: center;">Secure RTP</td>
+<td style="text-align: left;">安全的 RTP，加密传输</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>SRT</strong></td>
+<td style="text-align: center;">Secure Reliable Transport</td>
+<td style="text-align: left;">安全可靠传输协议，广播级传输</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>SSRC</strong></td>
+<td style="text-align: center;">Synchronization Source</td>
+<td style="text-align: left;">同步源标识，区分不同媒体流</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>STUN</strong></td>
+<td style="text-align: center;">Session Traversal Utilities for NAT</td>
+<td style="text-align: left;">NAT 会话穿越工具，用于发现公网地址</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>SVC</strong></td>
+<td style="text-align: center;">Scalable Video Coding</td>
+<td style="text-align: left;">可伸缩视频编码，分层编码技术</td>
+</tr>
+</tbody>
+</table>
+<h2 id="t">T</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>TCP</strong></td>
+<td style="text-align: center;">Transmission Control Protocol</td>
+<td style="text-align: left;">传输控制协议，可靠但延迟较高</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>TLV</strong></td>
+<td style="text-align: center;">Type-Length-Value</td>
+<td style="text-align: left;">类型-长度-值，数据序列化格式</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>TURN</strong></td>
+<td style="text-align: center;">Traversal Using Relays around NAT</td>
+<td style="text-align: left;">使用中继穿透 NAT，通过服务器转发</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>TS</strong></td>
+<td style="text-align: center;">Transport Stream</td>
+<td style="text-align: left;">传输流，MPEG-TS 的简称</td>
+</tr>
+</tbody>
+</table>
+<h2 id="u">U</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>UDP</strong></td>
+<td style="text-align: center;">User Datagram Protocol</td>
+<td style="text-align: left;">用户数据报协议，快速但不可靠</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>URL</strong></td>
+<td style="text-align: center;">Uniform Resource Locator</td>
+<td style="text-align: left;">统一资源定位符，网址</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>UUID</strong></td>
+<td style="text-align: center;">Universally Unique Identifier</td>
+<td style="text-align: left;">通用唯一标识符</td>
+</tr>
+</tbody>
+</table>
+<h2 id="v">V</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>VAD</strong></td>
+<td style="text-align: center;">Voice Activity Detection</td>
+<td style="text-align: left;">语音活动检测，检测是否有人说话</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>VBR</strong></td>
+<td style="text-align: center;">Variable Bitrate</td>
+<td style="text-align: left;">可变码率，根据内容复杂度调整码率</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>VFR</strong></td>
+<td style="text-align: center;">Variable Frame Rate</td>
+<td style="text-align: left;">可变帧率</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>VSync</strong></td>
+<td style="text-align: center;">Vertical Synchronization</td>
+<td style="text-align: left;">垂直同步，防止画面撕裂</td>
+</tr>
+</tbody>
+</table>
+<h2 id="w">W</h2>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 35%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>WebRTC</strong></td>
+<td style="text-align: center;">Web Real-Time Communication</td>
+<td style="text-align: left;">Web 实时通信标准，浏览器原生支持</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>WebSocket</strong></td>
+<td style="text-align: center;">WebSocket</td>
+<td style="text-align: left;">全双工通信协议，基于 TCP</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>WHEP</strong></td>
+<td style="text-align: center;">WebRTC-HTTP Egress Protocol</td>
+<td style="text-align: left;">WebRTC HTTP 流出协议</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>WHIP</strong></td>
+<td style="text-align: center;">WebRTC-HTTP Ingestion Protocol</td>
+<td style="text-align: left;">WebRTC HTTP 流入协议</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>WMS</strong></td>
+<td style="text-align: center;">Windows Media Services</td>
+<td style="text-align: left;">微软媒体服务</td>
+</tr>
+</tbody>
+</table>
+<h2 id="x">X</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>x264</strong></td>
+<td style="text-align: center;">x264</td>
+<td style="text-align: left;">开源 H.264 编码器</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>x265</strong></td>
+<td style="text-align: center;">x265</td>
+<td style="text-align: left;">开源 H.265 编码器</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>XML</strong></td>
+<td style="text-align: center;">eXtensible Markup Language</td>
+<td style="text-align: left;">可扩展标记语言</td>
+</tr>
+</tbody>
+</table>
+<h2 id="y">Y</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>YUV</strong></td>
+<td style="text-align: center;">YUV</td>
+<td style="text-align: left;">颜色空间，Y 为亮度，U/V 为色度</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><strong>YUV420</strong></td>
+<td style="text-align: center;">YUV 4:2:0</td>
+<td style="text-align: left;">YUV 采样格式，每 4 个 Y 共享 1 个 U/V</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><strong>YUV422</strong></td>
+<td style="text-align: center;">YUV 4:2:2</td>
+<td style="text-align: left;">YUV 采样格式，每 2 个 Y 共享 1 个 U/V</td>
+</tr>
+</tbody>
+</table>
+<h2 id="z">Z</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">术语</th>
+<th style="text-align: center;">英文</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><strong>Zero-Copy</strong></td>
+<td style="text-align: center;">Zero-Copy</td>
+<td style="text-align: left;">零拷贝，避免数据在内存中重复拷贝</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="快速索引">快速索引</h2>
+<h3 id="按技术领域分类">按技术领域分类</h3>
+<p><strong>视频编码</strong> - H.264, H.265/HEVC, AV1, SVC, GOP,
+I帧/P帧/B帧, NALU</p>
+<p><strong>音频处理</strong> - AAC, Opus, PCM, 3A(AEC/ANS/AGC), VAD</p>
+<p><strong>网络传输</strong> - RTP, RTCP, RTMP, HLS, DASH, WebRTC, SRT,
+WHIP, WHEP, WebTransport</p>
+<p><strong>服务端架构</strong> - SFU, MCU, CDN, Load Balancer, K8s,
+Docker</p>
+<p><strong>质量监控</strong> - QoS, QoE, MOS, FPS, Bitrate, Jitter,
+Latency</p>
+<p><strong>开发工具</strong> - FFmpeg, SDL, GCC, GDB, perf,
+Wireshark</p>
+<hr />
+<h2 id="缩略语对照表">缩略语对照表</h2>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">缩略语</th>
+<th style="text-align: left;">全称</th>
+<th style="text-align: left;">中文</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">3A</td>
+<td style="text-align: left;">AEC + ANS + AGC</td>
+<td style="text-align: left;">音频三处理</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">API</td>
+<td style="text-align: left;">Application Programming Interface</td>
+<td style="text-align: left;">应用程序接口</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">CPU</td>
+<td style="text-align: left;">Central Processing Unit</td>
+<td style="text-align: left;">中央处理器</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">GPU</td>
+<td style="text-align: left;">Graphics Processing Unit</td>
+<td style="text-align: left;">图形处理器</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">FPS</td>
+<td style="text-align: left;">Frames Per Second</td>
+<td style="text-align: left;">每秒帧数</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">HTTP</td>
+<td style="text-align: left;">HyperText Transfer Protocol</td>
+<td style="text-align: left;">超文本传输协议</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">IP</td>
+<td style="text-align: left;">Internet Protocol</td>
+<td style="text-align: left;">互联网协议</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">JSON</td>
+<td style="text-align: left;">JavaScript Object Notation</td>
+<td style="text-align: left;">JavaScript 对象表示法</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">RTT</td>
+<td style="text-align: left;">Round Trip Time</td>
+<td style="text-align: left;">往返时间</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">SDK</td>
+<td style="text-align: left;">Software Development Kit</td>
+<td style="text-align: left;">软件开发工具包</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">SDP</td>
+<td style="text-align: left;">Session Description Protocol</td>
+<td style="text-align: left;">会话描述协议</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">SFU</td>
+<td style="text-align: left;">Selective Forwarding Unit</td>
+<td style="text-align: left;">选择性转发单元</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">SSL</td>
+<td style="text-align: left;">Secure Sockets Layer</td>
+<td style="text-align: left;">安全套接层</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">TCP</td>
+<td style="text-align: left;">Transmission Control Protocol</td>
+<td style="text-align: left;">传输控制协议</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">TLS</td>
+<td style="text-align: left;">Transport Layer Security</td>
+<td style="text-align: left;">传输层安全</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">UDP</td>
+<td style="text-align: left;">User Datagram Protocol</td>
+<td style="text-align: left;">用户数据报协议</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">URL</td>
+<td style="text-align: left;">Uniform Resource Locator</td>
+<td style="text-align: left;">统一资源定位符</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">VFR</td>
+<td style="text-align: left;">Variable Frame Rate</td>
+<td style="text-align: left;">可变帧率</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">XML</td>
+<td style="text-align: left;">eXtensible Markup Language</td>
+<td style="text-align: left;">可扩展标记语言</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">YUV</td>
+<td style="text-align: left;">Luma and Chroma</td>
+<td style="text-align: left;">亮度和色度</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>最后更新</strong>：2026-03-24<br />
+<strong>版本</strong>：v1.0</p>
+</div>
+</body>
+</html>

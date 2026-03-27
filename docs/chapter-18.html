@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html" class="active">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="第18章udp与实时传输">第18章：UDP与实时传输</h1>
+<blockquote>
+<p><strong>本章目标</strong>：掌握 UDP 协议的基础编程，理解 RTP/RTCP
+协议，实现实时音视频传输。</p>
+</blockquote>
+<p>在第17章中，我们构建了完整的主播端架构，使用 RTMP 协议进行推流。RTMP
+基于 TCP
+传输，虽然可靠但延迟较高（1-3秒），无法满足连麦互动的实时性需求。</p>
+<p>本章将深入 <strong>UDP
+协议栈</strong>，这是所有实时通信技术的基石。从 UDP 基础编程到 RTP/RTCP
+协议，再到 JitterBuffer 抖动缓冲，你将建立起完整的实时传输知识体系。</p>
+<p><strong>学习本章后，你将能够</strong>： - 理解为什么 UDP 比 TCP
+更适合实时通信 - 掌握 UDP Socket 编程的核心 API - 理解 RTP
+协议头部结构和负载封装 - 使用 RTCP 进行质量反馈和带宽估计 - 实现
+JitterBuffer 平滑网络抖动</p>
+<p><strong>本章与第17章的关系</strong>： - Ch17 是
+<strong>网络编程基础</strong> —— Socket API、UDP编程基础 - Ch18 是
+<strong>实时传输基础</strong> —— 如何用 UDP 实现低延迟传输</p>
+<hr />
+<h2 id="目录">目录</h2>
+<ol type="1">
+<li><a href="#1-为什么-udp-更适合实时通信">为什么 UDP
+更适合实时通信？</a></li>
+<li><a href="#2-udp-编程基础">UDP 编程基础</a></li>
+<li><a href="#3-rtp-协议详解">RTP 协议详解</a></li>
+<li><a href="#4-rtcp-协议">RTCP 协议</a></li>
+<li><a href="#5-jitterbuffer-抖动缓冲">JitterBuffer 抖动缓冲</a></li>
+<li><a href="#6-本章总结">本章总结</a></li>
+</ol>
+<hr />
+<h2 id="为什么-udp-更适合实时通信">1. 为什么 UDP 更适合实时通信？</h2>
+<h3 id="tcp-的可靠性代价">1.1 TCP 的”可靠性”代价</h3>
+<p>TCP（Transmission Control
+Protocol）是互联网最常用的传输协议，它的设计目标是
+<strong>可靠传输</strong>。但这份”可靠性”在实时通信场景下却成了负担：</p>
+<p><strong>TCP 的可靠性机制</strong>：</p>
+<pre><code>发送方: [Pkt1] [Pkt2] [Pkt3] [Pkt4] [Pkt5]
+            ↓     ↓     ↓     ↓     ↓
+接收方: [Pkt1] [Pkt2]       [Pkt4] [Pkt5]
+                      ↑
+                  Pkt3 丢失！
+                      ↓
+            [等待重传 Pkt3...]
+                      ↓
+            [Pkt3] 终于到达
+                      ↓
+        按序交付: [Pkt1] [Pkt2] [Pkt3] [Pkt4] [Pkt5]</code></pre>
+<p>TCP 为了保证可靠性，引入了三个关键机制：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">机制</th>
+<th style="text-align: left;">作用</th>
+<th style="text-align: left;">实时通信中的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>重传机制</strong></td>
+<td style="text-align: left;">丢包后重发</td>
+<td style="text-align: left;">重传增加延迟，过时数据无用</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>队头阻塞</strong></td>
+<td style="text-align: left;">保证数据顺序</td>
+<td style="text-align: left;">一个丢包阻塞后续所有数据</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>拥塞控制</strong></td>
+<td style="text-align: left;">防止网络过载</td>
+<td style="text-align: left;">过度保守，无法适应实时需求</td>
+</tr>
+</tbody>
+</table>
+<h3 id="队头阻塞tcp-的致命伤">1.2 队头阻塞：TCP 的致命伤</h3>
+<p><strong>队头阻塞（Head-of-Line Blocking）</strong> 是 TCP
+在实时场景下的最大问题：</p>
+<figure>
+<img src="./diagrams/tcp-hol-blocking.svg" alt="TCP 队头阻塞" />
+<figcaption aria-hidden="true">TCP 队头阻塞</figcaption>
+</figure>
+<pre><code>时间线 →
+
+TCP 场景:
+Pkt1 Pkt2 Pkt3  Pkt4  Pkt5  Pkt6
+ │    │    │     │     │     │
+ ▼    ▼    ▼     ▼     ▼     ▼
+[1]  [2]  [丢]  [4]   [5]   [6]
+  │    │   ↑     │     │     │
+  │    │   │     │     │     │
+  ▼    ▼   │     ▼     ▼     ▼
+ [应用层必须等待Pkt3重传]
+  │    │   │     │     │     │
+  ▼    ▼   ▼     ▼     ▼     ▼
+ [1]  [2] [3]   [4]   [5]   [6]  ← 延迟剧增！
+
+UDP 场景:
+Pkt1 Pkt2 Pkt3  Pkt4  Pkt5  Pkt6
+ │    │    │     │     │     │
+ ▼    ▼    ▼     ▼     ▼     ▼
+[1]  [2]  [丢]  [4]   [5]   [6]
+  │    │         │     │     │
+  ▼    ▼         ▼     ▼     ▼
+ [1]  [2]       [4]   [5]   [6]  ← 立即交付可用数据</code></pre>
+<p>在视频通话中，第3帧丢失后，第4、5、6帧可能已经到达。TCP
+会强制等待第3帧重传，导致画面卡顿；而 UDP
+可以立即显示第4、5、6帧，虽然少了第3帧，但画面是连续的。</p>
+<h3 id="实时通信的核心诉求">1.3 实时通信的核心诉求</h3>
+<p>实时音视频通信有独特的需求：</p>
+<p><strong>“快”比”全”更重要</strong>： -
+视频会议：宁愿丢掉几帧，也不能让整个画面卡住 -
+直播连麦：说话者的声音必须实时到达，晚到的数据毫无意义</p>
+<p><strong>“适度丢包”是可接受的</strong>： - 视频帧率 30fps，丢掉 1
+帧，用户几乎察觉不到 -
+音频有丢包隐藏（PLC）技术，可以”伪造”丢失的采样</p>
+<p><strong>需要应用层控制</strong>： -
+何时重传、何时放弃，应该由应用决定 - 编码层可以主动降低码率，而非 TCP
+强制降速</p>
+<h3 id="tcp-vs-udp-对比">1.4 TCP vs UDP 对比</h3>
+<figure>
+<img src="./diagrams/tcp-vs-udp.svg" alt="TCP vs UDP 对比" />
+<figcaption aria-hidden="true">TCP vs UDP 对比</figcaption>
+</figure>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">特性</th>
+<th style="text-align: left;">TCP</th>
+<th style="text-align: left;">UDP</th>
+<th style="text-align: center;">实时场景偏好</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>连接方式</strong></td>
+<td style="text-align: left;">面向连接</td>
+<td style="text-align: left;">无连接</td>
+<td style="text-align: center;">UDP</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>可靠性</strong></td>
+<td style="text-align: left;">可靠传输</td>
+<td style="text-align: left;">尽力而为</td>
+<td style="text-align: center;">UDP</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>顺序保证</strong></td>
+<td style="text-align: left;">有序交付</td>
+<td style="text-align: left;">无序</td>
+<td style="text-align: center;">UDP</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>拥塞控制</strong></td>
+<td style="text-align: left;">内置</td>
+<td style="text-align: left;">无</td>
+<td style="text-align: center;">UDP</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>头部开销</strong></td>
+<td style="text-align: left;">20-60 字节</td>
+<td style="text-align: left;">8 字节</td>
+<td style="text-align: center;">UDP</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>延迟</strong></td>
+<td style="text-align: left;">可变（重传延迟）</td>
+<td style="text-align: left;">稳定</td>
+<td style="text-align: center;">UDP</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>适用场景</strong></td>
+<td style="text-align: left;">文件传输、网页</td>
+<td style="text-align: left;">音视频、游戏</td>
+<td style="text-align: center;">-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="实时传输的正确姿势">1.5 实时传输的正确姿势</h3>
+<p>使用 UDP 不代表放弃可靠性，而是
+<strong>把可靠性控制交给应用层</strong>：</p>
+<pre><code>┌─────────────────────────────────────────┐
+│           应用层（你的代码）              │
+│  ┌─────────────┐    ┌─────────────┐    │
+│  │  丢包恢复    │    │  拥塞控制   │    │
+│  │  (NACK/PLC) │    │  (GCC)      │    │
+│  └─────────────┘    └─────────────┘    │
+│  ┌─────────────┐    ┌─────────────┐    │
+│  │  抖动缓冲    │    │  前向纠错   │    │
+│  │(JitterBuffer)│   │  (FEC)      │    │
+│  └─────────────┘    └─────────────┘    │
+└─────────────────────────────────────────┘
+                   ↓
+┌─────────────────────────────────────────┐
+│              传输层 (UDP)               │
+│         快速、无阻塞、低开销             │
+└─────────────────────────────────────────┘</code></pre>
+<p><strong>关键设计原则</strong>： 1. <strong>快速发送</strong>：UDP
+不阻塞，数据准备好立即发送 2.
+<strong>智能丢包处理</strong>：关键帧必须重传，非关键帧可以丢 3.
+<strong>自适应码率</strong>：根据网络状况动态调整编码码率 4.
+<strong>平滑抖动</strong>：用 JitterBuffer 吸收网络时延波动</p>
+<hr />
+<h2 id="udp-编程基础">2. UDP 编程基础</h2>
+<h3 id="udp-socket-核心-api">2.1 UDP Socket 核心 API</h3>
+<p>UDP 编程比 TCP 简单得多，核心只有四个操作：</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. 创建 UDP Socket</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> sockfd <span class="op">=</span> socket<span class="op">(</span>AF_INET<span class="op">,</span> SOCK_DGRAM<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. 绑定本地地址（服务器端必需）</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>bind<span class="op">(</span>sockfd<span class="op">,</span> <span class="op">(</span><span class="kw">struct</span> sockaddr<span class="op">*)&amp;</span>local_addr<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>local_addr<span class="op">));</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">// 3. 发送数据</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>sendto<span class="op">(</span>sockfd<span class="op">,</span> buffer<span class="op">,</span> len<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>       <span class="op">(</span><span class="kw">struct</span> sockaddr<span class="op">*)&amp;</span>dest_addr<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>dest_addr<span class="op">));</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">// 4. 接收数据</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>recvfrom<span class="op">(</span>sockfd<span class="op">,</span> buffer<span class="op">,</span> max_len<span class="op">,</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>         <span class="op">(</span><span class="kw">struct</span> sockaddr<span class="op">*)&amp;</span>from_addr<span class="op">,</span> <span class="op">&amp;</span>addr_len<span class="op">);</span></span></code></pre></div>
+<h3 id="udp-服务器示例">2.2 UDP 服务器示例</h3>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 简单的 UDP Echo 服务器</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;sys/socket.h&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;netinet/in.h&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;unistd.h&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cstring&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;functional&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> UdpServer <span class="op">{</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> PacketHandler <span class="op">=</span> <span class="bu">std::</span>function<span class="op">&lt;</span><span class="dt">void</span><span class="op">(</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">,</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> sockaddr_in<span class="op">&amp;</span> from<span class="op">)&gt;;</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    UdpServer<span class="op">()</span> <span class="op">:</span> <span class="va">sockfd_</span><span class="op">(-</span><span class="dv">1</span><span class="op">)</span> <span class="op">{}</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">~</span>UdpServer<span class="op">()</span> <span class="op">{</span> Stop<span class="op">();</span> <span class="op">}</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 绑定本地端口</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Bind<span class="op">(</span><span class="dt">uint16_t</span> port<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">sockfd_</span> <span class="op">=</span> socket<span class="op">(</span>AF_INET<span class="op">,</span> SOCK_DGRAM<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">sockfd_</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>        sockaddr_in addr<span class="op">{};</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        addr<span class="op">.</span>sin_family <span class="op">=</span> AF_INET<span class="op">;</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>        addr<span class="op">.</span>sin_port <span class="op">=</span> htons<span class="op">(</span>port<span class="op">);</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>        addr<span class="op">.</span>sin_addr<span class="op">.</span><span class="va">s_addr</span> <span class="op">=</span> INADDR_ANY<span class="op">;</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>bind<span class="op">(</span><span class="va">sockfd_</span><span class="op">,</span> <span class="op">(</span>sockaddr<span class="op">*)&amp;</span>addr<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>addr<span class="op">))</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>            close<span class="op">(</span><span class="va">sockfd_</span><span class="op">);</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>            <span class="va">sockfd_</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 启动接收循环（阻塞模式）</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> StartBlocking<span class="op">(</span>PacketHandler handler<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint8_t</span> buffer<span class="op">[</span><span class="dv">2048</span><span class="op">];</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>        sockaddr_in from_addr<span class="op">;</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>        <span class="dt">socklen_t</span> addr_len <span class="op">=</span> <span class="kw">sizeof</span><span class="op">(</span>from_addr<span class="op">);</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span><span class="va">running_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>            <span class="dt">ssize_t</span> n <span class="op">=</span> recvfrom<span class="op">(</span><span class="va">sockfd_</span><span class="op">,</span> buffer<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>buffer<span class="op">),</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>                                 <span class="op">(</span>sockaddr<span class="op">*)&amp;</span>from_addr<span class="op">,</span> <span class="op">&amp;</span>addr_len<span class="op">);</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>n <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> handler<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>                handler<span class="op">(</span>buffer<span class="op">,</span> n<span class="op">,</span> from_addr<span class="op">);</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 发送数据到指定地址</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SendTo<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">,</span> </span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>                <span class="at">const</span> sockaddr_in<span class="op">&amp;</span> to<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>        sendto<span class="op">(</span><span class="va">sockfd_</span><span class="op">,</span> data<span class="op">,</span> len<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> </span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>               <span class="op">(</span>sockaddr<span class="op">*)&amp;</span>to<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>to<span class="op">));</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Stop<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>        <span class="va">running_</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">sockfd_</span> <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>            close<span class="op">(</span><span class="va">sockfd_</span><span class="op">);</span></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>            <span class="va">sockfd_</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">sockfd_</span><span class="op">;</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="va">running_</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="udp-客户端示例">2.3 UDP 客户端示例</h3>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">// UDP 客户端</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;udp_server.hpp&quot;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> UdpClient <span class="op">{</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Connect<span class="op">(</span><span class="at">const</span> <span class="dt">char</span><span class="op">*</span> ip<span class="op">,</span> <span class="dt">uint16_t</span> port<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">sockfd_</span> <span class="op">=</span> socket<span class="op">(</span>AF_INET<span class="op">,</span> SOCK_DGRAM<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">sockfd_</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">server_addr_</span><span class="op">.</span>sin_family <span class="op">=</span> AF_INET<span class="op">;</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">server_addr_</span><span class="op">.</span>sin_port <span class="op">=</span> htons<span class="op">(</span>port<span class="op">);</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        inet_pton<span class="op">(</span>AF_INET<span class="op">,</span> ip<span class="op">,</span> <span class="op">&amp;</span><span class="va">server_addr_</span><span class="op">.</span>sin_addr<span class="op">);</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">connected_</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 发送数据</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Send<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span><span class="va">connected_</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">ssize_t</span> sent <span class="op">=</span> sendto<span class="op">(</span><span class="va">sockfd_</span><span class="op">,</span> data<span class="op">,</span> len<span class="op">,</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>                              <span class="op">(</span>sockaddr<span class="op">*)&amp;</span><span class="va">server_addr_</span><span class="op">,</span> </span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>                              <span class="kw">sizeof</span><span class="op">(</span><span class="va">server_addr_</span><span class="op">));</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> sent <span class="op">==</span> <span class="op">(</span><span class="dt">ssize_t</span><span class="op">)</span>len<span class="op">;</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 接收数据（带超时）</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Receive<span class="op">(</span><span class="dt">uint8_t</span><span class="op">*</span> buffer<span class="op">,</span> <span class="dt">size_t</span> max_len<span class="op">,</span> </span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>                 <span class="dt">size_t</span><span class="op">&amp;</span> received<span class="op">,</span> <span class="dt">int</span> timeout_ms<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 设置接收超时</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        timeval tv<span class="op">{</span>timeout_ms <span class="op">/</span> <span class="dv">1000</span><span class="op">,</span> </span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>                   <span class="op">(</span>timeout_ms <span class="op">%</span> <span class="dv">1000</span><span class="op">)</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">};</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        setsockopt<span class="op">(</span><span class="va">sockfd_</span><span class="op">,</span> SOL_SOCKET<span class="op">,</span> SO_RCVTIMEO<span class="op">,</span> </span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>                   <span class="op">&amp;</span>tv<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>tv<span class="op">));</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>        sockaddr_in from<span class="op">;</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>        <span class="dt">socklen_t</span> addr_len <span class="op">=</span> <span class="kw">sizeof</span><span class="op">(</span>from<span class="op">);</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>        <span class="dt">ssize_t</span> n <span class="op">=</span> recvfrom<span class="op">(</span><span class="va">sockfd_</span><span class="op">,</span> buffer<span class="op">,</span> max_len<span class="op">,</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>                             <span class="op">(</span>sockaddr<span class="op">*)&amp;</span>from<span class="op">,</span> <span class="op">&amp;</span>addr_len<span class="op">);</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>n <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>            received <span class="op">=</span> n<span class="op">;</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">sockfd_</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>    sockaddr_in <span class="va">server_addr_</span><span class="op">;</span></span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="va">connected_</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="非阻塞-io-与事件循环">2.4 非阻塞 IO 与事件循环</h3>
+<p>生产环境必须使用 <strong>非阻塞 IO + 事件驱动</strong> 架构：</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 非阻塞 UDP 服务器（基于 epoll）</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;sys/epoll.h&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;fcntl.h&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> UdpServerAsync <span class="op">{</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">(</span><span class="dt">uint16_t</span> port<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 创建 socket</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">sockfd_</span> <span class="op">=</span> socket<span class="op">(</span>AF_INET<span class="op">,</span> SOCK_DGRAM<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">sockfd_</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 设置为非阻塞模式</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> flags <span class="op">=</span> fcntl<span class="op">(</span><span class="va">sockfd_</span><span class="op">,</span> F_GETFL<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        fcntl<span class="op">(</span><span class="va">sockfd_</span><span class="op">,</span> F_SETFL<span class="op">,</span> flags <span class="op">|</span> O_NONBLOCK<span class="op">);</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 绑定地址</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        sockaddr_in addr<span class="op">{};</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        addr<span class="op">.</span>sin_family <span class="op">=</span> AF_INET<span class="op">;</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        addr<span class="op">.</span>sin_port <span class="op">=</span> htons<span class="op">(</span>port<span class="op">);</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        addr<span class="op">.</span>sin_addr<span class="op">.</span><span class="va">s_addr</span> <span class="op">=</span> INADDR_ANY<span class="op">;</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        bind<span class="op">(</span><span class="va">sockfd_</span><span class="op">,</span> <span class="op">(</span>sockaddr<span class="op">*)&amp;</span>addr<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>addr<span class="op">));</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 创建 epoll 实例</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>        <span class="va">epollfd_</span> <span class="op">=</span> epoll_create1<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 注册读事件</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        epoll_event ev<span class="op">{};</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>        ev<span class="op">.</span>events <span class="op">=</span> EPOLLIN<span class="op">;</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        ev<span class="op">.</span>data<span class="op">.</span>fd <span class="op">=</span> <span class="va">sockfd_</span><span class="op">;</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>        epoll_ctl<span class="op">(</span><span class="va">epollfd_</span><span class="op">,</span> EPOLL_CTL_ADD<span class="op">,</span> <span class="va">sockfd_</span><span class="op">,</span> <span class="op">&amp;</span>ev<span class="op">);</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 事件循环</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> RunLoop<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>        epoll_event events<span class="op">[</span><span class="dv">10</span><span class="op">];</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span><span class="va">running_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 等待事件，最多阻塞 100ms</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> nfds <span class="op">=</span> epoll_wait<span class="op">(</span><span class="va">epollfd_</span><span class="op">,</span> events<span class="op">,</span> <span class="dv">10</span><span class="op">,</span> <span class="dv">100</span><span class="op">);</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> nfds<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>events<span class="op">[</span>i<span class="op">].</span>data<span class="op">.</span>fd <span class="op">==</span> <span class="va">sockfd_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>                    OnSocketReadable<span class="op">();</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnSocketReadable<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint8_t</span> buffer<span class="op">[</span><span class="dv">2048</span><span class="op">];</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>        sockaddr_in from<span class="op">;</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>        <span class="dt">socklen_t</span> addr_len <span class="op">=</span> <span class="kw">sizeof</span><span class="op">(</span>from<span class="op">);</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 循环读取所有可用数据（边缘触发模式需要）</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span><span class="kw">true</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>            <span class="dt">ssize_t</span> n <span class="op">=</span> recvfrom<span class="op">(</span><span class="va">sockfd_</span><span class="op">,</span> buffer<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>buffer<span class="op">),</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>                                 <span class="op">(</span>sockaddr<span class="op">*)&amp;</span>from<span class="op">,</span> <span class="op">&amp;</span>addr_len<span class="op">);</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>errno <span class="op">==</span> EAGAIN <span class="op">||</span> errno <span class="op">==</span> EWOULDBLOCK<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">break</span><span class="op">;</span> <span class="co">// 没有更多数据了</span></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>                <span class="co">// 处理错误</span></span>
+<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 处理数据包</span></span>
+<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>            ProcessPacket<span class="op">(</span>buffer<span class="op">,</span> n<span class="op">,</span> from<span class="op">);</span></span>
+<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> ProcessPacket<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">,</span> </span>
+<span id="cb7-79"><a href="#cb7-79" aria-hidden="true" tabindex="-1"></a>                       <span class="at">const</span> sockaddr_in<span class="op">&amp;</span> from<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-80"><a href="#cb7-80" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 实际业务逻辑</span></span>
+<span id="cb7-81"><a href="#cb7-81" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-82"><a href="#cb7-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-83"><a href="#cb7-83" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">sockfd_</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb7-84"><a href="#cb7-84" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">epollfd_</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb7-85"><a href="#cb7-85" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="va">running_</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb7-86"><a href="#cb7-86" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb7-87"><a href="#cb7-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-88"><a href="#cb7-88" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<p><strong>非阻塞 IO 的优势</strong>： - 单个线程可以处理数万连接 -
+没有线程切换开销 - 响应延迟低且可控</p>
+<h3 id="udp-编程最佳实践">2.5 UDP 编程最佳实践</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">实践</th>
+<th style="text-align: left;">说明</th>
+<th style="text-align: left;">代码示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>设置缓冲区大小</strong></td>
+<td style="text-align: left;">防止内核缓冲区溢出丢包</td>
+<td
+style="text-align: left;"><code>setsockopt(SO_RCVBUF/SO_SNDBUF)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>启用端口复用</strong></td>
+<td style="text-align: left;">服务器快速重启</td>
+<td style="text-align: left;"><code>setsockopt(SO_REUSEADDR)</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>校验包大小</strong></td>
+<td style="text-align: left;">UDP 包通常限制在 1500 字节以内</td>
+<td style="text-align: left;">检查 MTU</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>处理 EAGAIN</strong></td>
+<td style="text-align: left;">非阻塞模式下无数据可读</td>
+<td style="text-align: left;"><code>if (errno == EAGAIN)</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="rtp-协议详解">3. RTP 协议详解</h2>
+<p>RTP（Real-time Transport Protocol）是实时音视频传输的事实标准，定义于
+RFC 3550。它运行在 UDP
+之上，为音视频数据提供时序信息和负载类型标识。</p>
+<h3 id="rtp-设计目标">3.1 RTP 设计目标</h3>
+<p>RTP 不是凭空设计的，它要解决几个关键问题：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">问题</th>
+<th style="text-align: left;">RTP 解决方案</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">如何知道包的发送顺序？</td>
+<td style="text-align: left;">序列号（Sequence Number）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">如何同步音视频？</td>
+<td style="text-align: left;">时间戳（Timestamp）</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">如何区分不同来源？</td>
+<td style="text-align: left;">同步源标识（SSRC）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">如何识别编码格式？</td>
+<td style="text-align: left;">负载类型（Payload Type）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rtp-包结构">3.2 RTP 包结构</h3>
+<figure>
+<img src="./diagrams/rtp-packet.svg" alt="RTP 包结构" />
+<figcaption aria-hidden="true">RTP 包结构</figcaption>
+</figure>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                        IP 头部 (20 字节)                      │
+├─────────────────────────────────────────────────────────────┤
+│                       UDP 头部 (8 字节)                       │
+├─────────────────────────────────────────────────────────────┤
+│                       RTP 头部 (12+ 字节)                     │
+├─────────────────────────────────────────────────────────────┤
+│                      RTP 负载 (变长)                          │
+│                  (H.264 NALU / Opus 帧等)                     │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="rtp-头部详解">3.3 RTP 头部详解</h3>
+<figure>
+<img src="./diagrams/rtp-header.svg" alt="RTP 头部详解" />
+<figcaption aria-hidden="true">RTP 头部详解</figcaption>
+</figure>
+<pre><code> 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|V=2|P|X|  CC   |M|     PT      |       序列号 (Sequence)        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                           时间戳 (Timestamp)                   |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|           同步源标识 (SSRC)                                    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|           贡献源标识 (CSRC) 列表 (可选，0-15 项)               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</code></pre>
+<p><strong>字段详解</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">字段</th>
+<th style="text-align: center;">位宽</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>V</strong></td>
+<td style="text-align: center;">2</td>
+<td style="text-align: left;">版本号，固定为 2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>P</strong></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">填充标志，负载末尾有填充字节</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>X</strong></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">扩展标志，头部后有扩展头</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>CC</strong></td>
+<td style="text-align: center;">4</td>
+<td style="text-align: left;">CSRC 计数，0-15</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>M</strong></td>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: left;">标记位，视频表示关键帧，音频表示会话开始</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>PT</strong></td>
+<td style="text-align: center;">7</td>
+<td style="text-align: left;">负载类型，标识编码格式</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Sequence</strong></td>
+<td style="text-align: center;">16</td>
+<td style="text-align: left;">序列号，每发一个包
++1，用于检测丢包和排序</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Timestamp</strong></td>
+<td style="text-align: center;">32</td>
+<td
+style="text-align: left;">时间戳，反映采样时刻，用于同步和抖动计算</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>SSRC</strong></td>
+<td style="text-align: center;">32</td>
+<td style="text-align: left;">同步源标识，随机生成，唯一标识一个流</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>CSRC</strong></td>
+<td style="text-align: center;">32×N</td>
+<td style="text-align: left;">贡献源列表，混音时使用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="负载类型payload-type">3.4 负载类型（Payload Type）</h3>
+<p>PT 字段标识了负载的编码格式：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">PT 值</th>
+<th style="text-align: left;">编码格式</th>
+<th style="text-align: center;">时钟频率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0</td>
+<td style="text-align: left;">PCMU (G.711 μ-law)</td>
+<td style="text-align: center;">8000 Hz</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">8</td>
+<td style="text-align: left;">PCMA (G.711 A-law)</td>
+<td style="text-align: center;">8000 Hz</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">96-127</td>
+<td style="text-align: left;">动态分配</td>
+<td style="text-align: center;">协商确定</td>
+</tr>
+</tbody>
+</table>
+<p><strong>动态 PT 常见映射</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">PT</th>
+<th style="text-align: left;">编码</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">96</td>
+<td style="text-align: left;">H.264</td>
+<td style="text-align: left;">视频编码</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">97</td>
+<td style="text-align: left;">H.265</td>
+<td style="text-align: left;">视频编码</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">98</td>
+<td style="text-align: left;">VP8</td>
+<td style="text-align: left;">视频编码</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">111</td>
+<td style="text-align: left;">Opus</td>
+<td style="text-align: left;">音频编码</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rtp-打包实现">3.5 RTP 打包实现</h3>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">// RTP 打包器</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cstdint&gt;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cstring&gt;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">// RTP 头部结构（固定 12 字节）</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> RtpHeader <span class="op">{</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> flags<span class="op">;</span>        <span class="co">// V(2) + P(1) + X(1) + CC(4)</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> <span class="va">m_pt</span><span class="op">;</span>         <span class="co">// M(1) + PT(7)</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint16_t</span> sequence<span class="op">;</span>    <span class="co">// 序列号（网络字节序）</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> timestamp<span class="op">;</span>   <span class="co">// 时间戳（网络字节序）</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> ssrc<span class="op">;</span>        <span class="co">// 同步源（网络字节序）</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 设置各个字段</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetVersion<span class="op">(</span><span class="dt">uint8_t</span> v<span class="op">)</span> <span class="op">{</span> flags <span class="op">=</span> <span class="op">(</span>flags <span class="op">&amp;</span> <span class="bn">0x3F</span><span class="op">)</span> <span class="op">|</span> <span class="op">(</span>v <span class="op">&lt;&lt;</span> <span class="dv">6</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetPadding<span class="op">(</span><span class="dt">bool</span> p<span class="op">)</span> <span class="op">{</span> flags <span class="op">=</span> p <span class="op">?</span> <span class="op">(</span>flags <span class="op">|</span> <span class="bn">0x20</span><span class="op">)</span> <span class="op">:</span> <span class="op">(</span>flags <span class="op">&amp;</span> <span class="bn">0xDF</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetExtension<span class="op">(</span><span class="dt">bool</span> x<span class="op">)</span> <span class="op">{</span> flags <span class="op">=</span> x <span class="op">?</span> <span class="op">(</span>flags <span class="op">|</span> <span class="bn">0x10</span><span class="op">)</span> <span class="op">:</span> <span class="op">(</span>flags <span class="op">&amp;</span> <span class="bn">0xEF</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetCsrcCount<span class="op">(</span><span class="dt">uint8_t</span> cc<span class="op">)</span> <span class="op">{</span> flags <span class="op">=</span> <span class="op">(</span>flags <span class="op">&amp;</span> <span class="bn">0xF0</span><span class="op">)</span> <span class="op">|</span> <span class="op">(</span>cc <span class="op">&amp;</span> <span class="bn">0x0F</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetMarker<span class="op">(</span><span class="dt">bool</span> m<span class="op">)</span> <span class="op">{</span> <span class="va">m_pt</span> <span class="op">=</span> m <span class="op">?</span> <span class="op">(</span><span class="va">m_pt</span> <span class="op">|</span> <span class="bn">0x80</span><span class="op">)</span> <span class="op">:</span> <span class="op">(</span><span class="va">m_pt</span> <span class="op">&amp;</span> <span class="bn">0x7F</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetPayloadType<span class="op">(</span><span class="dt">uint8_t</span> pt<span class="op">)</span> <span class="op">{</span> <span class="va">m_pt</span> <span class="op">=</span> <span class="op">(</span><span class="va">m_pt</span> <span class="op">&amp;</span> <span class="bn">0x80</span><span class="op">)</span> <span class="op">|</span> <span class="op">(</span>pt <span class="op">&amp;</span> <span class="bn">0x7F</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 网络字节序转换</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetSequence<span class="op">(</span><span class="dt">uint16_t</span> seq<span class="op">)</span> <span class="op">{</span> sequence <span class="op">=</span> htons<span class="op">(</span>seq<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetTimestamp<span class="op">(</span><span class="dt">uint32_t</span> ts<span class="op">)</span> <span class="op">{</span> timestamp <span class="op">=</span> htonl<span class="op">(</span>ts<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetSsrc<span class="op">(</span><span class="dt">uint32_t</span> s<span class="op">)</span> <span class="op">{</span> ssrc <span class="op">=</span> htonl<span class="op">(</span>s<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="kw">static_assert</span><span class="op">(</span><span class="kw">sizeof</span><span class="op">(</span>RtpHeader<span class="op">)</span> <span class="op">==</span> <span class="dv">12</span><span class="op">,</span> <span class="st">&quot;RtpHeader size must be 12&quot;</span><span class="op">);</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RtpPacketizer <span class="op">{</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    RtpPacketizer<span class="op">(</span><span class="dt">uint8_t</span> <span class="dt">payload_type</span><span class="op">,</span> <span class="dt">uint32_t</span> ssrc<span class="op">)</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>        <span class="op">:</span> <span class="va">payload_type_</span><span class="op">(</span><span class="dt">payload_type</span><span class="op">),</span> <span class="va">ssrc_</span><span class="op">(</span>ssrc<span class="op">),</span> <span class="va">sequence_</span><span class="op">(</span><span class="dv">0</span><span class="op">)</span> <span class="op">{}</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 打包一帧数据</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Packetize<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> frame<span class="op">,</span> <span class="dt">size_t</span> frame_len<span class="op">,</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">uint32_t</span> timestamp<span class="op">,</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>                   <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;&gt;&amp;</span> packets<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="dt">size_t</span> MAX_RTP_PAYLOAD <span class="op">=</span> <span class="dv">1400</span><span class="op">;</span> <span class="co">// 预留空间给头部</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>        <span class="dt">size_t</span> offset <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>        <span class="dt">bool</span> first_fragment <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span>offset <span class="op">&lt;</span> frame_len<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>            <span class="dt">size_t</span> remaining <span class="op">=</span> frame_len <span class="op">-</span> offset<span class="op">;</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>            <span class="dt">size_t</span> payload_size <span class="op">=</span> <span class="bu">std::</span>min<span class="op">(</span>remaining<span class="op">,</span> MAX_RTP_PAYLOAD<span class="op">);</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>            <span class="dt">bool</span> last_fragment <span class="op">=</span> <span class="op">(</span>offset <span class="op">+</span> payload_size <span class="op">&gt;=</span> frame_len<span class="op">);</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 创建 RTP 包</span></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;</span> packet<span class="op">;</span></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>            packet<span class="op">.</span>reserve<span class="op">(</span><span class="dv">12</span> <span class="op">+</span> payload_size <span class="op">+</span> <span class="dv">2</span><span class="op">);</span> <span class="co">// 头 + 负载 + FU 头</span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 写入 RTP 头部</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>            RtpHeader header<span class="op">{};</span></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>            header<span class="op">.</span>SetVersion<span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>            header<span class="op">.</span>SetPadding<span class="op">(</span><span class="kw">false</span><span class="op">);</span></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>            header<span class="op">.</span>SetExtension<span class="op">(</span><span class="kw">false</span><span class="op">);</span></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>            header<span class="op">.</span>SetCsrcCount<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>            header<span class="op">.</span>SetMarker<span class="op">(</span>last_fragment<span class="op">);</span> <span class="co">// 最后一个片段设置 M 位</span></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>            header<span class="op">.</span>SetPayloadType<span class="op">(</span><span class="va">payload_type_</span><span class="op">);</span></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>            header<span class="op">.</span>SetSequence<span class="op">(</span><span class="va">sequence_</span><span class="op">++);</span></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>            header<span class="op">.</span>SetTimestamp<span class="op">(</span>timestamp<span class="op">);</span></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>            header<span class="op">.</span>SetSsrc<span class="op">(</span><span class="va">ssrc_</span><span class="op">);</span></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>            packet<span class="op">.</span>insert<span class="op">(</span>packet<span class="op">.</span>end<span class="op">(),</span> </span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>                         <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>header<span class="op">),</span></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>                         <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>header<span class="op">)</span> <span class="op">+</span> <span class="dv">12</span><span class="op">);</span></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 写入负载（这里简化处理，实际需要根据编码格式添加分片头）</span></span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>            packet<span class="op">.</span>insert<span class="op">(</span>packet<span class="op">.</span>end<span class="op">(),</span></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>                         frame <span class="op">+</span> offset<span class="op">,</span></span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a>                         frame <span class="op">+</span> offset <span class="op">+</span> payload_size<span class="op">);</span></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a>            packets<span class="op">.</span>push_back<span class="op">(</span><span class="bu">std::</span>move<span class="op">(</span>packet<span class="op">));</span></span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>            offset <span class="op">+=</span> payload_size<span class="op">;</span></span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="op">!</span>packets<span class="op">.</span>empty<span class="op">();</span></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> <span class="va">payload_type_</span><span class="op">;</span></span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> <span class="va">ssrc_</span><span class="op">;</span></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint16_t</span> <span class="va">sequence_</span><span class="op">;</span></span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="h.264-over-rtp">3.6 H.264 over RTP</h3>
+<p>H.264 视频需要通过 RTP 分片传输，主要有两种方式：</p>
+<p><strong>单 NAL 单元模式</strong>（NALU &lt; 1400 字节）：</p>
+<pre><code>RTP 头部 (12 字节) + H.264 NAL 头部 (1 字节) + NAL 负载</code></pre>
+<p><strong>FU-A 分片模式</strong>（NALU &gt;= 1400 字节）：</p>
+<pre><code>RTP 头部 (12 字节) + FU 指示器 (1 字节) + FU 头部 (1 字节) + 片段</code></pre>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// H.264 NAL 单元类型</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> H264NalType <span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    kNalSlice <span class="op">=</span> <span class="dv">1</span><span class="op">,</span>           <span class="co">// 非 IDR 片</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    kNalDPA <span class="op">=</span> <span class="dv">2</span><span class="op">,</span>             <span class="co">// 数据分区 A</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    kNalDPB <span class="op">=</span> <span class="dv">3</span><span class="op">,</span>             <span class="co">// 数据分区 B</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    kNalDPC <span class="op">=</span> <span class="dv">4</span><span class="op">,</span>             <span class="co">// 数据分区 C</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    kNalIDR <span class="op">=</span> <span class="dv">5</span><span class="op">,</span>             <span class="co">// IDR 片（关键帧）</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    kNalSEI <span class="op">=</span> <span class="dv">6</span><span class="op">,</span>             <span class="co">// 补充增强信息</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    kNalSPS <span class="op">=</span> <span class="dv">7</span><span class="op">,</span>             <span class="co">// 序列参数集</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    kNalPPS <span class="op">=</span> <span class="dv">8</span><span class="op">,</span>             <span class="co">// 图像参数集</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    kNalAUD <span class="op">=</span> <span class="dv">9</span><span class="op">,</span>             <span class="co">// 访问单元分隔符</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    kNalEndOfSequence <span class="op">=</span> <span class="dv">10</span><span class="op">,</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    kNalEndOfStream <span class="op">=</span> <span class="dv">11</span><span class="op">,</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    kNalFiller <span class="op">=</span> <span class="dv">12</span><span class="op">,</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    kNalStapA <span class="op">=</span> <span class="dv">24</span><span class="op">,</span>          <span class="co">// 单时聚合包 A</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    kNalFuA <span class="op">=</span> <span class="dv">28</span><span class="op">,</span>            <span class="co">// 分片单元 A</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">// FU-A 分片打包</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> PackFuA<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> nalu<span class="op">,</span> <span class="dt">size_t</span> nalu_len<span class="op">,</span> <span class="dt">uint32_t</span> timestamp<span class="op">,</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>             <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;&gt;&amp;</span> packets<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">size_t</span> MAX_PAYLOAD <span class="op">=</span> <span class="dv">1400</span><span class="op">;</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> nal_header <span class="op">=</span> nalu<span class="op">[</span><span class="dv">0</span><span class="op">];</span> <span class="co">// 原始 NAL 头部</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> <span class="dt">nal_type</span> <span class="op">=</span> nal_header <span class="op">&amp;</span> <span class="bn">0x1F</span><span class="op">;</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> nri <span class="op">=</span> nal_header <span class="op">&amp;</span> <span class="bn">0x60</span><span class="op">;</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> offset <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> <span class="co">// 跳过 NAL 头部</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> first <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>offset <span class="op">&lt;</span> nalu_len<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>        <span class="dt">size_t</span> remaining <span class="op">=</span> nalu_len <span class="op">-</span> offset<span class="op">;</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>        <span class="dt">size_t</span> payload_size <span class="op">=</span> <span class="bu">std::</span>min<span class="op">(</span>remaining<span class="op">,</span> MAX_PAYLOAD<span class="op">);</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>        <span class="dt">bool</span> last <span class="op">=</span> <span class="op">(</span>offset <span class="op">+</span> payload_size <span class="op">&gt;=</span> nalu_len<span class="op">);</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;</span> packet<span class="op">;</span></span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 添加 RTP 头部（省略，同上）</span></span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>        <span class="co">// FU 指示器：F(1) + NRI(2) + Type(5) = 28 (FU-A)</span></span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint8_t</span> fu_indicator <span class="op">=</span> nri <span class="op">|</span> <span class="dv">28</span><span class="op">;</span></span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>push_back<span class="op">(</span>fu_indicator<span class="op">);</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>        <span class="co">// FU 头部：S(1) + E(1) + R(1) + Type(5)</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint8_t</span> fu_header <span class="op">=</span> <span class="dt">nal_type</span><span class="op">;</span></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>first<span class="op">)</span> fu_header <span class="op">|=</span> <span class="bn">0x80</span><span class="op">;</span> <span class="co">// S = 1</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>last<span class="op">)</span> fu_header <span class="op">|=</span> <span class="bn">0x40</span><span class="op">;</span>  <span class="co">// E = 1</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>push_back<span class="op">(</span>fu_header<span class="op">);</span></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 添加负载片段</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>insert<span class="op">(</span>packet<span class="op">.</span>end<span class="op">(),</span> nalu <span class="op">+</span> offset<span class="op">,</span> </span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>                     nalu <span class="op">+</span> offset <span class="op">+</span> payload_size<span class="op">);</span></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>        packets<span class="op">.</span>push_back<span class="op">(</span><span class="bu">std::</span>move<span class="op">(</span>packet<span class="op">));</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a>        offset <span class="op">+=</span> payload_size<span class="op">;</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a>        first <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="rtcp-协议">4. RTCP 协议</h2>
+<p>RTP 只负责传输数据，质量反馈需要 <strong>RTCP（RTP Control
+Protocol）</strong> 协议。</p>
+<h3 id="rtcp-的作用">4.1 RTCP 的作用</h3>
+<figure>
+<img src="./diagrams/rtcp-feedback.svg" alt="RTCP 反馈循环" />
+<figcaption aria-hidden="true">RTCP 反馈循环</figcaption>
+</figure>
+<pre><code>        发送端                                    接收端
+    ┌──────────┐                             ┌──────────┐
+    │  发送 RTP  │─────────────────────────────→│ 接收 RTP  │
+    │  数据包   │                             │  数据包   │
+    └──────────┘                             └──────────┘
+         ↑                                        │
+         │           定期发送 RTCP                  │
+         │           报告 (RR)                      │
+         │         ┌───────────────────────────────┘
+         │         ↓
+    ┌──────────┐  丢包率、抖动、延迟      ┌──────────┐
+    │  解析 RTCP │←───────────────────────│ 生成 RTCP │
+    │   报告    │                        │   报告    │
+    └──────────┘                        └──────────┘
+         │
+         ↓
+    ┌──────────────┐
+    │  调整编码码率  │
+    │  自适应网络   │
+    └──────────────┘</code></pre>
+<p><strong>RTCP 五大功能</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">功能</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>质量反馈</strong></td>
+<td style="text-align: left;">向发送端报告接收质量（丢包、抖动）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>源标识</strong></td>
+<td style="text-align: left;">CNAME 提供持久标识，SSRC 可能变化</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>同步</strong></td>
+<td style="text-align: left;">关联不同源的时钟，实现音视频同步</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>会话控制</strong></td>
+<td style="text-align: left;">BYE 消息表示离开</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>带宽控制</strong></td>
+<td style="text-align: left;">限制 RTCP 带宽占用（不超过 5%）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rtcp-包类型">4.2 RTCP 包类型</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">类型</th>
+<th style="text-align: left;">名称</th>
+<th style="text-align: center;">缩写</th>
+<th style="text-align: left;">发送者</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">200</td>
+<td style="text-align: left;">发送者报告</td>
+<td style="text-align: center;">SR</td>
+<td style="text-align: left;">发送端</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">201</td>
+<td style="text-align: left;">接收者报告</td>
+<td style="text-align: center;">RR</td>
+<td style="text-align: left;">接收端</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">202</td>
+<td style="text-align: left;">源描述</td>
+<td style="text-align: center;">SDES</td>
+<td style="text-align: left;">所有参与者</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">203</td>
+<td style="text-align: left;">再见</td>
+<td style="text-align: center;">BYE</td>
+<td style="text-align: left;">离开者</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">204</td>
+<td style="text-align: left;">应用特定</td>
+<td style="text-align: center;">APP</td>
+<td style="text-align: left;">应用自定义</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">205</td>
+<td style="text-align: left;">传输层反馈</td>
+<td style="text-align: center;">RTPFB</td>
+<td style="text-align: left;">接收端</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">206</td>
+<td style="text-align: left;">负载特定反馈</td>
+<td style="text-align: center;">PSFB</td>
+<td style="text-align: left;">接收端</td>
+</tr>
+</tbody>
+</table>
+<h3 id="发送者报告sr">4.3 发送者报告（SR）</h3>
+<pre><code> 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|V=2|P|    RC   |  PT=SR=200    |            长度               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                         同步源 (SSRC)                          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|              NTP 时间戳高位 (秒)                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|              NTP 时间戳低位 (秒的小数部分)      |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                         RTP 时间戳                             |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                 发送者包计数 (Sender&#39;s packet count)           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                 发送者字节计数 (Sender&#39;s octet count)          |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</code></pre>
+<p><strong>关键字段</strong>： - <strong>NTP
+时间戳</strong>：绝对时间，用于跨流同步 - <strong>RTP
+时间戳</strong>：与数据包时间戳对应 -
+<strong>包计数</strong>：累计发送的 RTP 包数 -
+<strong>字节计数</strong>：累计发送的字节数</p>
+<h3 id="接收者报告rr">4.4 接收者报告（RR）</h3>
+<pre><code> 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|V=2|P|    RC   |  PT=RR=201    |            长度               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                     报告者 SSRC                                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  丢失率 (8)   |   累计丢失 (24)                                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|           接收到的最高序列号          |   到达抖动 (Jitter)     |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                  最后 SR 时间戳 (LSR)                           |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                  自最后 SR 以来的延迟 (DLSR)                    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</code></pre>
+<p><strong>关键字段</strong>： - <strong>丢包率（Fraction
+Lost）</strong>：最近一个间隔的丢包比例 -
+<strong>累计丢失</strong>：整个会话的丢包总数 -
+<strong>最高序列号</strong>：已接收的最大 RTP 序列号 -
+<strong>抖动（Jitter）</strong>：接收时延的统计方差</p>
+<h3 id="丢包率和抖动计算">4.5 丢包率和抖动计算</h3>
+<p><strong>丢包率计算</strong>：</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 计算丢包率</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> LossStats <span class="op">{</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> expected<span class="op">;</span>      <span class="co">// 期望接收的包数</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> received<span class="op">;</span>      <span class="co">// 实际接收的包数</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> lost<span class="op">;</span>          <span class="co">// 丢失的包数</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> fraction_lost<span class="op">;</span>  <span class="co">// 丢包率 (0-255, 255=100%)</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>LossStats CalculateLoss<span class="op">(</span><span class="dt">uint16_t</span> highest_seq<span class="op">,</span> </span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">uint32_t</span> cumulative_lost_prev<span class="op">,</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">uint32_t</span> expected_prev<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    LossStats stats<span class="op">;</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 当前期望接收总数 = 最高序列号 - 初始序列号 + 1</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> expected_now <span class="op">=</span> highest_seq <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> expected_interval <span class="op">=</span> expected_now <span class="op">-</span> expected_prev<span class="op">;</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 实际接收数量（通过其他方式统计）</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> received_interval <span class="op">=</span> <span class="co">/* 实际接收数 */</span><span class="op">;</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 本周期丢包数</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int32_t</span> lost_interval <span class="op">=</span> expected_interval <span class="op">-</span> received_interval<span class="op">;</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>lost_interval <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> lost_interval <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 丢包率 (0-255)</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>expected_interval <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>        stats<span class="op">.</span>fraction_lost <span class="op">=</span> <span class="op">(</span>lost_interval <span class="op">*</span> <span class="dv">256</span><span class="op">)</span> <span class="op">/</span> expected_interval<span class="op">;</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> stats<span class="op">;</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>抖动计算</strong>：</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 抖动计算（RFC 3550 推荐算法）</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> JitterCalculator <span class="op">{</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Update<span class="op">(</span><span class="dt">uint32_t</span> rtp_timestamp<span class="op">,</span> </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                <span class="dt">uint32_t</span> arrival_time_ms<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 传输时间差 = (到达时间 - RTP时间戳)</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int32_t</span> transit <span class="op">=</span> arrival_time_ms <span class="op">-</span> </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                         <span class="op">(</span>rtp_timestamp <span class="op">/</span> <span class="dv">90</span><span class="op">);</span> <span class="co">// 假设 90kHz</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">first_packet_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>            <span class="va">transit_prev_</span> <span class="op">=</span> transit<span class="op">;</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>            <span class="va">first_packet_</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 本次与上次的差值</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int32_t</span> d <span class="op">=</span> transit <span class="op">-</span> <span class="va">transit_prev_</span><span class="op">;</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>d <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> d <span class="op">=</span> <span class="op">-</span>d<span class="op">;</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 指数加权移动平均：J = J + (|D| - J) / 16</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">jitter_</span> <span class="op">+=</span> <span class="op">(</span>d <span class="op">-</span> <span class="va">jitter_</span><span class="op">)</span> <span class="op">/</span> <span class="dv">16</span><span class="op">;</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>        <span class="va">transit_prev_</span> <span class="op">=</span> transit<span class="op">;</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> GetJitter<span class="op">()</span> <span class="at">const</span> <span class="op">{</span> <span class="cf">return</span> <span class="va">jitter_</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="va">first_packet_</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int32_t</span> <span class="va">transit_prev_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> <span class="va">jitter_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="rtcp-实现代码">4.6 RTCP 实现代码</h3>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">// RTCP 接收报告生成器</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cstdint&gt;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;vector&gt;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;cstring&gt;</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="co">// RTCP 头部</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> RtcpHeader <span class="op">{</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> flags<span class="op">;</span>      <span class="co">// V(2) + P(1) + RC(5)</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> <span class="dt">packet_type</span><span class="op">;</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint16_t</span> length<span class="op">;</span>    <span class="co">// 长度（32位字为单位）- 1</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetVersion<span class="op">(</span><span class="dt">uint8_t</span> v<span class="op">)</span> <span class="op">{</span> flags <span class="op">=</span> <span class="op">(</span>flags <span class="op">&amp;</span> <span class="bn">0x3F</span><span class="op">)</span> <span class="op">|</span> <span class="op">(</span>v <span class="op">&lt;&lt;</span> <span class="dv">6</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetCount<span class="op">(</span><span class="dt">uint8_t</span> c<span class="op">)</span> <span class="op">{</span> flags <span class="op">=</span> <span class="op">(</span>flags <span class="op">&amp;</span> <span class="bn">0xC0</span><span class="op">)</span> <span class="op">|</span> <span class="op">(</span>c <span class="op">&amp;</span> <span class="bn">0x1F</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetLength<span class="op">(</span><span class="dt">uint16_t</span> len<span class="op">)</span> <span class="op">{</span> length <span class="op">=</span> htons<span class="op">(</span>len<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="co">// 接收报告块</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> ReceiverReportBlock <span class="op">{</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> ssrc<span class="op">;</span>          <span class="co">// 被报告源的 SSRC</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> fraction_lost<span class="op">;</span>  <span class="co">// 丢包率</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint8_t</span> cumulative_lost<span class="op">[</span><span class="dv">3</span><span class="op">];</span> <span class="co">// 累计丢包（24位）</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> highest_seq<span class="op">;</span>   <span class="co">// 最高序列号</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> jitter<span class="op">;</span>        <span class="co">// 抖动</span></span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> lsr<span class="op">;</span>           <span class="co">// 最后 SR 时间戳</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> dlsr<span class="op">;</span>          <span class="co">// 自最后 SR 的延迟</span></span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RtcpSender <span class="op">{</span></span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;</span> CreateReceiverReport<span class="op">(</span></span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint32_t</span> reporter_ssrc<span class="op">,</span></span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span>ReceiverReportBlock<span class="op">&gt;&amp;</span> blocks<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;</span> packet<span class="op">;</span></span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a>        <span class="co">// RTCP 头部</span></span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a>        RtcpHeader header<span class="op">{};</span></span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a>        header<span class="op">.</span>SetVersion<span class="op">(</span><span class="dv">2</span><span class="op">);</span></span>
+<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a>        header<span class="op">.</span>SetCount<span class="op">(</span>blocks<span class="op">.</span>size<span class="op">());</span></span>
+<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a>        header<span class="op">.</span><span class="dt">packet_type</span> <span class="op">=</span> <span class="dv">201</span><span class="op">;</span> <span class="co">// RR</span></span>
+<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 长度 = (4 + blocks.size() * 6) / 4 - 1 = 3 + blocks.size() * 6 / 4</span></span>
+<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a>        header<span class="op">.</span>SetLength<span class="op">(</span><span class="dv">3</span> <span class="op">+</span> blocks<span class="op">.</span>size<span class="op">()</span> <span class="op">*</span> <span class="dv">6</span> <span class="op">-</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-49"><a href="#cb19-49" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>push_back<span class="op">(</span>header<span class="op">.</span>flags<span class="op">);</span></span>
+<span id="cb19-50"><a href="#cb19-50" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>push_back<span class="op">(</span>header<span class="op">.</span><span class="dt">packet_type</span><span class="op">);</span></span>
+<span id="cb19-51"><a href="#cb19-51" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>push_back<span class="op">(</span>header<span class="op">.</span>length <span class="op">&amp;</span> <span class="bn">0xFF</span><span class="op">);</span></span>
+<span id="cb19-52"><a href="#cb19-52" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>push_back<span class="op">((</span>header<span class="op">.</span>length <span class="op">&gt;&gt;</span> <span class="dv">8</span><span class="op">)</span> <span class="op">&amp;</span> <span class="bn">0xFF</span><span class="op">);</span></span>
+<span id="cb19-53"><a href="#cb19-53" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-54"><a href="#cb19-54" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 报告者 SSRC</span></span>
+<span id="cb19-55"><a href="#cb19-55" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint32_t</span> ssrc_net <span class="op">=</span> htonl<span class="op">(</span>reporter_ssrc<span class="op">);</span></span>
+<span id="cb19-56"><a href="#cb19-56" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>insert<span class="op">(</span>packet<span class="op">.</span>end<span class="op">(),</span> </span>
+<span id="cb19-57"><a href="#cb19-57" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>ssrc_net<span class="op">),</span></span>
+<span id="cb19-58"><a href="#cb19-58" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>ssrc_net<span class="op">)</span> <span class="op">+</span> <span class="dv">4</span><span class="op">);</span></span>
+<span id="cb19-59"><a href="#cb19-59" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-60"><a href="#cb19-60" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 报告块</span></span>
+<span id="cb19-61"><a href="#cb19-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> block <span class="op">:</span> blocks<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-62"><a href="#cb19-62" aria-hidden="true" tabindex="-1"></a>            AddReportBlock<span class="op">(</span>packet<span class="op">,</span> block<span class="op">);</span></span>
+<span id="cb19-63"><a href="#cb19-63" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb19-64"><a href="#cb19-64" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-65"><a href="#cb19-65" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> packet<span class="op">;</span></span>
+<span id="cb19-66"><a href="#cb19-66" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-67"><a href="#cb19-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-68"><a href="#cb19-68" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb19-69"><a href="#cb19-69" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> AddReportBlock<span class="op">(</span><span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;&amp;</span> packet<span class="op">,</span></span>
+<span id="cb19-70"><a href="#cb19-70" aria-hidden="true" tabindex="-1"></a>                       <span class="at">const</span> ReceiverReportBlock<span class="op">&amp;</span> block<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-71"><a href="#cb19-71" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint32_t</span> val<span class="op">;</span></span>
+<span id="cb19-72"><a href="#cb19-72" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-73"><a href="#cb19-73" aria-hidden="true" tabindex="-1"></a>        <span class="co">// SSRC</span></span>
+<span id="cb19-74"><a href="#cb19-74" aria-hidden="true" tabindex="-1"></a>        val <span class="op">=</span> htonl<span class="op">(</span>block<span class="op">.</span>ssrc<span class="op">);</span></span>
+<span id="cb19-75"><a href="#cb19-75" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>insert<span class="op">(</span>packet<span class="op">.</span>end<span class="op">(),</span></span>
+<span id="cb19-76"><a href="#cb19-76" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>val<span class="op">),</span></span>
+<span id="cb19-77"><a href="#cb19-77" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>val<span class="op">)</span> <span class="op">+</span> <span class="dv">4</span><span class="op">);</span></span>
+<span id="cb19-78"><a href="#cb19-78" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-79"><a href="#cb19-79" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 丢包率 + 累计丢包</span></span>
+<span id="cb19-80"><a href="#cb19-80" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>push_back<span class="op">(</span>block<span class="op">.</span>fraction_lost<span class="op">);</span></span>
+<span id="cb19-81"><a href="#cb19-81" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>push_back<span class="op">(</span>block<span class="op">.</span>cumulative_lost<span class="op">[</span><span class="dv">0</span><span class="op">]);</span></span>
+<span id="cb19-82"><a href="#cb19-82" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>push_back<span class="op">(</span>block<span class="op">.</span>cumulative_lost<span class="op">[</span><span class="dv">1</span><span class="op">]);</span></span>
+<span id="cb19-83"><a href="#cb19-83" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>push_back<span class="op">(</span>block<span class="op">.</span>cumulative_lost<span class="op">[</span><span class="dv">2</span><span class="op">]);</span></span>
+<span id="cb19-84"><a href="#cb19-84" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-85"><a href="#cb19-85" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 最高序列号</span></span>
+<span id="cb19-86"><a href="#cb19-86" aria-hidden="true" tabindex="-1"></a>        val <span class="op">=</span> htonl<span class="op">(</span>block<span class="op">.</span>highest_seq<span class="op">);</span></span>
+<span id="cb19-87"><a href="#cb19-87" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>insert<span class="op">(</span>packet<span class="op">.</span>end<span class="op">(),</span></span>
+<span id="cb19-88"><a href="#cb19-88" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>val<span class="op">),</span></span>
+<span id="cb19-89"><a href="#cb19-89" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>val<span class="op">)</span> <span class="op">+</span> <span class="dv">4</span><span class="op">);</span></span>
+<span id="cb19-90"><a href="#cb19-90" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-91"><a href="#cb19-91" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 抖动</span></span>
+<span id="cb19-92"><a href="#cb19-92" aria-hidden="true" tabindex="-1"></a>        val <span class="op">=</span> htonl<span class="op">(</span>block<span class="op">.</span>jitter<span class="op">);</span></span>
+<span id="cb19-93"><a href="#cb19-93" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>insert<span class="op">(</span>packet<span class="op">.</span>end<span class="op">(),</span></span>
+<span id="cb19-94"><a href="#cb19-94" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>val<span class="op">),</span></span>
+<span id="cb19-95"><a href="#cb19-95" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>val<span class="op">)</span> <span class="op">+</span> <span class="dv">4</span><span class="op">);</span></span>
+<span id="cb19-96"><a href="#cb19-96" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-97"><a href="#cb19-97" aria-hidden="true" tabindex="-1"></a>        <span class="co">// LSR</span></span>
+<span id="cb19-98"><a href="#cb19-98" aria-hidden="true" tabindex="-1"></a>        val <span class="op">=</span> htonl<span class="op">(</span>block<span class="op">.</span>lsr<span class="op">);</span></span>
+<span id="cb19-99"><a href="#cb19-99" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>insert<span class="op">(</span>packet<span class="op">.</span>end<span class="op">(),</span></span>
+<span id="cb19-100"><a href="#cb19-100" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>val<span class="op">),</span></span>
+<span id="cb19-101"><a href="#cb19-101" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>val<span class="op">)</span> <span class="op">+</span> <span class="dv">4</span><span class="op">);</span></span>
+<span id="cb19-102"><a href="#cb19-102" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb19-103"><a href="#cb19-103" aria-hidden="true" tabindex="-1"></a>        <span class="co">// DLSR</span></span>
+<span id="cb19-104"><a href="#cb19-104" aria-hidden="true" tabindex="-1"></a>        val <span class="op">=</span> htonl<span class="op">(</span>block<span class="op">.</span>dlsr<span class="op">);</span></span>
+<span id="cb19-105"><a href="#cb19-105" aria-hidden="true" tabindex="-1"></a>        packet<span class="op">.</span>insert<span class="op">(</span>packet<span class="op">.</span>end<span class="op">(),</span></span>
+<span id="cb19-106"><a href="#cb19-106" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>val<span class="op">),</span></span>
+<span id="cb19-107"><a href="#cb19-107" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">reinterpret_cast</span><span class="op">&lt;</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*&gt;(&amp;</span>val<span class="op">)</span> <span class="op">+</span> <span class="dv">4</span><span class="op">);</span></span>
+<span id="cb19-108"><a href="#cb19-108" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-109"><a href="#cb19-109" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb19-110"><a href="#cb19-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-111"><a href="#cb19-111" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="带宽估计基础">4.7 带宽估计基础</h3>
+<p>RTCP 提供的反馈是 <strong>GCC（Google Congestion Control）</strong>
+等拥塞控制算法的基础：</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 基于丢包的带宽估计</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> LossBasedBandwidthEstimator <span class="op">{</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Update<span class="op">(</span><span class="dt">uint8_t</span> fraction_lost<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 丢包率 &lt; 2%：网络良好，增加码率</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>fraction_lost <span class="op">&lt;</span> <span class="dv">5</span><span class="op">)</span> <span class="op">{</span> <span class="co">// 约 2%</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>            <span class="va">bitrate_bps_</span> <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">uint32_t</span><span class="op">&gt;(</span><span class="va">bitrate_bps_</span> <span class="op">*</span> <span class="fl">1.08</span><span class="op">);</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 丢包率 2%-10%：保持当前码率</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>fraction_lost <span class="op">&lt;</span> <span class="dv">26</span><span class="op">)</span> <span class="op">{</span> <span class="co">// 约 10%</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 码率不变</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 丢包率 &gt; 10%：网络拥塞，降低码率</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>            <span class="va">bitrate_bps_</span> <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">uint32_t</span><span class="op">&gt;(</span><span class="va">bitrate_bps_</span> <span class="op">*</span> <span class="fl">0.85</span><span class="op">);</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 限制在合理范围</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">bitrate_bps_</span> <span class="op">=</span> <span class="bu">std::</span>min<span class="op">(</span><span class="va">bitrate_bps_</span><span class="op">,</span> <span class="va">max_bitrate_bps_</span><span class="op">);</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>        <span class="va">bitrate_bps_</span> <span class="op">=</span> <span class="bu">std::</span>max<span class="op">(</span><span class="va">bitrate_bps_</span><span class="op">,</span> <span class="va">min_bitrate_bps_</span><span class="op">);</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> GetEstimate<span class="op">()</span> <span class="at">const</span> <span class="op">{</span> <span class="cf">return</span> <span class="va">bitrate_bps_</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> <span class="va">bitrate_bps_</span> <span class="op">=</span> <span class="dv">1000000</span><span class="op">;</span>     <span class="co">// 初始 1Mbps</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> <span class="va">min_bitrate_bps_</span> <span class="op">=</span> <span class="dv">150000</span><span class="op">;</span>  <span class="co">// 最低 150kbps</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> <span class="va">max_bitrate_bps_</span> <span class="op">=</span> <span class="dv">5000000</span><span class="op">;</span> <span class="co">// 最高 5Mbps</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<hr />
+<h2 id="jitterbuffer-抖动缓冲">5. JitterBuffer 抖动缓冲</h2>
+<p>网络传输的延迟不是恒定的，会有
+<strong>抖动（Jitter）</strong>。JitterBuffer
+的作用是平滑这种抖动，保证解码器获得稳定的输入。</p>
+<h3 id="抖动的来源">5.1 抖动的来源</h3>
+<figure>
+<img src="./diagrams/jitter-sources.svg" alt="抖动来源" />
+<figcaption aria-hidden="true">抖动来源</figcaption>
+</figure>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">来源</th>
+<th style="text-align: left;">说明</th>
+<th style="text-align: center;">典型值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>网络排队</strong></td>
+<td style="text-align: left;">路由器缓冲区排队时间变化</td>
+<td style="text-align: center;">0-100ms</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>拥塞控制</strong></td>
+<td style="text-align: left;">TCP/网络层主动降速</td>
+<td style="text-align: center;">突发延迟</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>多路径</strong></td>
+<td style="text-align: left;">负载均衡导致不同路径延迟</td>
+<td style="text-align: center;">差异可达 50ms</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>无线干扰</strong></td>
+<td style="text-align: left;">WiFi/4G 信号强度波动</td>
+<td style="text-align: center;">0-200ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>抖动可视化</strong>：</p>
+<pre><code>时间(ms)
+  │
+50├─────────┐
+  │         │
+40├────┐    │     ┌──────────┐
+  │    │    │     │          │
+30├────┼────┼─────┼─────┐    │
+  │    │    │     │     │    │
+20├────┼────┼─────┼─────┼────┼─── 期望延迟线
+  │    │     ╲    │      ╲   │
+10├────┼──────╲───┼───────╲──┘
+  │    │        ╲ │         ╲
+ 0├────┴─────────┴───────────┴─── 发送时间
+  │    A    B    C    D    E    F  → 数据包</code></pre>
+<h3 id="jitterbuffer-工作原理">5.2 JitterBuffer 工作原理</h3>
+<figure>
+<img src="./diagrams/jitterbuffer.svg" alt="JitterBuffer 工作原理" />
+<figcaption aria-hidden="true">JitterBuffer 工作原理</figcaption>
+</figure>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                      JitterBuffer                           │
+├─────────────────────────────────────────────────────────────┤
+│  到达数据包                                                   │
+│     │                                                       │
+│     ▼                                                       │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │              接收队列 (按序列号排序)                    │  │
+│  │  [Pkt3] [Pkt4] [Pkt5] [Pkt6] [Pkt7] [Pkt8] [Pkt9]      │  │
+│  │    ↑                                    ↑              │  │
+│  │   已接收                               等待中           │  │
+│  └───────────────────────────────────────────────────────┘  │
+│     │                                                       │
+│     │ 等待直到目标延迟                                       │
+│     ▼                                                       │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │              播放缓冲区 (按时序输出)                    │  │
+│  │       [Pkt3] [Pkt4] [Pkt5] → 解码器                    │  │
+│  └───────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="jitterbuffer-核心设计">5.3 JitterBuffer 核心设计</h3>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co">// JitterBuffer 实现</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">// ============================================</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#pragma once</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;map&gt;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;queue&gt;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;chrono&gt;</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;functional&gt;</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> JitterPacket <span class="op">{</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint16_t</span> sequence<span class="op">;</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> timestamp<span class="op">;</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="dt">uint8_t</span><span class="op">&gt;</span> payload<span class="op">;</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>chrono::steady_clock::time_point arrival_time<span class="op">;</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> is_keyframe<span class="op">;</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> JitterBuffer <span class="op">{</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> FrameCallback <span class="op">=</span> <span class="bu">std::</span>function<span class="op">&lt;</span><span class="dt">void</span><span class="op">(</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> JitterPacket<span class="op">&amp;</span> packet<span class="op">)&gt;;</span></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">explicit</span> JitterBuffer<span class="op">(</span>FrameCallback callback<span class="op">)</span></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>        <span class="op">:</span> <span class="va">callback_</span><span class="op">(</span>callback<span class="op">),</span> <span class="va">target_delay_ms_</span><span class="op">(</span><span class="dv">100</span><span class="op">)</span> <span class="op">{}</span></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 插入收到的数据包</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> InsertPacket<span class="op">(</span>JitterPacket packet<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 计算当前抖动</span></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>        UpdateJitterEstimate<span class="op">(</span>packet<span class="op">);</span></span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 存储到缓冲区</span></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>        <span class="va">buffer_</span><span class="op">[</span>packet<span class="op">.</span>sequence<span class="op">]</span> <span class="op">=</span> <span class="bu">std::</span>move<span class="op">(</span>packet<span class="op">);</span></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 尝试输出</span></span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>        TryOutput<span class="op">();</span></span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 定期调用（如每 10ms）</span></span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Process<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>        TryOutput<span class="op">();</span></span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 动态调整目标延迟</span></span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>        AdaptTargetDelay<span class="op">();</span></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> UpdateJitterEstimate<span class="op">(</span><span class="at">const</span> JitterPacket<span class="op">&amp;</span> packet<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> now <span class="op">=</span> <span class="bu">std::</span>chrono::steady_clock::now<span class="op">();</span></span>
+<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 计算传输时间（简化为到达时间差 - 时间戳差）</span></span>
+<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span><span class="va">last_arrival_</span><span class="op">.</span>time_since_epoch<span class="op">().</span>count<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a>            <span class="va">last_arrival_</span> <span class="op">=</span> now<span class="op">;</span></span>
+<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a>            <span class="va">last_timestamp_</span> <span class="op">=</span> packet<span class="op">.</span>timestamp<span class="op">;</span></span>
+<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> arrival_delta <span class="op">=</span> <span class="bu">std::</span>chrono::duration_cast<span class="op">&lt;</span></span>
+<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>chrono::milliseconds<span class="op">&gt;(</span>now <span class="op">-</span> <span class="va">last_arrival_</span><span class="op">).</span>count<span class="op">();</span></span>
+<span id="cb23-61"><a href="#cb23-61" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int32_t</span> timestamp_delta <span class="op">=</span> <span class="kw">static_cast</span><span class="op">&lt;</span><span class="dt">int32_t</span><span class="op">&gt;(</span></span>
+<span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a>            packet<span class="op">.</span>timestamp <span class="op">-</span> <span class="va">last_timestamp_</span><span class="op">)</span> <span class="op">/</span> <span class="dv">90</span><span class="op">;</span> <span class="co">// 假设 90kHz</span></span>
+<span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int32_t</span> d <span class="op">=</span> arrival_delta <span class="op">-</span> timestamp_delta<span class="op">;</span></span>
+<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>d <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> d <span class="op">=</span> <span class="op">-</span>d<span class="op">;</span></span>
+<span id="cb23-66"><a href="#cb23-66" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-67"><a href="#cb23-67" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 指数加权移动平均</span></span>
+<span id="cb23-68"><a href="#cb23-68" aria-hidden="true" tabindex="-1"></a>        <span class="va">jitter_estimate_ms_</span> <span class="op">+=</span> <span class="op">(</span>d <span class="op">-</span> <span class="va">jitter_estimate_ms_</span><span class="op">)</span> <span class="op">/</span> <span class="dv">16</span><span class="op">;</span></span>
+<span id="cb23-69"><a href="#cb23-69" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-70"><a href="#cb23-70" aria-hidden="true" tabindex="-1"></a>        <span class="va">last_arrival_</span> <span class="op">=</span> now<span class="op">;</span></span>
+<span id="cb23-71"><a href="#cb23-71" aria-hidden="true" tabindex="-1"></a>        <span class="va">last_timestamp_</span> <span class="op">=</span> packet<span class="op">.</span>timestamp<span class="op">;</span></span>
+<span id="cb23-72"><a href="#cb23-72" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb23-73"><a href="#cb23-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-74"><a href="#cb23-74" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> TryOutput<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb23-75"><a href="#cb23-75" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> now <span class="op">=</span> <span class="bu">std::</span>chrono::steady_clock::now<span class="op">();</span></span>
+<span id="cb23-76"><a href="#cb23-76" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-77"><a href="#cb23-77" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(!</span><span class="va">buffer_</span><span class="op">.</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb23-78"><a href="#cb23-78" aria-hidden="true" tabindex="-1"></a>            <span class="kw">auto</span> it <span class="op">=</span> <span class="va">buffer_</span><span class="op">.</span>begin<span class="op">();</span></span>
+<span id="cb23-79"><a href="#cb23-79" aria-hidden="true" tabindex="-1"></a>            <span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> packet <span class="op">=</span> it<span class="op">-&gt;</span>second<span class="op">;</span></span>
+<span id="cb23-80"><a href="#cb23-80" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb23-81"><a href="#cb23-81" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 计算包龄（到达后的等待时间）</span></span>
+<span id="cb23-82"><a href="#cb23-82" aria-hidden="true" tabindex="-1"></a>            <span class="kw">auto</span> age_ms <span class="op">=</span> <span class="bu">std::</span>chrono::duration_cast<span class="op">&lt;</span></span>
+<span id="cb23-83"><a href="#cb23-83" aria-hidden="true" tabindex="-1"></a>                <span class="bu">std::</span>chrono::milliseconds<span class="op">&gt;(</span>now <span class="op">-</span> packet<span class="op">.</span>arrival_time<span class="op">).</span>count<span class="op">();</span></span>
+<span id="cb23-84"><a href="#cb23-84" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb23-85"><a href="#cb23-85" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 如果已达到目标延迟，输出</span></span>
+<span id="cb23-86"><a href="#cb23-86" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>age_ms <span class="op">&gt;=</span> <span class="va">target_delay_ms_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-87"><a href="#cb23-87" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span><span class="va">callback_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-88"><a href="#cb23-88" aria-hidden="true" tabindex="-1"></a>                    <span class="va">callback_</span><span class="op">(</span>packet<span class="op">);</span></span>
+<span id="cb23-89"><a href="#cb23-89" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb23-90"><a href="#cb23-90" aria-hidden="true" tabindex="-1"></a>                <span class="va">buffer_</span><span class="op">.</span>erase<span class="op">(</span>it<span class="op">);</span></span>
+<span id="cb23-91"><a href="#cb23-91" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb23-92"><a href="#cb23-92" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span><span class="op">;</span> <span class="co">// 还没到输出时间</span></span>
+<span id="cb23-93"><a href="#cb23-93" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb23-94"><a href="#cb23-94" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb23-95"><a href="#cb23-95" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb23-96"><a href="#cb23-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-97"><a href="#cb23-97" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> AdaptTargetDelay<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb23-98"><a href="#cb23-98" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 目标延迟 = 当前抖动估计 + 安全余量</span></span>
+<span id="cb23-99"><a href="#cb23-99" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int32_t</span> new_target <span class="op">=</span> <span class="va">jitter_estimate_ms_</span> <span class="op">+</span> <span class="dv">50</span><span class="op">;</span></span>
+<span id="cb23-100"><a href="#cb23-100" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-101"><a href="#cb23-101" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 限制范围</span></span>
+<span id="cb23-102"><a href="#cb23-102" aria-hidden="true" tabindex="-1"></a>        new_target <span class="op">=</span> <span class="bu">std::</span>max<span class="op">(</span>new_target<span class="op">,</span> <span class="dv">30</span><span class="op">);</span>   <span class="co">// 最小 30ms</span></span>
+<span id="cb23-103"><a href="#cb23-103" aria-hidden="true" tabindex="-1"></a>        new_target <span class="op">=</span> <span class="bu">std::</span>min<span class="op">(</span>new_target<span class="op">,</span> <span class="dv">500</span><span class="op">);</span>  <span class="co">// 最大 500ms</span></span>
+<span id="cb23-104"><a href="#cb23-104" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb23-105"><a href="#cb23-105" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 平滑调整</span></span>
+<span id="cb23-106"><a href="#cb23-106" aria-hidden="true" tabindex="-1"></a>        <span class="va">target_delay_ms_</span> <span class="op">+=</span> <span class="op">(</span>new_target <span class="op">-</span> <span class="va">target_delay_ms_</span><span class="op">)</span> <span class="op">/</span> <span class="dv">4</span><span class="op">;</span></span>
+<span id="cb23-107"><a href="#cb23-107" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb23-108"><a href="#cb23-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-109"><a href="#cb23-109" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>map<span class="op">&lt;</span><span class="dt">uint16_t</span><span class="op">,</span> JitterPacket<span class="op">&gt;</span> <span class="va">buffer_</span><span class="op">;</span></span>
+<span id="cb23-110"><a href="#cb23-110" aria-hidden="true" tabindex="-1"></a>    FrameCallback <span class="va">callback_</span><span class="op">;</span></span>
+<span id="cb23-111"><a href="#cb23-111" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-112"><a href="#cb23-112" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int32_t</span> <span class="va">jitter_estimate_ms_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb23-113"><a href="#cb23-113" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int32_t</span> <span class="va">target_delay_ms_</span> <span class="op">=</span> <span class="dv">100</span><span class="op">;</span></span>
+<span id="cb23-114"><a href="#cb23-114" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-115"><a href="#cb23-115" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>chrono::steady_clock::time_point <span class="va">last_arrival_</span><span class="op">;</span></span>
+<span id="cb23-116"><a href="#cb23-116" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint32_t</span> <span class="va">last_timestamp_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb23-117"><a href="#cb23-117" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb23-118"><a href="#cb23-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-119"><a href="#cb23-119" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="jitterbuffer-策略优化">5.4 JitterBuffer 策略优化</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">策略</th>
+<th style="text-align: left;">说明</th>
+<th style="text-align: left;">适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>固定延迟</strong></td>
+<td style="text-align: left;">延迟固定，简单但不够灵活</td>
+<td style="text-align: left;">网络稳定的环境</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>自适应延迟</strong></td>
+<td style="text-align: left;">根据网络状况动态调整</td>
+<td style="text-align: left;">移动网络、WiFi</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>加速播放</strong></td>
+<td style="text-align: left;">缓冲区过大时加快播放</td>
+<td style="text-align: left;">避免延迟累积</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>丢包隐藏</strong></td>
+<td style="text-align: left;">包超时未到，用 PLC 填充</td>
+<td style="text-align: left;">音频场景</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="本章总结">6. 本章总结</h2>
+<h3 id="核心概念回顾">6.1 核心概念回顾</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                    实时传输协议栈                             │
+├─────────────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  应用层：JitterBuffer、拥塞控制、丢包恢复、FEC          │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                          ↓                                   │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  RTP：实时传输协议，提供时序和负载类型                  │  │
+│  │  RTCP：控制协议，提供质量反馈                           │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                          ↓                                   │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  UDP：无连接、无阻塞、低开销                            │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                          ↓                                   │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  IP：网络层路由                                          │  │
+│  └───────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="关键知识点">6.2 关键知识点</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">主题</th>
+<th style="text-align: left;">核心要点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>UDP vs TCP</strong></td>
+<td style="text-align: left;">UDP
+无队头阻塞，适合实时传输；可靠性由应用层控制</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>RTP</strong></td>
+<td style="text-align: left;">序列号保序、时间戳同步、SSRC 标识源流、PT
+标识编码</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>RTCP</strong></td>
+<td style="text-align: left;">SR/RR
+报告质量、丢包率和抖动计算、带宽估计基础</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>JitterBuffer</strong></td>
+<td
+style="text-align: left;">平滑网络抖动、自适应目标延迟、平衡延迟与流畅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="从本章走向实践">6.3 从本章走向实践</h3>
+<p>掌握了 UDP 和 RTP/RTCP，你已经具备了构建实时通信系统的
+<strong>传输层基础</strong>。下一章，我们将在此基础上学习 <strong>NAT
+穿透和 P2P
+连接建立</strong>，解决”如何让两台内网主机直接通信”这一核心问题。</p>
+<h3 id="下一章预告">6.4 下一章预告</h3>
+<p><strong>第19章：NAT 穿透与 P2P 连接</strong></p>
+<p>在下一章中，你将学习： - <strong>NAT
+原理</strong>：为什么内网主机无法直接被访问 - <strong>STUN
+协议</strong>：发现自己的公网地址 - <strong>TURN
+协议</strong>：中继转发作为兜底方案 - <strong>ICE
+框架</strong>：系统化地建立 P2P 连接</p>
+<p>这些技术是现代实时通信（WebRTC、视频会议、直播连麦）的核心基础，让我们能够穿透复杂的网络环境，实现端到端的直接通信。</p>
+<hr />
+<h2 id="参考资源">参考资源</h2>
+<ul>
+<li><strong>RFC 3550</strong>：RTP: A Transport Protocol for Real-Time
+Applications</li>
+<li><strong>RFC 3551</strong>：RTP Profile for Audio and Video
+Conferences</li>
+<li><strong>RFC 6184</strong>：RTP Payload Format for H.264 Video</li>
+<li><strong>《WebRTC 权威指南》</strong>：第 3-5 章</li>
+</ul>
+<hr />
+<p><em>本章完</em></p>
+</div>
+</body>
+</html>

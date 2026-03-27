@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html" class="active">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="第四章为什么卡顿性能分析">第四章：为什么卡顿？性能分析</h1>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">项目</th>
+<th style="text-align: left;">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>本章目标</strong></td>
+<td
+style="text-align: left;">理解解码耗时，建立性能意识，掌握卡顿分析方法</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>难度</strong></td>
+<td style="text-align: left;">⭐⭐ 中等</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>前置知识</strong></td>
+<td
+style="text-align: left;">Ch1-Ch3：视频基础、播放器基础架构、Pipeline设计</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>预计时间</strong></td>
+<td style="text-align: left;">2-3 小时</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>本章引言</strong>：在第三章结束时，我们实现了一个能播放网络视频的播放器。但你是否注意到一个恼人的问题——<strong>拖动窗口时画面会冻结</strong>？这就是本章要解决的第一个性能问题。</p>
+</blockquote>
+<p>通过本章的学习，你将： -
+学会测量代码耗时，建立<strong>帧率预算</strong>概念 -
+理解不同视频帧的解码成本差异 - 发现<strong>单线程架构的性能瓶颈</strong>
+- 掌握基础的性能分析工具（perf、火焰图）</p>
+<p><strong>本章与项目的关系</strong>：</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph &quot;P1 完整本地播放器&quot;
+        A[&quot;Ch1-3 基础播放器&quot;] --&gt; B[&quot;📍 Ch4 性能分析
+发现瓶颈&quot;]
+        B --&gt; C[&quot;Ch5-6 异步改造&quot;]
+        C --&gt; D[&quot;P2 网络播放器&quot;]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px</code></pre>
+<p><strong>代码演进关系</strong>：</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph &quot;P1→P2 演进&quot;
+        A[&quot;Ch3 Pipeline架构&quot;] --&gt; B[&quot;📍 Ch4 性能分析&quot;]
+        B --&gt; C[&quot;Ch5-6 多线程改造&quot;]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px</code></pre>
+<ul>
+<li><strong>当前阶段</strong>：性能分析</li>
+<li><strong>本章产出</strong>：发现单线程瓶颈</li>
+</ul>
+<p><strong>阅读指南</strong>： - 第 1-2 节：观察卡顿现象，测量解码耗时 -
+第 3-4 节：理解帧率预算和不同帧类型的解码成本 - 第 5-6
+节：发现单线程瓶颈，实验验证 - 第 7-8 节：双缓冲原理和性能分析工具 - 第
+9 节：FAQ 常见问题 —</p>
+<h2 id="目录">目录</h2>
+<ol type="1">
+<li><a
+href="#1-卡顿现象拖动窗口时画面冻结">卡顿现象：拖动窗口时画面冻结</a></li>
+<li><a href="#2-测量解码耗时stdchrono-实战">测量解码耗时：std::chrono
+实战</a></li>
+<li><a href="#3-帧率预算33ms-法则">帧率预算：33ms 法则</a></li>
+<li><a href="#4-不同帧的解码成本i帧-vs-p帧-vs-b帧">不同帧的解码成本：I帧
+vs P帧 vs B帧</a></li>
+<li><a
+href="#5-单线程瓶颈所有事情排队做">单线程瓶颈：所有事情排队做</a></li>
+<li><a href="#6-实验故意制造卡顿">实验：故意制造卡顿</a></li>
+<li><a
+href="#7-双缓冲原理显示与解码分离">双缓冲原理：显示与解码分离</a></li>
+<li><a href="#8-性能分析工具perf-与火焰图">性能分析工具：perf
+与火焰图</a></li>
+<li><a href="#9-faq-常见问题">FAQ 常见问题</a></li>
+<li><a href="#10-本章小结">本章小结</a></li>
+<li><a href="#11-下章预告">下章预告</a></li>
+</ol>
+<hr />
+<h2 id="卡顿现象拖动窗口时画面冻结">1. 卡顿现象：拖动窗口时画面冻结</h2>
+<p><strong>本节概览</strong>：先观察问题，再分析原因。我们将复现拖动窗口时的卡顿现象，理解事件循环与解码渲染的关系。</p>
+<h3 id="复现卡顿">1.1 复现卡顿</h3>
+<p>使用第三章的播放器代码，播放任意视频，然后<strong>快速拖动窗口</strong>。你会发现：</p>
+<pre><code>正常播放：画面流畅，每秒30帧
+    ↓
+拖动窗口：画面完全冻结
+    ↓
+停止拖动：画面突然跳到最新位置</code></pre>
+<p>这不是视频的问题，而是我们程序的问题。</p>
+<h3 id="为什么会卡顿">1.2 为什么会卡顿？</h3>
+<p>让我们回顾第三章的单线程代码结构：</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>av_read_frame<span class="op">(</span>fmt_ctx<span class="op">,</span> packet<span class="op">)</span> <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span>      <span class="co">// 1. 读取数据</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 处理窗口事件 ↓↓↓</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    SDL_Event e<span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>SDL_PollEvent<span class="op">(&amp;</span>e<span class="op">))</span> <span class="op">{</span>                      <span class="co">// 2. 处理事件</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>e<span class="op">.</span>type <span class="op">==</span> SDL_QUIT<span class="op">)</span> <span class="cf">goto</span> cleanup<span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>packet<span class="op">-&gt;</span>stream_index <span class="op">==</span> video_stream_idx<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        avcodec_send_packet<span class="op">(</span>codec_ctx<span class="op">,</span> packet<span class="op">);</span>      <span class="co">// 3. 送入解码器</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span>avcodec_receive_frame<span class="op">(</span>codec_ctx<span class="op">,</span> frame<span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 同步</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int64_t</span> pts_us <span class="op">=</span> frame<span class="op">-&gt;</span>pts <span class="op">*</span> av_q2d<span class="op">(</span>video_stream<span class="op">-&gt;</span>time_base<span class="op">)</span> <span class="op">*</span> <span class="dv">1000000</span><span class="op">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int64_t</span> elapsed <span class="op">=</span> av_gettime<span class="op">()</span> <span class="op">-</span> start_time<span class="op">;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>pts_us <span class="op">&gt;</span> elapsed<span class="op">)</span> av_usleep<span class="op">(</span>pts_us <span class="op">-</span> elapsed<span class="op">);</span>  <span class="co">// 4. 等待</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 渲染 ↓↓↓</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>            SDL_UpdateYUVTexture<span class="op">(</span>texture<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="op">...);</span>       <span class="co">// 5. 更新纹理</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>            SDL_RenderClear<span class="op">(</span>renderer<span class="op">);</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>            SDL_RenderCopy<span class="op">(</span>renderer<span class="op">,</span> texture<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>            SDL_RenderPresent<span class="op">(</span>renderer<span class="op">);</span>                       <span class="co">// 6. 显示</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>问题分析</strong>：</p>
+<pre><code>单线程循环：
+┌─────────────────────────────────────────────────────────────┐
+│  读取Packet → 解码Frame → 同步等待 → 渲染 → 检查事件  │
+└─────────────────────────────────────────────────────────────┘
+              ↑__________________________________↓
+                         循环执行</code></pre>
+<p>当你拖动窗口时，操作系统会发送<strong>窗口移动事件</strong>给程序。但程序正在忙于解码和渲染，只有当执行到
+<code>SDL_PollEvent</code> 时才能处理这些事件。</p>
+<p><strong>时间线分析</strong>：</p>
+<pre><code>时间轴:  0ms    20ms   40ms   60ms   80ms
+         │      │      │      │      │
+解码帧:  ├──I帧─┤
+                ↑这里耗时25ms
+         
+事件:    拖动窗口────────→
+                ↑这里产生事件
+                
+处理:           ↑40ms后才能处理事件！</code></pre>
+<p>如果解码一帧需要 25ms，那么在这 25ms
+内产生的事件都要排队等待。对于窗口事件，这种延迟表现为”卡顿”或”不响应”。</p>
+<h3 id="卡顿的本质">1.3 卡顿的本质</h3>
+<p><strong>卡顿的本质是：处理事件的代码被阻塞了</strong></p>
+<pre><code>理想情况（多线程）：
+┌──────────────┐     ┌──────────────┐
+│   解码线程   │     │   主线程     │
+│  解码+渲染   │     │  处理事件    │
+│   25ms/帧    │     │   即时响应   │
+└──────────────┘     └──────────────┘
+
+现实情况（单线程）：
+┌─────────────────────────────────────┐
+│              主线程                 │
+│  解码(25ms) → 渲染(5ms) → 事件(?)   │
+│           ↑事件在此被阻塞           │
+└─────────────────────────────────────┘</code></pre>
+<p>这引出了本章的核心问题：<strong>我们需要测量每一部分的耗时，找到瓶颈</strong>。</p>
+<hr />
+<h2 id="测量解码耗时stdchrono-实战">2. 测量解码耗时：std::chrono
+实战</h2>
+<p><strong>本节概览</strong>：学会使用 C++11 的 <code>std::chrono</code>
+精确测量代码耗时，这是性能分析的基础技能。</p>
+<h3 id="为什么需要测量">2.1 为什么需要测量</h3>
+<p>“优化前先测量”——这是性能优化的黄金法则。在没有测量之前，所有的优化都是猜测。</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 不要这样做：凭感觉优化</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">// &quot;我觉得解码很慢，我要优化它&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">// 应该这样做：测量后再优化</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">// &quot;测量显示解码耗时30ms，目标是16ms，需要优化&quot;</span></span></code></pre></div>
+<h3 id="stdchrono-基础">2.2 std::chrono 基础</h3>
+<p>C++11 引入了 <code>&lt;chrono&gt;</code>
+库，提供了类型安全的时间测量：</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;chrono&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 获取当前时间点</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> start <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">// ... 执行需要测量的代码 ...</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> end <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">// 计算耗时（微秒）</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> duration <span class="op">=</span> <span class="bu">std::</span>chrono::duration_cast<span class="op">&lt;</span><span class="bu">std::</span>chrono::microseconds<span class="op">&gt;(</span>end <span class="op">-</span> start<span class="op">).</span>count<span class="op">();</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">// duration 的单位是微秒 (μs)，1ms = 1000μs</span></span></code></pre></div>
+<p><strong>常用时间单位</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">单位</th>
+<th style="text-align: left;">类</th>
+<th style="text-align: left;">换算关系</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">纳秒</td>
+<td style="text-align: left;"><code>std::chrono::nanoseconds</code></td>
+<td style="text-align: left;">1秒 = 10⁹ 纳秒</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">微秒</td>
+<td
+style="text-align: left;"><code>std::chrono::microseconds</code></td>
+<td style="text-align: left;">1秒 = 10⁶ 微秒</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">毫秒</td>
+<td
+style="text-align: left;"><code>std::chrono::milliseconds</code></td>
+<td style="text-align: left;">1秒 = 10³ 毫秒</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">秒</td>
+<td style="text-align: left;"><code>std::chrono::seconds</code></td>
+<td style="text-align: left;">基准单位</td>
+</tr>
+</tbody>
+</table>
+<h3 id="测量解码耗时">2.3 测量解码耗时</h3>
+<p>让我们给第三章的播放器加上耗时测量：</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;chrono&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;deque&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">// 简单的性能监控器</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DecodeProfiler <span class="op">{</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Start<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">start_time_</span> <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> End<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> end <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> us <span class="op">=</span> <span class="bu">std::</span>chrono::duration_cast<span class="op">&lt;</span><span class="bu">std::</span>chrono::microseconds<span class="op">&gt;(</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>            end <span class="op">-</span> <span class="va">start_time_</span><span class="op">).</span>count<span class="op">();</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 保存最近30帧的耗时</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">decode_times_</span><span class="op">.</span>push_back<span class="op">(</span>us<span class="op">);</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">decode_times_</span><span class="op">.</span>size<span class="op">()</span> <span class="op">&gt;</span> <span class="dv">30</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>            <span class="va">decode_times_</span><span class="op">.</span>pop_front<span class="op">();</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取平均解码耗时（微秒）</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> AverageUs<span class="op">()</span> <span class="at">const</span> <span class="op">{</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">decode_times_</span><span class="op">.</span>empty<span class="op">())</span> <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> sum <span class="op">=</span> <span class="bu">std::</span>accumulate<span class="op">(</span><span class="va">decode_times_</span><span class="op">.</span>begin<span class="op">(),</span> <span class="va">decode_times_</span><span class="op">.</span>end<span class="op">(),</span> <span class="dv">0</span><span class="bu">LL</span><span class="op">);</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> sum <span class="op">/</span> <span class="va">decode_times_</span><span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取最大耗时</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> MaxUs<span class="op">()</span> <span class="at">const</span> <span class="op">{</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">decode_times_</span><span class="op">.</span>empty<span class="op">())</span> <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="op">*</span><span class="bu">std::</span>max_element<span class="op">(</span><span class="va">decode_times_</span><span class="op">.</span>begin<span class="op">(),</span> <span class="va">decode_times_</span><span class="op">.</span>end<span class="op">());</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 打印统计信息</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> PrintStats<span class="op">()</span> <span class="at">const</span> <span class="op">{</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> avg <span class="op">=</span> AverageUs<span class="op">();</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> max <span class="op">=</span> MaxUs<span class="op">();</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> fps <span class="op">=</span> <span class="fl">1000000.0</span> <span class="op">/</span> avg<span class="op">;</span>  <span class="co">// 理论最大帧率</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;[性能] 平均解码: </span><span class="sc">%ld</span><span class="st">μs (</span><span class="sc">%.1f</span><span class="st"> fps), 最大: </span><span class="sc">%ld</span><span class="st">μs</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> </span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>               avg<span class="op">,</span> fps<span class="op">,</span> max<span class="op">);</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>chrono::time_point<span class="op">&lt;</span><span class="bu">std::</span>chrono::high_resolution_clock<span class="op">&gt;</span> <span class="va">start_time_</span><span class="op">;</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>deque<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> <span class="va">decode_times_</span><span class="op">;</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><strong>在解码循环中使用</strong>：</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>DecodeProfiler profiler<span class="op">;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>av_read_frame<span class="op">(</span>fmt_ctx<span class="op">,</span> packet<span class="op">)</span> <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>packet<span class="op">-&gt;</span>stream_index <span class="op">==</span> video_stream_idx<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        profiler<span class="op">.</span>Start<span class="op">();</span>  <span class="co">// ← 开始计时</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        avcodec_send_packet<span class="op">(</span>codec_ctx<span class="op">,</span> packet<span class="op">);</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span>avcodec_receive_frame<span class="op">(</span>codec_ctx<span class="op">,</span> frame<span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 解码完成</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        profiler<span class="op">.</span>End<span class="op">();</span>    <span class="co">// ← 结束计时</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 每30帧打印一次统计</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">decode_count_</span> <span class="op">%</span> <span class="dv">30</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>            profiler<span class="op">.</span>PrintStats<span class="op">();</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 渲染...</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    av_packet_unref<span class="op">(</span>packet<span class="op">);</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="完整测量示例代码">2.4 完整测量示例代码</h3>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// profiler_player.cpp - 带性能分析的播放器</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;SDL2/SDL.h&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;chrono&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;deque&gt;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;numeric&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="at">extern</span> <span class="st">&quot;C&quot;</span> <span class="op">{</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavformat/avformat.h&gt;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavcodec/avcodec.h&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavutil/time.h&gt;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> PerformanceMonitor <span class="op">{</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> Stats <span class="op">{</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> decode_us<span class="op">;</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> render_us<span class="op">;</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> total_us<span class="op">;</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> StartDecode<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">decode_start_</span> <span class="op">=</span> Now<span class="op">();</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> EndDecode<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>        <span class="va">decode_end_</span> <span class="op">=</span> Now<span class="op">();</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> StartRender<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>        <span class="va">render_start_</span> <span class="op">=</span> Now<span class="op">();</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> EndRender<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>        <span class="va">render_end_</span> <span class="op">=</span> Now<span class="op">();</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> RecordFrame<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>        Stats s<span class="op">;</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>        s<span class="op">.</span>decode_us <span class="op">=</span> DurationUs<span class="op">(</span><span class="va">decode_start_</span><span class="op">,</span> <span class="va">decode_end_</span><span class="op">);</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>        s<span class="op">.</span>render_us <span class="op">=</span> DurationUs<span class="op">(</span><span class="va">render_start_</span><span class="op">,</span> <span class="va">render_end_</span><span class="op">);</span></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>        s<span class="op">.</span>total_us <span class="op">=</span> s<span class="op">.</span>decode_us <span class="op">+</span> s<span class="op">.</span>render_us<span class="op">;</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>        <span class="va">stats_</span><span class="op">.</span>push_back<span class="op">(</span>s<span class="op">);</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">stats_</span><span class="op">.</span>size<span class="op">()</span> <span class="op">&gt;</span> <span class="dv">30</span><span class="op">)</span> <span class="va">stats_</span><span class="op">.</span>pop_front<span class="op">();</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>        <span class="va">frame_count_</span><span class="op">++;</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">frame_count_</span> <span class="op">%</span> <span class="dv">30</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>            PrintStats<span class="op">();</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> PrintStats<span class="op">()</span> <span class="at">const</span> <span class="op">{</span></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">stats_</span><span class="op">.</span>empty<span class="op">())</span> <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> avg_decode <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> avg_render <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> max_total <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="at">const</span> <span class="kw">auto</span><span class="op">&amp;</span> s <span class="op">:</span> <span class="va">stats_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>            avg_decode <span class="op">+=</span> s<span class="op">.</span>decode_us<span class="op">;</span></span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>            avg_render <span class="op">+=</span> s<span class="op">.</span>render_us<span class="op">;</span></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>            max_total <span class="op">=</span> <span class="bu">std::</span>max<span class="op">(</span>max_total<span class="op">,</span> s<span class="op">.</span>total_us<span class="op">);</span></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>        avg_decode <span class="op">/=</span> <span class="va">stats_</span><span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>        avg_render <span class="op">/=</span> <span class="va">stats_</span><span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> decode_fps <span class="op">=</span> <span class="fl">1000000.0</span> <span class="op">/</span> avg_decode<span class="op">;</span></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>        <span class="dt">double</span> total_fps <span class="op">=</span> <span class="fl">1000000.0</span> <span class="op">/</span> <span class="op">(</span>avg_decode <span class="op">+</span> avg_render<span class="op">);</span></span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">========== 性能统计 (最近</span><span class="sc">%d</span><span class="st">帧) ==========</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> <span class="op">(</span><span class="dt">int</span><span class="op">)</span><span class="va">stats_</span><span class="op">.</span>size<span class="op">());</span></span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;解码: </span><span class="sc">%4ld</span><span class="st"> μs (</span><span class="sc">%.1f</span><span class="st"> fps)</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> avg_decode<span class="op">,</span> decode_fps<span class="op">);</span></span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;渲染: </span><span class="sc">%4ld</span><span class="st"> μs</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> avg_render<span class="op">);</span></span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;总计: </span><span class="sc">%4ld</span><span class="st"> μs (</span><span class="sc">%.1f</span><span class="st"> fps)</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> avg_decode <span class="op">+</span> avg_render<span class="op">,</span> total_fps<span class="op">);</span></span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;最大: </span><span class="sc">%4ld</span><span class="st"> μs</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> max_total<span class="op">);</span></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;========================================</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> Clock <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock<span class="op">;</span></span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> TimePoint <span class="op">=</span> <span class="bu">std::</span>chrono::time_point<span class="op">&lt;</span>Clock<span class="op">&gt;;</span></span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a>    TimePoint Now<span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> Clock<span class="op">::</span>now<span class="op">();</span> <span class="op">}</span></span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> DurationUs<span class="op">(</span>TimePoint start<span class="op">,</span> TimePoint end<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">std::</span>chrono::duration_cast<span class="op">&lt;</span><span class="bu">std::</span>chrono::microseconds<span class="op">&gt;(</span>end <span class="op">-</span> start<span class="op">).</span>count<span class="op">();</span></span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a>    TimePoint <span class="va">decode_start_</span><span class="op">,</span> <span class="va">decode_end_</span><span class="op">;</span></span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>    TimePoint <span class="va">render_start_</span><span class="op">,</span> <span class="va">render_end_</span><span class="op">;</span></span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>deque<span class="op">&lt;</span>Stats<span class="op">&gt;</span> <span class="va">stats_</span><span class="op">;</span></span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">frame_count_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span><span class="op">*</span> argv<span class="op">[])</span> <span class="op">{</span></span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>argc <span class="op">&lt;</span> <span class="dv">2</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;用法: </span><span class="sc">%s</span><span class="st"> &lt;视频文件&gt;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> argv<span class="op">[</span><span class="dv">0</span><span class="op">]);</span></span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... 初始化代码（省略，与第三章相同）...</span></span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>    AVFormatContext<span class="op">*</span> fmt_ctx <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a>    avformat_open_input<span class="op">(&amp;</span>fmt_ctx<span class="op">,</span> argv<span class="op">[</span><span class="dv">1</span><span class="op">],</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a>    avformat_find_stream_info<span class="op">(</span>fmt_ctx<span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> video_stream_idx <span class="op">=</span> av_find_best_stream<span class="op">(</span>fmt_ctx<span class="op">,</span> AVMEDIA_TYPE_VIDEO<span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>    AVStream<span class="op">*</span> video_stream <span class="op">=</span> fmt_ctx<span class="op">-&gt;</span>streams<span class="op">[</span>video_stream_idx<span class="op">];</span></span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> AVCodec<span class="op">*</span> codec <span class="op">=</span> avcodec_find_decoder<span class="op">(</span>video_stream<span class="op">-&gt;</span>codecpar<span class="op">-&gt;</span>codec_id<span class="op">);</span></span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a>    AVCodecContext<span class="op">*</span> codec_ctx <span class="op">=</span> avcodec_alloc_context3<span class="op">(</span>codec<span class="op">);</span></span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a>    avcodec_parameters_to_context<span class="op">(</span>codec_ctx<span class="op">,</span> video_stream<span class="op">-&gt;</span>codecpar<span class="op">);</span></span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a>    avcodec_open2<span class="op">(</span>codec_ctx<span class="op">,</span> codec<span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a>    SDL_Init<span class="op">(</span>SDL_INIT_VIDEO<span class="op">);</span></span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a>    SDL_Window<span class="op">*</span> window <span class="op">=</span> SDL_CreateWindow<span class="op">(</span><span class="st">&quot;Profiler Player&quot;</span><span class="op">,</span></span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a>        SDL_WINDOWPOS_CENTERED<span class="op">,</span> SDL_WINDOWPOS_CENTERED<span class="op">,</span></span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a>        codec_ctx<span class="op">-&gt;</span>width<span class="op">,</span> codec_ctx<span class="op">-&gt;</span>height<span class="op">,</span> SDL_WINDOW_SHOWN<span class="op">);</span></span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a>    SDL_Renderer<span class="op">*</span> renderer <span class="op">=</span> SDL_CreateRenderer<span class="op">(</span>window<span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span></span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a>        SDL_RENDERER_ACCELERATED <span class="op">|</span> SDL_RENDERER_PRESENTVSYNC<span class="op">);</span></span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a>    SDL_Texture<span class="op">*</span> texture <span class="op">=</span> SDL_CreateTexture<span class="op">(</span>renderer<span class="op">,</span></span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a>        SDL_PIXELFORMAT_IYUV<span class="op">,</span> SDL_TEXTUREACCESS_STREAMING<span class="op">,</span></span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a>        codec_ctx<span class="op">-&gt;</span>width<span class="op">,</span> codec_ctx<span class="op">-&gt;</span>height<span class="op">);</span></span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a>    AVPacket<span class="op">*</span> packet <span class="op">=</span> av_packet_alloc<span class="op">();</span></span>
+<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a>    AVFrame<span class="op">*</span> frame <span class="op">=</span> av_frame_alloc<span class="op">();</span></span>
+<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a>    PerformanceMonitor monitor<span class="op">;</span></span>
+<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> start_time <span class="op">=</span> av_gettime<span class="op">();</span></span>
+<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>av_read_frame<span class="op">(</span>fmt_ctx<span class="op">,</span> packet<span class="op">)</span> <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a>        SDL_Event e<span class="op">;</span></span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span>SDL_PollEvent<span class="op">(&amp;</span>e<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>e<span class="op">.</span>type <span class="op">==</span> SDL_QUIT<span class="op">)</span> <span class="cf">goto</span> cleanup<span class="op">;</span></span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb12-132"><a href="#cb12-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-133"><a href="#cb12-133" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>packet<span class="op">-&gt;</span>stream_index <span class="op">==</span> video_stream_idx<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a>            monitor<span class="op">.</span>StartDecode<span class="op">();</span></span>
+<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a>            avcodec_send_packet<span class="op">(</span>codec_ctx<span class="op">,</span> packet<span class="op">);</span></span>
+<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a>            <span class="cf">while</span> <span class="op">(</span>avcodec_receive_frame<span class="op">(</span>codec_ctx<span class="op">,</span> frame<span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a>                monitor<span class="op">.</span>EndDecode<span class="op">();</span></span>
+<span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb12-140"><a href="#cb12-140" aria-hidden="true" tabindex="-1"></a>                <span class="co">// 同步</span></span>
+<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a>                <span class="dt">int64_t</span> pts_us <span class="op">=</span> frame<span class="op">-&gt;</span>pts <span class="op">*</span> av_q2d<span class="op">(</span>video_stream<span class="op">-&gt;</span>time_base<span class="op">)</span> <span class="op">*</span> <span class="dv">1000000</span><span class="op">;</span></span>
+<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a>                <span class="dt">int64_t</span> elapsed <span class="op">=</span> av_gettime<span class="op">()</span> <span class="op">-</span> start_time<span class="op">;</span></span>
+<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>pts_us <span class="op">&gt;</span> elapsed<span class="op">)</span> av_usleep<span class="op">(</span>pts_us <span class="op">-</span> elapsed<span class="op">);</span></span>
+<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a>                <span class="co">// 渲染</span></span>
+<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a>                monitor<span class="op">.</span>StartRender<span class="op">();</span></span>
+<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a>                SDL_UpdateYUVTexture<span class="op">(</span>texture<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span></span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a>                    frame<span class="op">-&gt;</span>data<span class="op">[</span><span class="dv">0</span><span class="op">],</span> frame<span class="op">-&gt;</span>linesize<span class="op">[</span><span class="dv">0</span><span class="op">],</span></span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a>                    frame<span class="op">-&gt;</span>data<span class="op">[</span><span class="dv">1</span><span class="op">],</span> frame<span class="op">-&gt;</span>linesize<span class="op">[</span><span class="dv">1</span><span class="op">],</span></span>
+<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a>                    frame<span class="op">-&gt;</span>data<span class="op">[</span><span class="dv">2</span><span class="op">],</span> frame<span class="op">-&gt;</span>linesize<span class="op">[</span><span class="dv">2</span><span class="op">]);</span></span>
+<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a>                SDL_RenderClear<span class="op">(</span>renderer<span class="op">);</span></span>
+<span id="cb12-152"><a href="#cb12-152" aria-hidden="true" tabindex="-1"></a>                SDL_RenderCopy<span class="op">(</span>renderer<span class="op">,</span> texture<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb12-153"><a href="#cb12-153" aria-hidden="true" tabindex="-1"></a>                SDL_RenderPresent<span class="op">(</span>renderer<span class="op">);</span></span>
+<span id="cb12-154"><a href="#cb12-154" aria-hidden="true" tabindex="-1"></a>                monitor<span class="op">.</span>EndRender<span class="op">();</span></span>
+<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a>                monitor<span class="op">.</span>RecordFrame<span class="op">();</span></span>
+<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb12-158"><a href="#cb12-158" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb12-159"><a href="#cb12-159" aria-hidden="true" tabindex="-1"></a>        av_packet_unref<span class="op">(</span>packet<span class="op">);</span></span>
+<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a>cleanup<span class="op">:</span></span>
+<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... 清理代码 ...</span></span>
+<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a>    av_frame_free<span class="op">(&amp;</span>frame<span class="op">);</span></span>
+<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a>    av_packet_free<span class="op">(&amp;</span>packet<span class="op">);</span></span>
+<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a>    avcodec_free_context<span class="op">(&amp;</span>codec_ctx<span class="op">);</span></span>
+<span id="cb12-167"><a href="#cb12-167" aria-hidden="true" tabindex="-1"></a>    avformat_close_input<span class="op">(&amp;</span>fmt_ctx<span class="op">);</span></span>
+<span id="cb12-168"><a href="#cb12-168" aria-hidden="true" tabindex="-1"></a>    SDL_Quit<span class="op">();</span></span>
+<span id="cb12-169"><a href="#cb12-169" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb12-170"><a href="#cb12-170" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="编译运行">2.5 编译运行</h3>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 编译</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">g++</span> <span class="at">-std</span><span class="op">=</span>c++14 <span class="at">-O2</span> profiler_player.cpp <span class="at">-o</span> profiler_player <span class="dt">\</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$(</span><span class="ex">pkg-config</span> <span class="at">--cflags</span> <span class="at">--libs</span> libavformat libavcodec libavutil sdl2<span class="va">)</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 运行</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">./profiler_player</span> test.mp4</span></code></pre></div>
+<p><strong>典型输出</strong>：</p>
+<pre><code>========== 性能统计 (最近30帧) ==========
+解码: 8234 μs (121.5 fps)
+渲染: 1567 μs
+总计: 9801 μs (102.0 fps)
+最大: 15234 μs
+========================================</code></pre>
+<p>这意味着： - 解码平均需要 8.2ms - 渲染平均需要 1.6ms -
+处理一帧总共需要 9.8ms - 理论上可以支持 102fps（1000/9.8）</p>
+<hr />
+<h2 id="帧率预算33ms-法则">3. 帧率预算：33ms 法则</h2>
+<p><strong>本节概览</strong>：理解帧率与耗时的关系，建立”帧率预算”概念。这是实时系统的核心设计约束。</p>
+<h3 id="帧率与耗时的数学关系">3.1 帧率与耗时的数学关系</h3>
+<p><strong>帧率（FPS, Frames Per Second）</strong>：每秒显示多少帧</p>
+<pre><code>30fps = 每秒30帧 = 每帧 1000/30 ≈ 33.3ms
+60fps = 每秒60帧 = 每帧 1000/60 ≈ 16.7ms</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">目标帧率</th>
+<th style="text-align: left;">每帧时间预算</th>
+<th style="text-align: left;">应用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">24fps</td>
+<td style="text-align: left;">41.7ms</td>
+<td style="text-align: left;">电影（最低可接受）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">30fps</td>
+<td style="text-align: left;">33.3ms</td>
+<td style="text-align: left;">普通视频</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">60fps</td>
+<td style="text-align: left;">16.7ms</td>
+<td style="text-align: left;">游戏、高帧率视频</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">120fps</td>
+<td style="text-align: left;">8.3ms</td>
+<td style="text-align: left;">电竞、VR</td>
+</tr>
+</tbody>
+</table>
+<h3 id="帧率预算分配">3.2 帧率预算分配</h3>
+<p>假设目标是 30fps（33ms 预算），我们需要把时间分配给各个环节：</p>
+<pre><code>33ms 预算分配示例：
+┌────────────────────────────────────────────────┐
+│  解码: 15ms  ████████████████░░░░░░░░░░░░░░░░░ │
+│  渲染:  5ms  █████░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│  同步:  2ms  ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│  事件:  1ms  █░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│  余量: 10ms  ██████████░░░░░░░░░░░░░░░░░░░░░░░ │  ← 应对波动
+└────────────────────────────────────────────────┘</code></pre>
+<p><strong>为什么要留余量？</strong></p>
+<p>因为视频帧的解码时间<strong>不是恒定的</strong>——I帧比P帧慢，P帧比B帧慢。如果没有余量，遇到大I帧时就会卡顿。</p>
+<h3 id="实际测量的重要性">3.3 实际测量的重要性</h3>
+<p>理论预算 vs 实际测量：</p>
+<pre><code>理论计算：
+- 1080p H.264 软解 30fps 应该没问题
+
+实际测量（不同机器）：
+- MacBook Pro M1: 8ms/帧 ✓ 轻松
+- 老旧 i5 笔记本: 25ms/帧 ✓ 刚好
+- 树莓派 4: 45ms/帧 ✗ 卡顿</code></pre>
+<p><strong>永远不要假设性能，要测量</strong>。</p>
+<h3 id="性能目标检查表">3.4 性能目标检查表</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">目标帧率</th>
+<th style="text-align: left;">总预算</th>
+<th style="text-align: left;">解码预算</th>
+<th style="text-align: left;">渲染预算</th>
+<th style="text-align: left;">余量</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">30fps</td>
+<td style="text-align: left;">33ms</td>
+<td style="text-align: left;">&lt;20ms</td>
+<td style="text-align: left;">&lt;5ms</td>
+<td style="text-align: left;">&gt;8ms</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">60fps</td>
+<td style="text-align: left;">16ms</td>
+<td style="text-align: left;">&lt;10ms</td>
+<td style="text-align: left;">&lt;3ms</td>
+<td style="text-align: left;">&gt;3ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>检查你的播放器</strong>：</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 在性能统计中加入预算检查</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> CheckBudget<span class="op">(</span><span class="dt">int64_t</span> total_us<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">int64_t</span> BUDGET_30FPS <span class="op">=</span> <span class="dv">33333</span><span class="op">;</span>  <span class="co">// 33.3ms = 33333μs</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">int64_t</span> BUDGET_60FPS <span class="op">=</span> <span class="dv">16667</span><span class="op">;</span>  <span class="co">// 16.7ms = 16667μs</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>total_us <span class="op">&gt;</span> BUDGET_30FPS<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;⚠️ 警告：超过30fps预算！(</span><span class="sc">%ld</span><span class="st">μs &gt; </span><span class="sc">%ld</span><span class="st">μs)</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> total_us<span class="op">,</span> BUDGET_30FPS<span class="op">);</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>total_us <span class="op">&gt;</span> BUDGET_60FPS<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;✓ 满足30fps，但无法满足60fps</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;✓ 满足60fps</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="不同帧的解码成本i帧-vs-p帧-vs-b帧">4. 不同帧的解码成本：I帧 vs
+P帧 vs B帧</h2>
+<p><strong>本节概览</strong>：理解视频编码中三种帧类型的解码成本差异，这是预测性能波动的基础。</p>
+<h3 id="回顾三种帧类型">4.1 回顾：三种帧类型</h3>
+<p>在第一章我们学习了视频压缩原理，其中提到了三种帧类型：</p>
+<p><img src="diagrams/frame-types-decode.svg" width="100%"/></p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">类型</th>
+<th style="text-align: left;">名称</th>
+<th style="text-align: left;">依赖关系</th>
+<th style="text-align: left;">典型大小</th>
+<th style="text-align: left;">解码成本</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>I帧</strong></td>
+<td style="text-align: left;">关键帧（Intra）</td>
+<td style="text-align: left;">无依赖</td>
+<td style="text-align: left;">40-80 KB</td>
+<td style="text-align: left;"><strong>最高</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>P帧</strong></td>
+<td style="text-align: left;">预测帧（Predicted）</td>
+<td style="text-align: left;">依赖前一帧</td>
+<td style="text-align: left;">8-15 KB</td>
+<td style="text-align: left;">中等</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>B帧</strong></td>
+<td style="text-align: left;">双向帧（Bidirectional）</td>
+<td style="text-align: left;">依赖前后帧</td>
+<td style="text-align: left;">3-8 KB</td>
+<td style="text-align: left;">较低</td>
+</tr>
+</tbody>
+</table>
+<h3 id="为什么-i帧解码最慢">4.2 为什么 I帧解码最慢？</h3>
+<p><strong>I帧（关键帧）</strong>： - 包含完整的图像数据 -
+使用帧内压缩（DCT变换+量化） - 需要完整解码所有宏块</p>
+<pre><code>I帧解码流程：
+压缩数据 → 熵解码 → 反量化 → IDCT变换 → 重构图像
+                ↑
+         每个宏块都要走完整流程</code></pre>
+<p><strong>P帧（预测帧）</strong>： - 只存储与参考帧的差异 -
+使用运动估计和补偿 - 大部分区域可能”没有变化”</p>
+<pre><code>P帧解码流程：
+参考帧 → 运动矢量 → 预测图像 → 残差解码 → 重构图像
+              ↑
+       运动补偿通常很快</code></pre>
+<h3 id="测量不同帧的解码耗时">4.3 测量不同帧的解码耗时</h3>
+<p>让我们修改代码，分别统计 I/P/B 帧的解码时间：</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FrameTypeProfiler <span class="op">{</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> RecordFrame<span class="op">(</span><span class="dt">char</span> <span class="dt">pict_type</span><span class="op">,</span> <span class="dt">int64_t</span> decode_us<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">switch</span> <span class="op">(</span><span class="dt">pict_type</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">case</span> <span class="ch">&#39;I&#39;</span><span class="op">:</span> <span class="va">iframe_times_</span><span class="op">.</span>push_back<span class="op">(</span>decode_us<span class="op">);</span> <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">case</span> <span class="ch">&#39;P&#39;</span><span class="op">:</span> <span class="va">pframe_times_</span><span class="op">.</span>push_back<span class="op">(</span>decode_us<span class="op">);</span> <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">case</span> <span class="ch">&#39;B&#39;</span><span class="op">:</span> <span class="va">bframe_times_</span><span class="op">.</span>push_back<span class="op">(</span>decode_us<span class="op">);</span> <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 保持最近30个样本</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">iframe_times_</span><span class="op">.</span>size<span class="op">()</span> <span class="op">&gt;</span> <span class="dv">30</span><span class="op">)</span> <span class="va">iframe_times_</span><span class="op">.</span>pop_front<span class="op">();</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">pframe_times_</span><span class="op">.</span>size<span class="op">()</span> <span class="op">&gt;</span> <span class="dv">30</span><span class="op">)</span> <span class="va">pframe_times_</span><span class="op">.</span>pop_front<span class="op">();</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">bframe_times_</span><span class="op">.</span>size<span class="op">()</span> <span class="op">&gt;</span> <span class="dv">30</span><span class="op">)</span> <span class="va">bframe_times_</span><span class="op">.</span>pop_front<span class="op">();</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> PrintStats<span class="op">()</span> <span class="at">const</span> <span class="op">{</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">========== 帧类型解码统计 ==========</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;I帧: </span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span> FormatStats<span class="op">(</span><span class="va">iframe_times_</span><span class="op">).</span>c_str<span class="op">());</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;P帧: </span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span> FormatStats<span class="op">(</span><span class="va">pframe_times_</span><span class="op">).</span>c_str<span class="op">());</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;B帧: </span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span> FormatStats<span class="op">(</span><span class="va">bframe_times_</span><span class="op">).</span>c_str<span class="op">());</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;====================================</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>deque<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> <span class="va">iframe_times_</span><span class="op">;</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>deque<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> <span class="va">pframe_times_</span><span class="op">;</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>deque<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;</span> <span class="va">bframe_times_</span><span class="op">;</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string FormatStats<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>deque<span class="op">&lt;</span><span class="dt">int64_t</span><span class="op">&gt;&amp;</span> times<span class="op">)</span> <span class="at">const</span> <span class="op">{</span></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>times<span class="op">.</span>empty<span class="op">())</span> <span class="cf">return</span> <span class="st">&quot;无数据&quot;</span><span class="op">;</span></span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> sum <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> max_val <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> t <span class="op">:</span> times<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>            sum <span class="op">+=</span> t<span class="op">;</span></span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>            max_val <span class="op">=</span> <span class="bu">std::</span>max<span class="op">(</span>max_val<span class="op">,</span> t<span class="op">);</span></span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> avg <span class="op">=</span> sum <span class="op">/</span> times<span class="op">.</span>size<span class="op">();</span></span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>        <span class="dt">char</span> buf<span class="op">[</span><span class="dv">128</span><span class="op">];</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>        snprintf<span class="op">(</span>buf<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>buf<span class="op">),</span> <span class="st">&quot;平均</span><span class="sc">%4ld</span><span class="st">μs, 最大</span><span class="sc">%4ld</span><span class="st">μs, 样本</span><span class="sc">%d</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>                 avg<span class="op">,</span> max_val<span class="op">,</span> <span class="op">(</span><span class="dt">int</span><span class="op">)</span>times<span class="op">.</span>size<span class="op">());</span></span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> buf<span class="op">;</span></span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a><span class="co">// 使用方式</span></span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>FrameTypeProfiler ft_profiler<span class="op">;</span></span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>avcodec_receive_frame<span class="op">(</span>codec_ctx<span class="op">,</span> frame<span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> end <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> decode_us <span class="op">=</span> <span class="bu">std::</span>chrono::duration_cast<span class="op">&lt;</span><span class="bu">std::</span>chrono::microseconds<span class="op">&gt;(</span></span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a>        end <span class="op">-</span> decode_start<span class="op">).</span>count<span class="op">();</span></span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-54"><a href="#cb21-54" aria-hidden="true" tabindex="-1"></a>    <span class="co">// frame-&gt;pict_type 表示帧类型：AV_PICTURE_TYPE_I, AV_PICTURE_TYPE_P, AV_PICTURE_TYPE_B</span></span>
+<span id="cb21-55"><a href="#cb21-55" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> type <span class="op">=</span> av_get_picture_type_char<span class="op">((</span>AVPictureType<span class="op">)</span>frame<span class="op">-&gt;</span><span class="dt">pict_type</span><span class="op">);</span></span>
+<span id="cb21-56"><a href="#cb21-56" aria-hidden="true" tabindex="-1"></a>    ft_profiler<span class="op">.</span>RecordFrame<span class="op">(</span>type<span class="op">,</span> decode_us<span class="op">);</span></span>
+<span id="cb21-57"><a href="#cb21-57" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(++</span>frame_count <span class="op">%</span> <span class="dv">90</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span>  <span class="co">// 每90帧打印一次</span></span>
+<span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a>        ft_profiler<span class="op">.</span>PrintStats<span class="op">();</span></span>
+<span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb21-61"><a href="#cb21-61" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="典型测量结果">4.4 典型测量结果</h3>
+<p>在 1080p H.264 视频上的典型结果：</p>
+<pre><code>========== 帧类型解码统计 ==========
+I帧: 平均45231μs, 最大52341μs, 样本10  ← 45ms！超过33ms预算
+P帧: 平均 8234μs, 最大 9876μs, 样本50
+B帧: 平均 5234μs, 最大 6543μs, 样本30
+====================================</code></pre>
+<p><strong>关键发现</strong>： - I帧解码需要
+<strong>45ms</strong>，超过了 30fps 的 33ms 预算 -
+这意味着播放这个视频时，<strong>遇到I帧必然卡顿</strong></p>
+<h3 id="为什么播放器还能工作">4.5 为什么播放器还能工作？</h3>
+<p>你可能会问：如果I帧解码需要45ms，超过33ms预算，为什么播放器还能播放？</p>
+<p><strong>答案</strong>：FFmpeg
+的解码器默认使用了<strong>多线程解码</strong>。</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 默认情况下，FFmpeg 可能已经启用了多线程</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 检查实际的解码线程数</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">&quot;解码线程数: </span><span class="sc">%d\n</span><span class="st">&quot;</span><span class="op">,</span> codec_ctx<span class="op">-&gt;</span>thread_count<span class="op">);</span></span></code></pre></div>
+<p>但我们现在写的是<strong>单线程播放器</strong>——解码、渲染、事件处理都在一个线程。这就是为什么拖动窗口会卡顿的原因。</p>
+<hr />
+<h2 id="单线程瓶颈所有事情排队做">5. 单线程瓶颈：所有事情排队做</h2>
+<p><strong>本节概览</strong>：深入分析单线程架构的性能瓶颈，理解为什么需要多线程。</p>
+<h3 id="单线程的执行模型">5.1 单线程的执行模型</h3>
+<p>我们的播放器目前是这样工作的：</p>
+<pre><code>单线程执行顺序：
+┌─────────────────────────────────────────────────────────┐
+│  读取Packet → 解码Frame → 同步等待 → 渲染 → 处理事件   │
+└─────────────────────────────────────────────────────────┘
+      ↑________________________________________________↓
+                      循环执行</code></pre>
+<p><strong>问题</strong>：所有操作<strong>串行执行</strong>，任何一个环节卡住，其他环节都要等待。</p>
+<h3 id="时间线分析">5.2 时间线分析</h3>
+<p>假设解码一帧需要 25ms，渲染需要 5ms：</p>
+<pre><code>时间轴 (ms):  0     10    20    25    30    35    40
+              │      │      │      │      │      │
+解码:         └──────┴──────┴──────┘
+                                    ↑25ms
+渲染:                                └────┘
+                                          ↑5ms
+可处理事件:                                    ↑从这里开始才能处理</code></pre>
+<p>在这 30ms 内，如果用户拖动窗口，事件无法被处理，表现为卡顿。</p>
+<h3 id="瓶颈叠加效应">5.3 瓶颈叠加效应</h3>
+<p>更糟的是，瓶颈会<strong>叠加</strong>：</p>
+<pre><code>场景：播放高码率视频 + 拖动窗口
+
+时间:    0     10    20    30    40    50    60    70    80
+         │      │      │      │      │      │      │      │
+解码:    └──────┴──────┴──────┘
+                          ↑解码慢
+渲染:                       └────┘
+                                ↑渲染慢
+事件A:   ↑产生              ↑处理(延迟30ms)
+事件B:          ↑产生       ↑处理(延迟40ms)
+事件C:                 ↑产生 ↑处理(延迟50ms)</code></pre>
+<p>用户的操作得不到即时响应，体验很差。</p>
+<h3 id="单线程-vs-多线程对比">5.4 单线程 vs 多线程对比</h3>
+<p><strong>单线程（当前）</strong>：</p>
+<pre><code>┌─────────────────────────────────────────────┐
+│              主线程                         │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐       │
+│  │ 解码25ms│→│ 渲染5ms │→│ 事件?   │       │
+│  └─────────┘ └─────────┘ └─────────┘       │
+│         ↑事件在此被阻塞                     │
+└─────────────────────────────────────────────┘</code></pre>
+<p><strong>多线程（目标）</strong>：</p>
+<pre><code>┌─────────────────┐  ┌─────────────────────┐
+│   解码线程      │  │      主线程         │
+│  ┌───────────┐  │  │  ┌─────────────┐   │
+│  │ 解码25ms  │  │  │  │ 处理事件    │   │
+│  │ 解码25ms  │  │  │  │ 处理事件    │   │
+│  │ 解码25ms  │  │  │  │ 渲染5ms     │   │
+│  └───────────┘  │  │  └─────────────┘   │
+│       ↓         │  │        ↑           │
+│    帧队列       │→ │ 从队列取帧渲染     │
+└─────────────────┘  └─────────────────────┘
+                     事件处理永不阻塞</code></pre>
+<p><strong>关键区别</strong>： - 单线程：解码阻塞事件处理 -
+多线程：事件处理独立于解码</p>
+<h3 id="延迟的量化分析">5.5 延迟的量化分析</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">架构</th>
+<th style="text-align: left;">事件处理延迟</th>
+<th style="text-align: left;">能否接受</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">单线程</td>
+<td style="text-align: left;">等于解码+渲染时间</td>
+<td style="text-align: left;">❌ 不可接受</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">双缓冲</td>
+<td style="text-align: left;">小于一帧时间</td>
+<td style="text-align: left;">⚠️ 可接受</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">多线程</td>
+<td style="text-align: left;">接近即时</td>
+<td style="text-align: left;">✓ 良好</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="实验故意制造卡顿">6. 实验：故意制造卡顿</h2>
+<p><strong>本节概览</strong>：通过故意在解码中加入延迟，观察卡顿现象，验证我们的理论分析。</p>
+<h3 id="实验设计">6.1 实验设计</h3>
+<p>让我们写一个简单的实验程序，验证”解码耗时会影响事件响应”：</p>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">// lag_experiment.cpp - 卡顿实验</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;SDL2/SDL.h&gt;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;chrono&gt;</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;thread&gt;</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 模拟不同耗时的解码</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> SimulateDecode<span class="op">(</span><span class="dt">int</span> ms<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>this_thread::sleep_for<span class="op">(</span><span class="bu">std::</span>chrono::milliseconds<span class="op">(</span>ms<span class="op">));</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span><span class="op">*</span> argv<span class="op">[])</span> <span class="op">{</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    SDL_Init<span class="op">(</span>SDL_INIT_VIDEO<span class="op">);</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    SDL_Window<span class="op">*</span> window <span class="op">=</span> SDL_CreateWindow<span class="op">(</span><span class="st">&quot;Lag Experiment&quot;</span><span class="op">,</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>        SDL_WINDOWPOS_CENTERED<span class="op">,</span> SDL_WINDOWPOS_CENTERED<span class="op">,</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>        <span class="dv">640</span><span class="op">,</span> <span class="dv">480</span><span class="op">,</span> SDL_WINDOW_RESIZABLE<span class="op">);</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    SDL_Renderer<span class="op">*</span> renderer <span class="op">=</span> SDL_CreateRenderer<span class="op">(</span>window<span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 读取命令行参数：模拟解码耗时（毫秒）</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> decode_time_ms <span class="op">=</span> <span class="dv">50</span><span class="op">;</span>  <span class="co">// 默认50ms</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>argc <span class="op">&gt;</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>        decode_time_ms <span class="op">=</span> atoi<span class="op">(</span>argv<span class="op">[</span><span class="dv">1</span><span class="op">]);</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;模拟解码耗时: </span><span class="sc">%d</span><span class="st">ms</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> decode_time_ms<span class="op">);</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;尝试拖动窗口，观察流畅度...</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> running <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> frame_count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> last_event_check <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>running<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ===== 模拟解码 =====</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> decode_start <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>        SimulateDecode<span class="op">(</span>decode_time_ms<span class="op">);</span></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> decode_end <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ===== 模拟渲染 =====</span></span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>        SDL_SetRenderDrawColor<span class="op">(</span>renderer<span class="op">,</span> </span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a>            <span class="op">(</span>frame_count <span class="op">*</span> <span class="dv">5</span><span class="op">)</span> <span class="op">%</span> <span class="dv">255</span><span class="op">,</span>  <span class="co">// 变化颜色</span></span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a>            <span class="dv">100</span><span class="op">,</span> <span class="dv">100</span><span class="op">,</span> <span class="dv">255</span><span class="op">);</span></span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a>        SDL_RenderClear<span class="op">(</span>renderer<span class="op">);</span></span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a>        SDL_RenderPresent<span class="op">(</span>renderer<span class="op">);</span></span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ===== 处理事件 =====</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> event_start <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a>        SDL_Event e<span class="op">;</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> events_processed <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span>SDL_PollEvent<span class="op">(&amp;</span>e<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a>            events_processed<span class="op">++;</span></span>
+<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>e<span class="op">.</span>type <span class="op">==</span> SDL_QUIT<span class="op">)</span> running <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb29-51"><a href="#cb29-51" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>e<span class="op">.</span>type <span class="op">==</span> SDL_WINDOWEVENT<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-52"><a href="#cb29-52" aria-hidden="true" tabindex="-1"></a>                <span class="kw">auto</span> latency <span class="op">=</span> <span class="bu">std::</span>chrono::duration_cast<span class="op">&lt;</span><span class="bu">std::</span>chrono::milliseconds<span class="op">&gt;(</span></span>
+<span id="cb29-53"><a href="#cb29-53" aria-hidden="true" tabindex="-1"></a>                    event_start <span class="op">-</span> last_event_check<span class="op">).</span>count<span class="op">();</span></span>
+<span id="cb29-54"><a href="#cb29-54" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>e<span class="op">.</span>window<span class="op">.</span>event <span class="op">==</span> SDL_WINDOWEVENT_MOVED<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-55"><a href="#cb29-55" aria-hidden="true" tabindex="-1"></a>                    printf<span class="op">(</span><span class="st">&quot;窗口移动事件，响应延迟: </span><span class="sc">%ld</span><span class="st"> ms</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> latency<span class="op">);</span></span>
+<span id="cb29-56"><a href="#cb29-56" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb29-57"><a href="#cb29-57" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb29-58"><a href="#cb29-58" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-59"><a href="#cb29-59" aria-hidden="true" tabindex="-1"></a>        last_event_check <span class="op">=</span> event_start<span class="op">;</span></span>
+<span id="cb29-60"><a href="#cb29-60" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-61"><a href="#cb29-61" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> total_us <span class="op">=</span> <span class="bu">std::</span>chrono::duration_cast<span class="op">&lt;</span><span class="bu">std::</span>chrono::microseconds<span class="op">&gt;(</span></span>
+<span id="cb29-62"><a href="#cb29-62" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">()</span> <span class="op">-</span> decode_start<span class="op">).</span>count<span class="op">();</span></span>
+<span id="cb29-63"><a href="#cb29-63" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb29-64"><a href="#cb29-64" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(++</span>frame_count <span class="op">%</span> <span class="dv">30</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb29-65"><a href="#cb29-65" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">&quot;帧</span><span class="sc">%d</span><span class="st">: 解码</span><span class="sc">%d</span><span class="st">ms, 处理</span><span class="sc">%d</span><span class="st">个事件, 总耗时</span><span class="sc">%.1f</span><span class="st">ms, 理论</span><span class="sc">%.1f</span><span class="st"> fps</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb29-66"><a href="#cb29-66" aria-hidden="true" tabindex="-1"></a>                   frame_count<span class="op">,</span> decode_time_ms<span class="op">,</span> events_processed<span class="op">,</span></span>
+<span id="cb29-67"><a href="#cb29-67" aria-hidden="true" tabindex="-1"></a>                   total_us <span class="op">/</span> <span class="fl">1000.0</span><span class="op">,</span> <span class="fl">1000000.0</span> <span class="op">/</span> total_us<span class="op">);</span></span>
+<span id="cb29-68"><a href="#cb29-68" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb29-69"><a href="#cb29-69" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb29-70"><a href="#cb29-70" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-71"><a href="#cb29-71" aria-hidden="true" tabindex="-1"></a>    SDL_Quit<span class="op">();</span></span>
+<span id="cb29-72"><a href="#cb29-72" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb29-73"><a href="#cb29-73" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="编译运行-1">6.2 编译运行</h3>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 编译</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">g++</span> <span class="at">-std</span><span class="op">=</span>c++14 lag_experiment.cpp <span class="at">-o</span> lag_experiment <span class="va">$(</span><span class="ex">pkg-config</span> <span class="at">--cflags</span> <span class="at">--libs</span> sdl2<span class="va">)</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 运行不同耗时的版本</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="ex">./lag_experiment</span> 10   <span class="co"># 模拟10ms解码</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="ex">./lag_experiment</span> 50   <span class="co"># 模拟50ms解码</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="ex">./lag_experiment</span> 100  <span class="co"># 模拟100ms解码</span></span></code></pre></div>
+<h3 id="预期结果">6.3 预期结果</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">解码耗时</th>
+<th style="text-align: left;">事件响应延迟</th>
+<th style="text-align: left;">用户体验</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">10ms</td>
+<td style="text-align: left;">~10ms</td>
+<td style="text-align: left;">✓ 流畅，几乎无感知</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50ms</td>
+<td style="text-align: left;">~50ms</td>
+<td style="text-align: left;">⚠️ 明显延迟，但能接受</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">100ms</td>
+<td style="text-align: left;">~100ms</td>
+<td style="text-align: left;">❌ 严重卡顿，无法接受</td>
+</tr>
+</tbody>
+</table>
+<h3 id="实验观察要点">6.4 实验观察要点</h3>
+<p>运行程序时注意以下几点：</p>
+<ol type="1">
+<li><strong>窗口拖动流畅度</strong>：解码耗时越长，拖动越卡</li>
+<li><strong>事件响应延迟</strong>：打印的延迟数值</li>
+<li><strong>理论帧率</strong>：总耗时决定了最大帧率</li>
+</ol>
+<p>这个实验证明了：<strong>解码耗时直接决定了事件响应的延迟</strong>。</p>
+<hr />
+<h2 id="双缓冲原理显示与解码分离">7. 双缓冲原理：显示与解码分离</h2>
+<p><strong>本节概览</strong>：介绍双缓冲技术，理解如何通过缓冲区解耦解码和显示，为后续的多线程架构打下基础。</p>
+<h3 id="什么是双缓冲">7.1 什么是双缓冲</h3>
+<p>双缓冲（Double Buffering）是一种经典的计算机图形技术：</p>
+<p><img src="diagrams/double-buffering.svg" width="100%"/></p>
+<pre><code>传统单缓冲：
+┌─────────────┐
+│   显示内存   │ ← 解码直接写入，屏幕直接读取
+└─────────────┘
+        ↑
+   可能产生撕裂（解码写到一半被显示）
+
+双缓冲：
+┌─────────────┐  ┌─────────────┐
+│  前台缓冲区  │  │  后台缓冲区  │
+│  (显示中)   │  │  (解码中)   │
+└─────────────┘  └─────────────┘
+        ↑                ↑
+      显示              解码
+        
+当后台缓冲解码完成，交换两个缓冲区</code></pre>
+<h3 id="双缓冲解决什么问题">7.2 双缓冲解决什么问题？</h3>
+<p><strong>问题1：画面撕裂</strong></p>
+<pre><code>单缓冲场景：
+时间:   显示扫描      解码写入
+        ↓             ↓
+        ████████████  ← 旧画面
+        ██████------  ← 解码写到一半，显示读到新数据
+        ------------  
+        
+结果：屏幕上同时出现新旧两帧的部分内容</code></pre>
+<p><strong>问题2：解码阻塞显示</strong></p>
+<pre><code>单缓冲：解码耗时直接决定显示帧率
+
+双缓冲：
+┌─────────────┐      ┌─────────────┐
+│  解码线程   │ ──→ │   帧队列    │ ← 缓冲多帧
+│  (25ms/帧)  │      │  (3-5帧)   │
+└─────────────┘      └──────┬──────┘
+                            ↓
+                     ┌─────────────┐
+                     │  显示线程   │ ← 以固定帧率显示
+                     │  (33ms/帧)  │
+                     └─────────────┘</code></pre>
+<h3 id="双缓冲在视频播放中的应用">7.3 双缓冲在视频播放中的应用</h3>
+<p>实际视频播放中，双缓冲扩展为<strong>帧队列</strong>：</p>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 简化的帧队列实现</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FrameQueue <span class="op">{</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">size_t</span> MAX_SIZE <span class="op">=</span> <span class="dv">5</span><span class="op">;</span>  <span class="co">// 最多缓冲5帧</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Push<span class="op">(</span>AVFrame<span class="op">*</span> frame<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>unique_lock<span class="op">&lt;</span><span class="bu">std::</span>mutex<span class="op">&gt;</span> lock<span class="op">(</span><span class="va">mutex_</span><span class="op">);</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 队列满时等待</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">not_full_</span><span class="op">.</span>wait<span class="op">(</span>lock<span class="op">,</span> <span class="op">[</span><span class="kw">this</span><span class="op">]</span> <span class="op">{</span> <span class="cf">return</span> <span class="va">queue_</span><span class="op">.</span>size<span class="op">()</span> <span class="op">&lt;</span> MAX_SIZE<span class="op">;</span> <span class="op">});</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">queue_</span><span class="op">.</span>push<span class="op">(</span>frame<span class="op">);</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">not_empty_</span><span class="op">.</span>notify_one<span class="op">();</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>    AVFrame<span class="op">*</span> Pop<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>unique_lock<span class="op">&lt;</span><span class="bu">std::</span>mutex<span class="op">&gt;</span> lock<span class="op">(</span><span class="va">mutex_</span><span class="op">);</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 队列空时等待</span></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">not_empty_</span><span class="op">.</span>wait<span class="op">(</span>lock<span class="op">,</span> <span class="op">[</span><span class="kw">this</span><span class="op">]</span> <span class="op">{</span> <span class="cf">return</span> <span class="op">!</span><span class="va">queue_</span><span class="op">.</span>empty<span class="op">();</span> <span class="op">});</span></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>        AVFrame<span class="op">*</span> frame <span class="op">=</span> <span class="va">queue_</span><span class="op">.</span>front<span class="op">();</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">queue_</span><span class="op">.</span>pop<span class="op">();</span></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>        <span class="va">not_full_</span><span class="op">.</span>notify_one<span class="op">();</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> frame<span class="op">;</span></span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>queue<span class="op">&lt;</span>AVFrame<span class="op">*&gt;</span> <span class="va">queue_</span><span class="op">;</span></span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>mutex <span class="va">mutex_</span><span class="op">;</span></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>condition_variable <span class="va">not_empty_</span><span class="op">;</span></span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>condition_variable <span class="va">not_full_</span><span class="op">;</span></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="缓冲大小的权衡">7.4 缓冲大小的权衡</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">缓冲区大小</th>
+<th style="text-align: left;">延迟</th>
+<th style="text-align: left;">流畅度</th>
+<th style="text-align: left;">内存占用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1帧</td>
+<td style="text-align: left;">最低</td>
+<td style="text-align: left;">差（容易欠载）</td>
+<td style="text-align: left;">低</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">3帧</td>
+<td style="text-align: left;">低</td>
+<td style="text-align: left;">好</td>
+<td style="text-align: left;">中等</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5帧</td>
+<td style="text-align: left;">中等</td>
+<td style="text-align: left;">很好</td>
+<td style="text-align: left;">较高</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">10帧</td>
+<td style="text-align: left;">高</td>
+<td style="text-align: left;">极好</td>
+<td style="text-align: left;">高</td>
+</tr>
+</tbody>
+</table>
+<p><strong>直播场景</strong>：通常使用 3-5 帧缓冲，平衡延迟和流畅度</p>
+<h3 id="欠载与过载">7.5 欠载与过载</h3>
+<p><strong>欠载（Underflow）</strong>：解码跟不上显示速度</p>
+<pre><code>队列:  [帧1][帧2] → 空 → 显示线程等待
+                     ↑
+              画面暂停，等待解码</code></pre>
+<p><strong>过载（Overflow）</strong>：队列满了，解码线程等待</p>
+<pre><code>队列:  [帧1][帧2][帧3][帧4][帧5] 满
+                              ↑
+                        解码线程等待</code></pre>
+<p>这两种情况都会影响播放质量，需要合理设置缓冲区大小和丢帧策略。</p>
+<hr />
+<h2 id="性能分析工具perf-与火焰图">8. 性能分析工具：perf 与火焰图</h2>
+<p><strong>本节概览</strong>：学习使用 Linux 的 perf
+工具和火焰图，可视化地定位性能瓶颈。</p>
+<h3 id="perf-工具简介">8.1 perf 工具简介</h3>
+<p><code>perf</code> 是 Linux 内核提供的性能分析工具，可以统计函数的 CPU
+占用：</p>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 基本用法：记录程序运行时的性能数据</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="ex">perf</span> record <span class="at">-g</span> ./player test.mp4</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 查看统计结果</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="ex">perf</span> report</span></code></pre></div>
+<h3 id="生成火焰图">8.2 生成火焰图</h3>
+<p>火焰图（Flame Graph）是性能分析的可视化工具，可以直观显示调用栈的 CPU
+占用：</p>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 安装火焰图工具</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/brendangregg/FlameGraph.git</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 记录性能数据（带调用栈）</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="ex">perf</span> record <span class="at">-g</span> <span class="at">--call-graph</span><span class="op">=</span>dwarf ./player test.mp4</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 按 Ctrl+C 停止录制</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 生成火焰图</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="ex">perf</span> script <span class="kw">|</span> <span class="ex">./FlameGraph/stackcollapse-perf.pl</span> <span class="kw">|</span> <span class="dt">\</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">./FlameGraph/flamegraph.pl</span> <span class="op">&gt;</span> flamegraph.svg</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. 浏览器查看</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a><span class="ex">firefox</span> flamegraph.svg</span></code></pre></div>
+<h3 id="解读火焰图">8.3 解读火焰图</h3>
+<p>火焰图的阅读方法：</p>
+<p><img src="diagrams/flamegraph-example.svg" width="100%"/></p>
+<pre><code>火焰图结构：
+┌─────────────────────────────────────────────────┐
+│  main()                                          │ ← 底部是调用者
+│  └── run_player()                                │
+│      ├── decode_frame() ████████████             │ ← 宽度 = CPU占比
+│      │   ├── avcodec_receive_frame() ████████    │
+│      │   └── idct_transform()        ██          │
+│      ├── render_frame()   ████                   │
+│      └── handle_events()  █                      │ ← 顶部是被调用者
+└─────────────────────────────────────────────────┘
+
+宽度越宽 = 占用CPU越多 = 优化的潜在收益越大</code></pre>
+<h3 id="典型播放器的火焰图分析">8.4 典型播放器的火焰图分析</h3>
+<p>一个典型视频播放器的火焰图可能长这样：</p>
+<pre><code>解码层 (40-50%): avcodec_receive_frame 及相关函数
+├── 运动补偿 (15%)
+├── IDCT 变换 (10%)
+└── 环路滤波 (8%)
+
+渲染层 (20-30%): SDL_UpdateYUVTexture, SDL_RenderPresent
+├── 纹理上传 (15%)
+└── GPU 等待 VSync (10%)
+
+系统层 (10-20%): 驱动、内存拷贝、文件 IO</code></pre>
+<p><strong>优化决策</strong>： - 解码占比 &gt; 50% →
+启用多线程或硬件解码 - 纹理上传占比 &gt; 20% → 使用零拷贝或硬件解码 -
+VSync 等待占比高 → 正常，无需优化</p>
+<h3 id="其他性能分析工具">8.5 其他性能分析工具</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">工具</th>
+<th style="text-align: left;">用途</th>
+<th style="text-align: left;">命令示例</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">perf</td>
+<td style="text-align: left;">CPU 采样</td>
+<td style="text-align: left;"><code>perf record -g ./player</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">top/htop</td>
+<td style="text-align: left;">实时CPU/内存</td>
+<td style="text-align: left;"><code>top -p $(pgrep player)</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">valgrind</td>
+<td style="text-align: left;">内存分析</td>
+<td
+style="text-align: left;"><code>valgrind --tool=callgrind ./player</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">strace</td>
+<td style="text-align: left;">系统调用跟踪</td>
+<td style="text-align: left;"><code>strace -c ./player</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>实时查看CPU占用</strong>：</p>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 查看播放器进程的CPU占用</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="ex">top</span> <span class="at">-p</span> <span class="va">$(</span><span class="ex">pgrep</span> player<span class="va">)</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 或</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="ex">htop</span> <span class="at">-p</span> <span class="va">$(</span><span class="ex">pgrep</span> player<span class="va">)</span></span></code></pre></div>
+<hr />
+<h2 id="faq-常见问题">9. FAQ 常见问题</h2>
+<h3
+id="q1为什么拖动窗口会导致画面冻结">Q1：为什么拖动窗口会导致画面冻结？</h3>
+<p><strong>A</strong>：这是单线程架构的固有问题。在单线程播放器中，解码、渲染、事件处理都在一个循环里顺序执行：</p>
+<pre><code>读取Packet → 解码Frame → 渲染 → 处理事件（包括窗口事件）</code></pre>
+<p>当你拖动窗口时，操作系统会产生大量窗口事件，但程序必须等到当前解码和渲染完成后才能处理这些事件。</p>
+<p><strong>解决方案</strong>：使用多线程架构（Ch5-Ch6 详细讲解）。</p>
+<hr />
+<h3 id="q233ms-的帧率预算是如何计算的">Q2：33ms
+的帧率预算是如何计算的？</h3>
+<p><strong>A</strong>：帧率预算 = 1000ms / 目标帧率。</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">目标帧率</th>
+<th style="text-align: center;">帧率预算</th>
+<th style="text-align: left;">适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">30fps</td>
+<td style="text-align: center;">33.3ms</td>
+<td style="text-align: left;">普通视频、电影</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">60fps</td>
+<td style="text-align: center;">16.7ms</td>
+<td style="text-align: left;">游戏、高帧率视频</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">120fps</td>
+<td style="text-align: center;">8.3ms</td>
+<td style="text-align: left;">电竞、VR</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3
+id="q3i帧p帧b帧的解码耗时差异有多大">Q3：I帧、P帧、B帧的解码耗时差异有多大？</h3>
+<p><strong>A</strong>：典型比例：I帧 : P帧 : B帧 ≈ 10 : 2 : 1</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">帧类型</th>
+<th style="text-align: center;">解码耗时</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">I帧</td>
+<td style="text-align: center;">8-15ms</td>
+<td style="text-align: left;">完整编码，最耗时</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">P帧</td>
+<td style="text-align: center;">2-5ms</td>
+<td style="text-align: left;">参考前一帧</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">B帧</td>
+<td style="text-align: center;">1-3ms</td>
+<td style="text-align: left;">参考前后帧</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="q4如何准确测量解码耗时">Q4：如何准确测量解码耗时？</h3>
+<p><strong>A</strong>：使用 <code>std::chrono</code> 高精度计时器：</p>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> start <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="co">// ... 解码操作 ...</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> end <span class="op">=</span> <span class="bu">std::</span>chrono::high_resolution_clock::now<span class="op">();</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> duration <span class="op">=</span> <span class="bu">std::</span>chrono::duration_cast<span class="op">&lt;</span><span class="bu">std::</span>chrono::microseconds<span class="op">&gt;(</span>end <span class="op">-</span> start<span class="op">);</span></span></code></pre></div>
+<hr />
+<h3
+id="q5双缓冲和生产者-消费者模式有什么区别">Q5：双缓冲和生产者-消费者模式有什么区别？</h3>
+<p><strong>A</strong>：双缓冲用于显示与绘制分离（2个缓冲区），生产者-消费者用于任务并行处理（N个缓冲区）。视频播放器中两者可以结合使用。</p>
+<hr />
+<h2 id="本章小结">10. 本章小结</h2>
+<h3 id="核心知识点">核心知识点</h3>
+<ol type="1">
+<li><strong>卡顿原因</strong>：单线程架构下，解码、渲染、事件处理串行执行</li>
+<li><strong>帧率预算</strong>：30fps → 33ms/帧，60fps → 16.7ms/帧</li>
+<li><strong>帧类型成本</strong>：I帧 &gt; P帧 &gt; B帧</li>
+<li><strong>解决方案</strong>：双缓冲 + 多线程</li>
+</ol>
+<h3 id="关键技能">关键技能</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">技能</th>
+<th style="text-align: center;">掌握程度</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">使用 std::chrono 测量耗时</td>
+<td style="text-align: center;">⭐⭐⭐</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">计算帧率预算</td>
+<td style="text-align: center;">⭐⭐⭐</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">识别 I/P/B 帧</td>
+<td style="text-align: center;">⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="下章预告">11. 下章预告</h2>
+<h3 id="第五章c11-多线程基础">第五章：C++11 多线程基础</h3>
+<p><strong>为什么学这一章？</strong>
+本章发现了单线程的瓶颈，但解决问题需要工具。</p>
+<p><strong>你将学到</strong>： -
+<code>std::thread</code>：创建和管理线程 -
+<code>std::mutex</code>：保护共享数据 -
+<code>std::condition_variable</code>：高效的线程间通信 -
+<strong>线程安全队列</strong>：为第六章异步播放器打下基础</p>
+<p><strong>难度预警</strong>：⭐⭐⭐
+较高。多线程编程容易出错，但这是成为高级开发者的必经之路。</p>
+<hr />
+<h2 id="附录本章回顾">附录：本章回顾</h2>
+<p>本章我们学习了性能分析的基础知识：</p>
+<ol type="1">
+<li><strong>卡顿现象</strong>：拖动窗口时画面冻结，本质是事件处理被阻塞</li>
+<li><strong>测量耗时</strong>：使用 <code>std::chrono</code>
+精确测量解码、渲染耗时</li>
+<li><strong>帧率预算</strong>：30fps = 33ms/帧，60fps =
+16ms/帧，需要合理分配</li>
+<li><strong>帧类型差异</strong>：I帧解码最慢（40-50ms），P帧中等（8-15ms），B帧最快（5-8ms）</li>
+<li><strong>单线程瓶颈</strong>：解码、渲染、事件处理串行执行，互相阻塞</li>
+<li><strong>双缓冲原理</strong>：通过帧队列解耦解码和显示</li>
+<li><strong>性能工具</strong>：perf + 火焰图可视化定位瓶颈</li>
+</ol>
+<p>—|:—|:—|:—| | I帧解码 | 40-50ms | ❌ 超标 | ❌ 严重超标 | | P帧解码 |
+8-15ms | ✓ 合格 | ✓ 合格 | | B帧解码 | 5-8ms | ✓ 合格 | ✓ 合格 | | 渲染
+| 3-5ms | ✓ 合格 | ✓ 合格 | | <strong>单线程总计</strong> |
+<strong>48-60ms</strong> | ❌ 超标 | ❌ 严重超标 |</p>
+<p><strong>结论</strong>：单线程架构无法满足流畅播放的要求，必须引入多线程。</p>
+<h3 id="下一步多线程架构">9.3 下一步：多线程架构</h3>
+<p>第五章将解决本章发现的问题：</p>
+<pre><code>当前（单线程）：
+解码 + 渲染 + 事件 ──→ 在一个线程串行执行
+        ↓
+   事件响应慢，拖动卡顿
+
+第五章（多线程）：
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│  读取线程   │──→│  解码线程   │──→│  渲染线程   │
+│  (IO)       │    │  (CPU密集)  │    │  (主线程)   │
+└─────────────┘    └─────────────┘    └─────────────┘
+                                              ↑
+                                       专门处理事件，即时响应</code></pre>
+<p><strong>预告</strong>：第五章将实现真正的多线程播放器，解决拖动卡顿问题，为流畅播放打下基础。</p>
+<h3 id="练习题">9.4 练习题</h3>
+<ol type="1">
+<li><p><strong>测量练习</strong>：使用本章的
+<code>PerformanceMonitor</code>
+类，测量你的播放器解码不同分辨率视频（720p、1080p、4K）的耗时。</p></li>
+<li><p><strong>预算计算</strong>：如果解码一帧需要 25ms，渲染需要
+5ms，最大能达到多少fps？是否满足60fps要求？</p></li>
+<li><p><strong>火焰图实践</strong>：使用 perf 和 FlameGraph
+生成你的播放器的火焰图，找出占用CPU最多的函数。</p></li>
+<li><p><strong>实验验证</strong>：修改
+<code>lag_experiment.cpp</code>，尝试不同的解码耗时，观察事件响应延迟的变化。</p></li>
+</ol>
+<hr />
+<h2 id="附录">附录</h2>
+<h3 id="a.-参考代码">A. 参考代码</h3>
+<p>完整的性能分析播放器代码位于
+<code>chapter-04/profiler_player.cpp</code>。</p>
+<h3 id="b.-性能分析检查清单">B. 性能分析检查清单</h3>
+<pre><code>□ 测量解码耗时（I帧/P帧/B帧）
+□ 测量渲染耗时
+□ 计算总耗时是否满足帧率预算
+□ 使用 perf 生成火焰图
+□ 分析 CPU 占用瓶颈
+□ 识别需要优化的模块</code></pre>
+<h3 id="c.-延伸阅读">C. 延伸阅读</h3>
+<ul>
+<li><a href="https://en.cppreference.com/w/cpp/header/chrono">C++
+Reference: chrono</a></li>
+<li><a href="https://perf.wiki.kernel.org/">Perf Wiki</a></li>
+<li><a href="https://github.com/brendangregg/FlameGraph">FlameGraph
+GitHub</a></li>
+</ul>
+<hr />
+<p><strong>本章代码仓库</strong>：https://github.com/chapin666/live-system-book</p>
+</div>
+</body>
+</html>

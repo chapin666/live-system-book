@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html" class="active">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="第25章录制与回放">第25章：录制与回放</h1>
+<blockquote>
+<p><strong>本章目标</strong>：掌握直播系统的录制与回放技术，实现云端录制、时移回放和多码率自适应播放。</p>
+</blockquote>
+<p>在上一章（第24章）中，我们学习了 MCU
+混音混画技术，理解了如何将多路音视频合成为一路。MCU
+的一个重要应用场景就是<strong>云端录制</strong>——将混合后的音视频流直接存储，便于后期回放和处理。</p>
+<p>录制与回放是直播系统的核心功能之一，无论是教育直播的课程回放、会议系统的存档、还是直播平台的违规审核，都离不开完善的录制方案。</p>
+<p><strong>学习本章后，你将能够</strong>： -
+设计单流录制和合流录制的架构 - 实现服务端录制和客户端录制 - 使用 HLS
+实现直播时移回放 - 理解 DASH 协议和自适应码率 - 构建完整的录制服务</p>
+<hr />
+<h2 id="目录">目录</h2>
+<ol type="1">
+<li><a href="#1-录制需求分析">录制需求分析</a></li>
+<li><a href="#2-服务端录制">服务端录制</a></li>
+<li><a href="#3-hls-时移回放">HLS 时移回放</a></li>
+<li><a href="#4-dash-协议">DASH 协议</a></li>
+<li><a href="#5-录制服务实现">录制服务实现</a></li>
+<li><a href="#6-本章总结">本章总结</a></li>
+</ol>
+<hr />
+<h2 id="录制需求分析">1. 录制需求分析</h2>
+<h3 id="为什么需要录制">1.1 为什么需要录制？</h3>
+<p>录制功能在直播系统中扮演着重要角色：</p>
+<p><strong>业务场景</strong>： -
+<strong>课程回放</strong>：教育直播结束后，学生可以回看课程内容 -
+<strong>会议存档</strong>：企业会议录制后供缺席人员查看 -
+<strong>内容审核</strong>：直播平台需要录制内容用于违规审查 -
+<strong>精彩剪辑</strong>：体育赛事、游戏直播的精彩片段提取 -
+<strong>合规要求</strong>：金融直播等需要完整存档备查</p>
+<p><strong>技术要求</strong>： -
+<strong>可靠性</strong>：录制不能丢失数据 -
+<strong>实时性</strong>：延迟不能太高（相对于直播） -
+<strong>可回放性</strong>：录制的文件要易于播放 -
+<strong>存储效率</strong>：合理的文件大小和存储成本</p>
+<h3 id="单流录制-vs-合流录制">1.2 单流录制 vs 合流录制</h3>
+<p>根据录制时机和内容的不同，录制方案可以分为两大类：</p>
+<figure>
+<img src="./diagrams/recording-arch.svg" alt="录制系统架构" />
+<figcaption aria-hidden="true">录制系统架构</figcaption>
+</figure>
+<h4 id="方案-1单流录制-sfu-录制">方案 1：单流录制 (SFU 录制)</h4>
+<p><strong>原理</strong>：在 SFU
+服务器上，直接存储每个参与者发来的原始流，不进行混音混画。</p>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    SFU 单流录制                         │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│   用户 A ──→┌─────────┐                                 │
+│             │   SFU   │──→ 存储 A.webm (用户A的原始流)  │
+│   用户 B ──→│ Server  │                                 │
+│             │(不解码) │──→ 存储 B.webm (用户B的原始流)  │
+│   用户 C ──→└─────────┘                                 │
+│                                                         │
+│   录制结果: 多个独立文件，需要后期合成                    │
+└─────────────────────────────────────────────────────────┘</code></pre>
+<p><strong>优点</strong>： - 实现简单：直接存储 RTP 包，不解码 -
+数据完整：每路流都是原始质量 -
+后期灵活：可以重新选择布局、单独导出某人</p>
+<p><strong>缺点</strong>： - 文件多：N 人会议产生 N 个文件 -
+回放复杂：需要专门的播放器同步播放多路流 -
+后期工作量大：需要离线合成才能生成合流视频</p>
+<h4 id="方案-2合流录制-mcu-录制">方案 2：合流录制 (MCU 录制)</h4>
+<p><strong>原理</strong>：在 MCU
+服务器上，将多路音视频混音混画后，存储合成的一路流。</p>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    MCU 合流录制                         │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│   用户 A ──┐                                            │
+│   用户 B ──→┌─────────┐                                 │
+│   用户 C ──→│   MCU   │──混音混画──→ 存储 meeting.mp4  │
+│   用户 D ──→│ Server  │                                 │
+│             │(解码→合成→编码)│                          │
+│             └─────────┘                                 │
+│                                                         │
+│   录制结果: 单个文件，可直接播放                        │
+└─────────────────────────────────────────────────────────┘</code></pre>
+<p><strong>优点</strong>： - 文件单一：一个会议对应一个文件 -
+即录即用：录制完成即可播放，无需后期处理 - 兼容性好：标准 MP4
+文件，任何播放器都能播放 - 适合直播：可以直接推流到 CDN</p>
+<p><strong>缺点</strong>： - 布局固定：录制时的布局无法改变 -
+质量损失：混音混画、重新编码会损失一些质量 - 服务器压力大：MCU
+本身消耗大量 CPU</p>
+<h4 id="方案-3客户端录制">方案 3：客户端录制</h4>
+<p><strong>原理</strong>：在用户的客户端本地进行录制，录制自己的音视频或合流。</p>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    客户端录制                           │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│   浏览器/客户端                                          │
+│   ┌─────────────────────────────────────┐              │
+│   │  getUserMedia ──→ MediaRecorder   │              │
+│   │                    ↓               │              │
+│   │                 存储为 WebM/MP4    │              │
+│   └─────────────────────────────────────┘              │
+│                                                         │
+│   录制结果: 本地文件，不上传到服务器                    │
+└─────────────────────────────────────────────────────────┘</code></pre>
+<p><strong>优点</strong>： - 服务器无压力：不占用服务端资源 -
+隐私性好：敏感数据不会离开用户设备 -
+实时预览：用户可以立即看到录制效果</p>
+<p><strong>缺点</strong>： - 可靠性差：客户端崩溃可能导致录制失败 -
+存储分散：每个用户本地有一份，难以集中管理 -
+无法录制他人：只能录制自己看到的画面</p>
+<h3 id="录制格式选择">1.3 录制格式选择</h3>
+<h4 id="格式-1webm">格式 1：WebM</h4>
+<p><strong>特点</strong>： - 开源免费，无专利费 - 支持 VP8/VP9 视频 +
+Opus 音频 - 浏览器原生支持（MediaRecorder 默认输出） - 适合 WebRTC
+场景</p>
+<p><strong>适用</strong>：浏览器录制、WebRTC 服务端录制</p>
+<h4 id="格式-2mp4-h.264aac">格式 2：MP4 (H.264/AAC)</h4>
+<p><strong>特点</strong>： - 兼容性最好，几乎所有设备都支持 - H.264
+有专利费（但浏览器已包含授权） - 适合长期存档和播放 - 支持流式写入（moov
+atom 前置）</p>
+<p><strong>适用</strong>：服务端合流录制、需要广泛兼容的场景</p>
+<h4 id="格式-3mkv">格式 3：MKV</h4>
+<p><strong>特点</strong>： - 开源容器格式，功能强大 -
+支持几乎所有音视频编码 - 文件较大，兼容性不如 MP4</p>
+<p><strong>适用</strong>：需要保存多音轨、字幕的复杂场景</p>
+<h4 id="格式-4ts-transport-stream">格式 4：TS (Transport Stream)</h4>
+<p><strong>特点</strong>： - MPEG-2 标准，广播电视使用 -
+支持边录边播（切片存储） - HLS 协议的基础格式</p>
+<p><strong>适用</strong>：直播切片、时移回放</p>
+<h3 id="方案对比总结">1.4 方案对比总结</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">方案</th>
+<th style="text-align: center;">文件数</th>
+<th style="text-align: center;">后期处理</th>
+<th style="text-align: center;">服务器压力</th>
+<th style="text-align: left;">适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">SFU 单流录制</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">需要离线合成</td>
+<td style="text-align: center;">低</td>
+<td style="text-align: left;">需要后期编辑、多视角回放</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MCU 合流录制</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">直接可用</td>
+<td style="text-align: center;">高</td>
+<td style="text-align: left;">常规会议录制、直播存档</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">客户端录制</td>
+<td style="text-align: center;">1/N</td>
+<td style="text-align: center;">视情况而定</td>
+<td style="text-align: center;">无</td>
+<td style="text-align: left;">本地存档、合规要求</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="服务端录制">2. 服务端录制</h2>
+<h3 id="从-sfu-录制原始流">2.1 从 SFU 录制原始流</h3>
+<p>SFU 录制的核心思想是”不解码直接存储”——服务器收到 RTP
+包后，直接写入文件，不做任何处理。</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">// SFU 录制器</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SfuRecorder <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 开始录制某路流</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> StartRecording<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> stream_id<span class="op">,</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> output_path<span class="op">);</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 停止录制</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> StopRecording<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> stream_id<span class="op">);</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 收到 RTP 包时调用</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnRtpPacket<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> stream_id<span class="op">,</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>                    <span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> rtp_data<span class="op">,</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">size_t</span> len<span class="op">);</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> RecordingSession <span class="op">{</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string stream_id<span class="op">;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>ofstream file<span class="op">;</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string output_path<span class="op">;</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> start_time<span class="op">;</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint64_t</span> bytes_written <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> </span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>                       <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>RecordingSession<span class="op">&gt;&gt;</span> <span class="va">sessions_</span><span class="op">;</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>mutex <span class="va">mutex_</span><span class="op">;</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">// 简单的 WebM 写入器 (简化版)</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> WebMWriter <span class="op">{</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Open<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> path<span class="op">);</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Close<span class="op">();</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 写入 RTP 包 (需要解析并重新打包为 WebM)</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteRtpPacket<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> rtp_data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">);</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>ofstream <span class="va">file_</span><span class="op">;</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="co">// WebM 相关的写入状态...</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<p><strong>SFU 录制的技术要点</strong>：</p>
+<ol type="1">
+<li><strong>RTP 到文件的转换</strong>：
+<ul>
+<li>RTP 包需要按照时间戳排序</li>
+<li>需要解析 RTP 头部，提取 payload</li>
+<li>将 payload 写入 WebM/MP4 容器</li>
+</ul></li>
+<li><strong>时间戳处理</strong>：
+<ul>
+<li>RTP 时间戳是相对的，需要转换为绝对时间</li>
+<li>处理时间戳回绕 (wrap around)</li>
+<li>确保音画同步</li>
+</ul></li>
+<li><strong>文件格式选择</strong>：
+<ul>
+<li>WebRTC 通常使用 WebM (VP8/Opus)</li>
+<li>也可以转封装为 MP4 (H.264/AAC)</li>
+</ul></li>
+</ol>
+<h3 id="从-mcu-录制合流">2.2 从 MCU 录制合流</h3>
+<p>MCU 录制相对简单，因为 MCU
+已经输出了混合编码后的流，只需要直接存储即可。</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">// MCU 录制器</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> McuRecorder <span class="op">{</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 开始录制</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> StartRecording<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> room_id<span class="op">,</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> output_dir<span class="op">);</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 停止录制</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> StopRecording<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> room_id<span class="op">);</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 写入混音后的音频帧</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteAudioFrame<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> room_id<span class="op">,</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                        <span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">);</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 写入混画后的视频帧</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteVideoFrame<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> room_id<span class="op">,</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                        <span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">);</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> RecordingContext <span class="op">{</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string room_id<span class="op">;</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>MP4Muxer<span class="op">&gt;</span> muxer<span class="op">;</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> start_time<span class="op">;</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> duration_ms <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>                       <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>RecordingContext<span class="op">&gt;&gt;</span> <span class="va">contexts_</span><span class="op">;</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co">// MP4 封装器</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MP4Muxer <span class="op">{</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> output_path<span class="op">,</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">int</span> video_width<span class="op">,</span> <span class="dt">int</span> video_height<span class="op">,</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">int</span> video_fps<span class="op">,</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">int</span> audio_sample_rate<span class="op">,</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">int</span> audio_channels<span class="op">);</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 写入编码后的视频帧</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteVideoFrame<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">,</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">int64_t</span> pts<span class="op">,</span> <span class="dt">bool</span> is_keyframe<span class="op">);</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 写入编码后的音频帧</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteAudioFrame<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">,</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">int64_t</span> pts<span class="op">);</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 结束录制，写入文件尾</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Finalize<span class="op">();</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 使用 FFmpeg 的 libavformat 实现</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>    AVFormatContext<span class="op">*</span> <span class="va">format_ctx_</span> <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>    AVStream<span class="op">*</span> <span class="va">video_stream_</span> <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    AVStream<span class="op">*</span> <span class="va">audio_stream_</span> <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="va">initialized_</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<p><strong>MCU 录制的技术要点</strong>：</p>
+<ol type="1">
+<li><strong>容器格式选择</strong>：
+<ul>
+<li>MP4：兼容性最好，但需要结束时写入 moov atom</li>
+<li>TS：支持边录边播，适合直播场景</li>
+<li>WebM：开源免费，适合 VP8/VP9</li>
+</ul></li>
+<li><strong>流式写入优化</strong>：
+<ul>
+<li>传统 MP4 需要结束时才能确定文件头</li>
+<li>可以使用 fragmented MP4 (fMP4) 支持流式</li>
+<li>或者使用 <code>-movflags faststart</code> 让 moov 前置</li>
+</ul></li>
+<li><strong>关键帧对齐</strong>：
+<ul>
+<li>录制的视频需要定期产生关键帧 (IDR)</li>
+<li>通常每 2-4 秒一个关键帧</li>
+<li>方便后期剪辑和拖动</li>
+</ul></li>
+</ol>
+<h3 id="文件分段策略">2.3 文件分段策略</h3>
+<p>长时间录制会产生巨大的文件，需要进行分段存储：</p>
+<p><strong>方案 1：按时间分段</strong></p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SegmentedRecorder <span class="op">{</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetSegmentDuration<span class="op">(</span><span class="dt">int64_t</span> duration_ms<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">segment_duration_ms_</span> <span class="op">=</span> duration_ms<span class="op">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteFrame<span class="op">(</span><span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 检查是否需要开启新分段</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">current_segment_duration_</span> <span class="op">&gt;=</span> <span class="va">segment_duration_ms_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span><span class="va">current_writer_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                <span class="va">current_writer_</span><span class="op">-&gt;</span>Finalize<span class="op">();</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>            StartNewSegment<span class="op">();</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">current_writer_</span><span class="op">-&gt;</span>WriteFrame<span class="op">(</span>frame<span class="op">);</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">current_segment_duration_</span> <span class="op">+=</span> frame<span class="op">.</span>duration_ms<span class="op">;</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> <span class="va">segment_duration_ms_</span> <span class="op">=</span> <span class="dv">3600000</span><span class="op">;</span>  <span class="co">// 默认 1 小时</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> <span class="va">current_segment_duration_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>MP4Muxer<span class="op">&gt;</span> <span class="va">current_writer_</span><span class="op">;</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">segment_index_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<p><strong>方案 2：按文件大小分段</strong></p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 当文件大小超过阈值时开启新分段</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">size_t</span> kMaxFileSize <span class="op">=</span> <span class="dv">2</span><span class="bu">ULL</span> <span class="op">*</span> <span class="dv">1024</span> <span class="op">*</span> <span class="dv">1024</span> <span class="op">*</span> <span class="dv">1024</span><span class="op">;</span>  <span class="co">// 2GB</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> CheckAndRotate<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span><span class="va">current_file_size_</span> <span class="op">&gt;=</span> kMaxFileSize<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        StartNewSegment<span class="op">();</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>方案 3：切片录制 (HLS)</strong></p>
+<p>将录制内容切分为固定时长的 TS 切片：</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> HlsRecorder <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> output_dir<span class="op">,</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">int</span> segment_duration_sec<span class="op">);</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 写入视频帧</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteVideoFrame<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">,</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">int64_t</span> pts<span class="op">,</span> <span class="dt">bool</span> is_keyframe<span class="op">);</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 写入音频帧</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteAudioFrame<span class="op">(</span><span class="at">const</span> <span class="dt">uint8_t</span><span class="op">*</span> data<span class="op">,</span> <span class="dt">size_t</span> len<span class="op">,</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">int64_t</span> pts<span class="op">);</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> FlushSegment<span class="op">();</span>  <span class="co">// 结束当前切片</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> UpdatePlaylist<span class="op">();</span> <span class="co">// 更新 m3u8 文件</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string <span class="va">output_dir_</span><span class="op">;</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">segment_duration_sec_</span><span class="op">;</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">current_segment_index_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>TSWriter<span class="op">&gt;</span> <span class="va">current_ts_writer_</span><span class="op">;</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>SegmentInfo<span class="op">&gt;</span> <span class="va">segments_</span><span class="op">;</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="录制可靠性保障">2.4 录制可靠性保障</h3>
+<p>录制是核心业务功能，需要保证高可靠性：</p>
+<p><strong>1. 磁盘空间监控</strong></p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DiskMonitor <span class="op">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 检查磁盘空间</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> CheckSpace<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> path<span class="op">,</span> <span class="dt">size_t</span> min_free_mb<span class="op">);</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 清理旧录制</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> CleanupOldRecordings<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> dir<span class="op">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                             <span class="dt">int</span> max_age_days<span class="op">);</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><strong>2. 录制状态监控</strong></p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> RecordingMetrics <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> start_time<span class="op">;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> duration_ms<span class="op">;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint64_t</span> bytes_written<span class="op">;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint64_t</span> packets_received<span class="op">;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint64_t</span> packets_dropped<span class="op">;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> disk_usage_percent<span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><strong>3. 异常恢复</strong></p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ResumableRecorder <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 自动恢复录制</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> OnError<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> error<span class="op">);</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> TryResume<span class="op">();</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">retry_count_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">int</span> kMaxRetries <span class="op">=</span> <span class="dv">3</span><span class="op">;</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<hr />
+<h2 id="hls-时移回放">3. HLS 时移回放</h2>
+<h3 id="hls-原理">3.1 HLS 原理</h3>
+<p>HLS（HTTP Live Streaming）是 Apple 提出的基于 HTTP
+的流媒体协议，广泛应用于直播和点播场景。</p>
+<figure>
+<img src="./diagrams/hls-structure.svg" alt="HLS 结构" />
+<figcaption aria-hidden="true">HLS 结构</figcaption>
+</figure>
+<p><strong>核心组件</strong>：</p>
+<ol type="1">
+<li><strong>m3u8
+索引文件</strong>：文本格式的播放列表，包含切片列表</li>
+<li><strong>TS 切片文件</strong>：实际的音视频数据，通常 2-10
+秒一个</li>
+</ol>
+<p><strong>播放流程</strong>：</p>
+<pre><code>1. 播放器请求 m3u8 索引文件
+2. 解析 m3u8，获取 TS 切片列表
+3. 按顺序下载 TS 切片
+4. 解码并播放
+5. 定期重新请求 m3u8 获取新切片（直播场景）</code></pre>
+<h3 id="m3u8-索引详解">3.2 m3u8 索引详解</h3>
+<p><strong>直播 m3u8 示例</strong>：</p>
+<pre class="m3u8"><code>#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:6          // 最大切片时长
+#EXT-X-MEDIA-SEQUENCE:0          // 第一个切片的序列号
+
+#EXTINF:6.000,                   // 切片时长
+live000.ts
+#EXTINF:6.000,
+live001.ts
+#EXTINF:6.000,
+live002.ts
+#EXTINF:6.000,
+live003.ts</code></pre>
+<p><strong>关键字段解释</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">字段</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>#EXTM3U</code></td>
+<td style="text-align: left;">文件头，标识这是 m3u8 文件</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>#EXT-X-VERSION</code></td>
+<td style="text-align: left;">HLS 版本，3 支持浮点时长</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>#EXT-X-TARGETDURATION</code></td>
+<td style="text-align: left;">切片最大时长（秒）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>#EXT-X-MEDIA-SEQUENCE</code></td>
+<td style="text-align: left;">第一个切片的序列号</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>#EXTINF</code></td>
+<td style="text-align: left;">当前切片的精确时长</td>
+</tr>
+</tbody>
+</table>
+<p><strong>点播 m3u8 示例</strong>：</p>
+<pre class="m3u8"><code>#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:6
+#EXT-X-PLAYLIST-TYPE:VOD       // VOD = 点播，不滑动
+#EXT-X-MEDIA-SEQUENCE:0
+
+#EXTINF:6.000,
+segment0.ts
+#EXTINF:6.000,
+segment1.ts
+...
+
+#EXT-X-ENDLIST                  // 文件结束标记</code></pre>
+<h3 id="实时切片">3.3 实时切片</h3>
+<p><strong>切片时机</strong>：</p>
+<pre><code>编码器输出 ──→ 切片器 ──→ 000.ts ──→ 001.ts ──→ 002.ts
+                 ↓
+              更新 m3u8</code></pre>
+<p><strong>关键帧对齐</strong>： - 切片必须在关键帧处切割 -
+否则播放器无法独立解码该切片 - 通常设置 GOP 大小 = 切片时长</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> HlsSegmenter <span class="op">{</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> output_dir<span class="op">,</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">int</span> segment_duration_sec<span class="op">);</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 写入编码后的视频帧</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteVideoFrame<span class="op">(</span><span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">);</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 写入编码后的音频帧</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteAudioFrame<span class="op">(</span><span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">);</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> MaybeCutSegment<span class="op">(</span><span class="dt">bool</span> force_keyframe<span class="op">);</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WritePlaylist<span class="op">();</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string <span class="va">output_dir_</span><span class="op">;</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">segment_duration_sec_</span><span class="op">;</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">segment_index_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> <span class="va">current_segment_pts_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> <span class="va">current_segment_duration_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>TSWriter<span class="op">&gt;</span> <span class="va">current_writer_</span><span class="op">;</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>SegmentInfo<span class="op">&gt;</span> <span class="va">segments_</span><span class="op">;</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">size_t</span> kMaxSegments <span class="op">=</span> <span class="dv">6</span><span class="op">;</span>  <span class="co">// 滑动窗口大小</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="时移窗口">3.4 时移窗口</h3>
+<figure>
+<img src="./diagrams/timeshift-window.svg" alt="时移窗口" />
+<figcaption aria-hidden="true">时移窗口</figcaption>
+</figure>
+<p><strong>滑动窗口机制</strong>：</p>
+<p>直播时，m3u8 只保留最近 N 个切片，旧的切片从索引中移除：</p>
+<pre class="m3u8"><code># 第1秒时的 m3u8
+#EXT-X-MEDIA-SEQUENCE:0
+000.ts
+001.ts
+002.ts
+003.ts
+
+# 第7秒时的 m3u8 (窗口滑动)
+#EXT-X-MEDIA-SEQUENCE:1
+001.ts
+002.ts
+003.ts
+004.ts</code></pre>
+<p><strong>时移回放的实现</strong>：</p>
+<ol type="1">
+<li><strong>增大窗口</strong>：保留更多切片（如 4 小时）</li>
+<li><strong>播放器支持</strong>：播放器可以拖动进度条选择时间点</li>
+<li><strong>从指定点开始播放</strong>：计算时间点对应的切片，从该切片开始播放</li>
+</ol>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 支持时移的 HLS 录制器</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> HlsDvrRecorder <span class="op">{</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 设置时移窗口大小（秒）</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> SetDvrWindow<span class="op">(</span><span class="dt">int</span> window_seconds<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">dvr_window_seconds_</span> <span class="op">=</span> window_seconds<span class="op">;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">max_segments_</span> <span class="op">=</span> window_seconds <span class="op">/</span> <span class="va">segment_duration_sec_</span><span class="op">;</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取时移 m3u8（包含更多历史切片）</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string GetDvrPlaylist<span class="op">(</span><span class="dt">int</span> start_time_offset<span class="op">);</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">dvr_window_seconds_</span> <span class="op">=</span> <span class="dv">14400</span><span class="op">;</span>  <span class="co">// 默认 4 小时</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> <span class="va">max_segments_</span> <span class="op">=</span> <span class="dv">2400</span><span class="op">;</span>      <span class="co">// 4小时 / 6秒切片</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 保存所有历史切片信息</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>deque<span class="op">&lt;</span>SegmentInfo<span class="op">&gt;</span> <span class="va">all_segments_</span><span class="op">;</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<hr />
+<h2 id="dash-协议">4. DASH 协议</h2>
+<h3 id="dash-vs-hls">4.1 DASH vs HLS</h3>
+<p>DASH（Dynamic Adaptive Streaming over HTTP）是 MPEG
+制定的国际标准，与 HLS 类似，但在某些方面更先进。</p>
+<figure>
+<img src="./diagrams/dash-manifest.svg" alt="DASH Manifest 结构" />
+<figcaption aria-hidden="true">DASH Manifest 结构</figcaption>
+</figure>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">特性</th>
+<th style="text-align: left;">HLS</th>
+<th style="text-align: left;">DASH</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>标准化组织</strong></td>
+<td style="text-align: left;">Apple</td>
+<td style="text-align: left;">MPEG</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>索引文件</strong></td>
+<td style="text-align: left;">m3u8 (文本)</td>
+<td style="text-align: left;">MPD (XML)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>切片格式</strong></td>
+<td style="text-align: left;">TS (MPEG-2)</td>
+<td style="text-align: left;">fMP4 / TS</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>自适应码率</strong></td>
+<td style="text-align: left;">支持</td>
+<td style="text-align: left;">原生支持，更灵活</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>浏览器支持</strong></td>
+<td style="text-align: left;">Safari 原生</td>
+<td style="text-align: left;">Chrome/Edge 原生</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>直播延迟</strong></td>
+<td style="text-align: left;">较高 (10-30s)</td>
+<td style="text-align: left;">可配置，支持低延迟 DASH</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mpd-描述文件">4.2 MPD 描述文件</h3>
+<p>MPD（Media Presentation Description）是 DASH 的索引文件，使用 XML
+格式：</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode xml"><code class="sourceCode xml"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;?xml</span><span class="ot"> version=</span><span class="st">&quot;1.0&quot;</span><span class="ot"> encoding=</span><span class="st">&quot;UTF-8&quot;</span><span class="fu">?&gt;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">MPD</span><span class="ot"> xmlns=</span><span class="st">&quot;urn:mpeg:dash:schema:mpd:2011&quot;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="ot">     type=</span><span class="st">&quot;dynamic&quot;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="ot">     minimumUpdatePeriod=</span><span class="st">&quot;PT6S&quot;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="ot">     minBufferTime=</span><span class="st">&quot;PT2S&quot;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="ot">     profiles=</span><span class="st">&quot;urn:mpeg:dash:profile:isoff-live:2011&quot;</span>&gt;</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">Period</span><span class="ot"> id=</span><span class="st">&quot;1&quot;</span><span class="ot"> start=</span><span class="st">&quot;PT0S&quot;</span>&gt;</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">&lt;!-- 视频 AdaptationSet --&gt;</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">AdaptationSet</span><span class="ot"> mimeType=</span><span class="st">&quot;video/mp4&quot;</span> </span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="ot">                    codecs=</span><span class="st">&quot;avc1.42c01e&quot;</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="ot">                    frameRate=</span><span class="st">&quot;30&quot;</span>&gt;</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">Representation</span><span class="ot"> id=</span><span class="st">&quot;720p&quot;</span> </span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="ot">                      bandwidth=</span><span class="st">&quot;3000000&quot;</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="ot">                      width=</span><span class="st">&quot;1280&quot;</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="ot">                      height=</span><span class="st">&quot;720&quot;</span>&gt;</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">SegmentTemplate</span> </span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="ot">          initialization=</span><span class="st">&quot;init-video.mp4&quot;</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="ot">          media=</span><span class="st">&quot;video_$Number$.m4s&quot;</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="ot">          startNumber=</span><span class="st">&quot;1&quot;</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="ot">          timescale=</span><span class="st">&quot;1000&quot;</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="ot">          duration=</span><span class="st">&quot;6000&quot;</span> /&gt;</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>      &lt;/<span class="kw">Representation</span>&gt;</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">Representation</span><span class="ot"> id=</span><span class="st">&quot;480p&quot;</span> </span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="ot">                      bandwidth=</span><span class="st">&quot;1500000&quot;</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a><span class="ot">                      width=</span><span class="st">&quot;854&quot;</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a><span class="ot">                      height=</span><span class="st">&quot;480&quot;</span>&gt;</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">SegmentTemplate</span> </span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a><span class="ot">          initialization=</span><span class="st">&quot;init-video-480p.mp4&quot;</span></span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a><span class="ot">          media=</span><span class="st">&quot;video-480p_$Number$.m4s&quot;</span></span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a><span class="ot">          duration=</span><span class="st">&quot;6000&quot;</span> /&gt;</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>      &lt;/<span class="kw">Representation</span>&gt;</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">AdaptationSet</span>&gt;</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>    <span class="co">&lt;!-- 音频 AdaptationSet --&gt;</span></span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">AdaptationSet</span><span class="ot"> mimeType=</span><span class="st">&quot;audio/mp4&quot;</span></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a><span class="ot">                    codecs=</span><span class="st">&quot;mp4a.40.2&quot;</span>&gt;</span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">Representation</span><span class="ot"> id=</span><span class="st">&quot;audio&quot;</span></span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a><span class="ot">                      bandwidth=</span><span class="st">&quot;128000&quot;</span>&gt;</span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a>        &lt;<span class="kw">SegmentTemplate</span></span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a><span class="ot">          initialization=</span><span class="st">&quot;init-audio.mp4&quot;</span></span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a><span class="ot">          media=</span><span class="st">&quot;audio_$Number$.m4s&quot;</span></span>
+<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a><span class="ot">          duration=</span><span class="st">&quot;6000&quot;</span> /&gt;</span>
+<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a>      &lt;/<span class="kw">Representation</span>&gt;</span>
+<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">AdaptationSet</span>&gt;</span>
+<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">Period</span>&gt;</span>
+<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">MPD</span>&gt;</span></code></pre></div>
+<p><strong>关键概念</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">概念</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Period</strong></td>
+<td style="text-align: left;">一个时间段，直播通常只有一个 Period</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>AdaptationSet</strong></td>
+<td style="text-align: left;">一组可以切换的
+Representation，通常视频、音频各一个</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Representation</strong></td>
+<td style="text-align: left;">一个具体的码率/分辨率版本</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Segment</strong></td>
+<td style="text-align: left;">切片，类似 HLS 的 TS 文件</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>SegmentTemplate</strong></td>
+<td style="text-align: left;">切片命名模板，用于生成切片 URL</td>
+</tr>
+</tbody>
+</table>
+<h3 id="多码率自适应">4.3 多码率自适应</h3>
+<p>DASH 原生支持根据网络状况自动切换码率：</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">// DASH 自适应码率控制器 (简化概念)</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> DashAbrController <span class="op">{</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 根据当前网络状况选择最佳 Representation</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string SelectRepresentation<span class="op">(</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span>Representation<span class="op">&gt;&amp;</span> reps<span class="op">,</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> current_bandwidth_kbps<span class="op">);</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 带宽估计</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> EstimateBandwidth<span class="op">();</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 缓冲区管理</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> <span class="va">buffer_level_sec_</span> <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">double</span> kMinBufferSec <span class="op">=</span> <span class="fl">10.0</span><span class="op">;</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="kw">constexpr</span> <span class="dt">double</span> kMaxBufferSec <span class="op">=</span> <span class="fl">30.0</span><span class="op">;</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="co">// ABR 算法示意</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="bu">std::</span>string DashAbrController<span class="op">::</span>SelectRepresentation<span class="op">(</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="bu">std::</span>vector<span class="op">&lt;</span>Representation<span class="op">&gt;&amp;</span> reps<span class="op">,</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> current_bandwidth_kbps<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 按带宽排序</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>Representation<span class="op">&gt;</span> sorted <span class="op">=</span> reps<span class="op">;</span></span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>sort<span class="op">(</span>sorted<span class="op">.</span>begin<span class="op">(),</span> sorted<span class="op">.</span>end<span class="op">(),</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>             <span class="op">[](</span><span class="at">const</span> Representation<span class="op">&amp;</span> a<span class="op">,</span> <span class="at">const</span> Representation<span class="op">&amp;</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>                 <span class="cf">return</span> a<span class="op">.</span>bandwidth <span class="op">&lt;</span> b<span class="op">.</span>bandwidth<span class="op">;</span></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>             <span class="op">});</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 选择不超过当前带宽 80% 的最高码率</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> target_bandwidth <span class="op">=</span> current_bandwidth_kbps <span class="op">*</span> <span class="fl">0.8</span><span class="op">;</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 根据缓冲区状态调整</span></span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span><span class="va">buffer_level_sec_</span> <span class="op">&lt;</span> kMinBufferSec<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 缓冲区低，降一档</span></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>        target_bandwidth <span class="op">*=</span> <span class="fl">0.7</span><span class="op">;</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> it <span class="op">=</span> sorted<span class="op">.</span>rbegin<span class="op">();</span> it <span class="op">!=</span> sorted<span class="op">.</span>rend<span class="op">();</span> <span class="op">++</span>it<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>it<span class="op">-&gt;</span>bandwidth <span class="op">&lt;=</span> target_bandwidth<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> it<span class="op">-&gt;</span>id<span class="op">;</span></span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sorted<span class="op">.</span>front<span class="op">().</span>id<span class="op">;</span>  <span class="co">// 最低码率兜底</span></span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<p><strong>ABR 策略</strong>：</p>
+<ol type="1">
+<li><strong>保守策略</strong>：优先保证流畅，低带宽时快速降码率</li>
+<li><strong>激进策略</strong>：优先保证画质，高带宽时尝试升码率</li>
+<li><strong>缓冲区感知</strong>：缓冲区低时降码率，高时可尝试升码率</li>
+</ol>
+<hr />
+<h2 id="录制服务实现">5. 录制服务实现</h2>
+<h3 id="整体架构">5.1 整体架构</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                     Recording Service                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐        │
+│   │   Web API    │  │   Recorder   │  │   Storage    │        │
+│   │   (REST)     │  │   Engine     │  │   Manager    │        │
+│   └──────┬───────┘  └──────┬───────┘  └──────┬───────┘        │
+│          │                 │                 │                 │
+│          └─────────────────┼─────────────────┘                 │
+│                            ↓                                   │
+│                   ┌──────────────────┐                         │
+│                   │   Recording Job  │                         │
+│                   │   Scheduler      │                         │
+│                   └────────┬─────────┘                         │
+│                            ↓                                   │
+│   ┌──────────────────────────────────────────────────────┐   │
+│   │                    Output Storage                     │   │
+│   │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐   │   │
+│   │  │   MP4    │  │   HLS    │  │   Cloud Storage  │   │   │
+│   │  │  Files   │  │  Segments│  │  (S3/OSS/etc)   │   │   │
+│   │  └──────────┘  └──────────┘  └──────────────────┘   │   │
+│   └──────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="录制控制-api">5.2 录制控制 API</h3>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 录制控制服务</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RecordingService <span class="op">{</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// REST API 接口</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 开始录制</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// POST /api/recordings/start</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Request: { room_id, layout, output_format }</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Response: { recording_id, status }</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> StartRecordingRequest <span class="op">{</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string room_id<span class="op">;</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string layout<span class="op">;</span>        <span class="co">// &quot;grid&quot; | &quot;speaker&quot; | &quot;pip&quot;</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string output_format<span class="op">;</span> <span class="co">// &quot;mp4&quot; | &quot;hls&quot; | &quot;webm&quot;</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> max_duration_sec <span class="op">=</span> <span class="dv">3600</span><span class="op">;</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> StartRecordingResponse <span class="op">{</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string recording_id<span class="op">;</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string status<span class="op">;</span>        <span class="co">// &quot;starting&quot; | &quot;recording&quot;</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> start_time<span class="op">;</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    StartRecordingResponse StartRecording<span class="op">(</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> StartRecordingRequest<span class="op">&amp;</span> request<span class="op">);</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 停止录制</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">// POST /api/recordings/{id}/stop</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> StopRecording<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> recording_id<span class="op">);</span></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 查询录制状态</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">// GET /api/recordings/{id}</span></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> RecordingInfo <span class="op">{</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string recording_id<span class="op">;</span></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string room_id<span class="op">;</span></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string status<span class="op">;</span>        <span class="co">// &quot;recording&quot; | &quot;completed&quot; | &quot;failed&quot;</span></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> start_time<span class="op">;</span></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> duration_ms<span class="op">;</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint64_t</span> file_size<span class="op">;</span></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string output_url<span class="op">;</span></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>    RecordingInfo GetRecordingInfo<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> recording_id<span class="op">);</span></span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取录制列表</span></span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>    <span class="co">// GET /api/recordings?room_id=xxx&amp;start_date=xxx&amp;end_date=xxx</span></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span>RecordingInfo<span class="op">&gt;</span> ListRecordings<span class="op">(</span></span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> room_id<span class="op">,</span></span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> start_time<span class="op">,</span></span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> end_time<span class="op">);</span></span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unordered_map<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">,</span> </span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>                       <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>RecordingJob<span class="op">&gt;&gt;</span> <span class="va">active_jobs_</span><span class="op">;</span></span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="录制器设计">5.3 录制器设计</h3>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 录制器接口</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IRecorder <span class="op">{</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="op">~</span>IRecorder<span class="op">()</span> <span class="op">=</span> <span class="cf">default</span><span class="op">;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">bool</span> Initialize<span class="op">(</span><span class="at">const</span> RecordingConfig<span class="op">&amp;</span> config<span class="op">)</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">void</span> Finalize<span class="op">()</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">void</span> WriteAudioFrame<span class="op">(</span><span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">)</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">virtual</span> <span class="dt">void</span> WriteVideoFrame<span class="op">(</span><span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">)</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="co">// MP4 录制器</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MP4Recorder <span class="op">:</span> <span class="kw">public</span> IRecorder <span class="op">{</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">(</span><span class="at">const</span> RecordingConfig<span class="op">&amp;</span> config<span class="op">)</span> <span class="kw">override</span><span class="op">;</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Finalize<span class="op">()</span> <span class="kw">override</span><span class="op">;</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteAudioFrame<span class="op">(</span><span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">)</span> <span class="kw">override</span><span class="op">;</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteVideoFrame<span class="op">(</span><span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">)</span> <span class="kw">override</span><span class="op">;</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>MP4Muxer<span class="op">&gt;</span> <span class="va">muxer_</span><span class="op">;</span></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>ofstream <span class="va">file_</span><span class="op">;</span></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="co">// HLS 录制器</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> HLSRecorder <span class="op">:</span> <span class="kw">public</span> IRecorder <span class="op">{</span></span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Initialize<span class="op">(</span><span class="at">const</span> RecordingConfig<span class="op">&amp;</span> config<span class="op">)</span> <span class="kw">override</span><span class="op">;</span></span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Finalize<span class="op">()</span> <span class="kw">override</span><span class="op">;</span></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteAudioFrame<span class="op">(</span><span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">)</span> <span class="kw">override</span><span class="op">;</span></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> WriteVideoFrame<span class="op">(</span><span class="at">const</span> EncodedFrame<span class="op">&amp;</span> frame<span class="op">)</span> <span class="kw">override</span><span class="op">;</span></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>HlsSegmenter<span class="op">&gt;</span> <span class="va">segmenter_</span><span class="op">;</span></span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a><span class="co">// 录制器工厂</span></span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RecorderFactory <span class="op">{</span></span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">static</span> <span class="bu">std::</span>unique_ptr<span class="op">&lt;</span>IRecorder<span class="op">&gt;</span> Create<span class="op">(</span></span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> format<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>format <span class="op">==</span> <span class="st">&quot;mp4&quot;</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">std::</span>make_unique<span class="op">&lt;</span>MP4Recorder<span class="op">&gt;();</span></span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>format <span class="op">==</span> <span class="st">&quot;hls&quot;</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="bu">std::</span>make_unique<span class="op">&lt;</span>HLSRecorder<span class="op">&gt;();</span></span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<h3 id="文件管理">5.4 文件管理</h3>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> live <span class="op">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 录制文件管理器</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RecordingFileManager <span class="op">{</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 生成录制文件路径</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string GenerateFilePath<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> room_id<span class="op">,</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> format<span class="op">);</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 上传文件到云存储</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> UploadToCloud<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> local_path<span class="op">,</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> remote_path<span class="op">);</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 清理过期文件</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> CleanupExpiredFiles<span class="op">(</span><span class="dt">int</span> max_age_days<span class="op">);</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取文件访问 URL</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string GetFileUrl<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> recording_id<span class="op">);</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string <span class="va">base_path_</span><span class="op">;</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>string <span class="va">cloud_bucket_</span><span class="op">;</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
+<hr />
+<h2 id="本章总结">6. 本章总结</h2>
+<h3 id="核心知识点回顾">6.1 核心知识点回顾</h3>
+<p>本章我们学习了录制与回放的核心技术：</p>
+<p><strong>1. 录制方案</strong>： - SFU
+单流录制：不解码直接存储，文件多、后期复杂 - MCU
+合流录制：混音混画后存储，文件单一、即录即用 -
+客户端录制：本地录制，适合存档但可靠性差</p>
+<p><strong>2. 录制格式</strong>： - WebM：开源免费，适合 WebRTC -
+MP4：兼容性好，适合长期存档 - TS：支持边录边播，适合 HLS</p>
+<p><strong>3. HLS 时移回放</strong>： - m3u8 索引文件管理切片列表 -
+滑动窗口实现直播时移 - 切片时长影响时移精度和延迟</p>
+<p><strong>4. DASH 协议</strong>： - MPD XML 描述文件 - AdaptationSet +
+Representation 实现多码率 - 原生支持自适应码率 (ABR)</p>
+<h3 id="方案选型建议">6.2 方案选型建议</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">场景</th>
+<th style="text-align: left;">推荐方案</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">常规会议录制</td>
+<td style="text-align: left;">MCU + MP4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">直播存档</td>
+<td style="text-align: left;">MCU + HLS</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">需要后期编辑</td>
+<td style="text-align: left;">SFU 单流录制</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">移动端直播</td>
+<td style="text-align: left;">客户端录制 + 上传</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">大规模直播</td>
+<td style="text-align: left;">MCU + HLS/DASH + CDN</td>
+</tr>
+</tbody>
+</table>
+<h3 id="常见陷阱">6.3 常见陷阱</h3>
+<p><strong>陷阱 1：录制文件损坏</strong></p>
+<pre><code>问题：录制过程中服务器崩溃，MP4 文件无法播放
+原因：MP4 的 moov atom 在文件尾部，异常退出未写入
+解决：使用 -movflags faststart 或 fragmented MP4</code></pre>
+<p><strong>陷阱 2：音画不同步</strong></p>
+<pre><code>问题：录制的视频音频不同步
+原因：时间戳计算错误或未对齐
+解决：统一时间基准，处理时间戳回绕</code></pre>
+<p><strong>陷阱 3：磁盘空间不足</strong></p>
+<pre><code>问题：长时间录制导致磁盘写满
+解决：监控磁盘空间，自动清理旧文件，或转存到云存储</code></pre>
+<h3 id="课后练习">6.4 课后练习</h3>
+<ol type="1">
+<li><strong>思考题</strong>：
+<ul>
+<li>为什么 MCU 录制比 SFU 录制更适合常规会议场景？</li>
+<li>HLS 和 DASH 的主要区别是什么？各有什么优势？</li>
+<li>如何设计一个支持 7x24 小时连续录制的系统？</li>
+</ul></li>
+<li><strong>编程题</strong>：
+<ul>
+<li>实现一个简单的 HLS segmenter，将编码后的视频切分为 TS 文件</li>
+<li>实现 m3u8 索引文件的生成和滑动窗口更新</li>
+<li>使用 FFmpeg 命令行实现从 WebRTC 流到 HLS 的转码</li>
+</ul></li>
+<li><strong>拓展阅读</strong>：
+<ul>
+<li>研究 Low-Latency HLS (LL-HLS) 的实现原理</li>
+<li>了解 CMAF (Common Media Application Format) 统一 HLS/DASH</li>
+<li>学习 WebRTC 的 Insertable Streams API 实现端到端加密录制</li>
+</ul></li>
+</ol>
+<h3 id="下一章预告">6.5 下一章预告</h3>
+<p>在第26章《WebTransport 与 WHEP/WHIP》中，我们将探索最新的 Web
+实时通信技术：</p>
+<ul>
+<li><strong>WebTransport</strong>：基于 QUIC 的下一代传输协议</li>
+<li><strong>WHIP</strong>：WebRTC HTTP Ingestion
+Protocol，标准化的推流协议</li>
+<li><strong>WHEP</strong>：WebRTC HTTP Egress
+Protocol，标准化的播放协议</li>
+<li><strong>未来展望</strong>：WebCodecs + WebTransport 的组合</li>
+</ul>
+<p>这些新技术正在改变实时通信的格局，提前了解它们将帮助你把握行业趋势。</p>
+<hr />
+<p><strong>课后思考</strong>：如果你要设计一个支持百万级并发的直播录制系统，你会如何设计架构来处理海量录制请求？</p>
+</div>
+</body>
+</html>

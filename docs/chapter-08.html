@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html" class="active">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="第8章直播-vs-点播">第8章：直播 vs 点播</h1>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">项目</th>
+<th style="text-align: left;">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>本章目标</strong></td>
+<td style="text-align: left;">掌握直播 vs 点播的核心概念和实践</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>难度</strong></td>
+<td style="text-align: left;">⭐⭐ 中等</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>前置知识</strong></td>
+<td style="text-align: left;">Ch7：网络基础、HTTP协议</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>预计时间</strong></td>
+<td style="text-align: left;">2-3 小时</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>本章引言</strong></p>
+</blockquote>
+<p><strong>本章与项目的关系</strong>：</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph &quot;P3 直播观众端&quot;
+        A[&quot;Ch7-9 渐进开发&quot;] --&gt; B[&quot;📍 Ch8 直播 vs 点播&quot;]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px</code></pre>
+<p><strong>代码演进关系</strong>：</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph &quot;P3 直播观众端&quot;
+        A[&quot;Ch7 网络基础&quot;] --&gt; B[&quot;📍 Ch8 直播vs点播&quot;]
+        B --&gt; C[&quot;Ch9 硬件解码&quot;]
+    end
+    
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px</code></pre>
+<ul>
+<li><strong>当前阶段</strong>：直播协议</li>
+<li><strong>本章产出</strong>：RTMP协议、直播特性</li>
+</ul>
+<blockquote>
+<p><strong>本章目标</strong>：使用 FFmpeg 实现 RTMP
+直播播放器，理解直播与点播的差异。</p>
+</blockquote>
+<p>第七章实现了基于 HTTP 的网络播放器，可以播放网络上的视频文件。但 HTTP
+协议是为<strong>文件传输</strong>设计的，用于直播时延迟高达 5-10
+秒。</p>
+<p>想象一下：主播说”大家好”，观众 10 秒后才听到——这种体验显然不行。</p>
+<p>本章将学习 <strong>RTMP（Real-Time Messaging
+Protocol）</strong>——直播行业的标准协议，延迟可控制在 1-3
+秒。我们将<strong>使用 FFmpeg 的 RTMP
+实现</strong>，快速构建可用的直播播放器。</p>
+<hr />
+<h2 id="本章学习路径">🎯 本章学习路径</h2>
+<pre><code>Ch1-3: 本地播放基础
+    ↓
+Ch4: 卡顿分析
+    ↓
+Ch5: 多线程基础
+    ↓
+Ch6: 异步改造
+    ↓
+Ch7: HTTP网络 ←── 你已经会播放网络视频了
+    ↓
+Ch8: RTMP直播 ←── 本章：用 FFmpeg 播放直播流</code></pre>
+<hr />
+<h2 id="目录">目录</h2>
+<ol type="1">
+<li><a href="#1-直播-vs-点播延迟的来源">直播 vs
+点播：延迟的来源</a></li>
+<li><a href="#2-rtmp-简介直播行业的标准">RTMP
+简介：直播行业的标准</a></li>
+<li><a href="#3-使用-ffmpeg-播放-rtmp">使用 FFmpeg 播放 RTMP</a></li>
+<li><a href="#4-直播播放器的特殊处理">直播播放器的特殊处理</a></li>
+<li><a href="#5-代码实现rtmp-直播播放器">代码实现：RTMP
+直播播放器</a></li>
+<li><a href="#6-本章总结与里程碑">本章总结与里程碑</a></li>
+</ol>
+<hr />
+<h2 id="直播-vs-点播延迟的来源">1. 直播 vs 点播：延迟的来源</h2>
+<p><strong>本节目标</strong>：理解为什么 HTTP 直播延迟高，RTMP
+延迟低。</p>
+<h3 id="点播vod播放已存在的文件">1.1 点播（VOD）：播放已存在的文件</h3>
+<p>Ch3 的 HTTP 播放器播放的是<strong>已经存在的视频文件</strong>：</p>
+<pre><code>服务器：视频文件.mp4（已经存在）
+           ↓
+客户端：HTTP 请求 → 下载 → 播放</code></pre>
+<p>特点是：文件已经生成好了，随时可以下载任何片段。</p>
+<h3 id="直播live播放正在发生的内容">1.2
+直播（Live）：播放正在发生的内容</h3>
+<p>直播是<strong>正在发生</strong>的内容，服务器边收边发：</p>
+<pre><code>主播端：摄像头 → 编码 → 推流 ──┐
+                               ↓
+服务器：接收流 → 转发给多个观众
+                               ↓
+观众端：收到数据 → 立即播放（不能等待）</code></pre>
+<p><strong>关键区别</strong>：直播数据是”实时产生”的，不能像文件那样等生成好了再下载。</p>
+<h3 id="http-直播hls的高延迟">1.3 HTTP 直播（HLS）的高延迟</h3>
+<p>Apple 提出的 <strong>HLS（HTTP Live Streaming）</strong> 用 HTTP
+协议做直播：</p>
+<pre><code>服务器端：
+直播流 → 切片器 → 收集3秒 → [片段1.ts] → 收集3秒 → [片段2.ts]
+
+客户端：
+下载片段1（3秒）→ 下载片段2（3秒）→ 播放
+    ↑_____________________________↓
+         延迟 = 切片时间 + 下载时间 = 5-15秒</code></pre>
+<p><strong>为什么延迟高？</strong> - 服务器要收集 3-10
+秒数据才能生成一个切片 - 客户端要下载完切片才能播放 -
+为了流畅，客户端还会缓冲 1-2 个切片</p>
+<p><strong>总延迟：5-15 秒</strong> —— 主播说”大家好”，观众 10
+秒后才听到。</p>
+<h3 id="rtmp-的低延迟原理">1.4 RTMP 的低延迟原理</h3>
+<p>RTMP 是<strong>流式协议</strong>，不是文件传输：</p>
+<pre><code>HTTP 方式（文件）：
+服务器 ──生成切片文件──→ 客户端下载 ──播放
+    ↑需要等待文件生成↑
+
+RTMP 方式（流）：
+服务器 ──收到数据立即转发──→ 客户端立即播放
+    ↑无需等待，收到即播↑</code></pre>
+<p><strong>RTMP 延迟组成</strong>： - 编码延迟：50-100ms -
+网络传输：20-100ms - 缓冲区：200-500ms（抗网络波动） - 解码延迟：10-30ms
+- <strong>总延迟：1-3 秒</strong></p>
+<h3 id="延迟对比">1.5 延迟对比</h3>
+<p>假设主播在 T0 时刻说”Hello”：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">时间</th>
+<th style="text-align: left;">RTMP 状态</th>
+<th style="text-align: left;">HLS(3秒切片) 状态</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">T0+0.5s</td>
+<td style="text-align: left;">编码中</td>
+<td style="text-align: left;">切片中</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">T0+1s</td>
+<td style="text-align: left;">传输中</td>
+<td style="text-align: left;">切片中</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">T0+3s</td>
+<td style="text-align: left;"><strong>✅ 播放</strong></td>
+<td style="text-align: left;">切片完成，开始下载</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">T0+5s</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">下载中</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">T0+10s</td>
+<td style="text-align: left;">-</td>
+<td style="text-align: left;"><strong>✅ 播放</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>本节小结</strong>： - HTTP/HLS 适合点播，延迟 5-15 秒 - RTMP
+适合直播，延迟 1-3 秒 - 互动直播必须用 RTMP 或更实时的协议（如
+WebRTC）</p>
+<hr />
+<h2 id="rtmp-简介直播行业的标准">2. RTMP 简介：直播行业的标准</h2>
+<p><strong>本节目标</strong>：了解 RTMP 是什么，以及 FFmpeg 如何支持
+RTMP。</p>
+<h3 id="rtmp-是什么">2.1 RTMP 是什么？</h3>
+<p><strong>RTMP（Real-Time Messaging Protocol）</strong> 是 Adobe
+开发的协议，用于实时传输音视频数据。</p>
+<p><strong>核心特点</strong>： - 基于 TCP，默认端口 1935 -
+流式传输，低延迟（1-3秒） - 支持推拉流（主播推流，观众拉流） -
+行业标准，CDN 广泛支持</p>
+<figure>
+<img src="./diagrams/rtmp-stack.svg" alt="RTMP 协议栈" />
+<figcaption aria-hidden="true">RTMP 协议栈</figcaption>
+</figure>
+<h3 id="rtmp-url-格式">2.2 RTMP URL 格式</h3>
+<pre><code>rtmp://服务器地址/应用名/流名
+
+示例：
+rtmp://live.example.com/live/stream123
+      └──── 服务器地址 ────┘ └─┘ └────┘
+                           应用  流名</code></pre>
+<ul>
+<li><strong>服务器地址</strong>：RTMP 服务器 IP 或域名</li>
+<li><strong>应用名</strong>：通常是 <code>live</code></li>
+<li><strong>流名</strong>：标识具体的直播流（如主播房间号）</li>
+</ul>
+<h3 id="ffmpeg-的-rtmp-支持">2.3 FFmpeg 的 RTMP 支持</h3>
+<p><strong>好消息</strong>：FFmpeg 内置了完整的 RTMP 支持！</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 播放 RTMP 流，和播放本地文件一样简单</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>avformat_open_input<span class="op">(&amp;</span>fmt_ctx<span class="op">,</span> <span class="st">&quot;rtmp://server/live/stream&quot;</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span></code></pre></div>
+<p>FFmpeg 会自动处理： - ✅ RTMP 握手 - ✅ Chunk 解析 - ✅ FLV 解封装 -
+✅ 音视频分离</p>
+<p><strong>你不需要自己实现协议！</strong> 就像 Ch1 播放本地文件、Ch3
+播放 HTTP 视频一样，FFmpeg 帮你处理了底层细节。</p>
+<h3 id="rtmp-vs-http-播放对比">2.4 RTMP vs HTTP 播放对比</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">步骤</th>
+<th style="text-align: left;">HTTP 播放（Ch3）</th>
+<th style="text-align: left;">RTMP 播放（本章）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">打开输入</td>
+<td style="text-align: left;"><code>avformat_open_input(url)</code></td>
+<td style="text-align: left;"><code>avformat_open_input(url)</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">读取数据</td>
+<td style="text-align: left;"><code>av_read_frame()</code></td>
+<td style="text-align: left;"><code>av_read_frame()</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">解码</td>
+<td style="text-align: left;"><code>avcodec_send_packet()</code></td>
+<td style="text-align: left;"><code>avcodec_send_packet()</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">渲染</td>
+<td style="text-align: left;">SDL2</td>
+<td style="text-align: left;">SDL2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>代码几乎一样！</strong> 区别主要在： 1. URL
+格式不同（<code>http://</code> vs <code>rtmp://</code>） 2.
+直播需要特殊处理（网络断开重连、缓冲策略）</p>
+<p>本节小结：FFmpeg 内置 RTMP 支持，播放 RTMP 流的 API
+和播放本地文件一样。下一节我们直接写代码。</p>
+<hr />
+<h2 id="使用-ffmpeg-播放-rtmp">3. 使用 FFmpeg 播放 RTMP</h2>
+<p><strong>本节目标</strong>：用 FFmpeg 实现最简 RTMP 播放器。</p>
+<h3 id="最小-rtmp-播放器">3.1 最小 RTMP 播放器</h3>
+<p>基于 Ch1 的 <code>simple_player</code>，只需要改 URL：</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// simple_rtmp_player.cpp（核心代码）</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;SDL2/SDL.h&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="at">extern</span> <span class="st">&quot;C&quot;</span> <span class="op">{</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavformat/avformat.h&gt;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavcodec/avcodec.h&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span><span class="op">*</span> argv<span class="op">[])</span> <span class="op">{</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>argc <span class="op">&lt;</span> <span class="dv">2</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;用法: </span><span class="sc">%s</span><span class="st"> &lt;RTMP URL&gt;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> argv<span class="op">[</span><span class="dv">0</span><span class="op">]);</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;示例: </span><span class="sc">%s</span><span class="st"> rtmp://localhost/live/stream</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> argv<span class="op">[</span><span class="dv">0</span><span class="op">]);</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">char</span><span class="op">*</span> url <span class="op">=</span> argv<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 初始化 FFmpeg</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    avformat_network_init<span class="op">();</span>  <span class="co">// 网络初始化！</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 打开 RTMP 流（和打开文件一样！）</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    AVFormatContext<span class="op">*</span> fmt_ctx <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> ret <span class="op">=</span> avformat_open_input<span class="op">(&amp;</span>fmt_ctx<span class="op">,</span> url<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;无法打开流: </span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span> url<span class="op">);</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取流信息</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    avformat_find_stream_info<span class="op">(</span>fmt_ctx<span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 查找视频流、初始化解码器...（和 Ch1 一样）</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ...</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 读取帧并播放</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>    AVPacket<span class="op">*</span> pkt <span class="op">=</span> av_packet_alloc<span class="op">();</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>av_read_frame<span class="op">(</span>fmt_ctx<span class="op">,</span> pkt<span class="op">)</span> <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 解码、渲染...</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>        av_packet_unref<span class="op">(</span>pkt<span class="op">);</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 清理</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    av_packet_free<span class="op">(&amp;</span>pkt<span class="op">);</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    avformat_close_input<span class="op">(&amp;</span>fmt_ctx<span class="op">);</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>和 Ch1 本地播放器的区别</strong>： 1. 调用
+<code>avformat_network_init()</code> 初始化网络 2. URL 是
+<code>rtmp://</code> 而不是文件路径</p>
+<p>其他代码完全一样！</p>
+<h3 id="编译运行">3.2 编译运行</h3>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 编译（和 Ch1 一样）</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="ex">g++</span> simple_rtmp_player.cpp <span class="at">-o</span> simple_rtmp_player <span class="dt">\</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">$(</span><span class="ex">pkg-config</span> <span class="at">--cflags</span> <span class="at">--libs</span> libavformat libavcodec libavutil sdl2<span class="va">)</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 运行（需要 RTMP 服务器和推流）</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="ex">./simple_rtmp_player</span> rtmp://localhost/live/stream</span></code></pre></div>
+<p><strong>测试方法</strong>： 1. 启动 RTMP 服务器（如 nginx-rtmp、SRS）
+2. 用 OBS 或 FFmpeg
+推流：<code>ffmpeg -re -i test.mp4 -c copy -f flv rtmp://localhost/live/stream</code>
+3. 运行播放器观看</p>
+<h3 id="添加网络选项">3.3 添加网络选项</h3>
+<p>RTMP 播放通常需要设置一些网络参数：</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>AVDictionary<span class="op">*</span> opts <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 设置接收缓冲区大小（字节）</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>av_dict_set<span class="op">(&amp;</span>opts<span class="op">,</span> <span class="st">&quot;buffer_size&quot;</span><span class="op">,</span> <span class="st">&quot;65536&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 设置最大延迟（微秒）</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>av_dict_set<span class="op">(&amp;</span>opts<span class="op">,</span> <span class="st">&quot;max_delay&quot;</span><span class="op">,</span> <span class="st">&quot;500000&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span>  <span class="co">// 500ms</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">// 设置超时（微秒）</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>av_dict_set<span class="op">(&amp;</span>opts<span class="op">,</span> <span class="st">&quot;stimeout&quot;</span><span class="op">,</span> <span class="st">&quot;5000000&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span>  <span class="co">// 5秒</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">// 打开输入时传入选项</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> ret <span class="op">=</span> avformat_open_input<span class="op">(&amp;</span>fmt_ctx<span class="op">,</span> url<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="op">&amp;</span>opts<span class="op">);</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>av_dict_free<span class="op">(&amp;</span>opts<span class="op">);</span></span></code></pre></div>
+<p>常用 RTMP 选项：</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">选项</th>
+<th style="text-align: left;">说明</th>
+<th style="text-align: center;">推荐值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>buffer_size</code></td>
+<td style="text-align: left;">接收缓冲区大小</td>
+<td style="text-align: center;">65536</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>max_delay</code></td>
+<td style="text-align: left;">最大延迟</td>
+<td style="text-align: center;">500000 (500ms)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>stimeout</code></td>
+<td style="text-align: left;">连接/读取超时</td>
+<td style="text-align: center;">5000000 (5s)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>reconnect</code></td>
+<td style="text-align: left;">断线重连次数</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+<p>本节小结：播放 RTMP 流和播放本地文件 API
+几乎一样，只需注意网络初始化和选项设置。</p>
+<hr />
+<h2 id="直播播放器的特殊处理">4. 直播播放器的特殊处理</h2>
+<p><strong>本节目标</strong>：理解直播播放器与点播播放器的差异。</p>
+<h3 id="直播-vs-点播的关键差异">4.1 直播 vs 点播的关键差异</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">特性</th>
+<th style="text-align: left;">点播（HTTP文件）</th>
+<th style="text-align: left;">直播（RTMP流）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>时长</strong></td>
+<td style="text-align: left;">已知（文件大小固定）</td>
+<td style="text-align: left;">未知（持续进行）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Seek</strong></td>
+<td style="text-align: left;">可以任意拖动进度</td>
+<td style="text-align: left;">不能 seek（或有限制）</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>结束</strong></td>
+<td style="text-align: left;">播完文件结束</td>
+<td style="text-align: left;">主播停播才结束</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>缓冲</strong></td>
+<td style="text-align: left;">可以缓冲整个文件</td>
+<td style="text-align: left;">只能缓冲最近几秒</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>断线</strong></td>
+<td style="text-align: left;">一般是网络问题</td>
+<td style="text-align: left;">可能是网络或主播断流</td>
+</tr>
+</tbody>
+</table>
+<h3 id="直播播放器的调整">4.2 直播播放器的调整</h3>
+<p><strong>1. 移除 Seek 功能</strong></p>
+<p>直播没有进度条，不需要 seek：</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 点播播放器可能有</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>user_seek<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    av_seek_frame<span class="op">(</span>fmt_ctx<span class="op">,</span> stream_idx<span class="op">,</span> timestamp<span class="op">,</span> AVSEEK_FLAG_BACKWARD<span class="op">);</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 直播播放器没有 seek，或者只做有限的前回退</span></span></code></pre></div>
+<p><strong>2. 处理无限播放</strong></p>
+<p>直播没有结束，读取帧的循环是无限的：</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 点播：av_read_frame 返回 &lt;0 表示结束</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>av_read_frame<span class="op">(</span>fmt_ctx<span class="op">,</span> pkt<span class="op">)</span> <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 处理帧</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">// 结束，退出</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">// 直播：可能永远读不完，需要特殊处理断开</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(!</span>quit<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> ret <span class="op">=</span> av_read_frame<span class="op">(</span>fmt_ctx<span class="op">,</span> pkt<span class="op">);</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 可能是网络断开，尝试重连</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>try_reconnect<span class="op">())</span> <span class="cf">continue</span><span class="op">;</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 否则退出</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 处理帧</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>3. 网络断开重连</strong></p>
+<p>直播过程中网络可能波动，需要重连机制：</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> try_reconnect<span class="op">(</span>AVFormatContext<span class="op">*&amp;</span> fmt_ctx<span class="op">,</span> <span class="at">const</span> <span class="dt">char</span><span class="op">*</span> url<span class="op">,</span> <span class="dt">int</span> max_retries<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> max_retries<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;尝试重连 </span><span class="sc">%d</span><span class="st">/</span><span class="sc">%d</span><span class="st">...</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> i <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> max_retries<span class="op">);</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 关闭旧连接</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        avformat_close_input<span class="op">(&amp;</span>fmt_ctx<span class="op">);</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 等待一段时间再重试</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>this_thread::sleep_for<span class="op">(</span><span class="bu">std::</span>chrono::seconds<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 尝试重新打开</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> ret <span class="op">=</span> avformat_open_input<span class="op">(&amp;</span>fmt_ctx<span class="op">,</span> url<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">&quot;重连成功！</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>4. 缓冲策略</strong></p>
+<p>直播需要平衡延迟和流畅度：</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 设置缓冲区大小</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">// 太小：网络波动就卡顿</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 太大：延迟增加</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">// 低延迟模式（适合连麦）</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>av_dict_set<span class="op">(&amp;</span>opts<span class="op">,</span> <span class="st">&quot;max_delay&quot;</span><span class="op">,</span> <span class="st">&quot;200000&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span>  <span class="co">// 200ms</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">// 流畅优先模式（适合看直播）</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>av_dict_set<span class="op">(&amp;</span>opts<span class="op">,</span> <span class="st">&quot;max_delay&quot;</span><span class="op">,</span> <span class="st">&quot;800000&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span>  <span class="co">// 800ms</span></span></code></pre></div>
+<h3 id="直播播放器架构">4.3 直播播放器架构</h3>
+<pre><code>┌─────────────────────────────────────────────┐
+│           RTMP 直播播放器架构                 │
+├─────────────────────────────────────────────┤
+│                                             │
+│  ┌──────────────┐      ┌──────────────┐    │
+│  │  网络读取    │──────→│  缓冲队列    │    │
+│  │  (FFmpeg)    │      │  (2-3帧)     │    │
+│  └──────────────┘      └──────┬───────┘    │
+│         ↑                     │            │
+│         │ 断线重连            ↓            │
+│         └──────────────── 解码渲染         │
+│                            (SDL2)          │
+│                                             │
+└─────────────────────────────────────────────┘</code></pre>
+<p>本节小结：直播播放器需要处理断线重连、调整缓冲策略，但核心解码渲染逻辑和点播一样。</p>
+<hr />
+<h2 id="代码实现rtmp-直播播放器">5. 代码实现：RTMP 直播播放器</h2>
+<p><strong>本节目标</strong>：完整可运行的 RTMP 直播播放器代码。</p>
+<h3 id="完整代码">5.1 完整代码</h3>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * simple_rtmp_player.cpp</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"> * </span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"> * 基于 FFmpeg 的 RTMP 直播播放器</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"> * 编译: g++ simple_rtmp_player.cpp -o simple_rtmp_player \</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"> *       $(pkg-config --cflags --libs libavformat libavcodec libavutil libswscale sdl2)</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co"> * 运行: ./simple_rtmp_player rtmp://server/live/stream</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;SDL2/SDL.h&gt;</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;thread&gt;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;chrono&gt;</span></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="at">extern</span> <span class="st">&quot;C&quot;</span> <span class="op">{</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavformat/avformat.h&gt;</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavcodec/avcodec.h&gt;</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libswscale/swscale.h&gt;</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavutil/time.h&gt;</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="co">// 重连函数</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> try_reconnect<span class="op">(</span>AVFormatContext<span class="op">*&amp;</span> fmt_ctx<span class="op">,</span> <span class="at">const</span> <span class="dt">char</span><span class="op">*</span> url<span class="op">,</span> <span class="dt">int</span> max_retries<span class="op">);</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span><span class="op">*</span> argv<span class="op">[])</span> <span class="op">{</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>argc <span class="op">&lt;</span> <span class="dv">2</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;用法: </span><span class="sc">%s</span><span class="st"> &lt;RTMP URL&gt;</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> argv<span class="op">[</span><span class="dv">0</span><span class="op">]);</span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;示例: </span><span class="sc">%s</span><span class="st"> rtmp://localhost/live/stream</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> argv<span class="op">[</span><span class="dv">0</span><span class="op">]);</span></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">char</span><span class="op">*</span> url <span class="op">=</span> argv<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 初始化</span></span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>    avformat_network_init<span class="op">();</span></span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>    SDL_Init<span class="op">(</span>SDL_INIT_VIDEO<span class="op">);</span></span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>    AVFormatContext<span class="op">*</span> fmt_ctx <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>    AVCodecContext<span class="op">*</span> codec_ctx <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>    SDL_Window<span class="op">*</span> window <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>    SDL_Renderer<span class="op">*</span> renderer <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>    SDL_Texture<span class="op">*</span> texture <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> SwsContext<span class="op">*</span> sws_ctx <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 打开 RTMP 流</span></span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>    AVDictionary<span class="op">*</span> opts <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>    av_dict_set<span class="op">(&amp;</span>opts<span class="op">,</span> <span class="st">&quot;buffer_size&quot;</span><span class="op">,</span> <span class="st">&quot;65536&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>    av_dict_set<span class="op">(&amp;</span>opts<span class="op">,</span> <span class="st">&quot;max_delay&quot;</span><span class="op">,</span> <span class="st">&quot;500000&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;正在连接: </span><span class="sc">%s\n</span><span class="st">&quot;</span><span class="op">,</span> url<span class="op">);</span></span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> ret <span class="op">=</span> avformat_open_input<span class="op">(&amp;</span>fmt_ctx<span class="op">,</span> url<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="op">&amp;</span>opts<span class="op">);</span></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>    av_dict_free<span class="op">(&amp;</span>opts<span class="op">);</span></span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;连接失败</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;连接成功，获取流信息...</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>    avformat_find_stream_info<span class="op">(</span>fmt_ctx<span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 查找视频流</span></span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> video_idx <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">unsigned</span> <span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> fmt_ctx<span class="op">-&gt;</span>nb_streams<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>fmt_ctx<span class="op">-&gt;</span>streams<span class="op">[</span>i<span class="op">]-&gt;</span>codecpar<span class="op">-&gt;</span><span class="dt">codec_type</span> <span class="op">==</span> AVMEDIA_TYPE_VIDEO<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>            video_idx <span class="op">=</span> i<span class="op">;</span></span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>video_idx <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a>        fprintf<span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;未找到视频流</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a>        <span class="cf">goto</span> cleanup<span class="op">;</span></span>
+<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 初始化解码器</span></span>
+<span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a>    AVCodecParameters<span class="op">*</span> codecpar <span class="op">=</span> fmt_ctx<span class="op">-&gt;</span>streams<span class="op">[</span>video_idx<span class="op">]-&gt;</span>codecpar<span class="op">;</span></span>
+<span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> AVCodec<span class="op">*</span> decoder <span class="op">=</span> avcodec_find_decoder<span class="op">(</span>codecpar<span class="op">-&gt;</span>codec_id<span class="op">);</span></span>
+<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>    codec_ctx <span class="op">=</span> avcodec_alloc_context3<span class="op">(</span>decoder<span class="op">);</span></span>
+<span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a>    avcodec_parameters_to_context<span class="op">(</span>codec_ctx<span class="op">,</span> codecpar<span class="op">);</span></span>
+<span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a>    avcodec_open2<span class="op">(</span>codec_ctx<span class="op">,</span> decoder<span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-83"><a href="#cb18-83" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;视频: </span><span class="sc">%d</span><span class="st">x</span><span class="sc">%d</span><span class="st"> @ </span><span class="sc">%.2f</span><span class="st"> fps</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb18-84"><a href="#cb18-84" aria-hidden="true" tabindex="-1"></a>           codecpar<span class="op">-&gt;</span>width<span class="op">,</span> codecpar<span class="op">-&gt;</span>height<span class="op">,</span></span>
+<span id="cb18-85"><a href="#cb18-85" aria-hidden="true" tabindex="-1"></a>           av_q2d<span class="op">(</span>fmt_ctx<span class="op">-&gt;</span>streams<span class="op">[</span>video_idx<span class="op">]-&gt;</span>avg_frame_rate<span class="op">));</span></span>
+<span id="cb18-86"><a href="#cb18-86" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-87"><a href="#cb18-87" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 初始化 SDL</span></span>
+<span id="cb18-88"><a href="#cb18-88" aria-hidden="true" tabindex="-1"></a>    window <span class="op">=</span> SDL_CreateWindow<span class="op">(</span><span class="st">&quot;RTMP Player&quot;</span><span class="op">,</span></span>
+<span id="cb18-89"><a href="#cb18-89" aria-hidden="true" tabindex="-1"></a>                              SDL_WINDOWPOS_CENTERED<span class="op">,</span> SDL_WINDOWPOS_CENTERED<span class="op">,</span></span>
+<span id="cb18-90"><a href="#cb18-90" aria-hidden="true" tabindex="-1"></a>                              codecpar<span class="op">-&gt;</span>width<span class="op">,</span> codecpar<span class="op">-&gt;</span>height<span class="op">,</span></span>
+<span id="cb18-91"><a href="#cb18-91" aria-hidden="true" tabindex="-1"></a>                              SDL_WINDOW_SHOWN <span class="op">|</span> SDL_WINDOW_RESIZABLE<span class="op">);</span></span>
+<span id="cb18-92"><a href="#cb18-92" aria-hidden="true" tabindex="-1"></a>    renderer <span class="op">=</span> SDL_CreateRenderer<span class="op">(</span>window<span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> SDL_RENDERER_ACCELERATED<span class="op">);</span></span>
+<span id="cb18-93"><a href="#cb18-93" aria-hidden="true" tabindex="-1"></a>    texture <span class="op">=</span> SDL_CreateTexture<span class="op">(</span>renderer<span class="op">,</span> SDL_PIXELFORMAT_YV12<span class="op">,</span></span>
+<span id="cb18-94"><a href="#cb18-94" aria-hidden="true" tabindex="-1"></a>                                SDL_TEXTUREACCESS_STREAMING<span class="op">,</span></span>
+<span id="cb18-95"><a href="#cb18-95" aria-hidden="true" tabindex="-1"></a>                                codecpar<span class="op">-&gt;</span>width<span class="op">,</span> codecpar<span class="op">-&gt;</span>height<span class="op">);</span></span>
+<span id="cb18-96"><a href="#cb18-96" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-97"><a href="#cb18-97" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 初始化缩放器</span></span>
+<span id="cb18-98"><a href="#cb18-98" aria-hidden="true" tabindex="-1"></a>    sws_ctx <span class="op">=</span> sws_getContext<span class="op">(</span>codecpar<span class="op">-&gt;</span>width<span class="op">,</span> codecpar<span class="op">-&gt;</span>height<span class="op">,</span> </span>
+<span id="cb18-99"><a href="#cb18-99" aria-hidden="true" tabindex="-1"></a>                             <span class="op">(</span>AVPixelFormat<span class="op">)</span>codecpar<span class="op">-&gt;</span>format<span class="op">,</span></span>
+<span id="cb18-100"><a href="#cb18-100" aria-hidden="true" tabindex="-1"></a>                             codecpar<span class="op">-&gt;</span>width<span class="op">,</span> codecpar<span class="op">-&gt;</span>height<span class="op">,</span> AV_PIX_FMT_YUV420P<span class="op">,</span></span>
+<span id="cb18-101"><a href="#cb18-101" aria-hidden="true" tabindex="-1"></a>                             SWS_BILINEAR<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb18-102"><a href="#cb18-102" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-103"><a href="#cb18-103" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 分配帧</span></span>
+<span id="cb18-104"><a href="#cb18-104" aria-hidden="true" tabindex="-1"></a>    AVFrame<span class="op">*</span> frame <span class="op">=</span> av_frame_alloc<span class="op">();</span></span>
+<span id="cb18-105"><a href="#cb18-105" aria-hidden="true" tabindex="-1"></a>    AVFrame<span class="op">*</span> yuv_frame <span class="op">=</span> av_frame_alloc<span class="op">();</span></span>
+<span id="cb18-106"><a href="#cb18-106" aria-hidden="true" tabindex="-1"></a>    yuv_frame<span class="op">-&gt;</span>format <span class="op">=</span> AV_PIX_FMT_YUV420P<span class="op">;</span></span>
+<span id="cb18-107"><a href="#cb18-107" aria-hidden="true" tabindex="-1"></a>    yuv_frame<span class="op">-&gt;</span>width <span class="op">=</span> codecpar<span class="op">-&gt;</span>width<span class="op">;</span></span>
+<span id="cb18-108"><a href="#cb18-108" aria-hidden="true" tabindex="-1"></a>    yuv_frame<span class="op">-&gt;</span>height <span class="op">=</span> codecpar<span class="op">-&gt;</span>height<span class="op">;</span></span>
+<span id="cb18-109"><a href="#cb18-109" aria-hidden="true" tabindex="-1"></a>    av_frame_get_buffer<span class="op">(</span>yuv_frame<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb18-110"><a href="#cb18-110" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-111"><a href="#cb18-111" aria-hidden="true" tabindex="-1"></a>    AVPacket<span class="op">*</span> pkt <span class="op">=</span> av_packet_alloc<span class="op">();</span></span>
+<span id="cb18-112"><a href="#cb18-112" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> running <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb18-113"><a href="#cb18-113" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> connected <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb18-114"><a href="#cb18-114" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> retry_count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb18-115"><a href="#cb18-115" aria-hidden="true" tabindex="-1"></a>    <span class="at">const</span> <span class="dt">int</span> MAX_RETRIES <span class="op">=</span> <span class="dv">3</span><span class="op">;</span></span>
+<span id="cb18-116"><a href="#cb18-116" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-117"><a href="#cb18-117" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;开始播放，按 Q 退出</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb18-118"><a href="#cb18-118" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-119"><a href="#cb18-119" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>running<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-120"><a href="#cb18-120" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 处理 SDL 事件</span></span>
+<span id="cb18-121"><a href="#cb18-121" aria-hidden="true" tabindex="-1"></a>        SDL_Event event<span class="op">;</span></span>
+<span id="cb18-122"><a href="#cb18-122" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="op">(</span>SDL_PollEvent<span class="op">(&amp;</span>event<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb18-123"><a href="#cb18-123" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>event<span class="op">.</span>type <span class="op">==</span> SDL_QUIT <span class="op">||</span></span>
+<span id="cb18-124"><a href="#cb18-124" aria-hidden="true" tabindex="-1"></a>                <span class="op">(</span>event<span class="op">.</span>type <span class="op">==</span> SDL_KEYDOWN <span class="op">&amp;&amp;</span> event<span class="op">.</span>key<span class="op">.</span>keysym<span class="op">.</span>sym <span class="op">==</span> SDLK_q<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb18-125"><a href="#cb18-125" aria-hidden="true" tabindex="-1"></a>                running <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb18-126"><a href="#cb18-126" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb18-127"><a href="#cb18-127" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-128"><a href="#cb18-128" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-129"><a href="#cb18-129" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 读取帧</span></span>
+<span id="cb18-130"><a href="#cb18-130" aria-hidden="true" tabindex="-1"></a>        ret <span class="op">=</span> av_read_frame<span class="op">(</span>fmt_ctx<span class="op">,</span> pkt<span class="op">);</span></span>
+<span id="cb18-131"><a href="#cb18-131" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-132"><a href="#cb18-132" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-133"><a href="#cb18-133" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 读取失败，可能是断线</span></span>
+<span id="cb18-134"><a href="#cb18-134" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>retry_count <span class="op">&lt;</span> MAX_RETRIES<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-135"><a href="#cb18-135" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">&quot;连接中断，尝试重连...</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb18-136"><a href="#cb18-136" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>try_reconnect<span class="op">(</span>fmt_ctx<span class="op">,</span> url<span class="op">,</span> <span class="dv">3</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb18-137"><a href="#cb18-137" aria-hidden="true" tabindex="-1"></a>                    retry_count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb18-138"><a href="#cb18-138" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">continue</span><span class="op">;</span></span>
+<span id="cb18-139"><a href="#cb18-139" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb18-140"><a href="#cb18-140" aria-hidden="true" tabindex="-1"></a>                retry_count<span class="op">++;</span></span>
+<span id="cb18-141"><a href="#cb18-141" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb18-142"><a href="#cb18-142" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">&quot;重连失败，退出</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb18-143"><a href="#cb18-143" aria-hidden="true" tabindex="-1"></a>                <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb18-144"><a href="#cb18-144" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb18-145"><a href="#cb18-145" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span><span class="op">;</span></span>
+<span id="cb18-146"><a href="#cb18-146" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-147"><a href="#cb18-147" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-148"><a href="#cb18-148" aria-hidden="true" tabindex="-1"></a>        retry_count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span>  <span class="co">// 重置重试计数</span></span>
+<span id="cb18-149"><a href="#cb18-149" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-150"><a href="#cb18-150" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>pkt<span class="op">-&gt;</span>stream_index <span class="op">==</span> video_idx<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-151"><a href="#cb18-151" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 发送给解码器</span></span>
+<span id="cb18-152"><a href="#cb18-152" aria-hidden="true" tabindex="-1"></a>            ret <span class="op">=</span> avcodec_send_packet<span class="op">(</span>codec_ctx<span class="op">,</span> pkt<span class="op">);</span></span>
+<span id="cb18-153"><a href="#cb18-153" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-154"><a href="#cb18-154" aria-hidden="true" tabindex="-1"></a>                av_packet_unref<span class="op">(</span>pkt<span class="op">);</span></span>
+<span id="cb18-155"><a href="#cb18-155" aria-hidden="true" tabindex="-1"></a>                <span class="cf">continue</span><span class="op">;</span></span>
+<span id="cb18-156"><a href="#cb18-156" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb18-157"><a href="#cb18-157" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb18-158"><a href="#cb18-158" aria-hidden="true" tabindex="-1"></a>            <span class="co">// 接收解码后的帧</span></span>
+<span id="cb18-159"><a href="#cb18-159" aria-hidden="true" tabindex="-1"></a>            <span class="cf">while</span> <span class="op">(</span>ret <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-160"><a href="#cb18-160" aria-hidden="true" tabindex="-1"></a>                ret <span class="op">=</span> avcodec_receive_frame<span class="op">(</span>codec_ctx<span class="op">,</span> frame<span class="op">);</span></span>
+<span id="cb18-161"><a href="#cb18-161" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>ret <span class="op">==</span> AVERROR<span class="op">(</span>EAGAIN<span class="op">)</span> <span class="op">||</span> ret <span class="op">==</span> AVERROR_EOF<span class="op">)</span> <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb18-162"><a href="#cb18-162" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb18-163"><a href="#cb18-163" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb18-164"><a href="#cb18-164" aria-hidden="true" tabindex="-1"></a>                <span class="co">// 转换为 YUV420P</span></span>
+<span id="cb18-165"><a href="#cb18-165" aria-hidden="true" tabindex="-1"></a>                sws_scale<span class="op">(</span>sws_ctx<span class="op">,</span> frame<span class="op">-&gt;</span>data<span class="op">,</span> frame<span class="op">-&gt;</span>linesize<span class="op">,</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb18-166"><a href="#cb18-166" aria-hidden="true" tabindex="-1"></a>                         codecpar<span class="op">-&gt;</span>height<span class="op">,</span> yuv_frame<span class="op">-&gt;</span>data<span class="op">,</span> yuv_frame<span class="op">-&gt;</span>linesize<span class="op">);</span></span>
+<span id="cb18-167"><a href="#cb18-167" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb18-168"><a href="#cb18-168" aria-hidden="true" tabindex="-1"></a>                <span class="co">// 渲染</span></span>
+<span id="cb18-169"><a href="#cb18-169" aria-hidden="true" tabindex="-1"></a>                SDL_UpdateYUVTexture<span class="op">(</span>texture<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span></span>
+<span id="cb18-170"><a href="#cb18-170" aria-hidden="true" tabindex="-1"></a>                                     yuv_frame<span class="op">-&gt;</span>data<span class="op">[</span><span class="dv">0</span><span class="op">],</span> yuv_frame<span class="op">-&gt;</span>linesize<span class="op">[</span><span class="dv">0</span><span class="op">],</span></span>
+<span id="cb18-171"><a href="#cb18-171" aria-hidden="true" tabindex="-1"></a>                                     yuv_frame<span class="op">-&gt;</span>data<span class="op">[</span><span class="dv">1</span><span class="op">],</span> yuv_frame<span class="op">-&gt;</span>linesize<span class="op">[</span><span class="dv">1</span><span class="op">],</span></span>
+<span id="cb18-172"><a href="#cb18-172" aria-hidden="true" tabindex="-1"></a>                                     yuv_frame<span class="op">-&gt;</span>data<span class="op">[</span><span class="dv">2</span><span class="op">],</span> yuv_frame<span class="op">-&gt;</span>linesize<span class="op">[</span><span class="dv">2</span><span class="op">]);</span></span>
+<span id="cb18-173"><a href="#cb18-173" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb18-174"><a href="#cb18-174" aria-hidden="true" tabindex="-1"></a>                SDL_RenderClear<span class="op">(</span>renderer<span class="op">);</span></span>
+<span id="cb18-175"><a href="#cb18-175" aria-hidden="true" tabindex="-1"></a>                SDL_RenderCopy<span class="op">(</span>renderer<span class="op">,</span> texture<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb18-176"><a href="#cb18-176" aria-hidden="true" tabindex="-1"></a>                SDL_RenderPresent<span class="op">(</span>renderer<span class="op">);</span></span>
+<span id="cb18-177"><a href="#cb18-177" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb18-178"><a href="#cb18-178" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-179"><a href="#cb18-179" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-180"><a href="#cb18-180" aria-hidden="true" tabindex="-1"></a>        av_packet_unref<span class="op">(</span>pkt<span class="op">);</span></span>
+<span id="cb18-181"><a href="#cb18-181" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-182"><a href="#cb18-182" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-183"><a href="#cb18-183" aria-hidden="true" tabindex="-1"></a>cleanup<span class="op">:</span></span>
+<span id="cb18-184"><a href="#cb18-184" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 清理</span></span>
+<span id="cb18-185"><a href="#cb18-185" aria-hidden="true" tabindex="-1"></a>    av_frame_free<span class="op">(&amp;</span>frame<span class="op">);</span></span>
+<span id="cb18-186"><a href="#cb18-186" aria-hidden="true" tabindex="-1"></a>    av_frame_free<span class="op">(&amp;</span>yuv_frame<span class="op">);</span></span>
+<span id="cb18-187"><a href="#cb18-187" aria-hidden="true" tabindex="-1"></a>    av_packet_free<span class="op">(&amp;</span>pkt<span class="op">);</span></span>
+<span id="cb18-188"><a href="#cb18-188" aria-hidden="true" tabindex="-1"></a>    sws_freeContext<span class="op">(</span>sws_ctx<span class="op">);</span></span>
+<span id="cb18-189"><a href="#cb18-189" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a>    SDL_DestroyTexture<span class="op">(</span>texture<span class="op">);</span></span>
+<span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a>    SDL_DestroyRenderer<span class="op">(</span>renderer<span class="op">);</span></span>
+<span id="cb18-192"><a href="#cb18-192" aria-hidden="true" tabindex="-1"></a>    SDL_DestroyWindow<span class="op">(</span>window<span class="op">);</span></span>
+<span id="cb18-193"><a href="#cb18-193" aria-hidden="true" tabindex="-1"></a>    SDL_Quit<span class="op">();</span></span>
+<span id="cb18-194"><a href="#cb18-194" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-195"><a href="#cb18-195" aria-hidden="true" tabindex="-1"></a>    avcodec_free_context<span class="op">(&amp;</span>codec_ctx<span class="op">);</span></span>
+<span id="cb18-196"><a href="#cb18-196" aria-hidden="true" tabindex="-1"></a>    avformat_close_input<span class="op">(&amp;</span>fmt_ctx<span class="op">);</span></span>
+<span id="cb18-197"><a href="#cb18-197" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;播放结束</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb18-199"><a href="#cb18-199" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb18-200"><a href="#cb18-200" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb18-201"><a href="#cb18-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-202"><a href="#cb18-202" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> try_reconnect<span class="op">(</span>AVFormatContext<span class="op">*&amp;</span> fmt_ctx<span class="op">,</span> <span class="at">const</span> <span class="dt">char</span><span class="op">*</span> url<span class="op">,</span> <span class="dt">int</span> max_retries<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-203"><a href="#cb18-203" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> max_retries<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb18-204"><a href="#cb18-204" aria-hidden="true" tabindex="-1"></a>        printf<span class="op">(</span><span class="st">&quot;  重试 </span><span class="sc">%d</span><span class="st">/</span><span class="sc">%d</span><span class="st">...</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> i <span class="op">+</span> <span class="dv">1</span><span class="op">,</span> max_retries<span class="op">);</span></span>
+<span id="cb18-205"><a href="#cb18-205" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-206"><a href="#cb18-206" aria-hidden="true" tabindex="-1"></a>        avformat_close_input<span class="op">(&amp;</span>fmt_ctx<span class="op">);</span></span>
+<span id="cb18-207"><a href="#cb18-207" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>this_thread::sleep_for<span class="op">(</span><span class="bu">std::</span>chrono::seconds<span class="op">(</span><span class="dv">1</span><span class="op">));</span></span>
+<span id="cb18-208"><a href="#cb18-208" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-209"><a href="#cb18-209" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> ret <span class="op">=</span> avformat_open_input<span class="op">(&amp;</span>fmt_ctx<span class="op">,</span> url<span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb18-210"><a href="#cb18-210" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-211"><a href="#cb18-211" aria-hidden="true" tabindex="-1"></a>            avformat_find_stream_info<span class="op">(</span>fmt_ctx<span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb18-212"><a href="#cb18-212" aria-hidden="true" tabindex="-1"></a>            printf<span class="op">(</span><span class="st">&quot;  重连成功！</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb18-213"><a href="#cb18-213" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb18-214"><a href="#cb18-214" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb18-215"><a href="#cb18-215" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-216"><a href="#cb18-216" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb18-217"><a href="#cb18-217" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="关键改进点">5.2 关键改进点</h3>
+<p>相比 Ch1 的本地播放器，主要增加了：</p>
+<ol type="1">
+<li><strong>网络初始化</strong>：<code>avformat_network_init()</code></li>
+<li><strong>网络选项</strong>：<code>buffer_size</code>、<code>max_delay</code></li>
+<li><strong>断线重连</strong>：<code>try_reconnect()</code> 函数</li>
+<li><strong>错误处理</strong>：区分”读到结尾”和”网络断开”</li>
+</ol>
+<h3 id="模块化版本">5.3 模块化版本</h3>
+<p>工程化版本见 <code>chapter-04/src/rtmp_player/</code>： -
+<code>rtmp_connection.h/cpp</code>：RTMP 连接管理 -
+<code>flv_parser.h/cpp</code>：FLV 解析（可选，用于理解封装格式） -
+<code>main.cpp</code>：播放器主逻辑</p>
+<hr />
+<h2 id="本章总结与里程碑">6. 本章总结与里程碑</h2>
+<h3 id="本章学到的">✅ 本章学到的</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">知识点</th>
+<th style="text-align: center;">掌握程度</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">直播 vs 点播的差异</td>
+<td style="text-align: center;">⭐⭐⭐⭐⭐</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">RTMP 协议基础概念</td>
+<td style="text-align: center;">⭐⭐⭐⭐⭐</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">用 FFmpeg 播放 RTMP</td>
+<td style="text-align: center;">⭐⭐⭐⭐⭐</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">直播播放器的特殊处理</td>
+<td style="text-align: center;">⭐⭐⭐⭐⭐</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">断线重连机制</td>
+<td style="text-align: center;">⭐⭐⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<h3 id="本章里程碑">🎯 本章里程碑</h3>
+<p><strong>学完本章，你能：</strong> 1. ✅ 播放任意 RTMP 直播流 2. ✅
+处理网络波动和断线重连 3. ✅ 理解直播低延迟的原理</p>
+<p><strong>你已经完成的播放器功能：</strong></p>
+<pre><code>Ch1: 本地文件播放     ✅
+Ch2: 异步流畅播放     ✅
+Ch3: HTTP网络播放     ✅
+Ch4: RTMP直播播放     ✅ ← 新增！</code></pre>
+<p><strong>现在你有一个完整的直播播放器了！</strong></p>
+<h3 id="下一步预告">📋 下一步预告</h3>
+<p>Ch5 我们将进入<strong>主播端</strong>，学习如何： -
+采集摄像头和麦克风 - 处理音频 3A（回声消除、降噪、增益）</p>
+<p>你将从”观众”变成”主播”，自己采集视频推流！</p>
+<h3 id="延伸阅读">📚 延伸阅读</h3>
+<p>如果你想深入了解 RTMP 协议细节（Chunk、FLV 封装等），可以阅读： -
+RTMP 规范文档（Adobe） - FFmpeg <code>libavformat/rtmpproto.c</code>
+源码 - 本书附录 C「RTMP 协议详解」（进阶选读）</p>
+<p><strong>但记住</strong>：实际开发中，FFmpeg
+已经帮你封装好了这些细节，你不需要自己实现。</p>
+<hr />
+<h2 id="附录常见问题">附录：常见问题</h2>
+<h3 id="q1-为什么连接-rtmp-服务器失败">Q1: 为什么连接 RTMP
+服务器失败？</h3>
+<p><strong>可能原因</strong>： 1. 服务器地址错误 2. 防火墙阻断 1935 端口
+3. 服务器没有对应的流</p>
+<p><strong>排查方法</strong>：</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 用 ffprobe 测试连接</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ffprobe</span> rtmp://server/live/stream</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 用 telnet 测试端口</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a> <span class="ex">telnet</span> server 1935</span></code></pre></div>
+<h3 id="q2-播放卡顿怎么办">Q2: 播放卡顿怎么办？</h3>
+<p><strong>调整缓冲</strong>：</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 增加缓冲区（延迟增加，但更流畅）</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>av_dict_set<span class="op">(&amp;</span>opts<span class="op">,</span> <span class="st">&quot;buffer_size&quot;</span><span class="op">,</span> <span class="st">&quot;131072&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span>  <span class="co">// 128KB</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>av_dict_set<span class="op">(&amp;</span>opts<span class="op">,</span> <span class="st">&quot;max_delay&quot;</span><span class="op">,</span> <span class="st">&quot;1000000&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span>   <span class="co">// 1s</span></span></code></pre></div>
+<h3 id="q3-延迟太高怎么办">Q3: 延迟太高怎么办？</h3>
+<p><strong>减少缓冲</strong>：</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 减少缓冲区（延迟降低，但对网络要求更高）</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>av_dict_set<span class="op">(&amp;</span>opts<span class="op">,</span> <span class="st">&quot;max_delay&quot;</span><span class="op">,</span> <span class="st">&quot;200000&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span>   <span class="co">// 200ms</span></span></code></pre></div>
+<h3 id="q4-如何测试播放器">Q4: 如何测试播放器？</h3>
+<p><strong>方法1：使用公共 RTMP 测试流</strong></p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 一些测试服务器（可能不稳定）</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./simple_rtmp_player</span> rtmp://live.example.com/test/stream</span></code></pre></div>
+<p><strong>方法2：本地搭建 RTMP 服务器</strong></p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 使用 Docker 启动 SRS</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-p</span> 1935:1935 ossrs/srs:4</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 用 FFmpeg 推流测试</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="ex">ffmpeg</span> <span class="at">-re</span> <span class="at">-i</span> test.mp4 <span class="at">-c</span> copy <span class="at">-f</span> flv rtmp://localhost/live/stream</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 运行播放器</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="ex">./simple_rtmp_player</span> rtmp://localhost/live/stream</span></code></pre></div>
+<hr />
+<h2 id="本章完"><strong>本章完</strong> 🎉</h2>
+<h2 id="faq-常见问题">FAQ 常见问题</h2>
+<h3 id="q1本章的核心难点是什么">Q1：本章的核心难点是什么？</h3>
+<p><strong>A</strong>：直播 vs 点播涉及的核心难点包括： -
+理解新概念的内在原理 - 将理论知识转化为实际代码 -
+处理边界情况和错误恢复</p>
+<p>建议多动手实践，遇到问题及时查阅官方文档。</p>
+<hr />
+<h3 id="q2学习本章需要哪些前置知识">Q2：学习本章需要哪些前置知识？</h3>
+<p><strong>A</strong>：请参考章节头部的前置知识表格。如果某些基础不牢固，建议先复习相关章节。</p>
+<hr />
+<h3 id="q3如何验证本章的学习效果">Q3：如何验证本章的学习效果？</h3>
+<p><strong>A</strong>：建议完成以下检查： - [ ] 理解所有核心概念 - [ ]
+能独立编写本章的示例代码 - [ ] 能解释代码的工作原理 - [ ]
+能排查常见问题</p>
+<hr />
+<h3
+id="q4本章代码在实际项目中的应用场景">Q4：本章代码在实际项目中的应用场景？</h3>
+<p><strong>A</strong>：本章代码是渐进式案例「小直播」的组成部分，所有代码都可以在实际项目中使用。具体应用场景请参考「本章与项目的关系」部分。</p>
+<hr />
+<h3 id="q5遇到问题时如何调试">Q5：遇到问题时如何调试？</h3>
+<p><strong>A</strong>：调试建议： 1. 先阅读 FAQ 和本章的「常见问题」部分
+2. 检查前置知识是否掌握 3. 使用日志和调试工具定位问题 4.
+参考示例代码进行对比 5. 在 GitHub Issues 中搜索类似问题 —</p>
+<h2 id="本章小结">本章小结</h2>
+<h3 id="核心知识点">核心知识点</h3>
+<p>通过本章学习，你应该掌握： 1. 直播 vs 点播的核心概念和原理 2. 相关的
+API 和工具使用 3. 实际项目中的应用方法 4. 常见问题的解决方案</p>
+<h3 id="关键技能">关键技能</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">技能</th>
+<th style="text-align: center;">掌握程度</th>
+<th style="text-align: left;">实践建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">理解核心概念</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">能向他人解释原理</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">编写示例代码</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">独立编写本章代码</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">排查常见问题</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">遇到问题时能自行解决</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">应用到项目</td>
+<td style="text-align: center;">⭐⭐ 建议掌握</td>
+<td style="text-align: left;">将本章代码集成到项目中</td>
+</tr>
+</tbody>
+</table>
+<h3 id="本章产出">本章产出</h3>
+<ul>
+<li>完成本章所有示例代码</li>
+<li>理解 直播 vs 点播的工作原理</li>
+<li><h2 id="为后续章节打下基础">为后续章节打下基础</h2></li>
+</ul>
+<h2 id="下章预告">下章预告</h2>
+<h3 id="ch9硬件解码优化">Ch9：硬件解码优化</h3>
+<p><strong>为什么要学下一章？</strong></p>
+<p>每章都是渐进式案例「小直播」的有机组成部分，下一章将在本章基础上进一步扩展功能。</p>
+<p><strong>学习建议</strong>： - 确保本章内容已经掌握 -
+提前浏览下一章的目录 - 准备好相关的开发环境</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>音视频开发实战</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="sidebar">
+<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<ul>
+<li><a href="README.html">关于本书</a></li>
+<li class="part">Part 1: 播放器基础</li>
+<li><a href="chapter-01.html">Ch1: 视频基础</a></li>
+<li><a href="chapter-02.html">Ch2: 第一个播放器</a></li>
+<li><a href="chapter-03.html">Ch3: Pipeline工程化</a></li>
+<li><a href="project-01.html">P1: 完整本地播放器</a></li>
+<li><a href="chapter-04.html">Ch4: 为什么卡顿？</a></li>
+<li><a href="chapter-05.html">Ch5: C++11多线程</a></li>
+<li><a href="chapter-06.html">Ch6: 异步播放器</a></li>
+<li><a href="project-02.html">P2: 网络点播播放器</a></li>
+<li><a href="chapter-07.html">Ch7: 网络基础</a></li>
+<li><a href="chapter-08.html">Ch8: 直播vs点播</a></li>
+<li><a href="project-03.html">P3: 直播观众端</a></li>
+<li><a href="chapter-09.html">Ch9: 硬件解码</a></li>
+<li><a href="chapter-10.html" class="active">Ch10: 音视频采集</a></li>
+<li><a href="chapter-11.html">Ch11: 音频3A处理</a></li>
+<li><a href="chapter-12.html">Ch12: 编码与推流</a></li>
+<li class="part">Part 2: 主播端进阶</li>
+<li><a href="chapter-13.html">Ch13: 视频编码进阶</a></li>
+<li><a href="chapter-14.html">Ch14: 高级采集</a></li>
+<li><a href="project-04.html">P4: 采集与预览</a></li>
+<li><a href="chapter-15.html">Ch15: 音频编码</a></li>
+<li><a href="chapter-16.html">Ch16: 美颜与滤镜</a></li>
+<li><a href="project-05.html">P5: 完整主播端</a></li>
+<li class="part">Part 3: 实时连麦</li>
+<li><a href="chapter-17.html">Ch17: 网络编程基础</a></li>
+<li><a href="chapter-18.html">Ch18: UDP与实时传输</a></li>
+<li><a href="chapter-19.html">Ch19: NAT穿透与P2P</a></li>
+<li><a href="project-06.html">P6: P2P通话工具</a></li>
+<li><a href="chapter-20.html">Ch20: WebRTC标准</a></li>
+<li><a href="chapter-21.html">Ch21: WebRTC Native</a></li>
+<li><a href="project-07.html">P7: WebRTC连麦</a></li>
+<li><a href="chapter-22.html">Ch22: SFU转发</a></li>
+<li><a href="chapter-23.html">Ch23: 多人房间</a></li>
+<li><a href="project-08.html">P8: 多人会议</a></li>
+<li class="part">Part 4: 服务端架构</li>
+<li><a href="chapter-24.html">Ch24: MCU混音混画</a></li>
+<li><a href="chapter-25.html">Ch25: 录制与回放</a></li>
+<li><a href="project-09.html">P9: 录制回放系统</a></li>
+<li><a href="chapter-26.html">Ch26: 最新协议探索</a></li>
+<li><a href="project-10.html">P10: 完整服务端</a></li>
+<li class="part">Part 5: 生产部署</li>
+<li><a href="chapter-27.html">Ch27: 质量监控</a></li>
+<li><a href="chapter-28.html">Ch28: 安全防护</a></li>
+<li><a href="chapter-29.html">Ch29: 性能调优</a></li>
+<li><a href="chapter-30.html">Ch30: Docker容器化</a></li>
+<li><a href="chapter-31.html">Ch31: K8s部署</a></li>
+<li><a href="project-11.html">P11: 生产级部署</a></li>
+<li class="part">附录</li>
+<li><a href="appendix-a-cpp11-thread.html">附录A: C++11线程</a></li>
+<li><a href="GLOSSARY.html">词汇表</a></li>
+</ul>
+</div>
+<div class="main">
+<header id="title-block-header">
+<h1 class="title">音视频开发实战</h1>
+</header>
+<h1 id="第10章音视频采集">第10章：音视频采集</h1>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">项目</th>
+<th style="text-align: left;">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>本章目标</strong></td>
+<td style="text-align: left;">掌握音视频采集的核心概念和实践</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>难度</strong></td>
+<td style="text-align: left;">⭐⭐⭐ 较高</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>前置知识</strong></td>
+<td style="text-align: left;">Ch9：硬件解码、平台API</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>预计时间</strong></td>
+<td style="text-align: left;">3-4 小时</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>本章引言</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>本章目标</strong>：实现音视频采集，从摄像头和麦克风获取原始数据。</p>
+</blockquote>
+<p>前八章完成了观众端播放器（本地播放、异步、网络、RTMP
+直播拉流）。从本章开始构建<strong>主播端</strong>。主播端的核心任务是<strong>采集</strong>——从硬件设备获取音视频原始数据。</p>
+<p><strong>核心挑战</strong>： - 设备兼容性：不同摄像头参数差异大 -
+音视频同步：画面和声音需要精确对齐 - 资源占用：采集+编码同时运行</p>
+<p><strong>阅读指南</strong>： - 第 1-2 节：理解采集的作用，视频采集原理
+- 第 3-4 节：跨平台视频采集实现，音频采集基础 - 第 5 节：音视频同步 - 第
+6 节：采集参数配置 - 第 7 节：本章总结</p>
+<blockquote>
+<p><strong>注意</strong>：音频 3A 处理（AEC/ANS/AGC）将在 <a
+href="../chapter-11/README.md">第十一章</a> 详细介绍。</p>
+</blockquote>
+<hr />
+<h2 id="目录">目录</h2>
+<ol type="1">
+<li><a
+href="#1-从播放到直播采集的重要性">从播放到直播：采集的重要性</a></li>
+<li><a href="#2-视频采集原理">视频采集原理</a></li>
+<li><a href="#3-跨平台视频采集实现">跨平台视频采集实现</a></li>
+<li><a href="#4-音频采集基础">音频采集基础</a></li>
+<li><a href="#5-音视频同步">音视频同步</a></li>
+<li><a href="#6-采集参数配置">采集参数配置</a></li>
+<li><a href="#7-本章总结">本章总结</a></li>
+</ol>
+<hr />
+<h2 id="从播放到直播采集的重要性">1. 从播放到直播：采集的重要性</h2>
+<p><strong>本节概览</strong>：回顾前五章内容，理解采集在直播系统中的位置和面临的挑战。</p>
+<pre class="mermaid"><code>flowchart TB
+    subgraph &quot;主播端&quot;
+        A[&quot;摄像头&quot;] --&quot;采集&quot;--&gt; B[&quot;3A处理\nAEC/ANS/AGC&quot;]
+        B --&gt; C[&quot;视频编码\nH.264&quot;]
+        C --&gt; D[&quot;推流\nRTMP&quot;]
+    end
+    
+    subgraph &quot;服务器&quot;
+        E[&quot;接收&quot;] --&gt; F[&quot;转码&quot;]
+        F --&gt; G[&quot;分发&quot;]
+        G --&gt; H[&quot;CDN分发&quot;]
+    end
+    
+    subgraph &quot;观众端&quot;
+        I[&quot;播放器&quot;] --&gt; J[&quot;显示&quot;]
+    end
+    
+    D --&gt; E
+    H --&gt; I
+    
+    style A fill:#e3f2fd,stroke:#4a90d9
+    style C fill:#e8f5e9,stroke:#5cb85c
+    style D fill:#fce4ec,stroke:#e91e63
+    style F fill:#fff3e0,stroke:#f0ad4e
+    style I fill:#f3e5f5,stroke:#9c27b0</code></pre>
+<h3 id="前五章回顾">1.1 前五章回顾</h3>
+<pre><code>前五章：播放器端（观众视角）
+├── 本地文件播放
+├── 网络下载播放
+├── RTMP 直播拉流
+└── 硬件解码
+
+    ↓
+
+第六章起：主播端（主播视角）
+├── 音视频采集  ← 本章
+├── 音频 3A 处理  ← 第十一章
+├── 视频编码
+├── RTMP 推流
+└── 连麦互动</code></pre>
+<h3 id="直播系统架构">1.2 直播系统架构</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                        直播系统架构                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│    主播端                        服务器           观众端     │
+│   ┌──────────┐                ┌─────────┐      ┌────────┐  │
+│   │  摄像头  │──采集──→       │  接收   │      │        │  │
+│   │  麦克风  │──采集──→       │  转码   │←─────│ 播放器 │  │
+│   └──────────┘                │  分发   │      │        │  │
+│       ↓                       └────┬────┘      └────────┘  │
+│   ┌──────────┐                     │                       │
+│   │ 3A处理   │                     ↓                       │
+│   │ AEC/ANS  │                CDN 分发                      │
+│   │ AGC      │                     │                       │
+│   └──────────┘                     ↓                       │
+│       ↓                       ┌─────────┐                  │
+│   ┌──────────┐                │ 观众 1  │                  │
+│   │ 视频编码 │──推流──→       │ 观众 2  │                  │
+│   │ H.264   │                │ 观众 N  │                  │
+│   └──────────┘                └─────────┘                  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+<h3 id="采集面临的挑战">1.3 采集面临的挑战</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">挑战</th>
+<th style="text-align: left;">影响</th>
+<th style="text-align: left;">解决方案</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>设备兼容性</strong></td>
+<td style="text-align: left;">不同摄像头参数差异大</td>
+<td style="text-align: left;">统一抽象接口（FFmpeg）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>回声问题</strong></td>
+<td style="text-align: left;">扬声器声音被麦克风采集</td>
+<td style="text-align: left;"><a
+href="../chapter-11/README.md#2-回声消除aec原理">AEC 回声消除</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>环境噪声</strong></td>
+<td style="text-align: left;">键盘声、空调声干扰</td>
+<td style="text-align: left;"><a
+href="../chapter-11/README.md#3-降噪ans原理">ANS 降噪</a></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>音量不均</strong></td>
+<td style="text-align: left;">说话声音忽大忽小</td>
+<td style="text-align: left;"><a
+href="../chapter-11/README.md#4-自动增益agc原理">AGC 自动增益</a></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>音视频同步</strong></td>
+<td style="text-align: left;">画面和声音不同步</td>
+<td style="text-align: left;">时间戳对齐</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>资源占用</strong></td>
+<td style="text-align: left;">采集+编码同时运行</td>
+<td style="text-align: left;">异步处理</td>
+</tr>
+</tbody>
+</table>
+<h3 id="本章目标">1.4 本章目标</h3>
+<pre><code>原始采集数据
+    ↓
+┌──────────────┐
+│  视频采集     │  → 1280x720, 30fps, YUV420P
+│  摄像头       │
+└──────────────┘
+    ↓
+┌──────────────┐
+│  音频采集     │  → 48kHz, 16bit, 立体声
+│  麦克风       │
+└──────────────┘
+    ↓
+时间戳对齐
+    ↓
+采集后数据 → 3A处理 → 编码 → 推流</code></pre>
+<figure>
+<img src="./diagrams/live-system-arch.svg" alt="直播系统架构" />
+<figcaption aria-hidden="true">直播系统架构</figcaption>
+</figure>
+<p><strong>本节小结</strong>：采集是主播端第一步，面临设备兼容性、同步等挑战。本章专注于音视频采集实现，3A
+处理将在下一章详细介绍。</p>
+<hr />
+<h2 id="视频采集原理">2. 视频采集原理</h2>
+<p><strong>本节概览</strong>：介绍摄像头的工作原理、常用像素格式、以及帧率控制。</p>
+<h3 id="摄像头工作流程">2.1 摄像头工作流程</h3>
+<pre><code>光学镜头
+    ↓
+图像传感器 (CMOS/CCD)
+    ↓ 光电转换
+原始 Bayer 数据
+    ↓ ISP 处理
+┌─────────────────────────────┐
+│  ISP (Image Signal Processor)│
+│  - 去噪 (Denoise)            │
+│  - 白平衡 (White Balance)    │
+│  - 曝光补偿 (Exposure)       │
+│  - 色彩校正 (Color Correction)│
+│  - 锐化 (Sharpen)            │
+└─────────────────────────────┘
+    ↓
+输出图像 (YUV/RGB/MJPEG)</code></pre>
+<h3 id="常用像素格式">2.2 常用像素格式</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">格式</th>
+<th style="text-align: center;">采样</th>
+<th style="text-align: center;">每像素字节</th>
+<th style="text-align: left;">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>YUY2</strong></td>
+<td style="text-align: center;">4:2:2</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: left;">传统摄像头</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>NV12</strong></td>
+<td style="text-align: center;">4:2:0</td>
+<td style="text-align: center;">1.5</td>
+<td style="text-align: left;">现代摄像头，硬件友好</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>YUV420P</strong></td>
+<td style="text-align: center;">4:2:0</td>
+<td style="text-align: center;">1.5</td>
+<td style="text-align: left;">编码器标准输入</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>MJPEG</strong></td>
+<td style="text-align: center;">压缩</td>
+<td style="text-align: center;">可变</td>
+<td style="text-align: left;">高分辨率场景</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>H.264</strong></td>
+<td style="text-align: center;">压缩</td>
+<td style="text-align: center;">可变</td>
+<td style="text-align: left;">部分摄像头直接输出</td>
+</tr>
+</tbody>
+</table>
+<p><strong>格式选择建议</strong>： - <strong>优先
+NV12</strong>：现代编码器原生支持，无需转换 - <strong>避免
+MJPEG</strong>：需要解码，增加 CPU 负担</p>
+<h3 id="帧率与分辨率">2.3 帧率与分辨率</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">场景</th>
+<th style="text-align: left;">分辨率</th>
+<th style="text-align: center;">帧率</th>
+<th style="text-align: center;">码率建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">屏幕共享</td>
+<td style="text-align: left;">1920x1080</td>
+<td style="text-align: center;">15fps</td>
+<td style="text-align: center;">2 Mbps</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">标准直播</td>
+<td style="text-align: left;">1280x720</td>
+<td style="text-align: center;">30fps</td>
+<td style="text-align: center;">4 Mbps</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">游戏直播</td>
+<td style="text-align: left;">1920x1080</td>
+<td style="text-align: center;">60fps</td>
+<td style="text-align: center;">8 Mbps</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">高清访谈</td>
+<td style="text-align: left;">1920x1080</td>
+<td style="text-align: center;">30fps</td>
+<td style="text-align: center;">6 Mbps</td>
+</tr>
+</tbody>
+</table>
+<p><strong>帧率与流畅度</strong>： - 15fps：可感知卡顿，适合静态内容 -
+30fps：<strong>标准选择</strong>，流畅自然 -
+60fps：丝滑体验，适合游戏/运动</p>
+<p><strong>本节小结</strong>：摄像头输出经过 ISP 处理，常用 NV12/YUV420P
+格式。帧率选择根据场景需求。下一节实现视频采集代码。</p>
+<hr />
+<h2 id="跨平台视频采集实现">3. 跨平台视频采集实现</h2>
+<p><strong>本节概览</strong>：使用 FFmpeg 的 libavdevice
+实现跨平台视频采集。</p>
+<h3 id="ffmpeg-设备采集">3.1 FFmpeg 设备采集</h3>
+<p>FFmpeg 封装了各平台的设备访问： - Linux：Video4Linux2 (V4L2) -
+<code>/dev/video0</code> - macOS：AVFoundation - <code>0</code>
+(默认摄像头) - Windows：DirectShow - <code>video=Camera Name</code></p>
+<h3 id="打开摄像头">3.2 打开摄像头</h3>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavdevice/avdevice.h&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavformat/avformat.h&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;iostream&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VideoCapture <span class="op">{</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Open<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> device<span class="op">,</span> <span class="dt">int</span> width<span class="op">,</span> <span class="dt">int</span> height<span class="op">,</span> <span class="dt">int</span> fps<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 注册设备</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        avdevice_register_all<span class="op">();</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 选择输入格式</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> AVInputFormat<span class="op">*</span> input_format <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string dev <span class="op">=</span> device<span class="op">;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="pp">#if defined(__APPLE__)</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        input_format <span class="op">=</span> av_find_input_format<span class="op">(</span><span class="st">&quot;avfoundation&quot;</span><span class="op">);</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>device<span class="op">.</span>empty<span class="op">())</span> dev <span class="op">=</span> <span class="st">&quot;0&quot;</span><span class="op">;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="pp">#elif defined(</span><span class="ot">__linux__</span><span class="pp">)</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        input_format <span class="op">=</span> av_find_input_format<span class="op">(</span><span class="st">&quot;v4l2&quot;</span><span class="op">);</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>device<span class="op">.</span>empty<span class="op">())</span> dev <span class="op">=</span> <span class="st">&quot;/dev/video0&quot;</span><span class="op">;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 设置参数</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        AVDictionary<span class="op">*</span> options <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">char</span> video_size<span class="op">[</span><span class="dv">32</span><span class="op">];</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        snprintf<span class="op">(</span>video_size<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>video_size<span class="op">),</span> <span class="st">&quot;</span><span class="sc">%d</span><span class="st">x</span><span class="sc">%d</span><span class="st">&quot;</span><span class="op">,</span> width<span class="op">,</span> height<span class="op">);</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>        av_dict_set<span class="op">(&amp;</span>options<span class="op">,</span> <span class="st">&quot;video_size&quot;</span><span class="op">,</span> video_size<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="dt">char</span> framerate<span class="op">[</span><span class="dv">16</span><span class="op">];</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>        snprintf<span class="op">(</span>framerate<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>framerate<span class="op">),</span> <span class="st">&quot;</span><span class="sc">%d</span><span class="st">&quot;</span><span class="op">,</span> fps<span class="op">);</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>        av_dict_set<span class="op">(&amp;</span>options<span class="op">,</span> <span class="st">&quot;framerate&quot;</span><span class="op">,</span> framerate<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 优先尝试 NV12，其次是 YUY2</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>        av_dict_set<span class="op">(&amp;</span>options<span class="op">,</span> <span class="st">&quot;pixel_format&quot;</span><span class="op">,</span> <span class="st">&quot;nv12&quot;</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 打开设备</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> ret <span class="op">=</span> avformat_open_input<span class="op">(&amp;</span><span class="va">ctx_</span><span class="op">,</span> dev<span class="op">.</span>c_str<span class="op">(),</span> input_format<span class="op">,</span> <span class="op">&amp;</span>options<span class="op">);</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>        av_dict_free<span class="op">(&amp;</span>options<span class="op">);</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>            <span class="dt">char</span> errbuf<span class="op">[</span><span class="dv">256</span><span class="op">];</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>            av_strerror<span class="op">(</span>ret<span class="op">,</span> errbuf<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>errbuf<span class="op">));</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>cerr <span class="op">&lt;&lt;</span> <span class="st">&quot;Failed to open camera: &quot;</span> <span class="op">&lt;&lt;</span> errbuf <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 获取流信息</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>        ret <span class="op">=</span> avformat_find_stream_info<span class="op">(</span><span class="va">ctx_</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>cerr <span class="op">&lt;&lt;</span> <span class="st">&quot;Failed to find stream info&quot;</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 查找视频流</span></span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>        <span class="va">video_idx_</span> <span class="op">=</span> av_find_best_stream<span class="op">(</span><span class="va">ctx_</span><span class="op">,</span> AVMEDIA_TYPE_VIDEO<span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">video_idx_</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>cerr <span class="op">&lt;&lt;</span> <span class="st">&quot;No video stream found&quot;</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>        AVStream<span class="op">*</span> stream <span class="op">=</span> <span class="va">ctx_</span><span class="op">-&gt;</span>streams<span class="op">[</span><span class="va">video_idx_</span><span class="op">];</span></span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>        <span class="va">width_</span> <span class="op">=</span> stream<span class="op">-&gt;</span>codecpar<span class="op">-&gt;</span>width<span class="op">;</span></span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>        <span class="va">height_</span> <span class="op">=</span> stream<span class="op">-&gt;</span>codecpar<span class="op">-&gt;</span>height<span class="op">;</span></span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> <span class="st">&quot;Camera opened: &quot;</span> <span class="op">&lt;&lt;</span> <span class="va">width_</span> <span class="op">&lt;&lt;</span> <span class="st">&quot;x&quot;</span> <span class="op">&lt;&lt;</span> <span class="va">height_</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>    AVFrame<span class="op">*</span> ReadFrame<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>        AVPacket<span class="op">*</span> pkt <span class="op">=</span> av_packet_alloc<span class="op">();</span></span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>av_read_frame<span class="op">(</span><span class="va">ctx_</span><span class="op">,</span> pkt<span class="op">)</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>            av_packet_free<span class="op">(&amp;</span>pkt<span class="op">);</span></span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>pkt<span class="op">-&gt;</span>stream_index <span class="op">!=</span> <span class="va">video_idx_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a>            av_packet_unref<span class="op">(</span>pkt<span class="op">);</span></span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a>            av_packet_free<span class="op">(&amp;</span>pkt<span class="op">);</span></span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 解码（如果是 MJPEG）</span></span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>        <span class="co">// 简化处理，实际需要初始化解码器</span></span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>        AVFrame<span class="op">*</span> frame <span class="op">=</span> av_frame_alloc<span class="op">();</span></span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>        <span class="co">// ... 解码逻辑</span></span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>        av_packet_unref<span class="op">(</span>pkt<span class="op">);</span></span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>        av_packet_free<span class="op">(&amp;</span>pkt<span class="op">);</span></span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> frame<span class="op">;</span></span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> Close<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">ctx_</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>            avformat_close_input<span class="op">(&amp;</span><span class="va">ctx_</span><span class="op">);</span></span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> GetWidth<span class="op">()</span> <span class="at">const</span> <span class="op">{</span> <span class="cf">return</span> <span class="va">width_</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> GetHeight<span class="op">()</span> <span class="at">const</span> <span class="op">{</span> <span class="cf">return</span> <span class="va">height_</span><span class="op">;</span> <span class="op">}</span></span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>    AVFormatContext<span class="op">*</span> <span class="va">ctx_</span> <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">video_idx_</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">width_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">height_</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="设备列表">3.3 设备列表</h3>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// 列出可用摄像头（Linux）</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">std::</span>vector<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">&gt;</span> ListCameras<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">std::</span>vector<span class="op">&lt;</span><span class="bu">std::</span>string<span class="op">&gt;</span> cameras<span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">10</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string dev <span class="op">=</span> <span class="st">&quot;/dev/video&quot;</span> <span class="op">+</span> <span class="bu">std::</span>to_string<span class="op">(</span>i<span class="op">);</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>access<span class="op">(</span>dev<span class="op">.</span>c_str<span class="op">(),</span> F_OK<span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            cameras<span class="op">.</span>push_back<span class="op">(</span>dev<span class="op">);</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> cameras<span class="op">;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>本节小结</strong>：FFmpeg libavdevice
+提供跨平台设备采集。Linux 使用 V4L2，macOS 使用 AVFoundation。优先选择
+NV12 格式。下一节介绍音频采集。</p>
+<hr />
+<h2 id="音频采集基础">4. 音频采集基础</h2>
+<p><strong>本节概览</strong>：介绍音频采集的基本概念：采样率、位深、声道数，以及
+FFmpeg 音频采集实现。</p>
+<h3 id="音频三要素">4.1 音频三要素</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">参数</th>
+<th style="text-align: left;">常见值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>采样率</strong></td>
+<td style="text-align: left;">44100 Hz, 48000 Hz</td>
+<td style="text-align: left;">每秒采样次数</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>位深</strong></td>
+<td style="text-align: left;">16-bit, 32-bit</td>
+<td style="text-align: left;">采样精度</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>声道数</strong></td>
+<td style="text-align: left;">1 (单声道), 2 (立体声)</td>
+<td style="text-align: left;">音频通道数</td>
+</tr>
+</tbody>
+</table>
+<p><strong>数据量计算</strong>：</p>
+<pre><code>48000 Hz × 16-bit × 2 声道 = 1536 kbps = 192 KB/s
+1 分钟原始音频：192 KB/s × 60 = 11.25 MB</code></pre>
+<h3 id="音频帧">4.2 音频帧</h3>
+<p>音频数据以帧为单位处理：</p>
+<pre><code>10ms 音频帧 @ 48000Hz:
+- 采样数：48000 × 0.01 = 480 个采样
+- 字节数：480 × 2 声道 × 2 字节 = 1920 字节</code></pre>
+<p>常用帧长： - 10ms：低延迟，适合实时通信 -
+20ms：<strong>标准选择</strong>，平衡延迟和效率 -
+40ms：高压缩率，适合语音</p>
+<h3 id="ffmpeg-音频采集">4.3 FFmpeg 音频采集</h3>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;libavdevice/avdevice.h&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AudioCapture <span class="op">{</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> Open<span class="op">(</span><span class="at">const</span> <span class="bu">std::</span>string<span class="op">&amp;</span> device<span class="op">,</span> <span class="dt">int</span> sample_rate<span class="op">,</span> <span class="dt">int</span> channels<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        avdevice_register_all<span class="op">();</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">const</span> AVInputFormat<span class="op">*</span> input_format <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">std::</span>string dev <span class="op">=</span> device<span class="op">;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#if defined(__APPLE__)</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        input_format <span class="op">=</span> av_find_input_format<span class="op">(</span><span class="st">&quot;avfoundation&quot;</span><span class="op">);</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>device<span class="op">.</span>empty<span class="op">())</span> dev <span class="op">=</span> <span class="st">&quot;:0&quot;</span><span class="op">;</span>  <span class="co">// 默认音频输入</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#elif defined(</span><span class="ot">__linux__</span><span class="pp">)</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        input_format <span class="op">=</span> av_find_input_format<span class="op">(</span><span class="st">&quot;alsa&quot;</span><span class="op">);</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>device<span class="op">.</span>empty<span class="op">())</span> dev <span class="op">=</span> <span class="st">&quot;default&quot;</span><span class="op">;</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        AVDictionary<span class="op">*</span> options <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        <span class="dt">char</span> sample_rate_str<span class="op">[</span><span class="dv">16</span><span class="op">];</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        snprintf<span class="op">(</span>sample_rate_str<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>sample_rate_str<span class="op">),</span> <span class="st">&quot;</span><span class="sc">%d</span><span class="st">&quot;</span><span class="op">,</span> sample_rate<span class="op">);</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>        av_dict_set<span class="op">(&amp;</span>options<span class="op">,</span> <span class="st">&quot;sample_rate&quot;</span><span class="op">,</span> sample_rate_str<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>        <span class="dt">char</span> channels_str<span class="op">[</span><span class="dv">8</span><span class="op">];</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>        snprintf<span class="op">(</span>channels_str<span class="op">,</span> <span class="kw">sizeof</span><span class="op">(</span>channels_str<span class="op">),</span> <span class="st">&quot;</span><span class="sc">%d</span><span class="st">&quot;</span><span class="op">,</span> channels<span class="op">);</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>        av_dict_set<span class="op">(&amp;</span>options<span class="op">,</span> <span class="st">&quot;channels&quot;</span><span class="op">,</span> channels_str<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> ret <span class="op">=</span> avformat_open_input<span class="op">(&amp;</span><span class="va">ctx_</span><span class="op">,</span> dev<span class="op">.</span>c_str<span class="op">(),</span> input_format<span class="op">,</span> <span class="op">&amp;</span>options<span class="op">);</span></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>        av_dict_free<span class="op">(&amp;</span>options<span class="op">);</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>ret <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>cerr <span class="op">&lt;&lt;</span> <span class="st">&quot;Failed to open audio device&quot;</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>        <span class="va">audio_idx_</span> <span class="op">=</span> av_find_best_stream<span class="op">(</span><span class="va">ctx_</span><span class="op">,</span> AVMEDIA_TYPE_AUDIO<span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">,</span> <span class="kw">nullptr</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span><span class="va">audio_idx_</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>cerr <span class="op">&lt;&lt;</span> <span class="st">&quot;No audio stream found&quot;</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>        <span class="va">sample_rate_</span> <span class="op">=</span> sample_rate<span class="op">;</span></span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>        <span class="va">channels_</span> <span class="op">=</span> channels<span class="op">;</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span><span class="op">:</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>    AVFormatContext<span class="op">*</span> <span class="va">ctx_</span> <span class="op">=</span> <span class="kw">nullptr</span><span class="op">;</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">audio_idx_</span> <span class="op">=</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">sample_rate_</span> <span class="op">=</span> <span class="dv">48000</span><span class="op">;</span></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> <span class="va">channels_</span> <span class="op">=</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p><strong>本节小结</strong>：音频采集关注采样率（48kHz）、位深（16bit）、声道数（2）。原始数据量约
+192KB/s。采集后的音频需要进行 <a href="../chapter-11/README.md">3A
+处理</a> 后再编码。</p>
+<hr />
+<h2 id="音视频同步">5. 音视频同步</h2>
+<p><strong>本节概览</strong>：音视频采集可能产生时间差，需要通过时间戳对齐实现同步。</p>
+<h3 id="同步问题">5.1 同步问题</h3>
+<pre><code>理想情况：
+视频帧 ────────┬────────┬────────┬────────
+               ↓        ↓        ↓
+音频帧 ────────┴────────┴────────┴────────
+               T0       T1       T2
+
+实际情况：
+视频帧 ───────────┬────────┬────────┬──────── (延迟 50ms)
+                  ↓
+音频帧 ────────┬──┴────────┴────────┴────────
+               ↑
+           音视频不同步！</code></pre>
+<h3 id="时间戳方案">5.2 时间戳方案</h3>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AVSynchronizer <span class="op">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 获取当前系统时间（微秒）</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int64_t</span> GetCurrentTime<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">struct</span> timeval tv<span class="op">;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        gettimeofday<span class="op">(&amp;</span>tv<span class="op">,</span> <span class="kw">nullptr</span><span class="op">);</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> tv<span class="op">.</span>tv_sec <span class="op">*</span> <span class="dv">1000000</span><span class="bu">LL</span> <span class="op">+</span> tv<span class="op">.</span>tv_usec<span class="op">;</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 视频帧打时间戳</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> TimestampVideoFrame<span class="op">(</span>AVFrame<span class="op">*</span> frame<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>        frame<span class="op">-&gt;</span>pts <span class="op">=</span> GetCurrentTime<span class="op">();</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 音频帧打时间戳</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> TimestampAudioFrame<span class="op">(</span>AudioFrame<span class="op">*</span> frame<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>        frame<span class="op">-&gt;</span>pts <span class="op">=</span> GetCurrentTime<span class="op">();</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 同步检查</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> CheckSync<span class="op">(</span><span class="dt">int64_t</span> video_pts<span class="op">,</span> <span class="dt">int64_t</span> audio_pts<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int64_t</span> diff <span class="op">=</span> video_pts <span class="op">-</span> audio_pts<span class="op">;</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>diff <span class="op">&gt;</span> <span class="dv">40000</span> <span class="op">||</span> diff <span class="op">&lt;</span> <span class="op">-</span><span class="dv">40000</span><span class="op">)</span> <span class="op">{</span>  <span class="co">// &gt; 40ms</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>            <span class="bu">std::</span>cout <span class="op">&lt;&lt;</span> <span class="st">&quot;AV sync drift: &quot;</span> <span class="op">&lt;&lt;</span> diff <span class="op">&lt;&lt;</span> <span class="st">&quot; us&quot;</span> <span class="op">&lt;&lt;</span> <span class="bu">std::</span>endl<span class="op">;</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="同步策略">5.3 同步策略</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">策略</th>
+<th style="text-align: left;">说明</th>
+<th style="text-align: left;">适用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>视频同步到音频</strong></td>
+<td style="text-align: left;">调整视频播放速度</td>
+<td style="text-align: left;">音乐直播</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>音频同步到视频</strong></td>
+<td style="text-align: left;">调整音频播放速度</td>
+<td style="text-align: left;">口型要求高</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>外部时钟</strong></td>
+<td style="text-align: left;">两者都同步到独立时钟</td>
+<td style="text-align: left;">专业场景</td>
+</tr>
+</tbody>
+</table>
+<p><strong>本节小结</strong>：音视频同步通过时间戳实现，容忍度约
+±40ms。视频通常同步到音频（人耳对音频更敏感）。</p>
+<hr />
+<h2 id="采集参数配置">6. 采集参数配置</h2>
+<p><strong>本节概览</strong>：介绍采集参数的配置策略，以及不同场景的推荐设置。</p>
+<h3 id="分辨率与帧率选择">6.1 分辨率与帧率选择</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">场景</th>
+<th style="text-align: left;">分辨率</th>
+<th style="text-align: center;">帧率</th>
+<th style="text-align: center;">码率</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">屏幕共享</td>
+<td style="text-align: left;">1920x1080</td>
+<td style="text-align: center;">15fps</td>
+<td style="text-align: center;">2 Mbps</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">标准直播</td>
+<td style="text-align: left;">1280x720</td>
+<td style="text-align: center;">30fps</td>
+<td style="text-align: center;">4 Mbps</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">游戏直播</td>
+<td style="text-align: left;">1920x1080</td>
+<td style="text-align: center;">60fps</td>
+<td style="text-align: center;">8 Mbps</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">高清访谈</td>
+<td style="text-align: left;">1920x1080</td>
+<td style="text-align: center;">30fps</td>
+<td style="text-align: center;">6 Mbps</td>
+</tr>
+</tbody>
+</table>
+<h3 id="音频参数选择">6.2 音频参数选择</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">参数</th>
+<th style="text-align: center;">推荐值</th>
+<th style="text-align: left;">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">采样率</td>
+<td style="text-align: center;">48000 Hz</td>
+<td style="text-align: left;">与视频行业一致</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">位深</td>
+<td style="text-align: center;">16-bit</td>
+<td style="text-align: left;">足够动态范围</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">声道</td>
+<td style="text-align: center;">立体声</td>
+<td style="text-align: left;">空间感</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">帧长</td>
+<td style="text-align: center;">20ms</td>
+<td style="text-align: left;">平衡延迟和效率</td>
+</tr>
+</tbody>
+</table>
+<h3 id="异步处理架构">6.3 异步处理架构</h3>
+<pre><code>采集线程
+    ↓ 原始帧
+┌─────────────────────────────────────┐
+│  帧队列（生产者-消费者）              │
+└─────────────────────────────────────┘
+    ↓
+处理线程（3A + 编码）
+    ↓ 处理后数据
+推流线程</code></pre>
+<p><strong>本节小结</strong>：采集参数根据场景选择。标准直播推荐
+720p@30fps + 48kHz 音频。异步架构分离采集和编码。</p>
+<hr />
+<h2 id="本章总结">7. 本章总结</h2>
+<h3 id="本章回顾">7.1 本章回顾</h3>
+<p>本章实现了音视频采集：</p>
+<ol type="1">
+<li><strong>视频采集</strong>：FFmpeg libavdevice，跨平台支持</li>
+<li><strong>音频采集</strong>：48kHz, 16-bit, 立体声</li>
+<li><strong>音视频同步</strong>：时间戳对齐，±40ms 容忍度</li>
+<li><strong>参数配置</strong>：根据场景选择分辨率和帧率</li>
+<li><strong>异步架构</strong>：生产者-消费者模式分离采集和编码</li>
+</ol>
+<h3 id="当前能力">7.2 当前能力</h3>
+<pre><code>摄像头采集 → YUV420P
+              ↓
+麦克风采集 → PCM
+              ↓
+时间戳对齐 → 3A处理 → 编码 → 推流</code></pre>
+<h3 id="下一步">7.3 下一步</h3>
+<p>采集到的原始音频需要经过 <a href="../chapter-11/README.md">3A
+处理</a>（AEC/ANS/AGC）才能得到高质量的音频输出。</p>
+<p><strong>第十一章预告：音频 3A 处理</strong>： - AEC
+回声消除原理与实现 - ANS 降噪算法详解 - AGC 自动增益控制 - WebRTC APM
+集成</p>
+<hr />
+<h2 id="附录">附录</h2>
+<h3 id="参考资源">参考资源</h3>
+<ul>
+<li><a href="https://ffmpeg.org/ffmpeg-devices.html">FFmpeg Device
+Documentation</a></li>
+<li><a
+href="https://www.kernel.org/doc/html/v4.9/media/uapi/v4l/v4l2.html">Video4Linux2
+API</a></li>
+<li><a
+href="https://developer.apple.com/documentation/avfoundation">AVFoundation
+Programming Guide</a></li>
+</ul>
+<h3 id="术语表">术语表</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">术语</th>
+<th style="text-align: left;">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">V4L2</td>
+<td style="text-align: left;">Video4Linux 2，Linux 视频采集框架</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AVFoundation</td>
+<td style="text-align: left;">macOS/iOS 音视频框架</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ISP</td>
+<td style="text-align: left;">Image Signal
+Processor，图像信号处理器</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NV12</td>
+<td style="text-align: left;">YUV 4:2:0 平面格式</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Interleaved</td>
+<td style="text-align: left;">交错采样（LR LR LR）</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PCM</td>
+<td style="text-align: left;">Pulse Code Modulation，脉冲编码调制</td>
+</tr>
+</tbody>
+</table>
+<h3 id="下一章">下一章</h3>
+<h2
+id="第十一章音频-3a-处理---实现回声消除降噪自动增益提升音频质量"><strong>第十一章：<a
+href="../chapter-11/README.md">音频 3A 处理</a></strong> -
+实现回声消除、降噪、自动增益，提升音频质量。</h2>
+<h2 id="faq-常见问题">FAQ 常见问题</h2>
+<h3 id="q1本章的核心难点是什么">Q1：本章的核心难点是什么？</h3>
+<p><strong>A</strong>：音视频采集涉及的核心难点包括： -
+理解新概念的内在原理 - 将理论知识转化为实际代码 -
+处理边界情况和错误恢复</p>
+<p>建议多动手实践，遇到问题及时查阅官方文档。</p>
+<hr />
+<h3 id="q2学习本章需要哪些前置知识">Q2：学习本章需要哪些前置知识？</h3>
+<p><strong>A</strong>：请参考章节头部的前置知识表格。如果某些基础不牢固，建议先复习相关章节。</p>
+<hr />
+<h3 id="q3如何验证本章的学习效果">Q3：如何验证本章的学习效果？</h3>
+<p><strong>A</strong>：建议完成以下检查： - [ ] 理解所有核心概念 - [ ]
+能独立编写本章的示例代码 - [ ] 能解释代码的工作原理 - [ ]
+能排查常见问题</p>
+<hr />
+<h3
+id="q4本章代码在实际项目中的应用场景">Q4：本章代码在实际项目中的应用场景？</h3>
+<p><strong>A</strong>：本章代码是渐进式案例「小直播」的组成部分，所有代码都可以在实际项目中使用。具体应用场景请参考「本章与项目的关系」部分。</p>
+<hr />
+<h3 id="q5遇到问题时如何调试">Q5：遇到问题时如何调试？</h3>
+<p><strong>A</strong>：调试建议： 1. 先阅读 FAQ 和本章的「常见问题」部分
+2. 检查前置知识是否掌握 3. 使用日志和调试工具定位问题 4.
+参考示例代码进行对比 5. 在 GitHub Issues 中搜索类似问题 —</p>
+<h2 id="本章小结">本章小结</h2>
+<h3 id="核心知识点">核心知识点</h3>
+<p>通过本章学习，你应该掌握： 1. 音视频采集的核心概念和原理 2. 相关的
+API 和工具使用 3. 实际项目中的应用方法 4. 常见问题的解决方案</p>
+<h3 id="关键技能">关键技能</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">技能</th>
+<th style="text-align: center;">掌握程度</th>
+<th style="text-align: left;">实践建议</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">理解核心概念</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">能向他人解释原理</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">编写示例代码</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">独立编写本章代码</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">排查常见问题</td>
+<td style="text-align: center;">⭐⭐⭐ 必须掌握</td>
+<td style="text-align: left;">遇到问题时能自行解决</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">应用到项目</td>
+<td style="text-align: center;">⭐⭐ 建议掌握</td>
+<td style="text-align: left;">将本章代码集成到项目中</td>
+</tr>
+</tbody>
+</table>
+<h3 id="本章产出">本章产出</h3>
+<ul>
+<li>完成本章所有示例代码</li>
+<li>理解 音视频采集的工作原理</li>
+<li><h2 id="为后续章节打下基础">为后续章节打下基础</h2></li>
+</ul>
+<h2 id="下章预告">下章预告</h2>
+<h3 id="ch11音频-3a-处理">Ch11：音频 3A 处理</h3>
+<p><strong>为什么要学下一章？</strong></p>
+<p>每章都是渐进式案例「小直播」的有机组成部分，下一章将在本章基础上进一步扩展功能。</p>
+<p><strong>学习建议</strong>： - 确保本章内容已经掌握 -
+提前浏览下一章的目录 - 准备好相关的开发环境</p>
+</div>
+</body>
+</html>
