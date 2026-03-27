@@ -69,26 +69,51 @@ TCP 为了保证可靠性，引入了三个关键机制：
 ```
 时间线 →
 
-TCP 场景:
-Pkt1 Pkt2 Pkt3  Pkt4  Pkt5  Pkt6
- │    │    │     │     │     │
- ▼    ▼    ▼     ▼     ▼     ▼
-[1]  [2]  [丢]  [4]   [5]   [6]
-  │    │   ↑     │     │     │
-  │    │   │     │     │     │
-  ▼    ▼   │     ▼     ▼     ▼
- [应用层必须等待Pkt3重传]
-  │    │   │     │     │     │
-  ▼    ▼   ▼     ▼     ▼     ▼
- [1]  [2] [3]   [4]   [5]   [6]  ← 延迟剧增！
+**TCP 场景**：
 
-UDP 场景:
-Pkt1 Pkt2 Pkt3  Pkt4  Pkt5  Pkt6
- │    │    │     │     │     │
- ▼    ▼    ▼     ▼     ▼     ▼
-[1]  [2]  [丢]  [4]   [5]   [6]
-  │    │         │     │     │
-  ▼    ▼         ▼     ▼     ▼
+```mermaid
+sequenceDiagram
+    participant Pkt1 as Pkt1
+    participant Pkt2 as Pkt2
+    participant Pkt3 as Pkt3
+    participant Pkt4 as Pkt4
+    participant Pkt5 as Pkt5
+    participant Pkt6 as Pkt6
+    participant App as 应用层
+    
+    Note over Pkt1,App: TCP: 丢包必须重传
+    Pkt1->>App: [1] 到达
+    Pkt2->>App: [2] 到达
+    Pkt3--xApp: [丢] 丢失！
+    Pkt4->>App: [4] 到达
+    Pkt5->>App: [5] 到达
+    Pkt6->>App: [6] 到达
+    
+    Note over App: 必须等待Pkt3重传
+    Pkt3->>App: [3] 重传到达
+    Note over App: [1][2][3][4][5][6] ← 延迟剧增！
+```
+
+**UDP 场景**：
+
+```mermaid
+sequenceDiagram
+    participant Pkt1 as Pkt1
+    participant Pkt2 as Pkt2
+    participant Pkt3 as Pkt3
+    participant Pkt4 as Pkt4
+    participant Pkt5 as Pkt5
+    participant Pkt6 as Pkt6
+    participant App as 应用层
+    
+    Note over Pkt1,App: UDP: 无需等待，立即交付
+    Pkt1->>App: [1] 到达
+    Pkt2->>App: [2] 到达
+    Pkt3--xApp: [丢] 丢失
+    Pkt4->>App: [4] 到达
+    Pkt5->>App: [5] 到达
+    Pkt6->>App: [6] 到达
+    Note over App: [1][2][4][5][6] ← 低延迟继续播放！
  [1]  [2]       [4]   [5]   [6]  ← 立即交付可用数据
 ```
 
