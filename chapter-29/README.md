@@ -1568,29 +1568,35 @@ T0 → T1 → T2 → T0 → T1 → T2 → ...
 
 **H.264 SVC的关键技术**：
 
-```
-NAL Unit 类型标识:
-┌─────────────────────────────────────┐
-│ NAL Header (1 byte)                 │
-│ ┌─────┬────────────┬─────────────┐  │
-│ │ F   │  NRI       │  Type       │  │
-│ │ 1bit│  2bits     │  5bits      │  │
-│ └─────┴────────────┴─────────────┘  │
-│                                     │
-│ Type = 14: Prefix NAL (前缀NAL)      │
-│ Type = 20: Coded slice extension     │
-└─────────────────────────────────────┘
+```mermaid
+flowchart LR
+    N0["NAL Header (1 byte)"]
+    N1["NRI"]
+    N2["2bits"]
+    N3["Type = 14: Prefix NAL (前缀NAL)"]
+    N4["Type = 20: Coded slice extension"]
+    N5["S(1bit)"]
+    N6["R(1bit)"]
+    N7["是否为SVC"]
+    N8["保留"]
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
+    N4 --> N5
+    N5 --> N6
+    N6 --> N7
+    N7 --> N8
 
-NAL Unit Header Extension:
-┌─────────────┬──────────┬─────────┬────────────┐
-│ S(1bit)     │ E(1bit)  │ R(1bit)│ DID/QID/TID│
-├─────────────┼──────────┼─────────┼────────────┤
-│ 是否为SVC   │ 是否依赖 │ 保留    │ 层标识     │
-└─────────────┴──────────┴─────────┴────────────┘
-
-DID (Dependency ID): 空间/质量层标识 (0-7)
-QID (Quality ID): 质量层标识 (0-15)  
-TID (Temporal ID): 时间层标识 (0-7)
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#e8f5e9,stroke:#388e3c
+    style N2 fill:#fff3e0,stroke:#f57c00
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f3e5f5,stroke:#7b1fa2
+    style N5 fill:#e3f2fd,stroke:#1976d2
+    style N6 fill:#e8f5e9,stroke:#388e3c
+    style N7 fill:#fff3e0,stroke:#f57c00
+    style N8 fill:#fce4ec,stroke:#c2185b
 ```
 
 **分层预测结构**：

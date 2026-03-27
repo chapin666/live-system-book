@@ -120,23 +120,20 @@ docker push your-registry/sfu-server:v1.0.0
 ### 2.1 架构差异
 
 **传统虚拟机架构**：
-```
-┌─────────────────────────────────────────────┐
-│  VM 1: Ubuntu          VM 2: CentOS        │
-│  ┌─────────────┐       ┌─────────────┐     │
-│  │ App A       │       │ App B       │     │
-│  │ Bin/Libs    │       │ Bin/Libs    │     │
-│  ├─────────────┤       ├─────────────┤     │
-│  │ Guest OS    │       │ Guest OS    │     │
-│  │ (内核+系统)  │       │ (内核+系统)  │     │
-│  └─────────────┘       └─────────────┘     │
-├─────────────────────────────────────────────┤
-│  Hypervisor (VMware/KVM/Hyper-V)            │
-├─────────────────────────────────────────────┤
-│  Host OS (Linux/Windows)                    │
-├─────────────────────────────────────────────┤
-│  Hardware                                   │
-└─────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    N0["VM 1: Ubuntu          VM 2: CentOS"]
+    N1["Hypervisor (VMware/KVM/Hyper-V)"]
+    N2["Host OS (Linux/Windows)"]
+    N3["Hardware"]
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#e8f5e9,stroke:#388e3c
+    style N2 fill:#fff3e0,stroke:#f57c00
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **Docker容器架构**：

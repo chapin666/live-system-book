@@ -226,22 +226,35 @@ A → T:80     NAT分配: 1.2.3.4:6001  (不同端口!)
 
 **协议细节**：
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  STUN Message Header (20 bytes)                             │
-├─────────────────────────────────────────────────────────────┤
-│ 0               1               2               3           │
-│ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 │
-├─────────────────────────────────────────────────────────────┤
-│ |  Message Type  |    Message Length (payload)              │
-│ |    (2 bytes)   |       (2 bytes)                          │
-├─────────────────────────────────────────────────────────────┤
-│ |              Magic Cookie (0x2112A442)                    │
-│ |                   (4 bytes)                               │
-├─────────────────────────────────────────────────────────────┤
-│ |              Transaction ID (12 bytes)                    │
-│ |               (匹配 Request-Response)                      │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    N0["STUN Message Header (20 bytes)"]
+    N1["0               1               2               3"]
+    N2["0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9"]
+    N3["|  Message Type  |    Message Length (payload)"]
+    N4["|    (2 bytes)   |       (2 bytes)"]
+    N5["|              Magic Cookie (0x2112A442)"]
+    N6["|                   (4 bytes)"]
+    N7["|              Transaction ID (12 bytes)"]
+    N8["|               (匹配 Request-Response)"]
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
+    N4 --> N5
+    N5 --> N6
+    N6 --> N7
+    N7 --> N8
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#e8f5e9,stroke:#388e3c
+    style N2 fill:#fff3e0,stroke:#f57c00
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f3e5f5,stroke:#7b1fa2
+    style N5 fill:#e3f2fd,stroke:#1976d2
+    style N6 fill:#e8f5e9,stroke:#388e3c
+    style N7 fill:#fff3e0,stroke:#f57c00
+    style N8 fill:#fce4ec,stroke:#c2185b
 ```
 
 ### 3.3 Binding Request/Response
@@ -642,34 +655,71 @@ private:
 
 **SDP（Session Description Protocol）** 描述媒体能力：
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│ SDP Offer (A 发送给 B)                                       │
-├─────────────────────────────────────────────────────────────┤
-│ v=0                                                         │
-│ o=- 123456 0 IN IP4 127.0.0.1                               │
-│ s=-                                                         │
-│ t=0 0                                                       │
-│ a=group:BUNDLE audio video                                  │
-│                                                             │
-│ m=audio 9 UDP/TLS/RTP/SAVPF 111 103                         │
-│ a=mid:audio                                                 │
-│ a=sendrecv                                                  │
-│ a=rtpmap:111 opus/48000/2                                   │
-│ a=rtpmap:103 ISAC/16000                                     │
-│ a=ice-ufrag:abcd1234                                        │
-│ a=ice-pwd:xyz789...                                         │
-│ a=fingerprint:sha-256 12:34:...:EF                          │
-│ a=candidate:1 1 UDP 2122252543 192.168.1.10 5000 typ host   │
-│ a=candidate:2 1 UDP 1686052607 1.2.3.4 6000 typ srflx ...   │
-│ a=candidate:3 1 UDP 41819902 203.0.113.10 50000 typ relay   │
-│                                                             │
-│ m=video 9 UDP/TLS/RTP/SAVPF 96 97                           │
-│ a=mid:video                                                 │
-│ a=sendrecv                                                  │
-│ a=rtpmap:96 VP8/90000                                       │
-│ a=rtpmap:97 H264/90000                                      │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    N0["SDP Offer (A 发送给 B)"]
+    N1["v=0"]
+    N2["o=- 123456 0 IN IP4 127.0.0.1"]
+    N3["s=-"]
+    N4["t=0 0"]
+    N5["a=group:BUNDLE audio video"]
+    N6["m=audio 9 UDP/TLS/RTP/SAVPF 111 103"]
+    N7["a=mid:audio"]
+    N8["a=sendrecv"]
+    N9["a=rtpmap:111 opus/48000/2"]
+    N10["a=rtpmap:103 ISAC/16000"]
+    N11["a=ice-ufrag:abcd1234"]
+    N12["a=ice-pwd:xyz789..."]
+    N13["a=fingerprint:sha-256 12:34:...:EF"]
+    N14["a=candidate:1 1 UDP 2122252543 192.168.1.10 5000 typ host"]
+    N15["a=candidate:2 1 UDP 1686052607 1.2.3.4 6000 typ srflx ..."]
+    N16["a=candidate:3 1 UDP 41819902 203.0.113.10 50000 typ relay"]
+    N17["m=video 9 UDP/TLS/RTP/SAVPF 96 97"]
+    N18["a=mid:video"]
+    N19["a=rtpmap:96 VP8/90000"]
+    N20["a=rtpmap:97 H264/90000"]
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
+    N4 --> N5
+    N5 --> N6
+    N6 --> N7
+    N7 --> N8
+    N8 --> N9
+    N9 --> N10
+    N10 --> N11
+    N11 --> N12
+    N12 --> N13
+    N13 --> N14
+    N14 --> N15
+    N15 --> N16
+    N16 --> N17
+    N17 --> N18
+    N18 --> N19
+    N19 --> N20
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#e8f5e9,stroke:#388e3c
+    style N2 fill:#fff3e0,stroke:#f57c00
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f3e5f5,stroke:#7b1fa2
+    style N5 fill:#e3f2fd,stroke:#1976d2
+    style N6 fill:#e8f5e9,stroke:#388e3c
+    style N7 fill:#fff3e0,stroke:#f57c00
+    style N8 fill:#fce4ec,stroke:#c2185b
+    style N9 fill:#f3e5f5,stroke:#7b1fa2
+    style N10 fill:#e3f2fd,stroke:#1976d2
+    style N11 fill:#e8f5e9,stroke:#388e3c
+    style N12 fill:#fff3e0,stroke:#f57c00
+    style N13 fill:#fce4ec,stroke:#c2185b
+    style N14 fill:#f3e5f5,stroke:#7b1fa2
+    style N15 fill:#e3f2fd,stroke:#1976d2
+    style N16 fill:#e8f5e9,stroke:#388e3c
+    style N17 fill:#fff3e0,stroke:#f57c00
+    style N18 fill:#fce4ec,stroke:#c2185b
+    style N19 fill:#f3e5f5,stroke:#7b1fa2
+    style N20 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **关键字段**：

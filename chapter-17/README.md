@@ -626,11 +626,20 @@ void DeserializePlayerState(const uint8_t* buffer, PlayerState& state) {
 
 TLV（Type-Length-Value）是常用的自描述数据格式：
 
-```
-┌──────────┬──────────┬──────────┐
-│  Type    │  Length  │  Value   │
-│  (1字节) │  (2字节) │ (变长)   │
-└──────────┴──────────┴──────────┘
+```mermaid
+flowchart LR
+    N0["Type"]
+    N1["Value"]
+    N2["(1字节)"]
+    N3["(变长)"]
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#e8f5e9,stroke:#388e3c
+    style N2 fill:#fff3e0,stroke:#f57c00
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 ```cpp

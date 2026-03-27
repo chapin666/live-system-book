@@ -38,24 +38,32 @@ Kubernetes已成为云原生应用部署的事实标准。本章介绍如何在K
 
 ### 1.2 架构图
 
-```
-┌─────────────────────────────────────────────────┐
-│                   Ingress                        │
-│         (API网关 / 负载均衡)                      │
-└──────────────────┬──────────────────────────────┘
-                   │
-    ┌──────────────┼──────────────┐
-    │              │              │
-┌───┴───┐    ┌────┴────┐   ┌─────┴────┐
-│Service│    │ Service │   │  Service │
-│信令   │    │  SFU-0  │   │  SFU-1   │
-└───┬───┘    └────┬────┘   └─────┬────┘
-    │             │              │
-┌───┴───┐    ┌────┴────┐   ┌─────┴────┐
-│ Pod   │    │ Pod     │   │ Pod      │
-└───────┘    │ SFU-0   │   │ SFU-1    │
-             │(固定IP) │   │(固定IP)  │
-             └─────────┘   └──────────┘
+```mermaid
+flowchart LR
+    N0["Ingress"]
+    N1["(API网关 / 负载均衡)"]
+    N2["Service"]
+    N3["信令"]
+    N4["SFU-0"]
+    N5["SFU-1"]
+    N6["Pod"]
+    N7["(固定IP)"]
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
+    N4 --> N5
+    N5 --> N6
+    N6 --> N7
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#e8f5e9,stroke:#388e3c
+    style N2 fill:#fff3e0,stroke:#f57c00
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f3e5f5,stroke:#7b1fa2
+    style N5 fill:#e3f2fd,stroke:#1976d2
+    style N6 fill:#e8f5e9,stroke:#388e3c
+    style N7 fill:#fff3e0,stroke:#f57c00
 ```
 
 ---
