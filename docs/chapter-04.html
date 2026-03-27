@@ -89,7 +89,7 @@
 </head>
 <body>
 <div class="sidebar">
-<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<h1><a href="index.html">📺 音视频开发实战</a></h1>
 <ul>
 <li><a href="README.html">关于本书</a></li>
 <li class="part">Part 1: 播放器基础</li>
@@ -185,7 +185,7 @@ style="text-align: left;">Ch1-Ch3：视频基础、播放器基础架构、Pipel
 理解不同视频帧的解码成本差异 - 发现<strong>单线程架构的性能瓶颈</strong>
 - 掌握基础的性能分析工具（perf、火焰图）</p>
 <p><strong>本章与项目的关系</strong>：</p>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid">flowchart LR
     subgraph &quot;P1 完整本地播放器&quot;
         A[&quot;Ch1-3 基础播放器&quot;] --&gt; B[&quot;📍 Ch4 性能分析
 发现瓶颈&quot;]
@@ -193,15 +193,15 @@ style="text-align: left;">Ch1-Ch3：视频基础、播放器基础架构、Pipel
         C --&gt; D[&quot;P2 网络播放器&quot;]
     end
     
-    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px</code></pre>
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px</pre>
 <p><strong>代码演进关系</strong>：</p>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid">flowchart LR
     subgraph &quot;P1→P2 演进&quot;
         A[&quot;Ch3 Pipeline架构&quot;] --&gt; B[&quot;📍 Ch4 性能分析&quot;]
         B --&gt; C[&quot;Ch5-6 多线程改造&quot;]
     end
     
-    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px</code></pre>
+    style B fill:#e3f2fd,stroke:#4a90d9,stroke-width:3px</pre>
 <ul>
 <li><strong>当前阶段</strong>：性能分析</li>
 <li><strong>本章产出</strong>：发现单线程瓶颈</li>
@@ -1501,6 +1501,10 @@ GitHub</a></li>
 </ul>
 <hr />
 <p><strong>本章代码仓库</strong>：https://github.com/chapin666/live-system-book</p>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
 </div>
 </body>
 </html>

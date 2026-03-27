@@ -89,7 +89,7 @@
 </head>
 <body>
 <div class="sidebar">
-<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<h1><a href="index.html">📺 音视频开发实战</a></h1>
 <ul>
 <li><a href="README.html">关于本书</a></li>
 <li class="part">Part 1: 播放器基础</li>
@@ -239,7 +239,7 @@ class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb2-1"><a href="
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    outputColor <span class="op">=</span> color<span class="op">;</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h3 id="gpu-图像处理管线">0.3 GPU 图像处理管线</h3>
-<pre class="mermaid"><code>flowchart TB
+<pre class="mermaid">flowchart TB
     A[&quot;输入纹理\nYUV/RGB&quot;] --&gt; B[&quot;顶点着色器\n确定像素位置&quot;]
     B --&gt; C[&quot;片段着色器\n处理像素颜色\n美颜算法在这里&quot;]
     C --&gt; D[&quot;帧缓冲\n输出结果&quot;]
@@ -249,7 +249,7 @@ class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb2-1"><a href="
     style B fill:#fff3e0,stroke:#f0ad4e
     style C fill:#e8f5e9,stroke:#5cb85c
     style D fill:#fce4ec,stroke:#e91e63
-    style E fill:#f3e5f5,stroke:#9c27b0</code></pre>
+    style E fill:#f3e5f5,stroke:#9c27b0</pre>
 <p><strong>管线各阶段</strong>：</p>
 <pre><code>输入纹理（YUV/RGB）
     ↓
@@ -484,7 +484,7 @@ class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb14-1"><a href=
 - <strong>参数调节</strong>：实时调整美颜强度 -
 <strong>性能优化</strong>：不用的滤镜不消耗资源</p>
 <h3 id="滤镜链架构">4.2 滤镜链架构</h3>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid">flowchart LR
     subgraph &quot;滤镜链&quot;
         A[&quot;输入帧&quot;] --&gt; B[&quot;双边滤波\n磨皮&quot;]
         B --&gt; C[&quot;亮度/对比度\n美白&quot;]
@@ -511,7 +511,7 @@ class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb14-1"><a href=
     style B fill:#fff3e0,stroke:#f0ad4e
     style C fill:#fff3e0,stroke:#f0ad4e
     style D fill:#fff3e0,stroke:#f0ad4e
-    style E fill:#fff3e0,stroke:#f0ad4e</code></pre>
+    style E fill:#fff3e0,stroke:#f0ad4e</pre>
 <p><strong>设计原则</strong>： 1.
 <strong>接口统一</strong>：所有滤镜实现相同的接口 2.
 <strong>可组合</strong>：任意组合，顺序可调 3.
@@ -928,6 +928,10 @@ Ch17：UDP与实时传输</h3>
 <p>每章都是渐进式案例「小直播」的有机组成部分，下一章将在本章基础上进一步扩展功能。</p>
 <p><strong>学习建议</strong>： - 确保本章内容已经掌握 -
 提前浏览下一章的目录 - 准备好相关的开发环境</p>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
 </div>
 </body>
 </html>

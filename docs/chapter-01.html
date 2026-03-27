@@ -89,7 +89,7 @@
 </head>
 <body>
 <div class="sidebar">
-<h1><a href="README.html">📺 音视频开发实战</a></h1>
+<h1><a href="index.html">📺 音视频开发实战</a></h1>
 <ul>
 <li><a href="README.html">关于本书</a></li>
 <li class="part">Part 1: 播放器基础</li>
@@ -242,7 +242,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
 ...</code></pre>
 <p><strong>帧类型设计</strong></p>
 <p>为了高效利用时间冗余，视频编码定义了三种帧类型：</p>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid">flowchart LR
     subgraph &quot;帧类型对比&quot;
         I[&quot;🎬 I 帧\n关键帧\n~50KB\n完整编码&quot;]
         P[&quot;🎞️ P 帧\n预测帧\n~12KB\n参考前一帧&quot;]
@@ -251,7 +251,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
     
     style I fill:#e3f2fd,stroke:#4a90d9,stroke-width:2px
     style P fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px
-    style B fill:#fff3e0,stroke:#f0ad4e,stroke-width:2px</code></pre>
+    style B fill:#fff3e0,stroke:#f0ad4e,stroke-width:2px</pre>
 <table>
 <thead>
 <tr class="header">
@@ -284,7 +284,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
 </table>
 <p><strong>GOP 结构</strong></p>
 <p>两个 I 帧之间的帧序列称为 GOP（Group of Pictures）：</p>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid">flowchart LR
     subgraph &quot;GOP 结构示例 (GOP Size=6)&quot;
         direction LR
         I0[&quot;I₀\n关键帧&quot;] --&gt; P1[&quot;P₁&quot;] --&gt; P2[&quot;P₂&quot;] --&gt; P3[&quot;P₃&quot;] --&gt; P4[&quot;P₄&quot;] --&gt; P5[&quot;P₅&quot;] --&gt; I6[&quot;I₆\n下一个GOP&quot;]
@@ -296,7 +296,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
     style P2 fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px
     style P3 fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px
     style P4 fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px
-    style P5 fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px</code></pre>
+    style P5 fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px</pre>
 <p>GOP 大小影响： - <strong>GOP 小（如
 12）</strong>：解码延迟低，适合直播，但压缩率稍差 - <strong>GOP 大（如
 250）</strong>：压缩率高，适合存储，但解码延迟高</p>
@@ -314,7 +314,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
 颜色空间的原理：亮度全采样，色度减半采样，数据量减少 50%。</p>
 <h3 id="播放器-pipeline-概览">1.5 播放器 Pipeline 概览</h3>
 <p>视频播放的本质是：<strong>解封装 → 解码 → 渲染</strong></p>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid">flowchart LR
     A[&quot;📁 视频文件\nMP4/FLV&quot;] --&gt; B[&quot;📦 解封装\nDemuxer\n提取音视频流&quot;]
     B --&gt; C[&quot;🎬 视频解码\nDecoder\nH.264/H.265&quot;]
     B --&gt; D[&quot;🔊 音频解码\nDecoder\nAAC&quot;]
@@ -326,7 +326,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
     style C fill:#e3f2fd,stroke:#4a90d9,stroke-width:2px
     style D fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px
     style E fill:#fce4ec,stroke:#e91e63,stroke-width:2px
-    style F fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px</code></pre>
+    style F fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px</pre>
 <p><strong>为什么要分这么多步骤？</strong></p>
 <p>每个步骤解决一个特定问题： 1.
 <strong>解封装</strong>：从容器格式中提取压缩数据 2.
@@ -412,7 +412,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
 架构：核心数据结构详解</h2>
 <h3 id="ffmpeg-的核心组件">3.1 FFmpeg 的核心组件</h3>
 <p>FFmpeg 提供了播放器所需的全部功能：</p>
-<pre class="mermaid"><code>flowchart TB
+<pre class="mermaid">flowchart TB
     subgraph &quot;FFmpeg 架构&quot;
         A[&quot;libavformat\n格式处理&quot;] --&gt; B[&quot;libavcodec\n编解码&quot;]
         B --&gt; C[&quot;libavutil\n工具函数&quot;]
@@ -435,7 +435,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
     style B fill:#e8f5e9,stroke:#5cb85c
     style C fill:#fff3e0,stroke:#f0ad4e
     style D fill:#fce4ec,stroke:#e91e63
-    style E fill:#f3e5f5,stroke:#9c27b0</code></pre>
+    style E fill:#f3e5f5,stroke:#9c27b0</pre>
 <figure>
 <img src="./diagrams/layered-arch.svg" alt="FFmpeg 分层架构" />
 <figcaption aria-hidden="true">FFmpeg 分层架构</figcaption>
@@ -480,7 +480,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ... 更多字段</span></span>
 <span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> AVFrame<span class="op">;</span></span></code></pre></div>
 <h3 id="数据流关系图">3.3 数据流关系图</h3>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid">flowchart LR
     subgraph &quot;输入&quot;
         File[&quot;视频文件&quot;]
     end
@@ -510,7 +510,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
     style CCtx fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px
     style Packet fill:#fce4ec,stroke:#e91e63,stroke-width:2px
     style Frame fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
-    style Display fill:#f5f5f5,stroke:#666</code></pre>
+    style Display fill:#f5f5f5,stroke:#666</pre>
 <hr />
 <h2 id="sdl2-渲染从像素到屏幕">4. SDL2 渲染：从像素到屏幕</h2>
 <h3 id="为什么用-sdl2">4.1 为什么用 SDL2</h3>
@@ -520,7 +520,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
 <p><strong>优势</strong>： - 简单：几行代码就能创建窗口 -
 跨平台：Windows、macOS、Linux 都支持 - 硬件加速：自动使用 GPU 加速</p>
 <h3 id="sdl2-渲染流程">4.2 SDL2 渲染流程</h3>
-<pre class="mermaid"><code>flowchart LR
+<pre class="mermaid">flowchart LR
     A[&quot;YUV 数据\nFFmpeg 解码输出&quot;] --&gt; B[&quot;SDL_UpdateYUVTexture\n上传纹理&quot;]
     B --&gt; C[&quot;SDL_RenderCopy\n复制到渲染器&quot;]
     C --&gt; D[&quot;SDL_RenderPresent\n显示到屏幕&quot;]
@@ -528,7 +528,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
     style A fill:#e3f2fd,stroke:#4a90d9
     style B fill:#fff3e0,stroke:#f0ad4e,stroke-width:2px
     style C fill:#e8f5e9,stroke:#5cb85c,stroke-width:2px
-    style D fill:#fce4ec,stroke:#e91e63,stroke-width:2px</code></pre>
+    style D fill:#fce4ec,stroke:#e91e63,stroke-width:2px</pre>
 <p><strong>关键概念</strong>： -
 <strong>Texture</strong>：显存中的图像数据（GPU 直接访问） -
 <strong>Renderer</strong>：渲染器，负责把 Texture 画到窗口 -
@@ -689,6 +689,10 @@ RGB？</h3>
 <p><strong>延伸阅读</strong>： - H.264 标准：ITU-T Rec. H.264 - FFmpeg
 文档：https://ffmpeg.org/documentation.html - SDL2
 文档：https://wiki.libsdl.org/</p>
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
 </div>
 </body>
 </html>
