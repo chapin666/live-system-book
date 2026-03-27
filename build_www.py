@@ -137,6 +137,11 @@ def convert_file(src_file, html_name):
 '''
     content = content.replace('</body>', f'{mermaid_script}</body>')
     
+    # 修复 mermaid 代码块：pandoc 会包装成 <pre class="mermaid"><code>...，需要改为纯 <pre class="mermaid">...
+    import re
+    # 将 <pre class="mermaid"><code>...</code></pre> 改为 <pre class="mermaid">...</pre>
+    content = re.sub(r'<pre class="mermaid"><code>(.*?)</code></pre>', r'<pre class="mermaid">\1</pre>', content, flags=re.DOTALL)
+    
     # 注入侧边栏
     content = content.replace('<body>', f'<body>\n<div class="sidebar">\n{nav}\n</div>\n<div class="main">')
     content = content.replace('</body>', '</div>\n</body>')
