@@ -4,6 +4,7 @@
 import os
 import re
 import subprocess
+import re
 import shutil
 
 # 获取脚本所在目录
@@ -104,7 +105,7 @@ def generate_nav(current_html=None):
     nav.append('</ul>')
     return '\n'.join(nav)
 
-def convert_file(src_file, html_name):
+def convert_file(src_file, html_name, chapter_dir=None):
     """转换单个 Markdown 文件为 HTML"""
     output = f"{WWW_DIR}/{html_name}"
     
@@ -125,6 +126,13 @@ def convert_file(src_file, html_name):
     # 读取生成的 HTML
     with open(output, 'r', encoding='utf-8') as f:
         content = f.read()
+    
+    # 修复图片路径：将 ./diagrams/ 替换为章节目录的相对路径
+    if chapter_dir:
+        # 从 src/chapter-XX.md 或 chapter-XX/README.md 提取章节名
+        chapter_name = chapter_dir  # chapter-01, project-01 等
+        content = re.sub(r'src="\.\/diagrams\/', f'src="{chapter_name}/diagrams/', content)
+        content = re.sub(r'src="diagrams\/', f'src="{chapter_name}/diagrams/', content)
     
     # 生成导航
     nav = generate_nav(html_name)
@@ -152,7 +160,6 @@ def convert_file(src_file, html_name):
     content = content.replace('</body>', f'{mermaid_script}</body>')
     
     # 修复 mermaid 代码块：pandoc 会包装成 <pre class="mermaid"><code>...，需要改为纯 <pre class="mermaid">...
-    import re
     # 将 <pre class="mermaid"><code>...</code></pre> 改为 <pre class="mermaid">...</pre>
     content = re.sub(r'<pre class="mermaid"><code>(.*?)</code></pre>', r'<pre class="mermaid">\1</pre>', content, flags=re.DOTALL)
     
@@ -218,6 +225,16 @@ def main():
         shutil.rmtree(WWW_DIR)
     os.makedirs(WWW_DIR, exist_ok=True)
     
+    # 复制所有 diagrams 目录到输出目录
+    print("  📁 复制图片资源...")
+    for item in os.listdir(BOOK_DIR):
+        if item.startswith('chapter-') or item.startswith('project-'):
+            diagrams_src = f"{BOOK_DIR}/{item}/diagrams"
+            if os.path.exists(diagrams_src):
+                diagrams_dst = f"{WWW_DIR}/{item}/diagrams"
+                shutil.copytree(diagrams_src, diagrams_dst)
+                print(f"    ✅ {item}/diagrams")
+    
     # 创建 CSS
     create_css()
     
@@ -225,7 +242,13 @@ def main():
     for path, html_name, title, part in CHAPTERS:
         src = find_source_file(path)
         if src:
-            convert_file(src, html_name)
+            # 提取章节目录名（如 chapter-01 或 project-01）
+            chapter_dir = None
+            if '/' in path:
+                chapter_dir = path.split('/')[0]  # chapter-01/README.md -> chapter-01
+            elif path.startswith('chapter-') or path.startswith('project-'):
+                chapter_dir = path.replace('.md', '')  # chapter-01.md -> chapter-01
+            convert_file(src, html_name, chapter_dir)
         else:
             print(f"  ⚠️  跳过: {path}")
     
