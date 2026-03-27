@@ -249,11 +249,11 @@ flowchart TB
         G --> H["Renderer\n渲染"]
     end
     
-    A -.使用.> F
-    B -.使用.> G
-    C -.使用.> F
-    C -.使用.> G
-    C -.使用.> H
+    A -.-> F
+    B -.-> G
+    C -.-> F
+    C -.-> G
+    C -.-> H
     
     style A fill:#e3f2fd,stroke:#4a90d9
     style B fill:#e8f5e9,stroke:#5cb85c
