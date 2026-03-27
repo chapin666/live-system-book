@@ -6,25 +6,59 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![C++14](https://img.shields.io/badge/C++-14-blue.svg)](https://isocpp.org/)
 [![FFmpeg](https://img.shields.io/badge/FFmpeg-4.0+-green.svg)](https://ffmpeg.org/)
+[![Pages](https://img.shields.io/badge/在线阅读-GitHub%20Pages-blue)](https://chapin666.github.io/live-system-book/)
+
+---
+
+## 📖 在线阅读
+
+**🌐 GitHub Pages**: https://chapin666.github.io/live-system-book/
+
+**📚 电子书下载**:
+- [EPUB 格式](ebook/live-system-book.epub) - 适合 iBooks、多看阅读器等
+- [HTML 单页](ebook/live-system-book.html) - 浏览器直接打开
 
 ---
 
 ## 🚀 快速开始
 
 ```bash
+# 克隆仓库
 git clone https://github.com/chapin666/live-system-book.git
-cd live-system-book/chapter-02
+cd live-system-book
+
+# 运行第一章示例
+cd chapter-02
 mkdir build && cd build && cmake .. && make -j4
 
+# 生成测试视频并播放
 ffmpeg -f lavfi -i testsrc=duration=10:size=640x480:rate=30 -pix_fmt yuv420p test.mp4
 ./player test.mp4
 ```
 
-**环境准备**：`brew install ffmpeg sdl2 cmake` (macOS) 或 `apt-get install ffmpeg libavformat-dev libsdl2-dev cmake` (Ubuntu)
+**环境准备**：
+```bash
+# macOS
+brew install ffmpeg sdl2 cmake pandoc
+
+# Ubuntu/Debian  
+apt-get install ffmpeg libavformat-dev libsdl2-dev cmake pandoc
+```
+
+### 构建电子书
+
+```bash
+# 生成静态网站到 ebook/www/
+python3 build_www.py
+
+# 生成 EPUB 和 HTML
+cd ebook && python3 -m http.server 8080
+# 访问 http://localhost:8080
+```
 
 ---
 
-## 📖 本书介绍
+## 📚 本书介绍
 
 **渐进式案例**：「小直播」从 100 行代码逐步成长为生产级系统
 
@@ -158,9 +192,11 @@ ffmpeg -f lavfi -i testsrc=duration=10:size=640x480:rate=30 -pix_fmt yuv420p tes
 
 ---
 
-## 🗺️ 完整大纲
+## 🗺️ 相关资源
 
-📄 [OUTLINE.md](OUTLINE.md) — 查看全部 30 章详细规划
+- 📄 [完整大纲](OUTLINE.md) — 全部 30 章详细规划
+- 📚 [附录A：C++11线程速查](appendix-a-cpp11-thread.md) — 多线程编程基础
+- 📖 [词汇表](GLOSSARY.md) — 音视频专业术语解释
 
 ---
 
