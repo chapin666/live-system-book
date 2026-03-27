@@ -208,7 +208,9 @@ table { width: 100%; border-collapse: collapse; margin: 20px 0; }
 th, td { border: 1px solid var(--border); padding: 10px 14px; text-align: left; }
 th { background: var(--sidebar-bg); font-weight: 600; }
 tr:nth-child(even) { background: #fafafa; }
-img { max-width: 100%; height: auto; }
+img { max-width: 100%; height: auto; display: block; }
+figure { margin: 20px 0; text-align: center; }
+figcaption { margin-top: 10px; font-size: 14px; color: #666; }
 blockquote { border-left: 4px solid var(--primary); margin: 20px 0; padding: 10px 20px; background: var(--sidebar-bg); }
 @media print { .sidebar { display: none; } .main { margin-left: 0; max-width: none; } }
 @media (max-width: 900px) { .sidebar { width: 220px; } .main { margin-left: 220px; padding: 20px; } }
