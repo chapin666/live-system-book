@@ -65,8 +65,19 @@ CHAPTERS = [
 
 def find_source_file(path):
     """查找源文件，优先 src/ 目录"""
-    # 优先尝试 src/ 目录
-    src_path = f"{SRC_DIR}/{os.path.basename(path)}"
+    # 获取基础文件名（如 chapter-09.md 或 README.md）
+    basename = os.path.basename(path)
+    
+    # 对于 chapter-XX/README.md 或 project-XX/README.md，映射为 src/chapter-XX.md
+    if '/' in path:
+        # path 格式: chapter-09/README.md -> 映射为 chapter-09.md
+        dir_name = path.split('/')[0]  # chapter-09
+        src_path = f"{SRC_DIR}/{dir_name}.md"
+        if os.path.exists(src_path):
+            return src_path
+    
+    # 对于其他文件，直接映射到 src/ 目录
+    src_path = f"{SRC_DIR}/{basename}"
     if os.path.exists(src_path):
         return src_path
     
@@ -117,6 +128,14 @@ def convert_file(src_file, html_name):
     
     # 生成导航
     nav = generate_nav(html_name)
+    
+    # 注入 Mermaid.js 支持（在 </body> 前插入）
+    mermaid_script = '''<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+'''
+    content = content.replace('</body>', f'{mermaid_script}</body>')
     
     # 注入侧边栏
     content = content.replace('<body>', f'<body>\n<div class="sidebar">\n{nav}\n</div>\n<div class="main">')
