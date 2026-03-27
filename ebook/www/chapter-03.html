@@ -823,9 +823,23 @@ class="sourceCode cmake"><code class="sourceCode cmake"><span id="cb15-1"><a hre
 <hr />
 <p><strong>本章代码</strong>：完整实现见 <code>src/</code> 目录，包含 5
 个源文件和 4 个头文件。</p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+  <defs>
+    <style>
+      .box { fill: #f0f9ff; stroke: #0369a1; stroke-width: 2; rx: 8; }
+      .host { fill: #fef3c7; stroke: #f59e0b; stroke-width: 2; rx: 6; }
+      .server { fill: #dbeafe; stroke: #3b82f6; stroke-width: 2; rx: 6; }
+      .viewer { fill: #dcfce7; stroke: #22c55e; stroke-width: 2; rx: 6; }
+      .arrow { stroke: #64748b; stroke-width: 2; marker-end: url(#arrowhead); }
+      .dash { stroke: #94a3b8; stroke-width: 1.5; stroke-dasharray: 5,5; }
+      .label { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #334155; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: bold; fill: #0f172a; }
+      .small { font-size: 10px; fill: #64748b; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="500" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="450" y="25" text-anchor="middle" class="title" font-size="18">直播系统架构</text>
+  
+  <!-- Host/Streamer -->
+  <rect x="50" y="50" width="220" height="400" class="host"/>
+  <text x="160" y="75" text-anchor="middle" class="title">主播端</text>
+  
+  <!-- Video Capture -->
+  <rect x="70" y="90" width="180" height="50" class="box"/>
+  <text x="160" y="110" text-anchor="middle" class="label">摄像头采集</text>
+  <text x="160" y="128" text-anchor="middle" class="small">1280×720 @ 30fps</text>
+  
+  <!-- Audio Capture -->
+  <rect x="70" y="150" width="180" height="50" class="box"/>
+  <text x="160" y="170" text-anchor="middle" class="label">麦克风采集</text>
+  <text x="160" y="188" text-anchor="middle" class="small">48kHz / 16bit / 立体声</text>
+  
+  <!-- 3A Processing -->
+  <rect x="70" y="210" width="180" height="70" fill="#fce7f3" stroke="#ec4899" stroke-width="2" rx="4"/>
+  <text x="160" y="230" text-anchor="middle" class="label">音频 3A 处理</text>
+  <text x="160" y="248" text-anchor="middle" class="small">AEC + ANS + AGC</text>
+  <text x="160" y="262" text-anchor="middle" class="small">WebRTC APM</text>
+  
+  <!-- Video Encode -->
+  <rect x="70" y="290" width="180" height="50" class="box"/>
+  <text x="160" y="310" text-anchor="middle" class="label">视频编码 (H.264)</text>
+  <text x="160" y="328" text-anchor="middle" class="small">硬件编码 / x264</text>
+  
+  <!-- Audio Encode -->
+  <rect x="70" y="350" width="180" height="40" class="box"/>
+  <text x="160" y="370" text-anchor="middle" class="label">音频编码 (AAC)</text>
+  
+  <!-- Push Stream -->
+  <rect x="70" y="400" width="180" height="40" fill="#fee2e2" stroke="#ef4444" stroke-width="2" rx="4"/>
+  <text x="160" y="420" text-anchor="middle" class="label">RTMP 推流</text>
+  
+  <!-- Server -->
+  <rect x="340" y="50" width="220" height="400" class="server"/>
+  <text x="450" y="75" text-anchor="middle" class="title">流媒体服务器</text>
+  
+  <!-- Ingest -->
+  <rect x="360" y="90" width="180" height="50" class="box"/>
+  <text x="450" y="110" text-anchor="middle" class="label">接入服务 (Ingest)</text>
+  <text x="450" y="128" text-anchor="middle" class="small">RTMP 接收 / 鉴权</text>
+  
+  <!-- Transcode -->
+  <rect x="360" y="150" width="180" height="50" class="box"/>
+  <text x="450" y="170" text-anchor="middle" class="label">转码服务</text>
+  <text x="450" y="188" text-anchor="middle" class="small">多码率适配 (HLS/DASH)</text>
+  
+  <!-- Record -->
+  <rect x="360" y="210" width="180" height="50" class="box"/>
+  <text x="450" y="230" text-anchor="middle" class="label">录制存储</text>
+  <text x="450" y="248" text-anchor="middle" class="small">MP4 / FLV 归档</text>
+  
+  <!-- Distribution -->
+  <rect x="360" y="280" width="180" height="50" class="box"/>
+  <text x="450" y="300" text-anchor="middle" class="label">分发服务</text>
+  <text x="450" y="318" text-anchor="middle" class="small">CDN 调度 / 负载均衡</text>
+  
+  <!-- CDN -->
+  <rect x="360" y="350" width="180" height="80" fill="#e0e7ff" stroke="#6366f1" stroke-width="2" rx="4"/>
+  <text x="450" y="375" text-anchor="middle" class="label">CDN 边缘节点</text>
+  <text x="450" y="395" text-anchor="middle" class="small">就近分发</text>
+  <text x="450" y="412" text-anchor="middle" class="small">缓存 / 加速</text>
+  
+  <!-- Viewers -->
+  <rect x="630" y="50" width="220" height="400" class="viewer"/>
+  <text x="740" y="75" text-anchor="middle" class="title">观众端</text>
+  
+  <rect x="650" y="90" width="180" height="50" class="box"/>
+  <text x="740" y="110" text-anchor="middle" class="label">播放器</text>
+  <text x="740" y="128" text-anchor="middle" class="small">RTMP/HLS/WebRTC</text>
+  
+  <rect x="650" y="150" width="180" height="50" class="box"/>
+  <text x="740" y="170" text-anchor="middle" class="label">解码渲染</text>
+  <text x="740" y="188" text-anchor="middle" class="small">硬解 + OpenGL/Metal</text>
+  
+  <rect x="650" y="210" width="180" height="40" class="box"/>
+  <text x="740" y="232" text-anchor="middle" class="label">弹幕 / 互动</text>
+  
+  <!-- Multiple viewers -->
+  <text x="740" y="280" text-anchor="middle" class="small">... 更多观众 ...</text>
+  
+  <rect x="650" y="300" width="180" height="50" class="box"/>
+  <text x="740" y="320" text-anchor="middle" class="label">观众 N</text>
+  <text x="740" y="338" text-anchor="middle" class="small">移动端 / PC / Web</text>
+  
+  <!-- Arrows -->
+  <line x1="270" y1="230" x2="340" y2="115" class="arrow"/>
+  <text x="305" y="160" class="small">音视频流</text>
+  
+  <line x1="560" y1="390" x2="630" y2="115" class="arrow"/>
+  <text x="595" y="230" class="small">分发</text>
+</svg>

@@ -46,22 +46,26 @@ int main() {
 
 ```
 改造前：
-┌─────────────────────────────────────┐
-│           main()                    │
-│  解封装+解码+渲染+同步+事件处理      │
-│  （全部混在一起）                    │
-└─────────────────────────────────────┘
+```mermaid
+flowchart TB
+    A["main()"] --> B["解封装+解码+渲染+同步+事件处理\n（全部混在一起）"]
+    style A fill:#f5f5f5,stroke:#666
+    style B fill:#ffebee,stroke:#c62828
+```
 
 改造后：
-┌──────────┐    ┌──────────┐    ┌──────────┐
-│ Demuxer  │───→│ Decoder  │───→│ Renderer │
-│ (解封装)  │    │ (解码)   │    │ (渲染)   │
-└──────────┘    └──────────┘    └──────────┘
-     ↑                              ↑
-┌──────────┐                  ┌──────────┐
-│ 数据源    │                  │  屏幕    │
-│ (文件/流) │                  │         │
-└──────────┘                  └──────────┘
+```mermaid
+flowchart LR
+    Data["数据源\n文件/流"] --> Demuxer["Demuxer\n解封装"]
+    Demuxer --> Decoder["Decoder\n解码"]
+    Decoder --> Renderer["Renderer\n渲染"]
+    Renderer --> Screen["屏幕"]
+    
+    style Data fill:#f5f5f5,stroke:#666
+    style Demuxer fill:#fff3e0,stroke:#f57c00
+    style Decoder fill:#e8f5e9,stroke:#388e3c
+    style Renderer fill:#fce4ec,stroke:#c2185b
+    style Screen fill:#e3f2fd,stroke:#1976d2
 ```
 
 ---

@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <defs>
+    <style>
+      .box { fill: #f8fafc; stroke: #475569; stroke-width: 1.5; rx: 4; }
+      .header { fill: #fef3c7; stroke: #f59e0b; stroke-width: 1.5; }
+      .tag { fill: #dbeafe; stroke: #3b82f6; stroke-width: 1.5; }
+      .prev { fill: #dcfce7; stroke: #22c55e; stroke-width: 1.5; }
+      .label { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #334155; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: bold; fill: #0f172a; }
+      .byte { font-family: monospace; font-size: 10px; fill: #64748b; }
+      .arrow { stroke: #64748b; stroke-width: 1.5; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="450" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="400" y="25" text-anchor="middle" class="title">FLV 文件结构</text>
+  
+  <!-- FLV Header -->
+  <text x="50" y="55" class="title">FLV Header (9 bytes)</text>
+  
+  <rect x="50" y="65" width="60" height="40" class="header"/>
+  <text x="80" y="82" text-anchor="middle" class="label">Signature</text>
+  <text x="80" y="95" text-anchor="middle" class="byte">'F' 'L' 'V'</text>
+  
+  <rect x="110" y="65" width="50" height="40" class="header"/>
+  <text x="135" y="82" text-anchor="middle" class="label">Version</text>
+  <text x="135" y="95" text-anchor="middle" class="byte">0x01</text>
+  
+  <rect x="160" y="65" width="60" height="40" class="header"/>
+  <text x="190" y="82" text-anchor="middle" class="label">Flags</text>
+  <text x="190" y="95" text-anchor="middle" class="byte">0x05 = A+V</text>
+  
+  <rect x="220" y="65" width="100" height="40" class="header"/>
+  <text x="270" y="82" text-anchor="middle" class="label">Header Size</text>
+  <text x="270" y="95" text-anchor="middle" class="byte">4 bytes (LE) = 9</text>
+  
+  <!-- Arrow to first tag -->
+  <line x1="400" y1="105" x2="400" y2="125" class="arrow"/>
+  
+  <!-- First PreviousTagSize0 -->
+  <rect x="350" y="130" width="100" height="30" class="prev"/>
+  <text x="400" y="150" text-anchor="middle" class="label">PreviousTagSize0</text>
+  <text x="400" y="150" text-anchor="middle" class="byte" dy="12">= 0 (4 bytes)</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="160" x2="400" y2="175" class="arrow"/>
+  
+  <!-- Tags -->
+  <text x="50" y="195" class="title">FLV Tags (循环)</text>
+  
+  <!-- Tag 1 -->
+  <rect x="50" y="205" width="700" height="60" class="tag"/>
+  
+  <!-- Tag Header -->
+  <rect x="55" y="210" width="40" height="50" fill="#bfdbfe"/>
+  <text x="75" y="228" text-anchor="middle" class="label">Tag Type</text>
+  <text x="75" y="243" text-anchor="middle" class="byte">8=Audio</text>
+  <text x="75" y="255" text-anchor="middle" class="byte">9=Video</text>
+  
+  <rect x="95" y="210" width="60" height="50" fill="#bfdbfe"/>
+  <text x="125" y="228" text-anchor="middle" class="label">Data Size</text>
+  <text x="125" y="245" text-anchor="middle" class="byte">3 bytes (BE)</text>
+  
+  <rect x="155" y="210" width="80" height="50" fill="#bfdbfe"/>
+  <text x="195" y="228" text-anchor="middle" class="label">Timestamp</text>
+  <text x="195" y="243" text-anchor="middle" class="byte">3 bytes (BE)</text>
+  <text x="195" y="255" text-anchor="middle" class="byte">+ 1 ext</text>
+  
+  <rect x="235" y="210" width="70" height="50" fill="#bfdbfe"/>
+  <text x="270" y="235" text-anchor="middle" class="label">Stream ID</text>
+  <text x="270" y="250" text-anchor="middle" class="byte">3 bytes = 0</text>
+  
+  <!-- Tag Data -->
+  <rect x="305" y="210" width="300" height="50" fill="#dbeafe"/>
+  <text x="455" y="235" text-anchor="middle" class="label">Tag Data</text>
+  <text x="455" y="250" text-anchor="middle" class="byte">Audio/Video/Script data</text>
+  
+  <!-- Tag Type Description -->
+  <text x="620" y="228" class="label">视频 Tag (Type 9):</text>
+  <text x="620" y="243" class="byte">FrameType(4) + CodecID(4)</text>
+  <text x="620" y="258" class="byte">+ AVC Packet Type + CTS</text>
+  
+  <!-- PreviousTagSize -->
+  <rect x="50" y="270" width="700" height="30" class="prev"/>
+  <text x="400" y="290" text-anchor="middle" class="label">PreviousTagSize (4 bytes) = 当前 Tag 总大小 (11 + Data Size)</text>
+  
+  <!-- More tags -->
+  <text x="400" y="320" text-anchor="middle" class="byte">... 更多 Tags ...</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="335" x2="400" y2="345" class="arrow"/>
+  
+  <!-- Last Tag -->
+  <rect x="50" y="350" width="700" height="60" class="tag"/>
+  <text x="400" y="385" text-anchor="middle" class="label">最后一个 Tag</text>
+  
+  <!-- Video Tag Detail -->
+  <text x="50" y="430" class="title">视频 Tag 数据格式 (H.264)</text>
+  
+  <rect x="50" y="440" width="50" height="35" fill="#fecaca"/>
+  <text x="75" y="455" text-anchor="middle" class="label" font-size="9">FrameType</text>
+  <text x="75" y="468" text-anchor="middle" class="byte">1=Key</text>
+  <text x="75" y="455" text-anchor="middle" class="label" font-size="9" dx="35">CodecID</text>
+  <text x="110" y="468" text-anchor="middle" class="byte">7=AVC</text>
+  
+  <rect x="100" y="440" width="50" height="35" fill="#fecaca"/>
+  
+  <rect x="150" y="440" width="70" height="35" fill="#fef3c7"/>
+  <text x="185" y="460" text-anchor="middle" class="label">AVC Packet Type</text>
+  
+  <rect x="220" y="440" width="70" height="35" fill="#e0e7ff"/>
+  <text x="255" y="460" text-anchor="middle" class="label">Composition Time</text>
+  
+  <rect x="290" y="440" width="200" height="35" fill="#dcfce7"/>
+  <text x="390" y="460" text-anchor="middle" class="label">H.264 Data</text>
+</svg>

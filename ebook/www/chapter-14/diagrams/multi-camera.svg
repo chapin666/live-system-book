@@ -1,0 +1,85 @@
+<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="700" height="400" fill="#f8f9fa"/>
+  
+  <text x="350" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">多摄像头采集架构</text>
+  
+  <!-- Camera 1 -->
+  <g transform="translate(50, 80)">
+    <rect x="0" y="0" width="120" height="100" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="5"/>
+    <text x="60" y="40" text-anchor="middle" font-size="13" fill="white" font-weight="bold">摄像头 1</text>
+    <text x="60" y="65" text-anchor="middle" font-size="11" fill="#e3f2fd">主摄 1080p</text>
+    <text x="60" y="82" text-anchor="middle" font-size="10" fill="#bbdefb">/dev/video0</text>
+  </g>
+  
+  <!-- Camera 2 -->
+  <g transform="translate(200, 80)">
+    <rect x="0" y="0" width="120" height="100" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="60" y="40" text-anchor="middle" font-size="13" fill="white" font-weight="bold">摄像头 2</text>
+    <text x="60" y="65" text-anchor="middle" font-size="11" fill="#e8f5e9">特写 720p</text>
+    <text x="60" y="82" text-anchor="middle" font-size="10" fill="#c8e6c9">/dev/video1</text>
+  </g>
+  
+  <!-- Camera 3 -->
+  <g transform="translate(350, 80)">
+    <rect x="0" y="0" width="120" height="100" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="5"/>
+    <text x="60" y="40" text-anchor="middle" font-size="13" fill="white" font-weight="bold">摄像头 3</text>
+    <text x="60" y="65" text-anchor="middle" font-size="11" fill="#fff3e0">广角 1080p</text>
+    <text x="60" y="82" text-anchor="middle" font-size="10" fill="#ffe0b2">/dev/video2</text>
+  </g>
+  
+  <!-- Arrows to manager -->
+  <line x1="110" y1="180" x2="250" y2="220" stroke="#666" stroke-width="2"/>
+  <line x1="260" y1="180" x2="270" y2="220" stroke="#666" stroke-width="2"/>
+  <line x1="410" y1="180" x2="290" y2="220" stroke="#666" stroke-width="2"/>
+  
+  <!-- Camera Manager -->
+  <g transform="translate(200, 220)">
+    <rect x="0" y="0" width="140" height="80" fill="#9c27b0" stroke="#7b1fa2" stroke-width="2" rx="5"/>
+    <text x="70" y="35" text-anchor="middle" font-size="14" fill="white" font-weight="bold">摄像头管理器</text>
+    <text x="70" y="58" text-anchor="middle" font-size="11" fill="#e1bee7">• 设备枚举</text>
+    <text x="70" y="73" text-anchor="middle" font-size="11" fill="#e1bee7">• 时序同步</text>
+  </g>
+  
+  <!-- Switcher -->
+  <g transform="translate(380, 220)">
+    <rect x="0" y="0" width="120" height="80" fill="#ff5722" stroke="#d84315" stroke-width="2" rx="5"/>
+    <text x="60" y="35" text-anchor="middle" font-size="14" fill="white" font-weight="bold">画面切换器</text>
+    <text x="60" y="58" text-anchor="middle" font-size="11" fill="#ffccbc">• 主副切换</text>
+    <text x="60" y="73" text-anchor="middle" font-size="11" fill="#ffccbc">• 画中画</text>
+  </g>
+  
+  <!-- Arrow -->
+  <line x1="340" y1="260" x2="380" y2="260" stroke="#666" stroke-width="2" marker-end="url(#arrowpip)"/>
+  
+  <!-- Output -->
+  <g transform="translate(530, 220)">
+    <rect x="0" y="0" width="120" height="80" fill="#607d8b" stroke="#455a64" stroke-width="2" rx="5"/>
+    <text x="60" y="35" text-anchor="middle" font-size="14" fill="white" font-weight="bold">输出</text>
+    <text x="60" y="58" text-anchor="middle" font-size="11" fill="#cfd8dc">单路视频流</text>
+  </g>
+  
+  <line x1="500" y1="260" x2="530" y2="260" stroke="#666" stroke-width="2" marker-end="url(#arrowpip)"/>
+  
+  <!-- PIP diagram -->
+  <g transform="translate(530, 80)">
+    <text x="60" y="0" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">画中画效果</text>
+    <rect x="0" y="15" width="120" height="90" fill="#333" rx="3"/>
+    <text x="60" y="65" text-anchor="middle" font-size="11" fill="#999">主画面</text>
+    <rect x="70" y="25" width="40" height="30" fill="#f0ad4e" opacity="0.9" rx="2"/>
+    <text x="90" y="45" text-anchor="middle" font-size="8" fill="white">小窗</text>
+  </g>
+  
+  <!-- Sync info -->
+  <g transform="translate(50, 330)">
+    <rect x="0" y="0" width="600" height="50" fill="#fff" stroke="#ddd" rx="5"/>
+    <text x="300" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">多摄像头同步挑战</text>
+    <text x="20" y="40" font-size="11" fill="#666">• 每个摄像头独立时钟 → 需要帧时间戳对齐</text>
+    <text x="320" y="40" font-size="11" fill="#666">• USB 带宽限制 → 高分辨率可能冲突</text>
+  </g>
+  
+  <defs>
+    <marker id="arrowpip" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

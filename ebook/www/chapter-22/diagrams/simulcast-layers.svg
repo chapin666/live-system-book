@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 550">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+    
+    <linearGradient id="senderGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e3f2fd"/>
+      <stop offset="100%" stop-color="#bbdefb"/>
+    </linearGradient>
+    
+    <linearGradient id="sfuGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e8f5e9"/>
+      <stop offset="100%" stop-color="#c8e6c9"/>
+    </linearGradient>
+    
+    <linearGradient id="receiverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff3e0"/>
+      <stop offset="100%" stop-color="#ffe0b2"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="850" height="550" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="425" y="30" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="#333">
+    Simulcast Layer Structure
+  </text>
+  
+  <!-- Sender Section -->
+  <rect x="30" y="50" width="230" height="450" rx="8" fill="url(#senderGrad)" stroke="#1976d2" stroke-width="2"/>
+  <text x="145" y="75" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#1565c0">
+    Sender (Encoder)
+  </text>
+  
+  <!-- Camera Source -->
+  <rect x="50" y="90" width="190" height="50" rx="6" fill="white" stroke="#1976d2" stroke-width="1"/>
+  <text x="145" y="112" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#333">Camera Source</text>
+  <text x="145" y="128" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">1080p @ 30fps</text>
+  
+  <!-- Arrow down -->
+  <line x1="145" y1="140" x2="145" y2="160" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="180" y="155" font-family="Arial" font-size="9" fill="#666">3 encoders</text>
+  
+  <!-- High Layer -->
+  <rect x="50" y="170" width="190" height="90" rx="6" fill="#c8e6c9" stroke="#43a047" stroke-width="2"/>
+  <text x="145" y="190" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#2e7d32">HIGH Layer (L0)</text>
+  <text x="145" y="210" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">1080p @ 30fps</text>
+  <text x="145" y="228" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">Resolution: 1920×1080</text>
+  <text x="145" y="244" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">Bitrate: ~2.5 Mbps</text>
+  
+  <!-- Medium Layer -->
+  <rect x="50" y="275" width="190" height="90" rx="6" fill="#fff9c4" stroke="#fbc02d" stroke-width="2"/>
+  <text x="145" y="295" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#f57f17">MEDIUM Layer (L1)</text>
+  <text x="145" y="315" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">540p @ 30fps</text>
+  <text x="145" y="333" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">Resolution: 960×540</text>
+  <text x="145" y="349" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">Bitrate: ~600 Kbps</text>
+  
+  <!-- Low Layer -->
+  <rect x="50" y="380" width="190" height="90" rx="6" fill="#ffcdd2" stroke="#e53935" stroke-width="2"/>
+  <text x="145" y="400" text-anchor="middle" font-family="Arial" font-size="11" font-weight="bold" fill="#c62828">LOW Layer (L2)</text>
+  <text x="145" y="420" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">270p @ 15fps</text>
+  <text x="145" y="438" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">Resolution: 480×270</text>
+  <text x="145" y="454" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">Bitrate: ~200 Kbps</text>
+  
+  <!-- SFU Section -->
+  <rect x="280" y="50" width="200" height="450" rx="8" fill="url(#sfuGrad3)" stroke="#43a047" stroke-width="2"/>
+  <text x="380" y="75" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#2e7d32">
+    SFU Server
+  </text>
+  
+  <text x="380" y="100" text-anchor="middle" font-family="Arial" font-size="10" fill="#666">Selective Forwarding</text>
+  
+  <!-- SSRC Mapping -->
+  <rect x="295" y="120" width="170" height="50" rx="4" fill="white" stroke="#43a047" stroke-width="1"/>
+  <text x="380" y="140" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">SSRC Mapping</text>
+  <text x="380" y="155" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">L0→1111, L1→2222, L2→3333</text>
+  
+  <!-- Arrows from sender -->
+  <line x1="240" y1="215" x2="295" y2="200" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="240" y1="320" x2="295" y2="320" stroke="#fbc02d" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="240" y1="425" x2="295" y2="440" stroke="#e53935" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Layer Selector -->
+  <rect x="295" y="220" width="170" height="150" rx="4" fill="#fff3e0" stroke="#ff9800" stroke-width="1"/>
+  <text x="380" y="240" text-anchor="middle" font-family="Arial" font-size="10" font-weight="bold" fill="#e65100">Layer Selector</text>
+  <text x="305" y="260" font-family="Arial" font-size="8" fill="#666">Selection criteria:</text>
+  <text x="305" y="275" font-family="Arial" font-size="8" fill="#666">• Receiver viewport</text>
+  <text x="305" y="288" font-family="Arial" font-size="8" fill="#666">• Available bandwidth</text>
+  <text x="305" y="301" font-family="Arial" font-size="8" fill="#666">• CPU capability</text>
+  <text x="305" y="320" font-family="Arial" font-size="8" fill="#666">Example decisions:</text>
+  <text x="305" y="335" font-family="Arial" font-size="8" fill="#4caf50">✓ Desktop → L0</text>
+  <text x="305" y="348" font-family="Arial" font-size="8" fill="#f57f17">✓ Tablet → L1</text>
+  <text x="305" y="361" font-family="Arial" font-size="8" fill="#e53935">✓ Mobile/WiFi → L2</text>
+  
+  <!-- Subscriber Management -->
+  <rect x="295" y="385" width="170" height="100" rx="4" fill="white" stroke="#43a047" stroke-width="1"/>
+  <text x="380" y="405" text-anchor="middle" font-family="Arial" font-size="10" font-weight="bold" fill="#333">Subscriber Mgmt</text>
+  <text x="305" y="425" font-family="Arial" font-size="8" fill="#666">Alice → [Bob, Carol]</text>
+  <text x="305" y="440" font-family="Arial" font-size="8" fill="#666">Bob → [Alice, Carol]</text>
+  <text x="305" y="455" font-family="Arial" font-size="8" fill="#666">Carol → [Alice, Bob]</text>
+  
+  <!-- Receiver A Section -->
+  <rect x="500" y="50" width="150" height="200" rx="8" fill="url(#receiverGrad)" stroke="#fb8c00" stroke-width="2"/>
+  <text x="575" y="75" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="#e65100">Receiver A</text>
+  <text x="575" y="92" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">(Desktop - Large Screen)</text>
+  
+  <rect x="515" y="110" width="120" height="60" rx="4" fill="#c8e6c9" stroke="#43a047" stroke-width="2"/>
+  <text x="575" y="132" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">Receiving L0</text>
+  <text x="575" y="150" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">1080p / 2.5Mbps</text>
+  
+  <rect x="515" y="180" width="120" height="50" rx="4" fill="white" stroke="#fb8c00" stroke-width="1"/>
+  <text x="575" y="200" text-anchor="middle" font-family="Arial" font-size="9" fill="#333">Viewport: 1280×720</text>
+  <text x="575" y="215" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">Bandwidth: 10 Mbps</text>
+  
+  <!-- Arrow from SFU -->
+  <line x1="480" y1="170" x2="515" y2="140" stroke="#4caf50" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="500" y="135" font-family="Arial" font-size="8" fill="#4caf50">L0</text>
+  
+  <!-- Receiver B Section -->
+  <rect x="500" y="270" width="150" height="110" rx="8" fill="url(#receiverGrad)" stroke="#fb8c00" stroke-width="2"/>
+  <text x="575" y="290" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="#e65100">Receiver B</text>
+  <text x="575" y="305" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">(Tablet)</text>
+  
+  <rect x="515" y="315" width="120" height="50" rx="4" fill="#fff9c4" stroke="#fbc02d" stroke-width="2"/>
+  <text x="575" y="335" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">Receiving L1</text>
+  <text x="575" y="352" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">540p / 600Kbps</text>
+  
+  <!-- Arrow from SFU -->
+  <line x1="480" y1="325" x2="515" y2="340" stroke="#fbc02d" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="500" y="345" font-family="Arial" font-size="8" fill="#f57f17">L1</text>
+  
+  <!-- Receiver C Section -->
+  <rect x="500" y="400" width="150" height="100" rx="8" fill="url(#receiverGrad)" stroke="#fb8c00" stroke-width="2"/>
+  <text x="575" y="420" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="#e65100">Receiver C</text>
+  <text x="575" y="435" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">(Mobile - Weak 4G)</text>
+  
+  <rect x="515" y="445" width="120" height="40" rx="4" fill="#ffcdd2" stroke="#e53935" stroke-width="2"/>
+  <text x="575" y="462" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">Receiving L2</text>
+  <text x="575" y="476" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">270p / 200Kbps</text>
+  
+  <!-- Arrow from SFU -->
+  <line x1="480" y1="435" x2="515" y2="465" stroke="#e53935" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="500" y="475" font-family="Arial" font-size="8" fill="#e53935">L2</text>
+  
+  <!-- Benefits Box -->
+  <rect x="670" y="50" width="160" height="450" rx="8" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="750" y="75" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="#333">Benefits</text>
+  
+  <text x="685" y="100" font-family="Arial" font-size="10" font-weight="bold" fill="#2e7d32">Bandwidth Savings:</text>
+  <text x="685" y="118" font-family="Arial" font-size="9" fill="#666">No need to send</text>
+  <text x="685" y="132" font-family="Arial" font-size="9" fill="#666">high-res to mobile</text>
+  
+  <text x="685" y="160" font-family="Arial" font-size="10" font-weight="bold" fill="#1565c0">Adaptivity:</text>
+  <text x="685" y="178" font-family="Arial" font-size="9" fill="#666">Auto switch layers</text>
+  <text x="685" y="192" font-family="Arial" font-size="9" fill="#666">based on network</text>
+  
+  <text x="685" y="220" font-family="Arial" font-size="10" font-weight="bold" fill="#e65100">Flexibility:</text>
+  <text x="685" y="238" font-family="Arial" font-size="9" fill="#666">Different quality</text>
+  <text x="685" y="252" font-family="Arial" font-size="9" fill="#666">for different views</text>
+  
+  <text x="685" y="280" font-family="Arial" font-size="10" font-weight="bold" fill="#6a1b9a">CPU Efficiency:</text>
+  <text x="685" y="298" font-family="Arial" font-size="9" fill="#666">Sender encodes once</text>
+  <text x="685" y="312" font-family="Arial" font-size="9" fill="#666">in 3 qualities</text>
+  
+  <!-- Smooth Switching -->
+  <rect x="685" y="340" width="130" height="140" rx="4" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+  <text x="750" y="360" text-anchor="middle" font-family="Arial" font-size="10" font-weight="bold" fill="#2e7d32">Smooth Switch</text>
+  
+  <text x="695" y="380" font-family="Arial" font-size="8" fill="#333">When:</text>
+  <text x="695" y="395" font-family="Arial" font-size="8" fill="#666">• Window resize</text>
+  <text x="695" y="408" font-family="Arial" font-size="8" fill="#666">• Network change</text>
+  <text x="695" y="421" font-family="Arial" font-size="8" fill="#666">• Focus change</text>
+  
+  <text x="695" y="445" font-family="Arial" font-size="8" fill="#333">How:</text>
+  <text x="695" y="460" font-family="Arial" font-size="8" fill="#666">• Request keyframe</text>
+  <text x="695" y="473" font-family="Arial" font-size="8" fill="#666">• Min. 2s interval</text>
+</svg>

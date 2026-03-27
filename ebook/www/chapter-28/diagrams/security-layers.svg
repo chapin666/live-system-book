@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400">
+  <!-- Background -->
+  <rect width="900" height="400" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">直播系统安全分层架构</text>
+  
+  
+  <!-- Layer 3: Content Security -->
+  <g transform="translate(50, 60)">
+    <rect width="800" height="90" fill="#fce4ec" stroke="#e91e63" stroke-width="2" rx="8"/>
+    
+    
+    <text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2185b">内容层安全 (Content Layer)</text>
+    
+    
+    <g transform="translate(30, 40)">
+      <rect width="130" height="35" fill="#f8bbd0" rx="5"/>
+      
+      <text x="65" y="22" text-anchor="middle" font-size="10" fill="#333">DRM 加密</text>
+    </g>
+    
+    
+    <g transform="translate(180, 40)">
+      <rect width="130" height="35" fill="#f8bbd0" rx="5"/>
+      
+      <text x="65" y="22" text-anchor="middle" font-size="10" fill="#333">水印嵌入</text>
+    </g>
+    
+    
+    <g transform="translate(330, 40)">
+      <rect width="130" height="35" fill="#f8bbd0" rx="5"/>
+      
+      <text x="65" y="22" text-anchor="middle" font-size="10" fill="#333">内容审核</text>
+    </g>
+    
+    
+    <g transform="translate(480, 40)">
+      <rect width="130" height="35" fill="#f8bbd0" rx="5"/>
+      
+      <text x="65" y="22" text-anchor="middle" font-size="10" fill="#333">端到端加密(E2EE)</text>
+    </g>
+    
+    
+    <g transform="translate(630, 40)">
+      <rect width="130" height="35" fill="#f8bbd0" rx="5"/>
+      
+      <text x="65" y="22" text-anchor="middle" font-size="10" fill="#333">防录屏</text>
+    </g>
+  </g>
+  
+  
+  <!-- Layer 2: Application Security -->
+  <g transform="translate(50, 160)">
+    
+    <rect width="800" height="90" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="8"/>
+    
+    
+    <text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#e65100">应用层安全 (Application Layer)</text>
+    
+    
+    <g transform="translate(80, 40)">
+      <rect width="140" height="35" fill="#ffe0b2" rx="5"/>
+      
+      <text x="70" y="22" text-anchor="middle" font-size="10" fill="#333">Token鉴权</text>
+    </g>
+    
+    
+    <g transform="translate(250, 40)">
+      <rect width="140" height="35" fill="#ffe0b2" rx="5"/>
+      
+      <text x="70" y="22" text-anchor="middle" font-size="10" fill="#333">防盗链</text>
+    </g>
+    
+    
+    <g transform="translate(420, 40)">
+      <rect width="140" height="35" fill="#ffe0b2" rx="5"/>
+      
+      <text x="70" y="22" text-anchor="middle" font-size="10" fill="#333">房间权限控制</text>
+    </g>
+    
+    
+    <g transform="translate(590, 40)">
+      <rect width="140" height="35" fill="#ffe0b2" rx="5"/>
+      
+      <text x="70" y="22" text-anchor="middle" font-size="10" fill="#333">信令加密</text>
+    </g>
+  </g>
+  
+  
+  <!-- Layer 1: Transport Security -->
+  <g transform="translate(50, 260)">
+    <rect width="800" height="90" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    
+    
+    <text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565c0">传输层安全 (Transport Layer)</text>
+    
+    
+    <g transform="translate(60, 40)">
+      <rect width="120" height="35" fill="#bbdefb" rx="5"/>
+      
+      <text x="60" y="22" text-anchor="middle" font-size="10" fill="#333">DTLS握手</text>
+    </g>
+    
+    
+    <g transform="translate(200, 40)">
+      <rect width="120" height="35" fill="#bbdefb" rx="5"/>
+      
+      <text x="60" y="22" text-anchor="middle" font-size="10" fill="#333">SRTP加密</text>
+    </g>
+    
+    
+    <g transform="translate(340, 40)">
+      <rect width="120" height="35" fill="#bbdefb" rx="5"/>
+      
+      <text x="60" y="22" text-anchor="middle" font-size="10" fill="#333">TLS/HTTPS</text>
+    </g>
+    
+    
+    <g transform="translate(480, 40)">
+      <rect width="120" height="35" fill="#bbdefb" rx="5"/>
+      
+      <text x="60" y="22" text-anchor="middle" font-size="10" fill="#333">证书 pinning</text>
+    </g>
+    
+    
+    <g transform="translate(620, 40)">
+      <rect width="120" height="35" fill="#bbdefb" rx="5"/>
+      
+      <text x="60" y="22" text-anchor="middle" font-size="10" fill="#333">防重放攻击</text>
+    </g>
+  </g>
+  
+  
+  <!-- Arrows showing defense in depth -->
+  <g transform="translate(870, 150)">
+    <text x="0" y="0" font-size="10" fill="#666" font-weight="bold">纵深防御</text>
+    
+    <text x="0" y="15" font-size="9" fill="#666">(多层保护)</text>
+  </g>
+</svg>

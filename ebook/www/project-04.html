@@ -418,9 +418,23 @@ type="checkbox" />实时显示帧率、码率、音量</label></li>
 <p><strong>完成本项目后，你将掌握：</strong> - 多设备采集管理 -
 画面合成与布局 - 实时统计信息显示 - 本地录制实现</p>
 <p><strong>为第十五章（美颜滤镜）和第十六章（主播端架构）打下基础。</strong></p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

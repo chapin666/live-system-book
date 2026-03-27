@@ -426,9 +426,23 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#
 <p><strong>学完本节，你应该能理解</strong>： - Ch2 为什么要用多线程 -
 <code>FrameQueue</code> 的工作原理 - 为什么需要锁和条件变量</p>
 <p>如果还有疑问，建议先写几个简单的多线程程序练习，再回来看 Ch2。</p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

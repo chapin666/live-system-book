@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 350">
+  <rect width="600" height="350" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="300" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">模块协作流程</text>
+  
+  
+  <!-- 第1步：初始化 -->
+  <rect x="50" y="60" width="500" height="70" rx="6" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+  <text x="70" y="80" font-size="12" font-weight="bold" fill="#333">1. 初始化</text>
+  
+  <rect x="80" y="95" width="90" height="25" rx="4" fill="#e3f2fd" stroke="#1976d2" stroke-width="1"/>
+  <text x="125" y="112" text-anchor="middle" font-size="10" fill="#333">main</text>
+  
+  <path d="M 170 107 L 200 107" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+  
+  <rect x="200" y="95" width="90" height="25" rx="4" fill="#fff3e0" stroke="#f57c00" stroke-width="1"/>
+  <text x="245" y="112" text-anchor="middle" font-size="10" fill="#333">Demuxer</text>
+  
+  <path d="M 290 107 L 320 107" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+  
+  <rect x="320" y="95" width="90" height="25" rx="4" fill="#e8f5e9" stroke="#388e3c" stroke-width="1"/>
+  <text x="365" y="112" text-anchor="middle" font-size="10" fill="#333">Decoder</text>
+  
+  <path d="M 410 107 L 440 107" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+  
+  <rect x="440" y="95" width="90" height="25" rx="4" fill="#fce4ec" stroke="#c2185b" stroke-width="1"/>
+  <text x="485" y="112" text-anchor="middle" font-size="10" fill="#333">Renderer</text>
+  
+  
+  <!-- 第2步：播放循环 -->
+  <rect x="50" y="150" width="500" height="130" rx="6" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+  <text x="70" y="170" font-size="12" font-weight="bold" fill="#333">2. 播放循环</text>
+  
+  <!-- 循环框 -->
+  <rect x="80" y="185" width="450" height="85" rx="4" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="500" y="200" font-size="10" fill="#999">while (running)</text>
+  
+  <!-- 读取 -->
+  <rect x="100" y="215" width="100" height="40" rx="4" fill="#fff3e0" stroke="#f57c00" stroke-width="1"/>
+  <text x="150" y="235" text-anchor="middle" font-size="11" fill="#333">Demuxer</text>
+  <text x="150" y="250" text-anchor="middle" font-size="9" fill="#666">读取数据包</text>
+  
+  <path d="M 200 235 L 240 235" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+  
+  <!-- 解码 -->
+  <rect x="240" y="215" width="100" height="40" rx="4" fill="#e8f5e9" stroke="#388e3c" stroke-width="1"/>
+  <text x="290" y="235" text-anchor="middle" font-size="11" fill="#333">Decoder</text>
+  <text x="290" y="250" text-anchor="middle" font-size="9" fill="#666">解码为像素帧</text>
+  
+  <path d="M 340 235 L 380 235" stroke="#666" stroke-width="1" marker-end="url(#arrow)"/>
+  
+  <!-- 渲染 -->
+  <rect x="380" y="215" width="100" height="40" rx="4" fill="#fce4ec" stroke="#c2185b" stroke-width="1"/>
+  <text x="430" y="235" text-anchor="middle" font-size="11" fill="#333">Renderer</text>
+  <text x="430" y="250" text-anchor="middle" font-size="9" fill="#666">渲染显示</text>
+  
+  
+  <!-- 第3步：结束 -->
+  <rect x="50" y="300" width="500" height="40" rx="6" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+  <text x="70" y="320" font-size="12" font-weight="bold" fill="#333">3. 结束</text>
+  <text x="200" y="325" font-size="11" fill="#666">释放资源，清理内存</text>
+  
+  <!-- 箭头定义 -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

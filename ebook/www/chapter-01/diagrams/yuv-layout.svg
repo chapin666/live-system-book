@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400">
+  <rect width="600" height="400" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="300" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">YUV420P 内存布局</text>
+  
+  <text x="300" y="50" text-anchor="middle" font-size="11" fill="#666">分辨率：1920 × 1080</text>
+  
+  <!-- Y 平面 -->
+  <rect x="50" y="70" width="400" height="120" rx="4" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  
+  <text x="70" y="95" font-size="13" font-weight="bold" fill="#333">Y 平面（亮度）</text>
+  <text x="70" y="115" font-size="11" fill="#666">分辨率：1920 × 1080</text>
+  <text x="70" y="135" font-size="11" fill="#666">每个像素 1 字节</text>
+  
+  <!-- Y 数据示意 -->
+  <g fill="#388e3c" opacity="0.3">
+    <rect x="200" y="85" width="8" height="8"/>
+    <rect x="212" y="85" width="8" height="8"/>
+    <rect x="224" y="85" width="8" height="8"/>
+    <rect x="200" y="97" width="8" height="8"/>
+    <rect x="212" y="97" width="8" height="8"/>
+    <rect x="224" y="97" width="8" height="8"/>
+  </g>
+  
+  <text x="280" y="100" font-size="10" fill="#388e3c">... 1920 × 1080 个像素 ...</text>
+  
+  <text x="70" y="170" font-size="12" font-weight="bold" fill="#388e3c">大小：2,073,600 字节</text>
+  
+  <!-- 箭头 -->
+  <path d="M 250 195 L 250 210" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- U 平面 -->
+  <rect x="50" y="215" width="200" height="70" rx="4" fill="#fff9c4" stroke="#f9a825" stroke-width="2"/>
+  
+  <text x="65" y="240" font-size="12" font-weight="bold" fill="#333">U 平面（色度）</text>
+  
+  <text x="65" y="258" font-size="10" fill="#666">960 × 540</text>
+  <text x="65" y="273" font-size="10" fill="#f9a825">518,400 字节</text>
+  
+  <!-- U 数据示意 -->
+  <g fill="#f9a825" opacity="0.5">
+    <rect x="150" y="235" width="6" height="6"/>
+    <rect x="160" y="235" width="6" height="6"/>
+    <rect x="150" y="245" width="6" height="6"/>
+    <rect x="160" y="245" width="6" height="6"/>
+  </g>
+  
+  <!-- V 平面 -->
+  <rect x="270" y="215" width="200" height="70" rx="4" fill="#e1bee7" stroke="#8e24aa" stroke-width="2"/>
+  
+  <text x="285" y="240" font-size="12" font-weight="bold" fill="#333">V 平面（色度）</text>
+  <text x="285" y="258" font-size="10" fill="#666">960 × 540</text>
+  <text x="285" y="273" font-size="10" fill="#8e24aa">518,400 字节</text>
+  
+  <!-- V 数据示意 -->
+  <g fill="#8e24aa" opacity="0.5">
+    <rect x="370" y="235" width="6" height="6"/>
+    <rect x="380" y="235" width="6" height="6"/>
+    <rect x="370" y="245" width="6" height="6"/>
+    <rect x="380" y="245" width="6" height="6"/>
+  </g>
+  
+  <!-- 说明文字 -->
+  <rect x="480" y="80" width="110" height="200" rx="4" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+  
+  <text x="485" y="100" font-size="10" font-weight="bold" fill="#333">关键概念</text>
+  
+  <text x="485" y="125" font-size="9" fill="#666">• Y: 完整分辨率</text>
+  <text x="485" y="145" font-size="9" fill="#666">• U/V: 1/4分辨率</text>
+  <text x="485" y="165" font-size="9" fill="#666">• 4个Y共享1个UV</text>
+  
+  <text x="485" y="200" font-size="9" font-weight="bold" fill="#333">总大小</text>
+  <text x="485" y="220" font-size="11" font-weight="bold" fill="#388e3c">3,110,400 字节</text>
+  <text x="485" y="240" font-size="9" fill="#666">比 RGB 省 50%</text>
+  
+  <!-- 箭头定义 -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

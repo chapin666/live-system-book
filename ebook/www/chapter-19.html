@@ -297,7 +297,7 @@ IP：</p>
 <h3 id="四种-nat-类型">2.3 四种 NAT 类型</h3>
 <p>NAT 的行为决定了 P2P 穿透的难度：</p>
 <figure>
-<img src="diagrams/nat-types.svg" alt="四种 NAT 类型对比" />
+<img src="chapter-19/diagrams/nat-types.svg" alt="四种 NAT 类型对比" />
 <figcaption aria-hidden="true">四种 NAT 类型对比</figcaption>
 </figure>
 <h4 id="full-cone完全锥形">Full Cone（完全锥形）</h4>
@@ -352,7 +352,7 @@ NAT 给它分配的公网地址是什么。</p>
 STUN 服务器从公网角度看到源地址 3. 服务器将该地址返回给客户端</p>
 <h3 id="stun-工作流程">3.2 STUN 工作流程</h3>
 <figure>
-<img src="diagrams/stun-flow.svg" alt="STUN 工作流程" />
+<img src="chapter-19/diagrams/stun-flow.svg" alt="STUN 工作流程" />
 <figcaption aria-hidden="true">STUN 工作流程</figcaption>
 </figure>
 <p><strong>协议细节</strong>：</p>
@@ -452,7 +452,7 @@ P2P 连接。此时需要 <strong>中继服务器</strong>。</p>
 通过服务器转发所有数据，保证连接的可靠性。</p>
 <h3 id="turn-中继原理">4.2 TURN 中继原理</h3>
 <figure>
-<img src="diagrams/turn-relay.svg" alt="TURN 中继原理" />
+<img src="chapter-19/diagrams/turn-relay.svg" alt="TURN 中继原理" />
 <figcaption aria-hidden="true">TURN 中继原理</figcaption>
 </figure>
 <p><strong>工作流程</strong>：</p>
@@ -657,7 +657,7 @@ P2P 失败时回退到 TURN - TURN 服务器按区域部署（降低延迟）</p
 </table>
 <h3 id="ice-状态机">5.3 ICE 状态机</h3>
 <figure>
-<img src="diagrams/ice-state-machine.svg" alt="ICE 状态机" />
+<img src="chapter-19/diagrams/ice-state-machine.svg" alt="ICE 状态机" />
 <figcaption aria-hidden="true">ICE 状态机</figcaption>
 </figure>
 <p><strong>状态说明</strong>： -
@@ -793,7 +793,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#
 <h2 id="p2p-连接建立流程">6. P2P 连接建立流程</h2>
 <h3 id="完整流程概览">6.1 完整流程概览</h3>
 <figure>
-<img src="diagrams/p2p-handshake.svg" alt="P2P 连接完整建立流程" />
+<img src="chapter-19/diagrams/p2p-handshake.svg" alt="P2P 连接完整建立流程" />
 <figcaption aria-hidden="true">P2P 连接完整建立流程</figcaption>
 </figure>
 <h3 id="信令交换phase-1">6.2 信令交换（Phase 1）</h3>
@@ -976,9 +976,23 @@ STUN 服务器发现 3. <strong>Relay 候选</strong>：通过 TURN 服务器分
 <p><strong>延伸阅读</strong>： - RFC 5389: STUN Protocol - RFC 5766:
 TURN Protocol - RFC 5245: ICE Protocol - RFC 8445: ICE Negotiation -
 WebRTC 规范: W3C WebRTC API</p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

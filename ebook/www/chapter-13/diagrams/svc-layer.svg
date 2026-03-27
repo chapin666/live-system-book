@@ -1,0 +1,117 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="500" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="400" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">SVC 可伸缩分层编码</text>
+  <text x="400" y="65" text-anchor="middle" font-size="14" fill="#666">一次编码，多层输出，自适应网络</text>
+  
+  <!-- Encoder box -->
+  <rect x="50" y="120" width="120" height="200" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="5"/>
+  <text x="110" y="220" text-anchor="middle" font-size="14" font-weight="bold" fill="white">SVC编码器</text>
+  
+  <!-- Input arrow -->
+  <line x1="20" y1="220" x2="50" y2="220" stroke="#666" stroke-width="2" marker-end="url(#arrowhead3)"/>
+  <text x="10" y="215" text-anchor="middle" font-size="11" fill="#666">输入</text>
+  
+  <!-- Layer boxes -->
+  <!-- Enhancement Layer -->
+  <g transform="translate(220, 100)">
+    <rect x="0" y="0" width="200" height="80" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="5"/>
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="white">增强层 (EL)</text>
+    <text x="100" y="55" text-anchor="middle" font-size="12" fill="white">1920×1080 @ 30fps</text>
+    <text x="100" y="72" text-anchor="middle" font-size="11" fill="#fff3e0">高质量，需要高带宽</text>
+  </g>
+  
+  <!-- Base Layer -->
+  <g transform="translate(220, 200)">
+    <rect x="0" y="0" width="200" height="80" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="white">基础层 (BL)</text>
+    <text x="100" y="55" text-anchor="middle" font-size="12" fill="white">960×540 @ 15fps</text>
+    <text x="100" y="72" text-anchor="middle" font-size="11" fill="#e0f2e0">低质量，低带宽也能播放</text>
+  </g>
+  
+  <!-- Arrows from encoder to layers -->
+  <line x1="170" y1="160" x2="220" y2="140" stroke="#666" stroke-width="2"/>
+  <line x1="170" y1="220" x2="220" y2="240" stroke="#666" stroke-width="2"/>
+  
+  <!-- Network conditions -->
+  <g transform="translate(450, 100)">
+    <text x="80" y="0" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">网络良好 (5Mbps)</text>
+    <rect x="0" y="15" width="160" height="50" fill="#d4edda" stroke="#c3e6cb" stroke-width="1" rx="3"/>
+    <text x="80" y="35" text-anchor="middle" font-size="12" fill="#155724">传输：EL + BL</text>
+    <text x="80" y="52" text-anchor="middle" font-size="11" fill="#28a745">1080p 高清播放</text>
+    
+    <line x1="-30" y1="40" x2="0" y2="40" stroke="#5cb85c" stroke-width="2" marker-end="url(#arrowhead3)"/>
+  </g>
+  
+  <g transform="translate(450, 200)">
+    <text x="80" y="0" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">网络差 (500kbps)</text>
+    <rect x="0" y="15" width="160" height="50" fill="#f8d7da" stroke="#f5c6cb" stroke-width="1" rx="3"/>
+    <text x="80" y="35" text-anchor="middle" font-size="12" fill="#721c24">传输：仅 BL</text>
+    <text x="80" y="52" text-anchor="middle" font-size="11" fill="#dc3545">540p 流畅播放</text>
+    
+    <line x1="-30" y1="40" x2="0" y2="40" stroke="#5cb85c" stroke-width="2" marker-end="url(#arrowhead3)"/>
+  </g>
+  
+  <!-- Temporal scalability diagram -->
+  <g transform="translate(50, 360)">
+    <text x="0" y="0" font-size="13" font-weight="bold" fill="#333">时间可伸缩（Temporal Scalability）</text>
+    
+    <!-- Frame timeline -->
+    <line x1="0" y1="60" x2="400" y2="60" stroke="#ccc" stroke-width="1"/>
+    
+    <!-- T2 frames (all) -->
+    <g transform="translate(0, 20)">
+      <text x="0" y="0" font-size="11" fill="#666">T2 (30fps):</text>
+      <circle cx="50" cy="40" r="8" fill="#f0ad4e"/>
+      <circle cx="100" cy="40" r="8" fill="#f0ad4e"/>
+      <circle cx="150" cy="40" r="8" fill="#f0ad4e"/>
+      <circle cx="200" cy="40" r="8" fill="#f0ad4e"/>
+      <circle cx="250" cy="40" r="8" fill="#f0ad4e"/>
+      <circle cx="300" cy="40" r="8" fill="#f0ad4e"/>
+      <circle cx="350" cy="40" r="8" fill="#f0ad4e"/>
+    </g>
+    
+    <!-- T1 frames (half) -->
+    <g transform="translate(0, 50)">
+      <text x="0" y="0" font-size="11" fill="#666">T1 (15fps):</text>
+      <circle cx="50" cy="40" r="8" fill="#5cb85c"/>
+      <circle cx="100" cy="40" r="8" fill="#ddd"/>
+      <circle cx="150" cy="40" r="8" fill="#5cb85c"/>
+      <circle cx="200" cy="40" r="8" fill="#ddd"/>
+      <circle cx="250" cy="40" r="8" fill="#5cb85c"/>
+      <circle cx="300" cy="40" r="8" fill="#ddd"/>
+      <circle cx="350" cy="40" r="8" fill="#5cb85c"/>
+    </g>
+    
+    <!-- T0 frames (quarter) -->
+    <g transform="translate(0, 80)">
+      <text x="0" y="0" font-size="11" fill="#666">T0 (7.5fps):</text>
+      <circle cx="50" cy="40" r="8" fill="#4a90d9"/>
+      <circle cx="100" cy="40" r="8" fill="#ddd"/>
+      <circle cx="150" cy="40" r="8" fill="#ddd"/>
+      <circle cx="200" cy="40" r="8" fill="#ddd"/>
+      <circle cx="250" cy="40" r="8" fill="#4a90d9"/>
+      <circle cx="300" cy="40" r="8" fill="#ddd"/>
+      <circle cx="350" cy="40" r="8" fill="#ddd"/>
+    </g>
+  </g>
+  
+  <!-- Legend -->
+  <g transform="translate(500, 360)">
+    <text x="0" y="0" font-size="13" font-weight="bold" fill="#333">分层说明</text>
+    <circle cx="10" cy="25" r="8" fill="#4a90d9"/>
+    <text x="25" y="30" font-size="11" fill="#333">T0: 基础层（必须）</text>
+    <circle cx="10" cy="50" r="8" fill="#5cb85c"/>
+    <text x="25" y="55" font-size="11" fill="#333">T1: 第一层增强</text>
+    <circle cx="10" cy="75" r="8" fill="#f0ad4e"/>
+    <text x="25" y="80" font-size="11" fill="#333">T2: 第二层增强</text>
+  </g>
+  
+  <defs>
+    <marker id="arrowhead3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

@@ -248,7 +248,7 @@ vs MCU 的技术选型 - 设计 Publish/Subscribe 媒体转发模型 - 实现 Si
 <p>任何一条连接失败都会影响通信质量。</p>
 <h3 id="sfu-vs-mcu-vs-mesh">1.2 SFU vs MCU vs Mesh</h3>
 <figure>
-<img src="./diagrams/sfu-vs-p2p.svg" alt="SFU vs P2P 对比" />
+<img src="chapter-22/diagrams/sfu-vs-p2p.svg" alt="SFU vs P2P 对比" />
 <figcaption aria-hidden="true">SFU vs P2P 对比</figcaption>
 </figure>
 <p><strong>Mesh（网状，纯 P2P）</strong>：</p>
@@ -356,7 +356,7 @@ C ──→│  只转发不处理 │──→ 转发 A 给 B/C
 <h2 id="sfu-架构设计">2. SFU 架构设计</h2>
 <h3 id="整体架构">2.1 整体架构</h3>
 <figure>
-<img src="./diagrams/sfu-arch.svg" alt="SFU 架构" />
+<img src="chapter-22/diagrams/sfu-arch.svg" alt="SFU 架构" />
 <figcaption aria-hidden="true">SFU 架构</figcaption>
 </figure>
 <pre><code>┌─────────────────────────────────────────────────────────────────┐
@@ -571,7 +571,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#c
     └─→ 低清层 (270p @ 150Kbps) ──→ 小窗口、弱网用户</code></pre>
 <h3 id="simulcast-分层结构">3.2 Simulcast 分层结构</h3>
 <figure>
-<img src="./diagrams/simulcast-layers.svg" alt="Simulcast 分层" />
+<img src="chapter-22/diagrams/simulcast-layers.svg" alt="Simulcast 分层" />
 <figcaption aria-hidden="true">Simulcast 分层</figcaption>
 </figure>
 <div class="sourceCode" id="cb10"><pre
@@ -770,7 +770,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#
 └─────────────────────────────────────────────────────────────┘</code></pre>
 <h3 id="gcc-算法流程">4.3 GCC 算法流程</h3>
 <figure>
-<img src="./diagrams/gcc-algorithm.svg" alt="GCC 算法流程" />
+<img src="chapter-22/diagrams/gcc-algorithm.svg" alt="GCC 算法流程" />
 <figcaption aria-hidden="true">GCC 算法流程</figcaption>
 </figure>
 <p><strong>发送端估计（基于丢包）</strong>：</p>
@@ -1266,9 +1266,23 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#
 <li><p><strong>压力测试</strong>：测试 SFU 在 50 人、100
 人场景下的性能表现</p></li>
 </ol>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

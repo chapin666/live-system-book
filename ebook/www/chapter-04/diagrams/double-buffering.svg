@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <!-- 背景 -->
+  <rect width="800" height="400" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="400" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">
+    双缓冲原理：显示与解码分离
+  </text>
+  
+  <!-- 左侧：单缓冲（问题） -->
+  <g transform="translate(50, 60)">
+    <text x="160" y="20" text-anchor="middle" font-size="14" font-weight="bold" fill="#c62828">
+      单缓冲（问题）
+    </text>
+    
+    <!-- 缓冲区框 -->
+    <rect x="60" y="40" width="200" height="120" rx="4" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+    <text x="160" y="65" text-anchor="middle" font-size="12" fill="#c62828">显存缓冲区</text>
+    
+    <!-- 解码写入 -->
+    <g transform="translate(0, 80)">
+      <rect x="70" y="0" width="80" height="60" fill="#ffcdd2" stroke="#c62828" stroke-width="1"/>
+      <text x="110" y="35" text-anchor="middle" font-size="10" fill="#666">写入新帧</text>
+    </g>
+    
+    <!-- 显示读取 -->
+    <g transform="translate(90, 80)">
+      <rect x="70" y="0" width="80" height="60" fill="none" stroke="#1565c0" stroke-width="2" stroke-dasharray="4"/>
+      <text x="110" y="35" text-anchor="middle" font-size="10" fill="#1565c0">读取显示</text>
+    </g>
+    
+    <!-- 撕裂示意 -->
+    <line x1="60" y1="120" x2="260" y2="120" stroke="#c62828" stroke-width="2" stroke-dasharray="5"/>
+    <text x="160" y="145" text-anchor="middle" font-size="11" fill="#c62828">画面撕裂（读到半帧）</text>
+    
+    <!-- 问题说明 -->
+    <g transform="translate(0, 170)">
+      <text x="160" y="0" text-anchor="middle" font-size="11" fill="#666">问题1：解码直接写入显存</text>
+      <text x="160" y="18" text-anchor="middle" font-size="11" fill="#666">问题2：显示可能读到半帧</text>
+      <text x="160" y="36" text-anchor="middle" font-size="11" fill="#666">问题3：解码阻塞显示</text>
+    </g>
+  </g>
+  
+  <!-- 中间：箭头 -->
+  <g transform="translate(360, 150)">
+    <path d="M 0 30 L 60 30" stroke="#666" stroke-width="3" marker-end="url(#arrowhead)"/>
+    <text x="30" y="20" text-anchor="middle" font-size="11" fill="#666">改进</text>
+  </g>
+  
+  <!-- 右侧：双缓冲（解决） -->
+  <g transform="translate(440, 60)">
+    <text x="160" y="20" text-anchor="middle" font-size="14" font-weight="bold" fill="#2e7d32">
+      双缓冲（解决）
+    </text>
+    
+    <!-- 后台缓冲区（解码中） -->
+    <rect x="20" y="40" width="130" height="100" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="85" y="65" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">后台缓冲区</text>
+    <text x="85" y="85" text-anchor="middle" font-size="10" fill="#666">← 解码写入</text>
+    
+    <!-- 解码箭头 -->
+    <path d="M 85 95 L 85 115" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrowgreen)"/>
+    
+    <!-- 网格表示正在写入 -->
+    <g transform="translate(35, 105)" stroke="#a5d6a7" stroke-width="0.5">
+      <line x1="0" y1="0" x2="100" y2="0"/>
+      <line x1="0" y1="10" x2="100" y2="10"/>
+      <line x1="0" y1="20" x2="100" y2="20"/>
+      <line x1="0" y1="0" x2="0" y2="25"/>
+      <line x1="20" y1="0" x2="20" y2="25"/>
+      <line x1="40" y1="0" x2="40" y2="25"/>
+      <line x1="60" y1="0" x2="60" y2="25"/>
+      <line x1="80" y1="0" x2="80" y2="25"/>
+      <line x1="100" y1="0" x2="100" y2="25"/>
+    </g>
+    
+    <!-- 交换箭头 -->
+    <g transform="translate(155, 85)">
+      <path d="M 0 0 Q 15 -15 30 0" stroke="#f57c00" stroke-width="2" fill="none" marker-end="url(#arroworange)"/>
+      <path d="M 30 10 Q 15 25 0 10" stroke="#f57c00" stroke-width="2" fill="none" marker-end="url(#arroworange)"/>
+      <text x="15" y="8" text-anchor="middle" font-size="9" fill="#f57c00">交换</text>
+    </g>
+    
+    <!-- 前台缓冲区（显示中） -->
+    <rect x="170" y="40" width="130" height="100" rx="4" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="235" y="65" text-anchor="middle" font-size="11" fill="#1565c0" font-weight="bold">前台缓冲区</text>
+    <text x="235" y="85" text-anchor="middle" font-size="10" fill="#666">显示读取 →</text>
+    
+    <!-- 完整的图像 -->
+    <g transform="translate(185, 100)">
+      <rect x="0" y="0" width="100" height="30" fill="#90caf9" opacity="0.5"/>
+      <text x="50" y="20" text-anchor="middle" font-size="9" fill="#1565c0">完整画面</text>
+    </g>
+    
+    <!-- 好处说明 -->
+    <g transform="translate(0, 160)">
+      <rect x="20" y="0" width="280" height="75" rx="4" fill="#f1f8e9" stroke="#2e7d32" stroke-width="1"/>
+      <text x="160" y="22" text-anchor="middle" font-size="12" fill="#2e7d32" font-weight="bold">好处</text>
+      <text x="160" y="42" text-anchor="middle" font-size="11" fill="#666">✓ 解码和显示完全分离</text>
+      <text x="160" y="60" text-anchor="middle" font-size="11" fill="#666">✓ 永无画面撕裂</text>
+    </g>
+  </g>
+  
+  <!-- 底部：帧队列扩展 -->
+  <g transform="translate(50, 320)">
+    <text x="350" y="15" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">
+      扩展：帧队列（多缓冲）
+    </text>
+    
+    <!-- 解码线程 -->
+    <rect x="0" y="30" width="100" height="40" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="50" y="48" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">解码线程</text>
+    <text x="50" y="62" text-anchor="middle" font-size="9" fill="#666">25ms/帧</text>
+    
+    <!-- 箭头到队列 -->
+    <path d="M 100 50 L 140 50" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrowgreen)"/>
+    
+    <!-- 帧队列 -->
+    <rect x="150" y="25" width="200" height="50" rx="4" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+    <text x="250" y="42" text-anchor="middle" font-size="11" fill="#f57c00" font-weight="bold">帧队列 (3-5帧缓冲)</text>
+    
+    <!-- 队列中的帧 -->
+    <rect x="170" y="52" width="30" height="15" fill="#ffe0b2"/>
+    <rect x="205" y="52" width="30" height="15" fill="#ffe0b2"/>
+    <rect x="240" y="52" width="30" height="15" fill="#ffe0b2"/>
+    <rect x="275" y="52" width="30" height="15" fill="#ffe0b2" stroke="#f57c00" stroke-dasharray="2"/>
+    <text x="310" y="62" text-anchor="middle" font-size="8" fill="#f57c00">...</text>
+    
+    <!-- 箭头到渲染 -->
+    <path d="M 350 50 L 390 50" stroke="#1565c0" stroke-width="2" marker-end="url(#arrowblue)"/>
+    
+    <!-- 渲染线程 -->
+    <rect x="400" y="30" width="100" height="40" rx="4" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="450" y="48" text-anchor="middle" font-size="11" fill="#1565c0" font-weight="bold">渲染线程</text>
+    <text x="450" y="62" text-anchor="middle" font-size="9" fill="#666">33ms/帧 (30fps)</text>
+    
+    <!-- 底部说明 -->
+    <text x="250" y="95" text-anchor="middle" font-size="10" fill="#888">
+      队列解耦解码和渲染，允许两者以不同速度运行
+    </text>
+  </g>
+  
+  <!-- 箭头定义 -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+    <marker id="arrowgreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2e7d32"/>
+    </marker>
+    <marker id="arrowblue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1565c0"/>
+    </marker>
+    <marker id="arroworange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f57c00"/>
+    </marker>
+  </defs>
+</svg>

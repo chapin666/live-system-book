@@ -1,0 +1,99 @@
+<svg viewBox="0 0 850 500" xmlns="http://www.w3.org/2000/svg">
+  <rect width="850" height="500" fill="#fafafa"/>
+  
+  <text x="425" y="40" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="24" font-weight="bold" fill="#333">多人房间架构</text>
+  
+  <!-- SFU Server -->
+  <g transform="translate(325, 80)">
+    <rect x="0" y="0" width="200" height="100" rx="12" fill="#e3f2fd" stroke="#2196f3" stroke-width="3"/>
+    <text x="100" y="35" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1976d2">SFU Server</text>
+    
+    <text x="100" y="60" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#666">转发服务器</text>
+    
+    <text x="100" y="80" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#999">选择性转发 RTP 包</text>
+  </g>
+  
+  <!-- Client A -->
+  <g transform="translate(50, 220)">
+    <rect x="0" y="0" width="180" height="220" rx="10" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="90" y="30" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#2e7d32">用户 A</text>
+    
+    <!-- 发布 -->
+    <rect x="15" y="50" width="150" height="50" rx="6" fill="white" stroke="#4caf50" stroke-width="1"/>
+    <text x="90" y="72" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">📹 发布音视频</text>
+    <text x="90" y="90" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#4caf50">Pub: A的流</text>
+    
+    <!-- 订阅 -->
+    <rect x="15" y="115" width="150" height="90" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="1"/>
+    <text x="90" y="137" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">📺 订阅远端</text>
+    <text x="90" y="158" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#e65100">Sub: B, C, D...</text>
+    <text x="90" y="185" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">根据带宽选层</text>
+  </g>
+  
+  <!-- Client B -->
+  <g transform="translate(335, 220)">
+    <rect x="0" y="0" width="180" height="220" rx="10" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="90" y="30" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#2e7d32">用户 B</text>
+    
+    <rect x="15" y="50" width="150" height="50" rx="6" fill="white" stroke="#4caf50" stroke-width="1"/>
+    <text x="90" y="72" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">📹 发布音视频</text>
+    <text x="90" y="90" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#4caf50">Pub: B的流</text>
+    
+    <rect x="15" y="115" width="150" height="90" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="1"/>
+    <text x="90" y="137" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">📺 订阅远端</text>
+    <text x="90" y="158" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#e65100">Sub: A, C, D...</text>
+    <text x="90" y="185" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">根据带宽选层</text>
+  </g>
+  
+  <!-- Client C -->
+  <g transform="translate(620, 220)">
+    <rect x="0" y="0" width="180" height="220" rx="10" fill="#e8f5e9" stroke="#4caf50" stroke-width="2"/>
+    <text x="90" y="30" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#2e7d32">用户 C</text>
+    
+    <rect x="15" y="50" width="150" height="50" rx="6" fill="white" stroke="#4caf50" stroke-width="1"/>
+    <text x="90" y="72" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">📹 发布音视频</text>
+    <text x="90" y="90" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#4caf50">Pub: C的流</text>
+    
+    <rect x="15" y="115" width="150" height="90" rx="6" fill="#fff3e0" stroke="#ff9800" stroke-width="1"/>
+    <text x="90" y="137" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">📺 订阅远端</text>
+    <text x="90" y="158" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#e65100">Sub: A, B, D...</text>
+    <text x="90" y="185" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#666">根据带宽选层</text>
+  </g>
+  
+  <!-- 发布箭头（上行） -->
+  <g>
+    <path d="M 140 220 L 340 150" stroke="#4caf50" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+    <text x="220" y="170" font-family="sans-serif" font-size="10" fill="#4caf50">发布</text>
+    
+    <path d="M 425 220 L 425 180" stroke="#4caf50" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+    
+    <path d="M 710 220 L 510 150" stroke="#4caf50" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+    <text x="630" y="170" font-family="sans-serif" font-size="10" fill="#4caf50">发布</text>
+  </g>
+  
+  <!-- 订阅箭头（下行） -->
+  <g>
+    <path d="M 360 180 L 180 240" stroke="#ff9800" stroke-width="2" fill="none" marker-end="url(#arrow-orange)" stroke-dasharray="5,3"/>
+    
+    <path d="M 440 180 L 480 240" stroke="#ff9800" stroke-width="2" fill="none" marker-end="url(#arrow-orange)" stroke-dasharray="5,3"/>
+    
+    <path d="M 490 180 L 670 240" stroke="#ff9800" stroke-width="2" fill="none" marker-end="url(#arrow-orange)" stroke-dasharray="5,3"/>
+    
+    <text x="500" y="210" font-family="sans-serif" font-size="10" fill="#e65100">订阅</text>
+  </g>
+  
+  <!-- 底部说明 -->
+  <g transform="translate(50, 460)">
+    <rect x="0" y="0" width="750" height="30" rx="6" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+    <text x="375" y="20" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#666">每个用户同时是 Publisher（发布者）和 Subscriber（订阅者）</text>
+  </g>
+  
+  <defs>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#4caf50"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#ff9800"/>
+    </marker>
+  </defs>
+</svg>

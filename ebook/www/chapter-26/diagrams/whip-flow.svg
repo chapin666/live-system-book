@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 550">
+  <!-- Background -->
+  <rect width="900" height="550" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">WHIP 协议流程</text>
+  
+  
+  <!-- Participants -->
+  <g transform="translate(50, 60)">
+    <!-- Browser/Publisher -->
+    <rect width="200" height="450" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">浏览器 (推流端)</text>
+    
+    <rect x="20" y="50" width="160" height="60" fill="#64b5f6" rx="5"/>
+    <text x="100" y="75" text-anchor="middle" font-size="11" fill="white">getUserMedia</text>
+    <text x="100" y="95" text-anchor="middle" font-size="9" fill="#e3f2fd">采集音视频</text>
+    
+    <rect x="20" y="120" width="160" height="60" fill="#42a5f5" rx="5"/>
+    <text x="100" y="145" text-anchor="middle" font-size="11" fill="white">创建PeerConnection</text>
+    <text x="100" y="165" text-anchor="middle" font-size="9" fill="#e3f2fd">生成SDP offer</text>
+    
+    <rect x="20" y="330" width="160" height="60" fill="#1e88e5" rx="5"/>
+    <text x="100" y="355" text-anchor="middle" font-size="11" fill="white">设置Remote SDP</text>
+    <text x="100" y="375" text-anchor="middle" font-size="9" fill="#e3f2fd">开始媒体传输</text>
+    
+    <rect x="20" y="400" width="160" height="40" fill="#1976d2" rx="5"/>
+    <text x="100" y="425" text-anchor="middle" font-size="11" fill="white">推流中...</text>
+  </g>
+  
+  
+  <!-- HTTP Requests -->
+  <g transform="translate(270, 60)">
+    <rect width="200" height="450" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
+    
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#f57c00">HTTP 信令</text>
+    
+    <!-- POST Request -->
+    <rect x="15" y="190" width="170" height="80" fill="#ffb74d" rx="5"/>
+    <text x="100" y="215" text-anchor="middle" font-size="12" font-weight="bold" fill="white">POST /whip</text>
+    <text x="100" y="240" text-anchor="middle" font-size="9" fill="#5d4037">Content-Type: application/sdp</text>
+    <text x="100" y="258" text-anchor="middle" font-size="8" fill="#5d4037">Body: SDP offer</text>
+    
+    <!-- PATCH Request -->
+    <rect x="15" y="290" width="170" height="70" fill="#ffa726" rx="5"/>
+    <text x="100" y="315" text-anchor="middle" font-size="12" font-weight="bold" fill="white">PATCH /whip/{id}</text>
+    <text x="100" y="340" text-anchor="middle" font-size="9" fill="#5d4037">Trickle ICE</text>
+    
+    <!-- DELETE Request -->
+    <rect x="15" y="400" width="170" height="50" fill="#ff9800" rx="5"/>
+    <text x="100" y="430" text-anchor="middle" font-size="12" font-weight="bold" fill="white">DELETE /whip/{id}</text>
+  </g>
+  
+  
+  <!-- WHIP Server -->
+  <g transform="translate(490, 60)">
+    <rect width="200" height="450" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">WHIP 服务器</text>
+    
+    <rect x="20" y="50" width="160" height="60" fill="#81c784" rx="5"/>
+    <text x="100" y="75" text-anchor="middle" font-size="11" fill="white">HTTP Server</text>
+    <text x="100" y="95" text-anchor="middle" font-size="9" fill="#e8f5e9">接收POST请求</text>
+    
+    <rect x="20" y="120" width="160" height="60" fill="#66bb6a" rx="5"/>
+    <text x="100" y="145" text-anchor="middle" font-size="11" fill="white">创建Session</text>
+    <text x="100" y="165" text-anchor="middle" font-size="9" fill="#e8f5e9">分配资源</text>
+    
+    <rect x="20" y="190" width="160" height="80" fill="#4caf50" rx="5"/>
+    <text x="100" y="220" text-anchor="middle" font-size="11" fill="white">SFU/RTC</text>
+    <text x="100" y="240" text-anchor="middle" font-size="9" fill="#e8f5e9">处理SDP</text>
+    <text x="100" y="258" text-anchor="middle" font-size="9" fill="#e8f5e9">ICE/DTLS</text>
+    
+    <rect x="20" y="400" width="160" height="40" fill="#388e3c" rx="5"/>
+    <text x="100" y="425" text-anchor="middle" font-size="11" fill="white">接收媒体流</text>
+  </g>
+  
+  
+  <!-- Response -->
+  <g transform="translate(710, 60)">
+    <rect width="150" height="450" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
+    <text x="75" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">响应</text>
+    
+    <rect x="15" y="190" width="120" height="80" fill="#ba68c8" rx="5"/>
+    <text x="75" y="218" text-anchor="middle" font-size="11" font-weight="bold" fill="white">201 Created</text>
+    <text x="75" y="240" text-anchor="middle" font-size="9" fill="#f3e5f5">Location: ...</text>
+    <text x="75" y="258" text-anchor="middle" font-size="9" fill="#f3e5f5">SDP answer</text>
+  </g>
+  
+  
+  <!-- Arrows -->
+  <!-- Browser to HTTP: SDP Offer -->
+  <path d="M250 150 L270 220" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="255" y="180" font-size="9" fill="#1976d2">SDP offer</text>
+  
+  <!-- HTTP to WHIP Server: POST -->
+  <path d="M470 230 L490 230" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead2)"/>
+  
+  <!-- WHIP Server to Response: 201 -->
+  <path d="M690 230 L710 230" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead3)"/>
+  
+  <!-- Response to Browser: SDP Answer -->
+  <path d="M860 230 L880 230 L880 360 L250 360" stroke="#7b1fa2" stroke-width="2" marker-end="url(#arrowhead3)" fill="none"/>
+  
+  <!-- Browser to HTTP: ICE candidates -->
+  <path d="M250 360 L260 360 L260 325 L270 325" stroke="#1976d2" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  
+  <!-- HTTP to WHIP: PATCH -->
+  <path d="M470 325 L490 325" stroke="#f57c00" stroke-width="1.5" marker-end="url(#arrowhead2)"/>
+  
+  <!-- Media Stream -->
+  <path d="M250 420 L300 420 L300 440 L480 440" stroke="#f44336" stroke-width="3" marker-end="url(#arrowhead4)"/>
+  <text x="360" y="435" font-size="10" fill="#f44336" font-weight="bold">SRTP 媒体流</text>
+  
+  
+  <!-- Arrow Markers -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+    </marker>
+    <marker id="arrowhead2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f57c00"/>
+    </marker>
+    <marker id="arrowhead3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7b1fa2"/>
+    </marker>
+    <marker id="arrowhead4" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f44336"/>
+    </marker>
+  </defs>
+  
+  
+  <!-- Comparison with Traditional -->
+  <g transform="translate(50, 520)">
+    <rect width="800" height="200" fill="#fafafa" stroke="#ccc" stroke-width="1" rx="5"/>
+    
+    <text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">WHIP vs 传统WebRTC信令对比</text>
+    
+    <rect x="20" y="40" width="370" height="145" fill="#ffebee" rx="5"/>
+    
+    <text x="205" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#c62828">传统WebRTC (复杂)</text>
+    
+    <text x="30" y="85" font-size="10" fill="#555">1. 建立WebSocket连接</text>
+    <text x="30" y="105" font-size="10" fill="#555">2. 交换SDP offer/answer</text>
+    <text x="30" y="125" font-size="10" fill="#555">3. 交换ICE candidates</text>
+    <text x="30" y="145" font-size="10" fill="#555">4. 等待ICE连接建立</text>
+    <text x="30" y="165" font-size="10" fill="#555">5. 等待DTLS握手</text>
+    
+    <rect x="410" y="40" width="370" height="145" fill="#e8f5e9" rx="5"/>
+    
+    <text x="595" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">WHIP (简化)</text>
+    
+    <text x="420" y="85" font-size="10" fill="#555">1. HTTP POST 发送SDP offer</text>
+    <text x="420" y="110" font-size="10" fill="#555">2. 收到 201 + SDP answer</text>
+    <text x="420" y="135" font-size="10" fill="#555">3. ICE/DTLS自动在后台完成</text>
+    <text x="420" y="160" font-size="10" fill="#2e7d32" font-weight="bold">✓ 开始传输</text>
+  </g>
+</svg>

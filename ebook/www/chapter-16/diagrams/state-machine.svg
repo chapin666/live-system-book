@@ -1,0 +1,97 @@
+<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="700" height="400" fill="#f8f9fa"/>
+  
+  <text x="350" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">主播端状态机</text>
+  
+  <!-- States -->
+  <g transform="translate(50, 80)">
+    <!-- Idle -->
+    <rect x="0" y="0" width="120" height="60" fill="#e0e0e0" stroke="#9e9e9e" stroke-width="2" rx="30"/>
+    <text x="60" y="28" text-anchor="middle" font-size="14" fill="#333" font-weight="bold">Idle</text>
+    <text x="60" y="48" text-anchor="middle" font-size="10" fill="#666">空闲</text>
+    
+    <!-- arrow to previewing -->
+    <line x1="120" y1="30" x2="180" y2="30" stroke="#666" stroke-width="2" marker-end="url(#arrstate)"/>
+    <text x="150" y="22" text-anchor="middle" font-size="9" fill="#666">开始预览</text>
+    
+    <!-- Previewing -->
+    <rect x="180" y="0" width="120" height="60" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="5"/>
+    <text x="240" y="28" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Previewing</text>
+    <text x="240" y="48" text-anchor="middle" font-size="10" fill="#e3f2fd">预览中</text>
+    
+    <!-- arrow to connecting -->
+    <path d="M240 60 L240 100 L180 100" fill="none" stroke="#666" stroke-width="2" marker-end="url(#arrstate)"/>
+    
+    <text x="210" y="90" text-anchor="middle" font-size="9" fill="#666">开始推流</text>
+    
+    <!-- Connecting -->
+    <rect x="50" y="110" width="120" height="60" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="5"/>
+    <text x="110" y="138" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Connecting</text>
+    <text x="110" y="158" text-anchor="middle" font-size="10" fill="#fff3e0">连接中</text>
+    
+    <!-- arrow to streaming -->
+    <line x1="170" y1="140" x2="230" y2="140" stroke="#666" stroke-width="2" marker-end="url(#arrstate)"/>
+    
+    <text x="200" y="132" text-anchor="middle" font-size="9" fill="#666">连接成功</text>
+    
+    <!-- Streaming -->
+    <rect x="230" y="110" width="120" height="60" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="290" y="138" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Streaming</text>
+    <text x="290" y="158" text-anchor="middle" font-size="10" fill="#e8f5e9">推流中</text>
+    
+    <!-- Error state -->
+    <rect x="230" y="220" width="120" height="60" fill="#d9534f" stroke="#c9302c" stroke-width="2" rx="5"/>
+    <text x="290" y="248" text-anchor="middle" font-size="14" fill="white" font-weight="bold">Error</text>
+    <text x="290" y="268" text-anchor="middle" font-size="10" fill="#f5c6cb">错误</text>
+    
+    <!-- error from connecting -->
+    <path d="M170 150 L200 180 L200 220" fill="none" stroke="#d9534f" stroke-width="2" marker-end="url(#arrstate)"/>
+    
+    <text x="185" y="195" font-size="9" fill="#d9534f">连接失败</text>
+    
+    <!-- error from streaming -->
+    <line x1="290" y1="170" x2="290" y2="220" stroke="#d9534f" stroke-width="2" marker-end="url(#arrstate)"/>
+    
+    <text x="310" y="200" font-size="9" fill="#d9534f">网络错误</text>
+    
+    <!-- reconnect -->
+    <path d="M230 250 L110 250 L110 170" fill="none" stroke="#666" stroke-width="2" marker-end="url(#arrstate)" stroke-dasharray="5,3"/>
+    
+    <text x="170" y="245" font-size="9" fill="#666">重试</text>
+    
+    <!-- stop from streaming -->
+    <path d="M350 140 L400 140 L400 250 L350 250" fill="none" stroke="#666" stroke-width="2" marker-end="url(#arrstate)"/>
+    
+    <text x="385" y="195" font-size="9" fill="#666">停止</text>
+  </g>
+  
+  <!-- State descriptions -->
+  <g transform="translate(400, 80)">
+    <rect x="0" y="0" width="270" height="200" fill="#fff" stroke="#ddd" rx="5"/>
+    
+    <text x="135" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">状态说明</text>
+    
+    <text x="10" y="50" font-size="11" fill="#333">• Idle：初始化完成，等待操作</text>
+    <text x="10" y="75" font-size="11" fill="#333">• Previewing：本地预览，未推流</text>
+    <text x="10" y="100" font-size="11" fill="#333">• Connecting：正在连接服务器</text>
+    <text x="10" y="125" font-size="11" fill="#333">• Streaming：正常推流中</text>
+    <text x="10" y="150" font-size="11" fill="#333">• Error：发生错误，可重试</text>
+    
+    <text x="10" y="180" font-size="10" fill="#666">注：状态切换需保证线程安全</text>
+  </g>
+  
+  <!-- Best practices -->
+  <g transform="translate(50, 320)">
+    <rect x="0" y="0" width="620" height="60" fill="#e3f2fd" stroke="#4a90d9" rx="5"/>
+    
+    <text x="310" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">状态机设计原则</text>
+    
+    <text x="20" y="48" font-size="11" fill="#333">1. 每个状态只处理该状态允许的操作  2. 状态切换原子化（避免中间状态）  3. 错误状态可恢复</text>
+  </g>
+  
+  <defs>
+    <marker id="arrstate" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

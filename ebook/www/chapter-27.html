@@ -174,7 +174,7 @@
 <h2 id="监控指标体系">1. 监控指标体系</h2>
 <h3 id="监控指标分类">1.1 监控指标分类</h3>
 <figure>
-<img src="./diagrams/monitoring-metrics.svg" alt="监控指标体系" />
+<img src="chapter-27/diagrams/monitoring-metrics.svg" alt="监控指标体系" />
 <figcaption aria-hidden="true">监控指标体系</figcaption>
 </figure>
 <p><strong>监控指标三大维度</strong>：</p>
@@ -603,7 +603,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 <h2 id="端到端延迟测量">2. 端到端延迟测量</h2>
 <h3 id="延迟组成分析">2.1 延迟组成分析</h3>
 <figure>
-<img src="./diagrams/e2e-latency.svg" alt="端到端延迟" />
+<img src="chapter-27/diagrams/e2e-latency.svg" alt="端到端延迟" />
 <figcaption aria-hidden="true">端到端延迟</figcaption>
 </figure>
 <p><strong>延迟组成</strong>：</p>
@@ -1314,7 +1314,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#
 <h2 id="实时监控dashboard">4. 实时监控Dashboard</h2>
 <h3 id="dashboard设计">4.1 Dashboard设计</h3>
 <figure>
-<img src="./diagrams/quality-dashboard.svg" alt="质量监控Dashboard" />
+<img src="chapter-27/diagrams/quality-dashboard.svg" alt="质量监控Dashboard" />
 <figcaption aria-hidden="true">质量监控Dashboard</figcaption>
 </figure>
 <h3 id="数据上报系统">4.2 数据上报系统</h3>
@@ -1567,9 +1567,23 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#
 </ol>
 <hr />
 <p><strong>本章结束。下一章将学习安全防护，保障系统的安全性。</strong></p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

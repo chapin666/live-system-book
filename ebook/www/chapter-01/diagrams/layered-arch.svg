@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480">
+  <defs>
+    <!-- 渐变定义 -->
+    <linearGradient id="appGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#64b5f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1976d2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="scheduleGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ba68c8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7b1fa2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="coreGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#388e3c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="demuxerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffb74d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f57c00;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="decoderGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0288d1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="rendererGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f06292;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c2185b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="infraGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd54f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff8f00;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- 阴影滤镜 -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+    
+    <!-- 箭头标记 -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#fff" stroke="#fff" stroke-width="1"/>
+    </marker>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="800" height="480" fill="#f8f9fa"/>
+  
+  <!-- 标题 -->
+  <text x="400" y="35" text-anchor="middle" font-size="20" font-weight="bold" fill="#263238">Pipeline 分层架构</text>
+  
+  <!-- 应用层 -->
+  <rect x="50" y="55" width="700" height="65" rx="8" fill="url(#appGradient)" filter="url(#shadow)"/>
+  <text x="400" y="82" text-anchor="middle" font-size="16" font-weight="bold" fill="#fff">应用层</text>
+  <text x="400" y="105" text-anchor="middle" font-size="12" fill="#e3f2fd">main.cpp | 创建 Pipeline | 设置回调 | 处理用户输入</text>
+  
+  <!-- 连接箭头 -->
+  <path d="M 400 120 L 400 135" stroke="#90a4ae" stroke-width="2" stroke-dasharray="4,2"/>
+  <polygon points="395,130 400,140 405,130" fill="#90a4ae"/>
+  
+  <!-- 调度层 -->
+  <rect x="50" y="145" width="700" height="65" rx="8" fill="url(#scheduleGradient)" filter="url(#shadow)"/>
+  <text x="400" y="172" text-anchor="middle" font-size="16" font-weight="bold" fill="#fff">调度层</text>
+  <text x="400" y="195" text-anchor="middle" font-size="12" fill="#f3e5f5">SimplePipeline | 控制数据流 | 管理生命周期 | 协调各模块</text>
+  
+  <!-- 连接箭头 -->
+  <path d="M 400 210 L 400 225" stroke="#90a4ae" stroke-width="2" stroke-dasharray="4,2"/>
+  <polygon points="395,220 400,230 405,220" fill="#90a4ae"/>
+  
+  <!-- 核心处理层背景 -->
+  <rect x="50" y="235" width="700" height="150" rx="8" fill="url(#coreGradient)" opacity="0.15" stroke="#388e3c" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="80" y="260" font-size="13" font-weight="bold" fill="#2e7d32">核心处理层</text>
+  
+  <!-- Demuxer -->
+  <rect x="90" y="275" width="180" height="90" rx="8" fill="url(#demuxerGradient)" filter="url(#shadow)"/>
+  <text x="180" y="305" text-anchor="middle" font-size="15" font-weight="bold" fill="#fff">Demuxer</text>
+  <text x="180" y="328" text-anchor="middle" font-size="12" fill="#fff3e0">解封装</text>
+  <text x="180" y="350" text-anchor="middle" font-size="11" fill="#ffecb3" font-family="monospace">AVPacket</text>
+  
+  <!-- 箭头 Demuxer -> Decoder -->
+  <path d="M 270 320 L 300 320" stroke="#fff" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <text x="285" y="310" text-anchor="middle" font-size="10" fill="#666" font-weight="bold">压缩数据</text>
+  
+  <!-- Decoder -->
+  <rect x="310" y="275" width="180" height="90" rx="8" fill="url(#decoderGradient)" filter="url(#shadow)"/>
+  <text x="400" y="305" text-anchor="middle" font-size="15" font-weight="bold" fill="#fff">Decoder</text>
+  <text x="400" y="328" text-anchor="middle" font-size="12" fill="#e1f5fe">解码</text>
+  <text x="400" y="350" text-anchor="middle" font-size="11" fill="#b3e5fc" font-family="monospace">AVFrame</text>
+  
+  <!-- 箭头 Decoder -> Renderer -->
+  <path d="M 490 320 L 520 320" stroke="#fff" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <text x="505" y="310" text-anchor="middle" font-size="10" fill="#666" font-weight="bold">原始帧</text>
+  
+  <!-- Renderer -->
+  <rect x="530" y="275" width="180" height="90" rx="8" fill="url(#rendererGradient)" filter="url(#shadow)"/>
+  <text x="620" y="305" text-anchor="middle" font-size="15" font-weight="bold" fill="#fff">Renderer</text>
+  <text x="620" y="328" text-anchor="middle" font-size="12" fill="#fce4ec">渲染</text>
+  <text x="620" y="350" text-anchor="middle" font-size="11" fill="#f8bbd9" font-family="monospace">Screen</text>
+  
+  <!-- 数据流向箭头（大） -->
+  <text x="750" y="325" font-size="14" fill="#455a64" font-weight="bold">→</text>
+  <text x="745" y="345" font-size="11" fill="#607d8b">数据流</text>
+  
+  <!-- 连接虚线到基础设施 -->
+  <path d="M 180 365 L 180 390" stroke="#78909c" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <path d="M 400 365 L 400 390" stroke="#78909c" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <path d="M 620 365 L 620 390" stroke="#78909c" stroke-width="1.5" stroke-dasharray="5,3"/>
+  
+  <!-- 可观测性层 -->
+  <rect x="50" y="395" width="700" height="65" rx="8" fill="url(#infraGradient)" filter="url(#shadow)"/>
+  <text x="400" y="422" text-anchor="middle" font-size="16" font-weight="bold" fill="#fff">可观测性基础设施</text>
+  <text x="400" y="445" text-anchor="middle" font-size="12" fill="#fff8e1">
+    <tspan font-family="monospace" font-weight="bold">Observer</tspan> 回调监听 |
+    <tspan font-family="monospace" font-weight="bold">Stats</tspan> 性能统计 |
+    <tspan font-family="monospace" font-weight="bold">ErrorCode</tspan> 错误处理
+  </text>
+</svg>

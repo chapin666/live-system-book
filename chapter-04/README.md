@@ -117,29 +117,41 @@ while (av_read_frame(fmt_ctx, packet) >= 0) {      // 1. 读取数据
 
 **问题分析**：
 
-```
-单线程循环：
-┌─────────────────────────────────────────────────────────────┐
-│  读取Packet → 解码Frame → 同步等待 → 渲染 → 检查事件  │
-└─────────────────────────────────────────────────────────────┘
-              ↑__________________________________↓
-                         循环执行
+```mermaid
+flowchart LR
+    subgraph 单线程循环["🔄 单线程循环"]
+        A[📦 读取Packet] --> B[🎞️ 解码Frame]
+        B --> C[⏱️ 同步等待]
+        C --> D[🖼️ 渲染]
+        D --> E[👆 检查事件]
+        E -->|循环| A
+    end
+    
+    style A fill:#e3f2fd
+    style B fill:#e8f5e9
+    style C fill:#fff3e0
+    style D fill:#fce4ec
+    style E fill:#f3e5f5
 ```
 
 当你拖动窗口时，操作系统会发送**窗口移动事件**给程序。但程序正在忙于解码和渲染，只有当执行到 `SDL_PollEvent` 时才能处理这些事件。
 
 **时间线分析**：
 
-```
-时间轴:  0ms    20ms   40ms   60ms   80ms
-         │      │      │      │      │
-解码帧:  ├──I帧─┤
-                ↑这里耗时25ms
-         
-事件:    拖动窗口────────→
-                ↑这里产生事件
-                
-处理:           ↑40ms后才能处理事件！
+```mermaid
+sequenceDiagram
+    participant T as 时间轴
+    participant D as 解码
+    participant E as 事件
+    participant P as 处理
+    
+    Note over T: 0ms    20ms   40ms   60ms   80ms
+    D->>D: 25ms解码I帧
+    Note right of D: 这里耗时25ms
+    E->>E: 拖动窗口事件
+    Note right of E: 这里产生事件
+    P->>P: 40ms后才处理
+    Note right of P: 延迟40ms!
 ```
 
 如果解码一帧需要 25ms，那么在这 25ms 内产生的事件都要排队等待。对于窗口事件，这种延迟表现为"卡顿"或"不响应"。

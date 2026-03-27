@@ -1,0 +1,74 @@
+<svg viewBox="0 0 700 350" xmlns="http://www.w3.org/2000/svg">
+  <rect width="700" height="350" fill="#f8f9fa"/>
+  
+  <text x="350" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">音视频同步机制</text>
+  
+  <!-- Timeline -->
+  <g transform="translate(50, 100)">
+    <line x1="0" y1="0" x2="600" y2="0" stroke="#333" stroke-width="2"/>
+    
+    <text x="300" y="-15" text-anchor="middle" font-size="12" fill="#666">时间线（毫秒）</text>
+    
+    <!-- Video frames -->
+    <g transform="translate(0, 20)">
+      <text x="-40" y="35" font-size="12" fill="#4a90d9" font-weight="bold">视频</text>
+      
+      <rect x="20" y="15" width="40" height="40" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="3"/>
+      <text x="40" y="40" text-anchor="middle" font-size="11" fill="white">V0</text>
+      
+      <rect x="80" y="15" width="40" height="40" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="3"/>
+      <text x="100" y="40" text-anchor="middle" font-size="11" fill="white">V1</text>
+      
+      <rect x="140" y="15" width="40" height="40" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="3"/>
+      <text x="160" y="40" text-anchor="middle" font-size="11" fill="white">V2</text>
+      
+      <rect x="200" y="15" width="40" height="40" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="3"/>
+      <text x="220" y="40" text-anchor="middle" font-size="11" fill="white">V3</text>
+    </g>
+    
+    <!-- Audio frames -->
+    <g transform="translate(0, 90)">
+      <text x="-40" y="15" font-size="12" fill="#f0ad4e" font-weight="bold">音频</text>
+      
+      <rect x="10" y="0" width="30" height="30" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="2"/>
+      <text x="25" y="20" text-anchor="middle" font-size="9" fill="white">A0</text>
+      
+      <rect x="50" y="0" width="30" height="30" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="2"/>
+      <text x="65" y="20" text-anchor="middle" font-size="9" fill="white">A1</text>
+      
+      <rect x="90" y="0" width="30" height="30" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="2"/>
+      <text x="105" y="20" text-anchor="middle" font-size="9" fill="white">A2</text>
+      
+      <rect x="130" y="0" width="30" height="30" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="2"/>
+      <text x="145" y="20" text-anchor="middle" font-size="9" fill="white">A3</text>
+      
+      <rect x="170" y="0" width="30" height="30" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="2"/>
+      <text x="185" y="20" text-anchor="middle" font-size="9" fill="white">A4</text>
+      
+      <rect x="210" y="0" width="30" height="30" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="2"/>
+      <text x="225" y="20" text-anchor="middle" font-size="9" fill="white">A5</text>
+    </g>
+    
+    <!-- Time markers -->
+    <line x1="40" y1="-5" x2="40" y2="5" stroke="#333" stroke-width="1"/>
+    <text x="40" y="145" text-anchor="middle" font-size="10" fill="#666">0ms</text>
+    
+    <line x1="100" y1="-5" x2="100" y2="5" stroke="#333" stroke-width="1"/>
+    <text x="100" y="145" text-anchor="middle" font-size="10" fill="#666">33ms</text>
+    
+    <line x1="160" y1="-5" x2="160" y2="5" stroke="#333" stroke-width="1"/>
+    <text x="160" y="145" text-anchor="middle" font-size="10" fill="#666">66ms</text>
+    
+    <line x1="220" y1="-5" x2="220" y2="5" stroke="#333" stroke-width="1"/>
+    <text x="220" y="145" text-anchor="middle" font-size="10" fill="#666">100ms</text>
+  </g>
+  
+  <!-- Sync mechanism -->
+  <g transform="translate(50, 280)">
+    <rect x="0" y="0" width="600" height="50" fill="#e8f5e9" stroke="#a5d6a7" rx="5"/>
+    
+    <text x="300" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">同步策略</text>
+    
+    <text x="20" y="40" font-size="11" fill="#333">视频 30fps (33ms/帧)，音频约 20ms/帧。以视频为基准，音频时间戳对齐到最近的视频帧。</text>
+  </g>
+</svg>

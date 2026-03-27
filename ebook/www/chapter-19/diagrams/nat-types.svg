@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650">
+  <!-- Background -->
+  <rect width="900" height="650" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">NAT四种类型对比</text>
+  
+  <!-- Cone NAT Section -->
+  <g transform="translate(50, 60)">
+    <rect width="380" height="570" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    <text x="190" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#1976d2">Cone NAT (锥型NAT)</text>
+    <text x="190" y="50" text-anchor="middle" font-size="11" fill="#666">同一内部地址映射到同一公网地址</text>
+    
+    <!-- Full Cone -->
+    <g transform="translate(20, 70)">
+      <rect width="340" height="120" fill="#bbdefb" stroke="#1976d2" stroke-width="1" rx="5"/>
+      <text x="170" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#0d47a1">Full Cone (全锥型)</text>
+      
+      <!-- Internal -->
+      <rect x="10" y="35" width="80" height="70" fill="#64b5f6" rx="4"/>
+      <text x="50" y="55" text-anchor="middle" font-size="10" fill="white">内网主机</text>
+      <text x="50" y="72" text-anchor="middle" font-size="9" fill="#e3f2fd">192.168.1.2</text>
+      <text x="50" y="88" text-anchor="middle" font-size="9" fill="#e3f2fd">:5000</text>
+      
+      <!-- NAT -->
+      <rect x="120" y="45" width="60" height="50" fill="#1976d2" rx="4"/>
+      <text x="150" y="70" text-anchor="middle" font-size="11" fill="white" font-weight="bold">NAT</text>
+      <text x="150" y="85" text-anchor="middle" font-size="9" fill="#bbdefb">映射固定</text>
+      
+      <!-- External -->
+      <rect x="220" y="30" width="110" height="80" fill="#4caf50" rx="4" opacity="0.9"/>
+      <text x="275" y="50" text-anchor="middle" font-size="10" fill="white" font-weight="bold">公网任意主机</text>
+      <text x="275" y="68" text-anchor="middle" font-size="9" fill="#e8f5e9">均可访问映射</text>
+      <text x="275" y="85" text-anchor="middle" font-size="9" fill="#81c784">→203.0.113.1:8000</text>
+      
+      <!-- Arrows -->
+      <path d="M90 70 L120 70" stroke="#1976d2" stroke-width="2" marker-end="url(#arrow1)"/>
+      <path d="M180 70 L220 55" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow2)" stroke-dasharray="3"/>
+      <path d="M220 85 L180 80" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow2)" stroke-dasharray="3"/>
+    </g>
+    
+    <!-- Restricted Cone -->
+    <g transform="translate(20, 200)">
+      <rect width="340" height="120" fill="#c5cae9" stroke="#3f51b5" stroke-width="1" rx="5"/>
+      <text x="170" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a237e">Restricted Cone (限制锥型)</text>
+      
+      <!-- Internal -->
+      <rect x="10" y="35" width="80" height="70" fill="#7986cb" rx="4"/>
+      <text x="50" y="55" text-anchor="middle" font-size="10" fill="white">内网主机</text>
+      <text x="50" y="72" text-anchor="middle" font-size="9" fill="#e8eaf6">192.168.1.2</text>
+      <text x="50" y="88" text-anchor="middle" font-size="9" fill="#e8eaf6">:5000</text>
+      
+      <!-- NAT -->
+      <rect x="120" y="45" width="60" height="50" fill="#3f51b5" rx="4"/>
+      <text x="150" y="70" text-anchor="middle" font-size="11" fill="white" font-weight="bold">NAT</text>
+      <text x="150" y="85" text-anchor="middle" font-size="9" fill="#c5cae9">IP限制</text>
+      
+      <!-- External -->
+      <rect x="220" y="30" width="50" height="35" fill="#ff9800" rx="4"/>
+      <text x="245" y="52" text-anchor="middle" font-size="9" fill="white">主机A</text>
+      
+      <rect x="220" y="75" width="50" height="35" fill="#bdbdbd" rx="4"/>
+      <text x="245" y="97" text-anchor="middle" font-size="9" fill="white">主机B</text>
+      
+      <!-- Labels -->
+      <text x="280" y="52" font-size="9" fill="#4caf50">✓ 允许</text>
+      <text x="280" y="97" font-size="9" fill="#e53935">✗ 拒绝</text>
+      
+      <!-- Arrows -->
+      <path d="M90 70 L120 70" stroke="#3f51b5" stroke-width="2" marker-end="url(#arrow3)"/>
+    </g>
+    
+    <!-- Port Restricted Cone -->
+    <g transform="translate(20, 330)">
+      <rect width="340" height="120" fill="#d1c4e9" stroke="#673ab7" stroke-width="1" rx="5"/>
+      <text x="170" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#311b92">Port Restricted Cone (端口限制)</text>
+      
+      <!-- Internal -->
+      <rect x="10" y="35" width="80" height="70" fill="#9575cd" rx="4"/>
+      <text x="50" y="55" text-anchor="middle" font-size="10" fill="white">内网主机</text>
+      <text x="50" y="72" text-anchor="middle" font-size="9" fill="#ede7f6">192.168.1.2</text>
+      <text x="50" y="88" text-anchor="middle" font-size="9" fill="#ede7f6">:5000</text>
+      
+      <!-- NAT -->
+      <rect x="120" y="45" width="60" height="50" fill="#673ab7" rx="4"/>
+      <text x="150" y="70" text-anchor="middle" font-size="11" fill="white" font-weight="bold">NAT</text>
+      <text x="150" y="85" text-anchor="middle" font-size="9" fill="#d1c4e9">IP+端口限制</text>
+      
+      <!-- External -->
+      <rect x="220" y="30" width="50" height="35" fill="#ff9800" rx="4"/>
+      <text x="245" y="52" text-anchor="middle" font-size="9" fill="white">:8080</text>
+      
+      <rect x="220" y="75" width="50" height="35" fill="#bdbdbd" rx="4"/>
+      <text x="245" y="97" text-anchor="middle" font-size="9" fill="white">:9090</text>
+      
+      <!-- Labels -->
+      <text x="280" y="52" font-size="9" fill="#4caf50">✓ 允许</text>
+      <text x="280" y="97" font-size="9" fill="#e53935">✗ 拒绝</text>
+      
+      <!-- Arrows -->
+      <path d="M90 70 L120 70" stroke="#673ab7" stroke-width="2" marker-end="url(#arrow4)"/>
+    </g>
+    
+    <!-- Cone NAT Summary -->
+    <g transform="translate(20, 460)">
+      <rect width="340" height="90" fill="#e8f5e9" stroke="#4caf50" stroke-width="1" rx="5"/>
+      <text x="170" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#2e7d32">✓ P2P友好</text>
+      <text x="170" y="42" text-anchor="middle" font-size="10" fill="#555">映射关系固定，易于穿透</text>
+      <text x="170" y="62" text-anchor="middle" font-size="10" fill="#555">STUN协议可有效工作</text>
+      <text x="170" y="80" text-anchor="middle" font-size="10" fill="#4caf50" font-weight="bold">成功率高 (85%+)</text>
+    </g>
+  </g>
+  
+  <!-- Symmetric NAT Section -->
+  <g transform="translate(470, 60)">
+    <rect width="380" height="570" fill="#ffebee" stroke="#e53935" stroke-width="2" rx="8"/>
+    <text x="190" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#c62828">Symmetric NAT (对称型)</text>
+    <text x="190" y="50" text-anchor="middle" font-size="11" fill="#666">每个目标地址分配不同映射</text>
+    
+    <!-- Symmetric Diagram -->
+    <g transform="translate(20, 70)">
+      <rect width="340" height="280" fill="#ffcdd2" stroke="#e53935" stroke-width="1" rx="5"/>
+      <text x="170" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#b71c1c">动态映射机制</text>
+      
+      <!-- Internal Host -->
+      <rect x="20" y="40" width="100" height="80" fill="#ef5350" rx="4"/>
+      <text x="70" y="62" text-anchor="middle" font-size="11" fill="white" font-weight="bold">内网主机</text>
+      <text x="70" y="82" text-anchor="middle" font-size="10" fill="#ffebee">192.168.1.2:5000</text>
+      <text x="70" y="100" text-anchor="middle" font-size="9" fill="#ffcdd2">单一源地址</text>
+      
+      <!-- NAT -->
+      <rect x="140" y="55" width="70" height="50" fill="#c62828" rx="4"/>
+      <text x="175" y="77" text-anchor="middle" font-size="11" fill="white" font-weight="bold">NAT</text>
+      <text x="175" y="95" text-anchor="middle" font-size="9" fill="#ffcdd2">动态分配</text>
+      
+      <!-- Destination 1 -->
+      <rect x="240" y="35" width="90" height="60" fill="#ff9800" rx="4"/>
+      <text x="285" y="55" text-anchor="middle" font-size="10" fill="white" font-weight="bold">目标A</text>
+      <text x="285" y="72" text-anchor="middle" font-size="9" fill="#fff3e0">1.2.3.4:80</text>
+      <text x="285" y="88" text-anchor="middle" font-size="9" fill="#81c784">映射→:8001</text>
+      
+      <!-- Destination 2 -->
+      <rect x="240" y="110" width="90" height="60" fill="#ff9800" rx="4"/>
+      <text x="285" y="130" text-anchor="middle" font-size="10" fill="white" font-weight="bold">目标B</text>
+      <text x="285" y="147" text-anchor="middle" font-size="9" fill="#fff3e0">5.6.7.8:443</text>
+      <text x="285" y="163" text-anchor="middle" font-size="9" fill="#81c784">映射→:8002</text>
+      
+      <!-- Destination 3 -->
+      <rect x="240" y="185" width="90" height="60" fill="#ff9800" rx="4"/>
+      <text x="285" y="205" text-anchor="middle" font-size="10" fill="white" font-weight="bold">目标C</text>
+      <text x="285" y="222" text-anchor="middle" font-size="9" fill="#fff3e0">9.10.11.12:3478</text>
+      <text x="285" y="238" text-anchor="middle" font-size="9" fill="#81c784">映射→:8003</text>
+      
+      <!-- Arrows -->
+      <path d="M120 65 L140 70" stroke="#c62828" stroke-width="2" marker-end="url(#arrow5)"/>
+      <path d="M210 70 L240 65" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow6)"/>
+      <path d="M175 105 L175 125" stroke="#c62828" stroke-width="2"/>
+      <path d="M210 135 L240 140" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow6)"/>
+      <path d="M175 155 L175 215" stroke="#c62828" stroke-width="2"/>
+      <path d="M210 225 L240 215" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow6)"/>
+    </g>
+    
+    <!-- Mapping Table -->
+    <g transform="translate(20, 360)">
+      <rect width="340" height="120" fill="#fff3e0" stroke="#ff9800" stroke-width="1" rx="5"/>
+      <text x="170" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#e65100">映射关系表</text>
+      
+      <!-- Table Header -->
+      <rect x="15" y="30" width="100" height="22" fill="#ffcc80" rx="2"/>
+      <text x="65" y="46" text-anchor="middle" font-size="10" fill="#5d4037">内网地址</text>
+      
+      <rect x="120" y="30" width="100" height="22" fill="#ffcc80" rx="2"/>
+      <text x="170" y="46" text-anchor="middle" font-size="10" fill="#5d4037">目标地址</text>
+      
+      <rect x="225" y="30" width="100" height="22" fill="#ffcc80" rx="2"/>
+      <text x="275" y="46" text-anchor="middle" font-size="10" fill="#5d4037">公网映射</text>
+      
+      <!-- Row 1 -->
+      <text x="65" y="70" text-anchor="middle" font-size="9" fill="#555">:5000</text>
+      <text x="170" y="70" text-anchor="middle" font-size="9" fill="#555">1.2.3.4:80</text>
+      <text x="275" y="70" text-anchor="middle" font-size="9" fill="#4caf50">203.0.113.1:8001</text>
+      
+      <!-- Row 2 -->
+      <text x="65" y="92" text-anchor="middle" font-size="9" fill="#555">:5000</text>
+      <text x="170" y="92" text-anchor="middle" font-size="9" fill="#555">5.6.7.8:443</text>
+      <text x="275" y="92" text-anchor="middle" font-size="9" fill="#4caf50">203.0.113.1:8002</text>
+      
+      <!-- Row 3 -->
+      <text x="65" y="114" text-anchor="middle" font-size="9" fill="#555">:5000</text>
+      <text x="170" y="114" text-anchor="middle" font-size="9" fill="#555">9.10.11.12:3478</text>
+      <text x="275" y="114" text-anchor="middle" font-size="9" fill="#4caf50">203.0.113.1:8003</text>
+    </g>
+    
+    <!-- Symmetric NAT Summary -->
+    <g transform="translate(20, 490)">
+      <rect width="340" height="120" fill="#fce4ec" stroke="#e91e63" stroke-width="1" rx="5"/>
+      <text x="170" y="25" text-anchor="middle" font-size="12" font-weight="bold" fill="#c2185b">✗ P2P困难</text>
+      <text x="170" y="48" text-anchor="middle" font-size="10" fill="#555">每个目标对应不同映射</text>
+      <text x="170" y="68" text-anchor="middle" font-size="10" fill="#555">STUN无法预测映射端口</text>
+      <text x="170" y="88" text-anchor="middle" font-size="10" fill="#555">必须依赖TURN中继</text>
+      <text x="170" y="108" text-anchor="middle" font-size="10" fill="#e53935" font-weight="bold">成功率低 (~15%)</text>
+    </g>
+  </g>
+  
+  <!-- Arrow Markers -->
+  <defs>
+    <marker id="arrow1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1976d2"/>
+    </marker>
+    <marker id="arrow2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4caf50"/>
+    </marker>
+    <marker id="arrow3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#3f51b5"/>
+    </marker>
+    <marker id="arrow4" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#673ab7"/>
+    </marker>
+    <marker id="arrow5" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c62828"/>
+    </marker>
+    <marker id="arrow6" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ff9800"/>
+    </marker>
+  </defs>
+  
+  <!-- Bottom Legend -->
+  <g transform="translate(50, 640)">
+    <text x="0" y="0" font-size="10" fill="#666">图例说明: Cone NAT映射固定，Symmetric NAT每目标动态分配端口</text>
+  </g>
+</svg>

@@ -301,7 +301,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
 12）</strong>：解码延迟低，适合直播，但压缩率稍差 - <strong>GOP 大（如
 250）</strong>：压缩率高，适合存储，但解码延迟高</p>
 <figure>
-<img src="./diagrams/gop-structure.svg" alt="GOP 结构示意图" />
+<img src="chapter-01/diagrams/gop-structure.svg" alt="GOP 结构示意图" />
 <figcaption aria-hidden="true">GOP 结构示意图</figcaption>
 </figure>
 <h3 id="冗余三视觉冗余感知压缩">1.4 冗余三：视觉冗余（感知压缩）</h3>
@@ -333,7 +333,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
 <strong>解码</strong>：将压缩数据还原为原始图像 3.
 <strong>渲染</strong>：将图像显示到屏幕</p>
 <figure>
-<img src="./diagrams/pipeline-arch.svg" alt="播放器 Pipeline 架构" />
+<img src="chapter-01/diagrams/pipeline-arch.svg" alt="播放器 Pipeline 架构" />
 <figcaption aria-hidden="true">播放器 Pipeline 架构</figcaption>
 </figure>
 <hr />
@@ -389,7 +389,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
 数据量 = 4 + 1 + 1 = 6 字节/4像素 = 1.5 字节/像素
 相比 RGB（3 字节/像素）节省 50%</code></pre>
 <figure>
-<img src="./diagrams/yuv-layout.svg" alt="YUV 采样布局示意图" />
+<img src="chapter-01/diagrams/yuv-layout.svg" alt="YUV 采样布局示意图" />
 <figcaption aria-hidden="true">YUV 采样布局示意图</figcaption>
 </figure>
 <h3 id="yuv-数据在内存中的布局">2.3 YUV 数据在内存中的布局</h3>
@@ -425,11 +425,11 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
         G --&gt; H[&quot;Renderer\n渲染&quot;]
     end
     
-    A -.使用.&gt; F
-    B -.使用.&gt; G
-    C -.使用.&gt; F
-    C -.使用.&gt; G
-    C -.使用.&gt; H
+    A -.-&gt; F
+    B -.-&gt; G
+    C -.-&gt; F
+    C -.-&gt; G
+    C -.-&gt; H
     
     style A fill:#e3f2fd,stroke:#4a90d9
     style B fill:#e8f5e9,stroke:#5cb85c
@@ -437,7 +437,7 @@ href="#1-视频压缩原理为什么-1-分钟视频只有-100mb">视频压缩原
     style D fill:#fce4ec,stroke:#e91e63
     style E fill:#f3e5f5,stroke:#9c27b0</pre>
 <figure>
-<img src="./diagrams/layered-arch.svg" alt="FFmpeg 分层架构" />
+<img src="chapter-01/diagrams/layered-arch.svg" alt="FFmpeg 分层架构" />
 <figcaption aria-hidden="true">FFmpeg 分层架构</figcaption>
 </figure>
 <h3 id="关键数据结构">3.2 关键数据结构</h3>
@@ -689,9 +689,23 @@ RGB？</h3>
 <p><strong>延伸阅读</strong>： - H.264 标准：ITU-T Rec. H.264 - FFmpeg
 文档：https://ffmpeg.org/documentation.html - SDL2
 文档：https://wiki.libsdl.org/</p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

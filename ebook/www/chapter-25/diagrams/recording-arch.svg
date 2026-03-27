@@ -1,0 +1,134 @@
+<svg viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="900" height="500" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="450" y="35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle" fill="#333">录制系统架构</text>
+  
+  <!-- ============== 左侧：SFU录制 ============== -->
+  <rect x="20" y="60" width="400" height="200" rx="8" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="220" y="85" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#1565c0">SFU 单流录制</text>
+  
+  <!-- 参与者 -->
+  <rect x="40" y="110" width="60" height="40" rx="4" fill="#ff7043" stroke="#e64a19" stroke-width="1"/>
+  <text x="70" y="135" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#fff">用户A</text>
+  
+  <rect x="40" y="160" width="60" height="40" rx="4" fill="#66bb6a" stroke="#43a047" stroke-width="1"/>
+  <text x="70" y="185" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#fff">用户B</text>
+  
+  <rect x="40" y="210" width="60" height="40" rx="4" fill="#ab47bc" stroke="#8e24aa" stroke-width="1"/>
+  <text x="70" y="235" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#fff">用户C</text>
+  
+  <!-- SFU服务器 -->
+  <rect x="130" y="130" width="100" height="100" rx="6" fill="#42a5f5" stroke="#1565c0" stroke-width="2"/>
+  <text x="180" y="165" font-family="Arial, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#fff">SFU</text>
+  <text x="180" y="185" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fff">转发</text>
+  <text x="180" y="205" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fff">不解码</text>
+  
+  <!-- 录制器 -->
+  <rect x="270" y="110" width="130" height="60" rx="4" fill="#ffa726" stroke="#ef6c00" stroke-width="2"/>
+  <text x="335" y="135" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#fff">录制器</text>
+  <text x="335" y="155" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fff">直接存储RTP</text>
+  
+  <rect x="270" y="180" width="130" height="70" rx="4" fill="#fff" stroke="#ef6c00" stroke-width="1"/>
+  <text x="335" y="205" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#333">A.webm</text>
+  <text x="335" y="225" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#333">B.webm C.webm</text>
+  
+  <!-- 箭头 -->
+  <path d="M100 130 L130 160" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+  <path d="M100 180 L130 180" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+  <path d="M100 230 L130 200" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+  
+  <path d="M230 160 L270 140" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+  
+  <!-- ============== 右侧：MCU录制 ============== -->
+  <rect x="480" y="60" width="400" height="200" rx="8" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="680" y="85" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ef6c00">MCU 合流录制</text>
+  
+  <!-- 参与者 -->
+  <rect x="500" y="110" width="60" height="40" rx="4" fill="#ff7043" stroke="#e64a19" stroke-width="1"/>
+  <text x="530" y="135" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#fff">用户A</text>
+  
+  <rect x="500" y="160" width="60" height="40" rx="4" fill="#66bb6a" stroke="#43a047" stroke-width="1"/>
+  <text x="530" y="185" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#fff">用户B</text>
+  
+  <rect x="500" y="210" width="60" height="40" rx="4" fill="#ab47bc" stroke="#8e24aa" stroke-width="1"/>
+  <text x="530" y="235" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#fff">用户C</text>
+  
+  <!-- MCU服务器 -->
+  <rect x="590" y="120" width="100" height="120" rx="6" fill="#ffa726" stroke="#ef6c00" stroke-width="2"/>
+  <text x="640" y="150" font-family="Arial, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#fff">MCU</text>
+  <text x="640" y="175" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fff">混音混画</text>
+  <text x="640" y="195" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fff">解码→合成→编码</text>
+  <text x="640" y="220" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fff">输出1路合流</text>
+  
+  <!-- 录制器 -->
+  <rect x="730" y="140" width="130" height="120" rx="4" fill="#42a5f5" stroke="#1565c0" stroke-width="2"/>
+  <text x="795" y="165" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#fff">录制器</text>
+  <text x="795" y="190" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#fff">存储合流</text>
+  <text x="795" y="225" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#e3f2fd">meeting.mp4</text>
+  <text x="795" y="245" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#e3f2fd">可直接播放</text>
+  
+  <!-- 箭头 -->
+  <path d="M560 130 L590 170" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+  <path d="M560 180 L590 180" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+  <path d="M560 230 L590 190" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+  
+  <path d="M690 180 L730 200" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrow-gray)"/>
+  
+  <!-- ============== 下方：对比表格 ============== -->
+  <rect x="20" y="280" width="860" height="200" rx="8" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="1"/>
+  <text x="450" y="305" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#6a1b9a">录制方案对比</text>
+  
+  <!-- 表格 -->
+  <rect x="40" y="325" width="820" height="140" rx="4" fill="#fff" stroke="#ce93d8" stroke-width="1"/>
+  
+  <!-- 表头 -->
+  <rect x="40" y="325" width="820" height="30" fill="#e1bee7"/>
+  <text x="140" y="345" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#333">对比项</text>
+  <text x="320" y="345" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1565c0">SFU单流录制</text>
+  <text x="550" y="345" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#ef6c00">MCU合流录制</text>
+  <text x="750" y="345" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#43a047">客户端录制</text>
+  
+  <line x1="40" y1="355" x2="860" y2="355" stroke="#ce93d8" stroke-width="1"/>
+  
+  <!-- 行1: 录制时机 -->
+  <text x="50" y="375" font-family="Arial, sans-serif" font-size="11" fill="#333">录制时机</text>
+  <text x="250" y="375" font-family="Arial, sans-serif" font-size="11" fill="#333">服务器收到即存</text>
+  <text x="480" y="375" font-family="Arial, sans-serif" font-size="11" fill="#333">混流后存储</text>
+  <text x="680" y="375" font-family="Arial, sans-serif" font-size="11" fill="#333">本地录制</text>
+  
+  <!-- 行2: 文件数量 -->
+  <text x="50" y="400" font-family="Arial, sans-serif" font-size="11" fill="#333">文件数量</text>
+  <text x="250" y="400" font-family="Arial, sans-serif" font-size="11" fill="#333">N个文件(N=人数)</text>
+  <text x="480" y="400" font-family="Arial, sans-serif" font-size="11" fill="#333">1个合流文件</text>
+  <text x="680" y="400" font-family="Arial, sans-serif" font-size="11" fill="#333">1个文件</text>
+  
+  <!-- 行3: 后期处理 -->
+  <text x="50" y="425" font-family="Arial, sans-serif" font-size="11" fill="#333">后期处理</text>
+  <text x="250" y="425" font-family="Arial, sans-serif" font-size="11" fill="#e53935">需要离线合成</text>
+  <text x="480" y="425" font-family="Arial, sans-serif" font-size="11" fill="#43a047">直接可用</text>
+  <text x="680" y="425" font-family="Arial, sans-serif" font-size="11" fill="#43a047">直接可用</text>
+  
+  <!-- 行4: 存储成本 -->
+  <text x="50" y="450" font-family="Arial, sans-serif" font-size="11" fill="#333">存储成本</text>
+  <text x="250" y="450" font-family="Arial, sans-serif" font-size="11" fill="#e53935">高(存多份)</text>
+  <text x="480" y="450" font-family="Arial, sans-serif" font-size="11" fill="#43a047">低(存1份)</text>
+  <text x="680" y="450" font-family="Arial, sans-serif" font-size="11" fill="#43a047">无</text>
+  
+  <!-- 适用场景 -->
+  <rect x="40" y="385" width="820" height="70" fill="none" stroke="#ce93d8" stroke-width="1"/>
+  <rect x="40" y="455" width="820" height="35" fill="none" stroke="#ce93d8" stroke-width="1"/>
+  
+  <text x="50" y="475" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#333">适用场景</text>
+  <text x="180" y="475" font-family="Arial, sans-serif" font-size="10" fill="#1565c0">需要单独回放每路流</text>
+  <text x="450" y="475" font-family="Arial, sans-serif" font-size="10" fill="#ef6c00">常规会议录制、直播</text>
+  <text x="680" y="475" font-family="Arial, sans-serif" font-size="10" fill="#43a047">本地存档、合规要求</text>
+  
+  <!-- 箭头定义 -->
+  <defs>
+    <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

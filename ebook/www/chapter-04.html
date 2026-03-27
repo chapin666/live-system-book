@@ -742,7 +742,7 @@ P帧 vs B帧</h2>
 <p><strong>本节概览</strong>：理解视频编码中三种帧类型的解码成本差异，这是预测性能波动的基础。</p>
 <h3 id="回顾三种帧类型">4.1 回顾：三种帧类型</h3>
 <p>在第一章我们学习了视频压缩原理，其中提到了三种帧类型：</p>
-<p><img src="diagrams/frame-types-decode.svg" width="100%"/></p>
+<p><img src="chapter-04/diagrams/frame-types-decode.svg" width="100%"/></p>
 <table>
 <thead>
 <tr class="header">
@@ -1087,7 +1087,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href=
 <p><strong>本节概览</strong>：介绍双缓冲技术，理解如何通过缓冲区解耦解码和显示，为后续的多线程架构打下基础。</p>
 <h3 id="什么是双缓冲">7.1 什么是双缓冲</h3>
 <p>双缓冲（Double Buffering）是一种经典的计算机图形技术：</p>
-<p><img src="diagrams/double-buffering.svg" width="100%"/></p>
+<p><img src="chapter-04/diagrams/double-buffering.svg" width="100%"/></p>
 <pre><code>传统单缓冲：
 ┌─────────────┐
 │   显示内存   │ ← 解码直接写入，屏幕直接读取
@@ -1241,7 +1241,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href=
 <span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a><span class="ex">firefox</span> flamegraph.svg</span></code></pre></div>
 <h3 id="解读火焰图">8.3 解读火焰图</h3>
 <p>火焰图的阅读方法：</p>
-<p><img src="diagrams/flamegraph-example.svg" width="100%"/></p>
+<p><img src="chapter-04/diagrams/flamegraph-example.svg" width="100%"/></p>
 <pre><code>火焰图结构：
 ┌─────────────────────────────────────────────────┐
 │  main()                                          │ ← 底部是调用者
@@ -1501,9 +1501,23 @@ GitHub</a></li>
 </ul>
 <hr />
 <p><strong>本章代码仓库</strong>：https://github.com/chapin666/live-system-book</p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

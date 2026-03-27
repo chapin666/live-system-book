@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700">
+  <!-- Background -->
+  <rect width="900" height="700" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">WebTransport 协议栈</text>
+  
+  <!-- WebRTC Stack (Left) -->
+  <g transform="translate(50, 60)">
+    <rect width="380" height="500" fill="#ffebee" stroke="#c62828" stroke-width="2" rx="8"/>
+    
+    <text x="190" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#c62828">WebRTC 协议栈</text>
+    
+    <!-- Application Layer -->
+    <rect x="20" y="50" width="340" height="60" fill="#ef5350" rx="5"/>
+    <text x="190" y="75" text-anchor="middle" font-size="12" fill="white" font-weight="bold">应用层</text>
+    <text x="190" y="95" text-anchor="middle" font-size="10" fill="#ffcdd2">WebRTC API (getUserMedia, RTCPeerConnection)</text>
+    
+    <!-- Media Layer -->
+    <rect x="20" y="120" width="340" height="70" fill="#e53935" rx="5"/>
+    <text x="190" y="145" text-anchor="middle" font-size="11" fill="white" font-weight="bold">媒体层</text>
+    
+    <rect x="35" y="155" width="100" height="25" fill="#c62828" rx="3"/>
+    <text x="85" y="172" text-anchor="middle" font-size="9" fill="white">SRTP</text>
+    
+    <rect x="145" y="155" width="100" height="25" fill="#c62828" rx="3"/>
+    <text x="195" y="172" text-anchor="middle" font-size="9" fill="white">SCTP</text>
+    
+    <rect x="255" y="155" width="90" height="25" fill="#c62828" rx="3"/>
+    <text x="300" y="172" text-anchor="middle" font-size="9" fill="white">DTLS</text>
+    
+    <!-- ICE Layer -->
+    <rect x="20" y="200" width="340" height="60" fill="#d32f2f" rx="5"/>
+    <text x="190" y="230" text-anchor="middle" font-size="12" fill="white" font-weight="bold">ICE 层</text>
+    <text x="190" y="250" text-anchor="middle" font-size="10" fill="#ffcdd2">STUN / TURN / ICE Candidate 收集</text>
+    
+    <!-- Transport Layer -->
+    <rect x="20" y="270" width="340" height="50" fill="#b71c1c" rx="5"/>
+    <text x="190" y="295" text-anchor="middle" font-size="12" fill="white" font-weight="bold">UDP 传输</text>
+    
+    <!-- Network Layer -->
+    <rect x="20" y="330" width="340" height="50" fill="#8b0000" rx="5"/>
+    <text x="190" y="355" text-anchor="middle" font-size="12" fill="white" font-weight="bold">IP 层</text>
+    
+    <!-- Characteristics -->
+    <rect x="20" y="390" width="340" height="95" fill="#ffcdd2" rx="5"/>
+    
+    <text x="190" y="415" text-anchor="middle" font-size="11" font-weight="bold" fill="#c62828">特点</text>
+    
+    <text x="30" y="440" font-size="9" fill="#555">• 连接建立: 2-3 RTT (ICE + DTLS)</text>
+    
+    <text x="30" y="458" font-size="9" fill="#555">• NAT穿透: 需要STUN/TURN服务器</text>
+    
+    <text x="30" y="476" font-size="9" fill="#555">• 复杂度: 高 (信令复杂)</text>
+  </g>
+  
+  <!-- VS -->
+  <text x="450" y="300" text-anchor="middle" font-size="14" fill="#666">vs</text>
+  
+  <!-- WebTransport Stack (Right) -->
+  <g transform="translate(470, 60)">
+    <rect width="380" height="500" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2" rx="8"/>
+    
+    <text x="190" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#2e7d32">WebTransport 协议栈</text>
+    
+    <!-- Application Layer -->
+    <rect x="20" y="50" width="340" height="60" fill="#66bb6a" rx="5"/>
+    <text x="190" y="75" text-anchor="middle" font-size="12" fill="white" font-weight="bold">应用层</text>
+    
+    <text x="190" y="95" text-anchor="middle" font-size="10" fill="#e8f5e9">WebTransport API / WebCodecs</text>
+    
+    <!-- QUIC Layer -->
+    <rect x="20" y="120" width="340" height="140" fill="#43a047" rx="5"/>
+    
+    <text x="190" y="145" text-anchor="middle" font-size="12" fill="white" font-weight="bold">QUIC 层</text>
+    
+    <rect x="35" y="160" width="150" height="40" fill="#2e7d32" rx="3"/>
+    <text x="110" y="180" text-anchor="middle" font-size="10" fill="white">可靠流 (Streams)</text>
+    
+    <text x="110" y="195" text-anchor="middle" font-size="9" fill="#a5d6a7">类似TCP</text>
+    
+    
+    <rect x="195" y="160" width="150" height="40" fill="#2e7d32" rx="3"/>
+    <text x="270" y="180" text-anchor="middle" font-size="10" fill="white">不可靠数据报</text>
+    
+    <text x="270" y="195" text-anchor="middle" font-size="9" fill="#a5d6a7">类似UDP</text>
+    
+    
+    <rect x="35" y="210" width="310" height="40" fill="#1b5e20" rx="3"/>
+    <text x="190" y="230" text-anchor="middle" font-size="11" fill="white">QUIC 协议 (内置加密 + 拥塞控制)</text>
+    
+    <text x="190" y="245" text-anchor="middle" font-size="9" fill="#81c784">TLS 1.3 + BBR拥塞控制</text>
+    
+    <!-- UDP Layer -->
+    <rect x="20" y="270" width="340" height="50" fill="#388e3c" rx="5"/>
+    <text x="190" y="295" text-anchor="middle" font-size="12" fill="white" font-weight="bold">UDP 传输</text>
+    
+    <!-- Network Layer -->
+    <rect x="20" y="330" width="340" height="50" fill="#1b5e20" rx="5"/>
+    <text x="190" y="355" text-anchor="middle" font-size="12" fill="white" font-weight="bold">IP 层</text>
+    
+    <!-- Characteristics -->
+    <rect x="20" y="390" width="340" height="95" fill="#c8e6c9" rx="5"/>
+    
+    <text x="190" y="415" text-anchor="middle" font-size="11" font-weight="bold" fill="#2e7d32">特点</text>
+    
+    <text x="30" y="440" font-size="9" fill="#555">• 连接建立: 0-1 RTT (QUIC 0-RTT)</text>
+    
+    <text x="30" y="458" font-size="9" fill="#555">• NAT穿透: 类似HTTP/3，更易穿透</text>
+    
+    <text x="30" y="476" font-size="9" fill="#555">• 复杂度: 低 (基于HTTP)</text>
+  </g>
+  
+  
+  <!-- QUIC Features -->
+  <g transform="translate(50, 580)">
+    <rect width="800" height="100" fill="#fff8e1" stroke="#ffa000" stroke-width="2" rx="8"/>
+    
+    <text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#f57c00">QUIC 核心优势</text>
+    
+    <rect x="20" y="40" width="140" height="50" fill="#ffcc80" rx="5"/>
+    <text x="90" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#5d4037">0-RTT 握手</text>
+    <text x="90" y="80" text-anchor="middle" font-size="9" fill="#8d6e63">快速连接建立</text>
+    
+    <rect x="170" y="40" width="140" height="50" fill="#ffcc80" rx="5"/>
+    <text x="240" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#5d4037">内置TLS 1.3</text>
+    <text x="240" y="80" text-anchor="middle" font-size="9" fill="#8d6e63">安全加密传输</text>
+    
+    <rect x="320" y="40" width="140" height="50" fill="#ffcc80" rx="5"/>
+    <text x="390" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#5d4037">多路复用</text>
+    <text x="390" y="80" text-anchor="middle" font-size="9" fill="#8d6e63">无队头阻塞</text>
+    
+    <rect x="470" y="40" width="140" height="50" fill="#ffcc80" rx="5"/>
+    <text x="540" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#5d4037">连接迁移</text>
+    <text x="540" y="80" text-anchor="middle" font-size="9" fill="#8d6e63">网络切换不断开</text>
+    
+    <rect x="620" y="40" width="160" height="50" fill="#ffcc80" rx="5"/>
+    <text x="700" y="60" text-anchor="middle" font-size="11" font-weight="bold" fill="#5d4037">BBR拥塞控制</text>
+    <text x="700" y="80" text-anchor="middle" font-size="9" fill="#8d6e63">更优的带宽利用</text>
+  </g>
+</svg>

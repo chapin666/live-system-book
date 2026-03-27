@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <defs>
+    <style>
+      .box { fill: #f0f9ff; stroke: #0369a1; stroke-width: 2; rx: 8; }
+      .layer { fill: #e0f2fe; stroke: #0284c7; stroke-width: 2; rx: 4; }
+      .arrow { stroke: #64748b; stroke-width: 2; marker-end: url(#arrowhead); }
+      .label { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #334155; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 16px; font-weight: bold; fill: #0f172a; }
+      .small { font-size: 12px; fill: #64748b; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="500" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="title">RTMP 协议栈</text>
+  
+  <!-- Application Layer -->
+  <rect x="100" y="60" width="600" height="70" class="box"/>
+  <text x="400" y="85" text-anchor="middle" class="title">应用层</text>
+  <text x="400" y="105" text-anchor="middle" class="label">RTMP 消息 (命令/数据/控制/音视频)</text>
+  <text x="400" y="120" text-anchor="middle" class="small">Connect | CreateStream | Publish | Play | Audio/Video Data</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="130" x2="400" y2="150" class="arrow"/>
+  
+  <!-- Chunk Layer -->
+  <rect x="100" y="155" width="600" height="70" class="box"/>
+  <text x="400" y="180" text-anchor="middle" class="title">块层 (Chunk Layer)</text>
+  <text x="400" y="200" text-anchor="middle" class="label">消息分块 | 复用流 | 时间戳</text>
+  <text x="400" y="215" text-anchor="middle" class="small">Basic Header + Message Header + Data | Chunk Size: 128B default</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="225" x2="400" y2="245" class="arrow"/>
+  
+  <!-- Transport Layer -->
+  <rect x="100" y="250" width="600" height="70" class="box"/>
+  <text x="400" y="275" text-anchor="middle" class="title">传输层</text>
+  <text x="400" y="295" text-anchor="middle" class="label">TCP 可靠传输</text>
+  <text x="400" y="310" text-anchor="middle" class="small">Port 1935 (default) | 长连接 | 顺序传输</text>
+  
+  <!-- Arrow -->
+  <line x1="400" y1="320" x2="400" y2="340" class="arrow"/>
+  
+  <!-- Network Layer -->
+  <rect x="100" y="345" width="600" height="70" class="box"/>
+  <text x="400" y="370" text-anchor="middle" class="title">网络层</text>
+  <text x="400" y="390" text-anchor="middle" class="label">IP 协议</text>
+  <text x="400" y="405" text-anchor="middle" class="small">IPv4/IPv6 | 路由转发</text>
+  
+  <!-- Handshake Box -->
+  <rect x="50" y="440" width="200" height="45" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" rx="4"/>
+  <text x="150" y="460" text-anchor="middle" class="label" fill="#92400e">握手阶段</text>
+  <text x="150" y="475" text-anchor="middle" class="small" fill="#a16207">C0/C1/C2 + S0/S1/S2</text>
+  
+  <!-- Connection Box -->
+  <rect x="300" y="440" width="200" height="45" fill="#dcfce7" stroke="#22c55e" stroke-width="2" rx="4"/>
+  <text x="400" y="460" text-anchor="middle" class="label" fill="#166534">连接阶段</text>
+  <text x="400" y="475" text-anchor="middle" class="small" fill="#15803d">Connect → CreateStream → Play/Publish</text>
+  
+  <!-- Data Flow Box -->
+  <rect x="550" y="440" width="200" height="45" fill="#e0e7ff" stroke="#6366f1" stroke-width="2" rx="4"/>
+  <text x="650" y="460" text-anchor="middle" class="label" fill="#3730a3">数据传输</text>
+  <text x="650" y="475" text-anchor="middle" class="small" fill="#4338ca">Audio/Video/Metadata</text>
+</svg>

@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+  <defs>
+    <style>
+      .box { fill: #f0f9ff; stroke: #0369a1; stroke-width: 2; rx: 6; }
+      .process { fill: #dbeafe; stroke: #3b82f6; stroke-width: 2; rx: 4; }
+      .input { fill: #fef3c7; stroke: #f59e0b; stroke-width: 2; rx: 4; }
+      .output { fill: #dcfce7; stroke: #22c55e; stroke-width: 2; rx: 4; }
+      .network { fill: #fce7f3; stroke: #ec4899; stroke-width: 2; rx: 4; }
+      .arrow { stroke: #64748b; stroke-width: 2; marker-end: url(#arrowhead); }
+      .label { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #334155; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: bold; fill: #0f172a; }
+      .small { font-size: 10px; fill: #64748b; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="500" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="450" y="25" text-anchor="middle" class="title" font-size="18">直播推流管线</text>
+  
+  <!-- Video Pipeline -->
+  <rect x="50" y="50" width="400" height="180" fill="#fff7ed" stroke="#f97316" stroke-width="2" rx="8"/>
+  <text x="250" y="75" text-anchor="middle" class="title">视频管线</text>
+  
+  <rect x="70" y="90" width="80" height="50" class="input"/>
+  <text x="110" y="110" text-anchor="middle" class="label">摄像头</text>
+  <text x="110" y="128" text-anchor="middle" class="small">YUV420P</text>
+  
+  <line x1="150" y1="115" x2="170" y2="115" class="arrow"/>
+  
+  <rect x="170" y="90" width="80" height="50" class="process"/>
+  <text x="210" y="110" text-anchor="middle" class="label">视频编码</text>
+  <text x="210" y="128" text-anchor="middle" class="small">H.264/x264</text>
+  
+  <line x1="250" y1="115" x2="270" y2="115" class="arrow"/>
+  
+  <rect x="270" y="90" width="80" height="50" fill="#fee2e2" stroke="#ef4444" rx="2"/>
+  <text x="310" y="110" text-anchor="middle" class="label">视频队列</text>
+  <text x="310" y="128" text-anchor="middle" class="small">缓冲 2-5s</text>
+  
+  <line x1="350" y1="115" x2="370" y2="115" class="arrow"/>
+  
+  <rect x="370" y="90" width="60" height="50" class="process"/>
+  <text x="400" y="110" text-anchor="middle" class="label">封装</text>
+  <text x="400" y="128" text-anchor="middle" class="small">FLV</text>
+  
+  <!-- Audio Pipeline -->
+  <rect x="50" y="250" width="400" height="120" fill="#f0fdf4" stroke="#22c55e" stroke-width="2" rx="8"/>
+  <text x="250" y="275" text-anchor="middle" class="title">音频管线</text>
+  
+  <rect x="70" y="290" width="80" height="50" class="input"/>
+  <text x="110" y="310" text-anchor="middle" class="label">麦克风</text>
+  <text x="110" y="328" text-anchor="middle" class="small">PCM 48kHz</text>
+  
+  <line x1="150" y1="315" x2="170" y2="315" class="arrow"/>
+  
+  <rect x="170" y="290" width="80" height="50" class="process"/>
+  <text x="210" y="310" text-anchor="middle" class="label">音频编码</text>
+  <text x="210" y="328" text-anchor="middle" class="small">AAC</text>
+  
+  <line x1="250" y1="315" x2="270" y2="315" class="arrow"/>
+  
+  <rect x="270" y="290" width="80" height="50" fill="#fee2e2" stroke="#ef4444" rx="2"/>
+  <text x="310" y="310" text-anchor="middle" class="label">音频队列</text>
+  <text x="310" y="328" text-anchor="middle" class="small">同步缓冲</text>
+  
+  <line x1="350" y1="315" x2="370" y2="315" class="arrow"/>
+  
+  <rect x="370" y="290" width="60" height="50" class="process"/>
+  <text x="400" y="310" text-anchor="middle" class="label">封装</text>
+  <text x="400" y="328" text-anchor="middle" class="small">FLV</text>
+  
+  <!-- Mux and Send -->
+  <rect x="480" y="50" width="180" height="320" fill="#faf5ff" stroke="#a855f7" stroke-width="2" rx="8"/>
+  <text x="570" y="75" text-anchor="middle" class="title">复用与发送</text>
+  
+  <rect x="500" y="90" width="140" height="60" class="process"/>
+  <text x="570" y="115" text-anchor="middle" class="label">FLV 复用</text>
+  <text x="570" y="133" text-anchor="middle" class="small">音视频交错</text>
+  <text x="570" y="145" text-anchor="middle" class="small">时间戳同步</text>
+  
+  <line x1="430" y1="115" x2="500" y2="120" class="arrow"/>
+  <line x1="430" y1="315" x2="500" y2="140" class="arrow"/>
+  
+  <rect x="500" y="170" width="140" height="50" class="network"/>
+  <text x="570" y="192" text-anchor="middle" class="label">RTMP 连接</text>
+  <text x="570" y="210" text-anchor="middle" class="small">握手 → 连接 → 推流</text>
+  
+  <line x1="570" y1="220" x2="570" y2="240" class="arrow"/>
+  
+  <rect x="500" y="250" width="140" height="50" class="network"/>
+  <text x="570" y="272" text-anchor="middle" class="label">Chunk 发送</text>
+  <text x="570" y="290" text-anchor="middle" class="small">分块传输 / 流量控制</text>
+  
+  <!-- Server -->
+  <rect x="690" y="50" width="180" height="320" fill="#f0f9ff" stroke="#0369a1" stroke-width="2" rx="8"/>
+  <text x="780" y="75" text-anchor="middle" class="title">流媒体服务器</text>
+  
+  <rect x="710" y="90" width="140" height="50" class="process"/>
+  <text x="780" y="112" text-anchor="middle" class="label">接收 (Ingest)</text>
+  <text x="780" y="130" text-anchor="middle" class="small">RTMP 1935 端口</text>
+  
+  <line x1="640" y1="275" x2="710" y2="115" class="arrow"/>
+  
+  <rect x="710" y="160" width="140" height="50" class="process"/>
+  <text x="780" y="182" text-anchor="middle" class="label">转码/录制</text>
+  <text x="780" y="200" text-anchor="middle" class="small">多码率 / DVR</text>
+  
+  <rect x="710" y="230" width="140" height="50" class="output"/>
+  <text x="780" y="252" text-anchor="middle" class="label">CDN 分发</text>
+  <text x="780" y="270" text-anchor="middle" class="small">HLS/DASH/RTMP</text>
+  
+  <rect x="710" y="300" width="140" height="50" fill="#e0e7ff" stroke="#6366f1" rx="2"/>
+  <text x="780" y="322" text-anchor="middle" class="label">观众播放</text>
+  <text x="780" y="340" text-anchor="middle" class="small">播放器拉流</text>
+  
+  <!-- Key Points -->
+  <rect x="50" y="390" width="820" height="90" class="box"/>
+  <text x="450" y="415" text-anchor="middle" class="title">推流关键要点</text>
+  
+  <text x="70" y="440" class="label">1. 音视频同步：</text>
+  <text x="180" y="440" class="small">时间戳对齐，防止音画不同步</text>
+  
+  <text x="70" y="460" class="label">2. 缓冲策略：</text>
+  <text x="180" y="460" class="small">2-5秒缓冲，平衡延迟与流畅度</text>
+  
+  <text x="450" y="440" class="label">3. 码率控制：</text>
+  <text x="560" y="440" class="small">CBR 保证恒定带宽，适合直播</text>
+  
+  <text x="450" y="460" class="label">4. 错误处理：</text>
+  <text x="560" y="460" class="small">自动重连，网络抖动自适应</text>
+</svg>

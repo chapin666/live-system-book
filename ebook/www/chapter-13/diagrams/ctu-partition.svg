@@ -1,0 +1,79 @@
+<svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="700" height="500" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="350" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">H.265 CTU 四叉树划分</text>
+  <text x="350" y="65" text-anchor="middle" font-size="14" fill="#666">根据图像复杂度自适应选择块大小</text>
+  
+  <!-- Original image grid -->
+  <text x="150" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">原始图像</text>
+  
+  <!-- Image with varying complexity -->
+  <g transform="translate(50, 120)">
+    <!-- Sky area - uniform -->
+    <rect x="0" y="0" width="200" height="80" fill="#87CEEB" opacity="0.6"/>
+    <text x="100" y="45" text-anchor="middle" font-size="12" fill="#4682B4">天空（平坦）</text>
+    
+    <!-- Building area -->
+    <rect x="0" y="80" width="100" height="120" fill="#D3D3D3" opacity="0.6"/>
+    <text x="50" y="145" text-anchor="middle" font-size="11" fill="#696969">墙面</text>
+    
+    <!-- Tree area - complex -->
+    <rect x="100" y="80" width="100" height="120" fill="#228B22" opacity="0.3"/>
+    <text x="150" y="145" text-anchor="middle" font-size="11" fill="#006400">树叶（复杂）</text>
+  </g>
+  
+  <!-- Arrow -->
+  <path d="M 280 240 L 320 240" stroke="#666" stroke-width="2" marker-end="url(#arrowhead2)"/>
+  
+  <!-- CTU Partition visualization -->
+  <text x="520" y="100" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">CTU 划分结果</text>
+  
+  <g transform="translate(380, 120)">
+    <!-- Large block for sky (64x64) -->
+    <rect x="0" y="0" width="200" height="80" fill="none" stroke="#4a90d9" stroke-width="3"/>
+    <text x="100" y="45" text-anchor="middle" font-size="12" fill="#4a90d9" font-weight="bold">64×64</text>
+    
+    <!-- Medium blocks for building -->
+    <rect x="0" y="80" width="100" height="120" fill="none" stroke="#5cb85c" stroke-width="2"/>
+    <text x="50" y="145" text-anchor="middle" font-size="11" fill="#5cb85c">32×32</text>
+    
+    <!-- Small blocks for tree (divided into 4) -->
+    <g transform="translate(100, 80)">
+      <rect x="0" y="0" width="50" height="60" fill="none" stroke="#f0ad4e" stroke-width="1.5"/>
+      <rect x="50" y="0" width="50" height="60" fill="none" stroke="#f0ad4e" stroke-width="1.5"/>
+      <rect x="0" y="60" width="50" height="60" fill="none" stroke="#f0ad4e" stroke-width="1.5"/>
+      <rect x="50" y="60" width="50" height="60" fill="none" stroke="#f0ad4e" stroke-width="1.5"/>
+      <text x="50" y="95" text-anchor="middle" font-size="10" fill="#f0ad4e">16×16</text>
+    </g>
+  </g>
+  
+  <!-- Legend -->
+  <g transform="translate(50, 380)">
+    <text x="0" y="0" font-size="14" font-weight="bold" fill="#333">块大小与场景复杂度</text>
+    
+    <rect x="0" y="15" width="40" height="25" fill="none" stroke="#4a90d9" stroke-width="3"/>
+    <text x="50" y="33" font-size="12" fill="#333">64×64：平坦区域（天空、墙面）</text>
+    
+    <rect x="0" y="50" width="40" height="25" fill="none" stroke="#5cb85c" stroke-width="2"/>
+    <text x="50" y="68" font-size="12" fill="#333">32×32：中等复杂度（建筑、地面）</text>
+    
+    <rect x="0" y="85" width="20" height="20" fill="none" stroke="#f0ad4e" stroke-width="1.5"/>
+    <text x="30" y="100" font-size="12" fill="#333">16×16 或更小：高复杂度（边缘、纹理、细节）</text>
+  </g>
+  
+  <!-- Comparison box -->
+  <g transform="translate(380, 380)">
+    <rect x="0" y="0" width="280" height="100" fill="#fff" stroke="#ddd" stroke-width="1" rx="5"/>
+    <text x="140" y="25" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">H.264 vs H.265 块大小</text>
+    <text x="10" y="50" font-size="12" fill="#666">H.264：固定 16×16 宏块</text>
+    <text x="10" y="75" font-size="12" fill="#666">H.265：4×4 ~ 64×64 自适应</text>
+  </g>
+  
+  <defs>
+    <marker id="arrowhead2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

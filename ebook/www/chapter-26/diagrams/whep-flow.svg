@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 550">
+  <!-- Background -->
+  <rect width="900" height="550" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">WHEP 协议流程</text>
+  
+  
+  <!-- Browser/Player -->
+  <g transform="translate(50, 60)">
+    <rect width="200" height="450" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">浏览器 (播放端)</text>
+    
+    <rect x="20" y="120" width="160" height="60" fill="#42a5f5" rx="5"/>
+    <text x="100" y="145" text-anchor="middle" font-size="11" fill="white">创建PeerConnection</text>
+    <text x="100" y="165" text-anchor="middle" font-size="9" fill="#e3f2fd">recvonly SDP offer</text>
+    
+    <rect x="20" y="330" width="160" height="60" fill="#1e88e5" rx="5"/>
+    <text x="100" y="355" text-anchor="middle" font-size="11" fill="white">设置Remote SDP</text>
+    <text x="100" y="375" text-anchor="middle" font-size="9" fill="#e3f2fd">开始接收媒体</text>
+    
+    <rect x="20" y="400" width="160" height="40" fill="#1976d2" rx="5"/>
+    <text x="100" y="425" text-anchor="middle" font-size="11" fill="white">播放中...</text>
+  </g>
+  
+  
+  <!-- HTTP Requests -->
+  <g transform="translate(270, 60)">
+    <rect width="200" height="450" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
+    
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#f57c00">HTTP 信令</text>
+    
+    <!-- POST Request -->
+    <rect x="15" y="190" width="170" height="80" fill="#ffb74d" rx="5"/>
+    <text x="100" y="215" text-anchor="middle" font-size="12" font-weight="bold" fill="white">POST /whep</text>
+    <text x="100" y="240" text-anchor="middle" font-size="9" fill="#5d4037">Content-Type: application/sdp</text>
+    <text x="100" y="258" text-anchor="middle" font-size="8" fill="#5d4037">Body: recvonly SDP</text>
+    
+    <!-- PATCH Request -->
+    <rect x="15" y="290" width="170" height="70" fill="#ffa726" rx="5"/>
+    <text x="100" y="315" text-anchor="middle" font-size="12" font-weight="bold" fill="white">PATCH /whep/{id}</text>
+    <text x="100" y="340" text-anchor="middle" font-size="9" fill="#5d4037">Trickle ICE</text>
+  </g>
+  
+  
+  <!-- WHEP Server -->
+  <g transform="translate(490, 60)">
+    <rect width="200" height="450" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
+    
+    <text x="100" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">WHEP 服务器</text>
+    
+    <rect x="20" y="50" width="160" height="60" fill="#ba68c8" rx="5"/>
+    <text x="100" y="75" text-anchor="middle" font-size="11" fill="white">HTTP Server</text>
+    <text x="100" y="95" text-anchor="middle" font-size="9" fill="#f3e5f5">接收POST请求</text>
+    
+    <rect x="20" y="120" width="160" height="60" fill="#ab47bc" rx="5"/>
+    <text x="100" y="145" text-anchor="middle" font-size="11" fill="white">创建Playback Session</text>
+    <text x="100" y="165" text-anchor="middle" font-size="9" fill="#f3e5f5">订阅SFU流</text>
+    
+    <rect x="20" y="190" width="160" height="80" fill="#9c27b0" rx="5"/>
+    <text x="100" y="220" text-anchor="middle" font-size="11" fill="white">SFU/RTC</text>
+    <text x="100" y="240" text-anchor="middle" font-size="9" fill="#f3e5f5">处理SDP</text>
+    <text x="100" y="258" text-anchor="middle" font-size="9" fill="#f3e5f5">ICE/DTLS</text>
+    
+    <rect x="20" y="330" width="160" height="60" fill="#8e24aa" rx="5"/>
+    <text x="100" y="355" text-anchor="middle" font-size="11" fill="white">获取媒体流</text>
+    <text x="100" y="375" text-anchor="middle" font-size="9" fill="#f3e5f5">从SFU/Publisher</text>
+    
+    <rect x="20" y="400" width="160" height="40" fill="#7b1fa2" rx="5"/>
+    <text x="100" y="425" text-anchor="middle" font-size="11" fill="white">转发媒体流</text>
+  </g>
+  
+  
+  <!-- Response -->
+  <g transform="translate(710, 60)">
+    <rect width="150" height="450" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
+    
+    <text x="75" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">响应</text>
+    
+    <rect x="15" y="190" width="120" height="80" fill="#81c784" rx="5"/>
+    <text x="75" y="218" text-anchor="middle" font-size="11" font-weight="bold" fill="white">201 Created</text>
+    <text x="75" y="240" text-anchor="middle" font-size="9" fill="#e8f5e9">Location: ...</text>
+    <text x="75" y="258" text-anchor="middle" font-size="9" fill="#e8f5e9">SDP answer</text>
+  </g>
+  
+  
+  <!-- Publisher/SFU Source -->
+  <g transform="translate(50, 520)">
+    <rect width="800" height="150" fill="#fafafa" stroke="#ddd" stroke-width="1" rx="5"/>
+    
+    <text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">WHEP 架构关系</text>
+    
+    <!-- Publisher -->
+    <rect x="50" y="45" width="150" height="50" fill="#e3f2fd" rx="5"/>
+    <text x="125" y="75" text-anchor="middle" font-size="11" fill="#1976d2">Publisher</text>
+    
+    <!-- Arrow to SFU -->
+  <path d="M200 70 L280 70" stroke="#666" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="240" y="60" text-anchor="middle" font-size="9" fill="#666">WHIP推流</text>
+    
+    <!-- SFU -->
+    <rect x="300" y="45" width="150" height="50" fill="#f3e5f5" rx="5"/>
+    <text x="375" y="75" text-anchor="middle" font-size="11" fill="#7b1fa2">SFU / WHIP Server</text>
+    
+    <!-- Arrow to Player -->
+  <path d="M450 70 L550 70" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead2)"/>
+    <text x="500" y="60" text-anchor="middle" font-size="9" fill="#f57c00">WHEP拉流</text>
+    
+    <!-- Player -->
+    <rect x="570" y="45" width="150" height="50" fill="#fff3e0" rx="5"/>
+    <text x="645" y="75" text-anchor="middle" font-size="11" fill="#f57c00">Player</text>
+    
+    <text x="400" y="120" text-anchor="middle" font-size="10" fill="#666">WHEP是WHIP的对称协议，WHIP用于推流，WHEP用于拉流，两者都简化了WebRTC的信令过程</text>
+  </g>
+  
+  
+  <!-- Arrows -->
+  <!-- Browser to HTTP: SDP Offer -->
+  <path d="M250 150 L270 220" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- HTTP to WHEP: POST -->
+  <path d="M470 230 L490 230" stroke="#f57c00" stroke-width="2" marker-end="url(#arrowhead2)"/>
+  
+  <!-- WHEP to Response: 201 -->
+  <path d="M690 230 L710 230" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead3)"/>
+  
+  <!-- Response to Browser: SDP Answer -->
+  <path d="M860 230 L880 230 L880 360 L250 360" stroke="#388e3c" stroke-width="2" marker-end="url(#arrowhead3)" fill="none"/>
+  
+  <!-- Media Stream from SFU to Player -->
+  <path d="M480 360 L250 360 L250 440 L150 440 L150 470" stroke="#f44336" stroke-width="3" marker-end="url(#arrowhead4)" fill="none"/>
+  
+  <text x="360" y="380" font-size="10" fill="#f44336" font-weight="bold">SRTP 媒体流</text>
+  
+  
+  <!-- Arrow Markers -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+    <marker id="arrowhead2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f57c00"/>
+    </marker>
+    <marker id="arrowhead3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#388e3c"/>
+    </marker>
+    <marker id="arrowhead4" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f44336"/>
+    </marker>
+  </defs>
+</svg>

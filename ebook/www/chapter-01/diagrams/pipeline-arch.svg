@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 300">
+  <rect width="700" height="300" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="350" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Pipeline 架构</text>
+  
+  <!-- 视频文件 -->
+  <rect x="30" y="120" width="100" height="60" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="80" y="145" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">视频文件</text>
+  <text x="80" y="165" text-anchor="middle" font-size="10" fill="#666">MP4/FLV</text>
+  
+  <!-- 箭头：读取 -->
+  <path d="M 130 150 L 170 150" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="150" y="140" text-anchor="middle" font-size="10" fill="#888">读取</text>
+  
+  <!-- Demuxer -->
+  <rect x="170" y="110" width="100" height="80" rx="6" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="220" y="140" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Demuxer</text>
+  <text x="220" y="158" text-anchor="middle" font-size="10" fill="#666">解封装</text>
+  <text x="220" y="175" text-anchor="middle" font-size="9" fill="#888">AVPacket</text>
+  
+  <!-- 箭头：压缩数据 -->
+  <path d="M 270 150 L 310 150" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="290" y="140" text-anchor="middle" font-size="10" fill="#888">H.264</text>
+  
+  <!-- Decoder -->
+  <rect x="310" y="110" width="100" height="80" rx="6" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="360" y="140" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Decoder</text>
+  <text x="360" y="158" text-anchor="middle" font-size="10" fill="#666">解码</text>
+  <text x="360" y="175" text-anchor="middle" font-size="9" fill="#888">AVFrame</text>
+  
+  <!-- 箭头：原始像素 -->
+  <path d="M 410 150 L 450 150" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="430" y="140" text-anchor="middle" font-size="10" fill="#888">YUV</text>
+  
+  <!-- Renderer -->
+  <rect x="450" y="110" width="100" height="80" rx="6" fill="#fce4ec" stroke="#c2185b" stroke-width="2"/>
+  <text x="500" y="140" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">Renderer</text>
+  <text x="500" y="158" text-anchor="middle" font-size="10" fill="#666">渲染</text>
+  <text x="500" y="175" text-anchor="middle" font-size="9" fill="#888">SDL2</text>
+  
+  <!-- 箭头：显示 -->
+  <path d="M 550 150 L 590 150" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="570" y="140" text-anchor="middle" font-size="10" fill="#888">显示</text>
+  
+  <!-- 屏幕 -->
+  <rect x="590" y="120" width="80" height="60" rx="6" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="630" y="145" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">屏幕</text>
+  <text x="630" y="165" text-anchor="middle" font-size="10" fill="#666">显示</text>
+  
+  <!-- SimplePipeline 框 -->
+  <rect x="160" y="85" width="400" height="130" rx="10" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="5,5"/>
+  <text x="360" y="105" text-anchor="middle" font-size="11" fill="#999">SimplePipeline</text>
+  
+  <!-- 底部说明 -->
+  <text x="350" y="250" text-anchor="middle" font-size="12" fill="#666">数据像水一样流动，每个阶段处理完传给下一个阶段</text>
+  
+  <!-- 箭头定义 -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+</svg>

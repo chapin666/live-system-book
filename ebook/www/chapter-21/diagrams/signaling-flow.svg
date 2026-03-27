@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+    
+    <linearGradient id="actorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e3f2fd"/>
+      <stop offset="100%" stop-color="#bbdefb"/>
+    </linearGradient>
+    
+    <linearGradient id="serverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff3e0"/>
+      <stop offset="100%" stop-color="#ffe0b2"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="700" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="450" y="25" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="#333">
+    WebRTC Signaling Flow
+  </text>
+  
+  <!-- Actors -->
+  <rect x="50" y="50" width="120" height="60" rx="8" fill="url(#actorGrad)" stroke="#1976d2" stroke-width="2"/>
+  <text x="110" y="75" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="#1565c0">Caller</text>
+  <text x="110" y="92" text-anchor="middle" font-family="Arial" font-size="10" fill="#666">(Alice)</text>
+  
+  <rect x="390" y="50" width="120" height="60" rx="8" fill="url(#serverGrad)" stroke="#f57c00" stroke-width="2"/>
+  <text x="450" y="75" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="#e65100">Signaling</text>
+  <text x="450" y="92" text-anchor="middle" font-family="Arial" font-size="10" fill="#666">Server</text>
+  
+  <rect x="730" y="50" width="120" height="60" rx="8" fill="url(#actorGrad)" stroke="#1976d2" stroke-width="2"/>
+  <text x="790" y="75" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="#1565c0">Callee</text>
+  <text x="790" y="92" text-anchor="middle" font-family="Arial" font-size="10" fill="#666">(Bob)</text>
+  
+  <!-- Lifelines -->
+  <line x1="110" y1="110" x2="110" y2="620" stroke="#ccc" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="450" y1="110" x2="450" y2="620" stroke="#ccc" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="790" y1="110" x2="790" y2="620" stroke="#ccc" stroke-width="2" stroke-dasharray="5,3"/>
+  
+  <!-- Phase 1: Connection -->
+  <rect x="20" y="115" width="860" height="50" rx="4" fill="#e8f5e9" stroke="#4caf50" stroke-width="1" opacity="0.5"/>
+  <text x="30" y="130" font-family="Arial" font-size="10" fill="#2e7d32" font-weight="bold">Phase 1: Connection</text>
+  
+  <!-- 1. Connect -->
+  <line x1="110" y1="145" x2="440" y2="145" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="275" y="140" text-anchor="middle" font-family="Arial" font-size="9" fill="#333">1. WebSocket connect</text>
+  
+  <path d="M 445 155 L 450 145 L 455 155 Z" fill="#4caf50"/>
+  <line x1="450" y1="145" x2="450" y2="155" stroke="#4caf50" stroke-width="2"/>
+  
+  <!-- 2. Join Room -->
+  <line x1="110" y1="165" x2="440" y2="165" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="275" y="160" text-anchor="middle" font-family="Arial" font-size="9" fill="#333">2. join(room_id, user_id)</text>
+  
+  <line x1="460" y1="175" x2="780" y2="175" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="620" y="170" text-anchor="middle" font-family="Arial" font-size="9" fill="#333">2. join(room_id, user_id)</text>
+  
+  <!-- Phase 2: SDP Exchange -->
+  <rect x="20" y="185" width="860" height="180" rx="4" fill="#fff3e0" stroke="#ff9800" stroke-width="1" opacity="0.5"/>
+  <text x="30" y="200" font-family="Arial" font-size="10" fill="#e65100" font-weight="bold">Phase 2: SDP Exchange (Offer/Answer)</text>
+  
+  <!-- 3. Create Offer -->
+  <rect x="105" y="210" width="10" height="40" fill="#bbdefb" stroke="#1976d2" stroke-width="1"/>
+  <text x="60" y="225" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">createOffer()</text>
+  
+  <!-- 4. Send Offer -->
+  <line x1="110" y1="260" x2="440" y2="260" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="220" y="245" width="120" height="22" rx="3" fill="#e3f2fd" stroke="#1976d2" stroke-width="1"/>
+  <text x="280" y="260" text-anchor="middle" font-family="Arial" font-size="8" fill="#1565c0">4. SDP Offer</text>
+  
+  <!-- 5. Forward Offer -->
+  <line x1="460" y1="280" x2="780" y2="280" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="570" y="265" width="120" height="22" rx="3" fill="#fff3e0" stroke="#f57c00" stroke-width="1"/>
+  <text x="630" y="280" text-anchor="middle" font-family="Arial" font-size="8" fill="#e65100">5. Forward Offer</text>
+  
+  <!-- 6. Create Answer -->
+  <rect x="785" y="295" width="10" height="40" fill="#bbdefb" stroke="#1976d2" stroke-width="1"/>
+  <text x="840" y="310" text-anchor="middle" font-family="Arial" font-size="8" fill="#666">createAnswer()</text>
+  
+  <!-- 7. Send Answer -->
+  <line x1="790" y1="345" x2="460" y2="345" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="570" y="330" width="120" height="22" rx="3" fill="#e3f2fd" stroke="#1976d2" stroke-width="1"/>
+  <text x="630" y="345" text-anchor="middle" font-family="Arial" font-size="8" fill="#1565c0">7. SDP Answer</text>
+  
+  <!-- 8. Forward Answer -->
+  <line x1="440" y1="365" x2="120" y2="365" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="220" y="350" width="120" height="22" rx="3" fill="#fff3e0" stroke="#f57c00" stroke-width="1"/>
+  <text x="280" y="365" text-anchor="middle" font-family="Arial" font-size="8" fill="#e65100">8. Forward Answer</text>
+  
+  <!-- Phase 3: ICE Exchange -->
+  <rect x="20" y="380" width="860" height="120" rx="4" fill="#fce4ec" stroke="#e91e63" stroke-width="1" opacity="0.5"/>
+  <text x="30" y="395" font-family="Arial" font-size="10" fill="#c2185b" font-weight="bold">Phase 3: ICE Candidate Exchange</text>
+  
+  <!-- 9. ICE from Alice -->
+  <line x1="110" y1="420" x2="440" y2="420" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="200" y="405" width="160" height="22" rx="3" fill="#fce4ec" stroke="#e91e63" stroke-width="1"/>
+  <text x="280" y="420" text-anchor="middle" font-family="Arial" font-size="8" fill="#c2185b">9. ICE Candidate (trickle)</text>
+  
+  <line x1="460" y1="420" x2="780" y2="420" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  
+  <!-- 10. ICE from Bob -->
+  <line x1="790" y1="445" x2="460" y2="445" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="580" y="430" width="160" height="22" rx="3" fill="#fce4ec" stroke="#e91e63" stroke-width="1"/>
+  <text x="660" y="445" text-anchor="middle" font-family="Arial" font-size="8" fill="#c2185b">10. ICE Candidate (trickle)</text>
+  
+  <line x1="440" y1="445" x2="120" y2="445" stroke="#333" stroke-width="1.5" marker-end="url(#arrow)"/>
+  
+  <!-- Phase 4: Media Flow -->
+  <rect x="20" y="505" width="860" height="80" rx="4" fill="#e8f5e9" stroke="#4caf50" stroke-width="1" opacity="0.5"/>
+  <text x="30" y="520" font-family="Arial" font-size="10" fill="#2e7d32" font-weight="bold">Phase 4: P2P Media Flow</text>
+  
+  <!-- DTLS/SRTP -->
+  <rect x="105" y="540" width="10" height="30" fill="#c8e6c9" stroke="#4caf50" stroke-width="1"/>
+  <rect x="785" y="540" width="10" height="30" fill="#c8e6c9" stroke="#4caf50" stroke-width="1"/>
+  
+  <line x1="125" y1="555" x2="775" y2="555" stroke="#4caf50" stroke-width="3" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+  <text x="450" y="550" text-anchor="middle" font-family="Arial" font-size="10" fill="#2e7d32" font-weight="bold">P2P Connection Established</text>
+  <text x="450" y="565" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">DTLS + SRTP + ICE</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="630" width="800" height="55" rx="4" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="60" y="648" font-family="Arial" font-size="11" font-weight="bold" fill="#333">Key Points:</text>
+  <text x="60" y="665" font-family="Arial" font-size="9" fill="#666">• Signaling server only coordinates connection; media flows P2P after ICE establishes</text>
+  <text x="60" y="678" font-family="Arial" font-size="9" fill="#666">• ICE candidates can be sent incrementally (Trickle ICE) to speed up connection</text>
+  <text x="400" y="665" font-family="Arial" font-size="9" fill="#666">• DTLS handshake occurs after ICE completes, then SRTP encrypts media</text>
+</svg>

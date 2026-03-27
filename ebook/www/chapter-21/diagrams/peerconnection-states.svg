@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666"/>
+    </marker>
+    <marker id="arrow-dashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#999"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="650" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="450" y="30" text-anchor="middle" font-family="Arial" font-size="20" font-weight="bold" fill="#333">
+    PeerConnection State Machine
+  </text>
+  
+  <!-- Signaling State Machine -->
+  <rect x="50" y="50" width="380" height="280" rx="8" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="240" y="75" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#1565c0">
+    Signaling State
+  </text>
+  
+  <!-- States -->
+  <ellipse cx="140" cy="130" rx="50" ry="25" fill="white" stroke="#1976d2" stroke-width="2"/>
+  <text x="140" y="135" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">STABLE</text>
+  
+  <ellipse cx="290" cy="130" rx="60" ry="25" fill="white" stroke="#1976d2" stroke-width="2"/>
+  <text x="290" y="126" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">HAVE_LOCAL</text>
+  <text x="290" y="138" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">_OFFER</text>
+  
+  <ellipse cx="140" cy="220" rx="65" ry="25" fill="white" stroke="#1976d2" stroke-width="2"/>
+  <text x="140" y="216" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">HAVE_REMOTE</text>
+  <text x="140" y="228" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">_OFFER</text>
+  
+  <ellipse cx="290" cy="220" rx="65" ry="25" fill="white" stroke="#1976d2" stroke-width="2"/>
+  <text x="290" y="216" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">HAVE_LOCAL</text>
+  <text x="290" y="228" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">_ANSWER</text>
+  
+  <ellipse cx="215" cy="290" rx="65" ry="25" fill="white" stroke="#1976d2" stroke-width="2"/>
+  <text x="215" y="286" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">HAVE_REMOTE</text>
+  <text x="215" y="298" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">_ANSWER</text>
+  
+  <!-- Transitions -->
+  <line x1="190" y1="130" x2="230" y2="130" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="210" y="125" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">createOffer</text>
+  
+  <line x1="140" y1="155" x2="140" y2="195" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="95" y="178" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">setRemote(offer)</text>
+  
+  <line x1="205" y1="220" x2="225" y2="220" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="215" y="215" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">createAnswer</text>
+  
+  <line x1="290" y1="155" x2="290" y2="195" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="335" y="178" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">setRemote(offer)</text>
+  
+  <line x1="260" y1="235" x2="235" y2="265" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="285" y="258" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">setLocal(answer)</text>
+  
+  <line x1="170" y1="235" x2="195" y2="265" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="150" y="258" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">setLocal(answer)</text>
+  
+  <!-- Self loops -->
+  <path d="M 170 290 Q 215 320 260 290" fill="none" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="215" y="330" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">setRemote(answer) → STABLE</text>
+  
+  <!-- ICE Connection State -->
+  <rect x="470" y="50" width="380" height="280" rx="8" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="660" y="75" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#e65100">
+    ICE Connection State
+  </text>
+  
+  <!-- States -->
+  <ellipse cx="560" cy="110" rx="35" ry="20" fill="white" stroke="#f57c00" stroke-width="2"/>
+  <text x="560" y="114" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">NEW</text>
+  
+  <ellipse cx="650" cy="110" rx="45" ry="20" fill="white" stroke="#f57c00" stroke-width="2"/>
+  <text x="650" y="114" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">CHECKING</text>
+  
+  <ellipse cx="770" cy="110" rx="45" ry="20" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+  <text x="770" y="114" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">CONNECTED</text>
+  
+  <ellipse cx="560" cy="180" rx="45" ry="20" fill="white" stroke="#f57c00" stroke-width="2"/>
+  <text x="560" y="184" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">COMPLETED</text>
+  
+  <ellipse cx="680" cy="180" rx="35" ry="20" fill="#ffcdd2" stroke="#f44336" stroke-width="2"/>
+  <text x="680" y="184" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">FAILED</text>
+  
+  <ellipse cx="770" cy="180" rx="55" ry="20" fill="#fff9c4" stroke="#fbc02d" stroke-width="2"/>
+  <text x="770" y="184" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">DISCONNECTED</text>
+  
+  <ellipse cx="620" cy="250" rx="35" ry="20" fill="white" stroke="#f57c00" stroke-width="2"/>
+  <text x="620" y="254" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">CLOSED</text>
+  
+  <!-- Transitions -->
+  <line x1="595" y1="110" x2="605" y2="110" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="600" y="105" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">start</text>
+  
+  <line x1="695" y1="110" x2="725" y2="110" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="710" y="105" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">success</text>
+  
+  <line x1="755" y1="130" x2="700" y2="160" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="745" y="150" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">all checked</text>
+  
+  <line x1="735" y1="180" x2="605" y2="180" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="670" y="175" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">final selected</text>
+  
+  <line x1="650" y1="130" x2="670" y2="160" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="635" y="150" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">failed</text>
+  
+  <line x1="770" y1="130" x2="770" y2="160" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="800" y="148" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">timeout</text>
+  
+  <line x1="550" y1="200" x2="600" y2="230" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="770" y1="200" x2="655" y2="250" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="680" y1="200" x2="650" y2="230" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  
+  <!-- PeerConnection State -->
+  <rect x="50" y="360" width="800" height="250" rx="8" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="450" y="385" text-anchor="middle" font-family="Arial" font-size="14" font-weight="bold" fill="#6a1b9a">
+    PeerConnection State (Aggregated)
+  </text>
+  
+  <!-- Horizontal state flow -->
+  <circle cx="120" cy="440" r="30" fill="white" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="120" y="445" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">NEW</text>
+  
+  <circle cx="250" cy="440" r="40" fill="white" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="250" y="445" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">CONNECTING</text>
+  
+  <circle cx="420" cy="440" r="35" fill="#c8e6c9" stroke="#4caf50" stroke-width="2"/>
+  <text x="420" y="445" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">CONNECTED</text>
+  
+  <circle cx="580" cy="440" r="45" fill="#fff9c4" stroke="#fbc02d" stroke-width="2"/>
+  <text x="580" y="436" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">DISCONNECTED</text>
+  <text x="580" y="448" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">(retrying)</text>
+  
+  <circle cx="720" cy="440" r="35" fill="#ffcdd2" stroke="#f44336" stroke-width="2"/>
+  <text x="720" y="445" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">FAILED</text>
+  
+  <circle cx="420" cy="540" r="35" fill="white" stroke="#7b1fa2" stroke-width="2"/>
+  <text x="420" y="545" text-anchor="middle" font-family="Arial" font-size="11" fill="#333">CLOSED</text>
+  
+  <!-- Arrows -->
+  <line x1="150" y1="440" x2="210" y2="440" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="290" y1="440" x2="385" y2="440" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="455" y1="440" x2="535" y2="440" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="625" y1="440" x2="685" y2="440" stroke="#666" stroke-width="2" marker-end="url(#arrow)"/>
+  
+  <!-- Retry arrow -->
+  <path d="M 535 470 Q 420 510 305 470" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow-dashed)"/>
+  <text x="420" y="505" text-anchor="middle" font-family="Arial" font-size="9" fill="#999">auto retry</text>
+  
+  <!-- Close transitions -->
+  <line x1="120" y1="470" x2="390" y2="525" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="250" y1="480" x2="395" y2="525" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="420" y1="475" x2="420" y2="505" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="580" y1="475" x2="445" y2="525" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="720" y1="475" x2="450" y2="525" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  
+  <!-- Labels -->
+  <text x="180" y="430" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">initialize</text>
+  <text x="335" y="430" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">start ICE</text>
+  <text x="505" y="430" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">network issue</text>
+  <text x="650" y="430" text-anchor="middle" font-family="Arial" font-size="9" fill="#666">max retry</text>
+  
+  <!-- Legend -->
+  <rect x="650" y="520" width="200" height="70" rx="4" fill="white" stroke="#ddd" stroke-width="1"/>
+  <text x="660" y="540" font-family="Arial" font-size="10" font-weight="bold" fill="#333">Legend:</text>
+  <rect x="660" y="550" width="12" height="12" fill="#c8e6c9" stroke="#4caf50"/>
+  <text x="678" y="560" font-family="Arial" font-size="9" fill="#666">Success state</text>
+  <rect x="660" y="568" width="12" height="12" fill="#ffcdd2" stroke="#f44336"/>
+  <text x="678" y="578" font-family="Arial" font-size="9" fill="#666">Error state</text>
+</svg>

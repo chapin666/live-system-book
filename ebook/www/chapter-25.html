@@ -187,7 +187,7 @@
 <h3 id="单流录制-vs-合流录制">1.2 单流录制 vs 合流录制</h3>
 <p>根据录制时机和内容的不同，录制方案可以分为两大类：</p>
 <figure>
-<img src="./diagrams/recording-arch.svg" alt="录制系统架构" />
+<img src="chapter-25/diagrams/recording-arch.svg" alt="录制系统架构" />
 <figcaption aria-hidden="true">录制系统架构</figcaption>
 </figure>
 <h4 id="方案-1单流录制-sfu-录制">方案 1：单流录制 (SFU 录制)</h4>
@@ -580,7 +580,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#
 <p>HLS（HTTP Live Streaming）是 Apple 提出的基于 HTTP
 的流媒体协议，广泛应用于直播和点播场景。</p>
 <figure>
-<img src="./diagrams/hls-structure.svg" alt="HLS 结构" />
+<img src="chapter-25/diagrams/hls-structure.svg" alt="HLS 结构" />
 <figcaption aria-hidden="true">HLS 结构</figcaption>
 </figure>
 <p><strong>核心组件</strong>：</p>
@@ -696,7 +696,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#
 <span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// namespace live</span></span></code></pre></div>
 <h3 id="时移窗口">3.4 时移窗口</h3>
 <figure>
-<img src="./diagrams/timeshift-window.svg" alt="时移窗口" />
+<img src="chapter-25/diagrams/timeshift-window.svg" alt="时移窗口" />
 <figcaption aria-hidden="true">时移窗口</figcaption>
 </figure>
 <p><strong>滑动窗口机制</strong>：</p>
@@ -750,7 +750,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#
 <p>DASH（Dynamic Adaptive Streaming over HTTP）是 MPEG
 制定的国际标准，与 HLS 类似，但在某些方面更先进。</p>
 <figure>
-<img src="./diagrams/dash-manifest.svg" alt="DASH Manifest 结构" />
+<img src="chapter-25/diagrams/dash-manifest.svg" alt="DASH Manifest 结构" />
 <figcaption aria-hidden="true">DASH Manifest 结构</figcaption>
 </figure>
 <table>
@@ -1205,9 +1205,23 @@ Protocol，标准化的播放协议</li>
 <p>这些新技术正在改变实时通信的格局，提前了解它们将帮助你把握行业趋势。</p>
 <hr />
 <p><strong>课后思考</strong>：如果你要设计一个支持百万级并发的直播录制系统，你会如何设计架构来处理海量录制请求？</p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

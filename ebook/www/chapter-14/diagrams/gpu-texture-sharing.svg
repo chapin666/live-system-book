@@ -1,0 +1,73 @@
+<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="700" height="400" fill="#f8f9fa"/>
+  
+  <text x="350" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">GPU 纹理共享：避免 CPU 拷贝</text>
+  
+  <!-- Traditional CPU copy -->
+  <g transform="translate(30, 80)">
+    <text x="150" y="0" text-anchor="middle" font-size="14" font-weight="bold" fill="#d32f2f">传统方式：CPU 拷贝（慢）</text>
+    
+    <!-- GPU -->
+    <rect x="0" y="30" width="100" height="80" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="5"/>
+    <text x="50" y="75" text-anchor="middle" font-size="12" fill="white" font-weight="bold">GPU</text>
+    <text x="50" y="95" text-anchor="middle" font-size="10" fill="#e3f2fd">显存</text>
+    
+    <!-- Arrow down -->
+    <path d="M50 120 L50 160" stroke="#d32f2f" stroke-width="3" marker-end="url(#arrowred)"/>
+    <text x="70" y="145" font-size="10" fill="#d32f2f">PCIe 拷贝</text>
+    <text x="70" y="158" font-size="9" fill="#666">（瓶颈！）</text>
+    
+    <!-- CPU -->
+    <rect x="0" y="170" width="100" height="80" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="50" y="215" text-anchor="middle" font-size="12" fill="white" font-weight="bold">CPU</text>
+    <text x="50" y="235" text-anchor="middle" font-size="10" fill="#e8f5e9">系统内存</text>
+    
+    <!-- Performance box -->
+    <rect x="120" y="30" width="140" height="220" fill="#ffebee" stroke="#ef9a9a" rx="5"/>
+    <text x="190" y="60" text-anchor="middle" font-size="11" fill="#333">性能损耗</text>
+    <text x="140" y="90" font-size="10" fill="#666">• 4K 帧 = 12MB</text>
+    <text x="140" y="110" font-size="10" fill="#666">• 60fps = 720MB/s</text>
+    <text x="140" y="130" font-size="10" fill="#666">• 占用 PCIe 带宽</text>
+    <text x="140" y="150" font-size="10" fill="#666">• CPU 处理延迟</text>
+    <text x="140" y="180" font-size="10" fill="#d32f2f">结果：卡顿、高延迟</text>
+  </g>
+  
+  <!-- GPU texture sharing -->
+  <g transform="translate(380, 80)">
+    <text x="150" y="0" text-anchor="middle" font-size="14" font-weight="bold" fill="#2e7d32">GPU 纹理共享（快）</text>
+    
+    <!-- GPU -->
+    <rect x="0" y="30" width="100" height="200" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="5"/>
+    <text x="50" y="100" text-anchor="middle" font-size="12" fill="white" font-weight="bold">GPU</text>
+    
+    <!-- Texture -->
+    <rect x="10" y="120" width="80" height="90" fill="#e3f2fd" stroke="#4a90d9" stroke-width="2" rx="3"/>
+    <text x="50" y="155" text-anchor="middle" font-size="10" fill="#333">纹理/ surface</text>
+    <text x="50" y="175" text-anchor="middle" font-size="9" fill="#666">直接访问</text>
+    <text x="50" y="195" text-anchor="middle" font-size="9" fill="#666">无需拷贝</text>
+    
+    <!-- Encoder -->
+    <rect x="130" y="80" width="120" height="100" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+    <text x="190" y="115" text-anchor="middle" font-size="12" fill="white" font-weight="bold">硬件编码器</text>
+    <text x="190" y="140" text-anchor="middle" font-size="10" fill="#e8f5e9">NVENC / QSV</text>
+    <text x="190" y="160" text-anchor="middle" font-size="10" fill="#e8f5e9">VideoToolbox</text>
+    
+    <!-- Arrow -->
+    <path d="M100 130 L130 130" stroke="#2e7d32" stroke-width="3" marker-end="url(#arrowgreen)"/>
+    <text x="115" y="120" font-size="9" fill="#2e7d32">零拷贝</text>
+    
+    <!-- Performance box -->
+    <rect x="130" y="200" width="120" height="60" fill="#e8f5e9" stroke="#a5d6a7" rx="5"/>
+    <text x="190" y="225" text-anchor="middle" font-size="11" fill="#2e7d32">零延迟</text>
+    <text x="190" y="245" text-anchor="middle" font-size="10" fill="#666">CPU 占用 &lt; 5%</text>
+  </g>
+  
+  <defs>
+    <marker id="arrowred" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#d32f2f"/>
+    </marker>
+    <marker id="arrowgreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2e7d32"/>
+    </marker>
+  </defs>
+</svg>

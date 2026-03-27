@@ -1,0 +1,233 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+  <!-- Background -->
+  <rect width="900" height="500" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">零拷贝技术原理</text>
+  
+  
+  <!-- Traditional Copy (Top) -->
+  <g transform="translate(50, 60)">
+    <text x="0" y="0" font-size="14" font-weight="bold" fill="#c62828">传统数据拷贝 (4次拷贝，4次上下文切换)</text>
+    
+    
+    <!-- Disk -->
+    <g transform="translate(0, 20)">
+      <rect width="100" height="60" fill="#e0e0e0" stroke="#9e9e9e" stroke-width="2" rx="5"/>
+      
+      <text x="50" y="35" text-anchor="middle" font-size="12" fill="#333">磁盘</text>
+    
+    </g>
+    
+    
+    <!-- Arrow 1: Disk to Kernel -->
+    
+    <path d="M 100 50 L 180 50" stroke="#f44336" stroke-width="2" fill="none" marker-end="url(#arrow-red)"/>
+    
+    <text x="140" y="40" text-anchor="middle" font-size="9" fill="#666">DMA</text>
+    
+    
+    <!-- Kernel Buffer -->
+    
+    <g transform="translate(190, 20)">
+      <rect width="120" height="60" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+      
+      <text x="60" y="30" text-anchor="middle" font-size="11" fill="#333">内核缓冲区</text>
+      
+      <text x="60" y="48" text-anchor="middle" font-size="9" fill="#666">Page Cache</text>
+    </g>
+    
+    
+    <!-- Arrow 2: Kernel to User (copy) -->
+    
+    
+    <path d="M 310 50 L 390 50" stroke="#f44336" stroke-width="2" fill="none" marker-end="url(#arrow-red)"/>
+    
+    <text x="350" y="40" text-anchor="middle" font-size="9" fill="#c62828">CPU拷贝1</text>
+    
+    
+    <!-- User Buffer -->
+    
+    <g transform="translate(400, 20)">
+      <rect width="120" height="60" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="5"/>
+      
+      <text x="60" y="30" text-anchor="middle" font-size="11" fill="#333">用户缓冲区</text>
+      
+      <text x="60" y="48" text-anchor="middle" font-size="9" fill="#666">Application</text>
+    </g>
+    
+    
+    <!-- Arrow 3: User to Kernel (copy) -->
+    
+    
+    <path d="M 520 50 L 600 50" stroke="#f44336" stroke-width="2" fill="none" marker-end="url(#arrow-red)"/>
+    
+    <text x="560" y="40" text-anchor="middle" font-size="9" fill="#c62828">CPU拷贝2</text>
+    
+    
+    <!-- Kernel Buffer 2 -->
+    
+    <g transform="translate(610, 20)">
+      <rect width="120" height="60" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+      
+      <text x="60" y="30" text-anchor="middle" font-size="11" fill="#333">内核发送缓冲区</text>
+    </g>
+    
+    
+    <!-- Arrow 4: Kernel to Network -->
+    
+    
+    <path d="M 730 50 L 810 50" stroke="#f44336" stroke-width="2" fill="none" marker-end="url(#arrow-red)"/>
+    
+    <text x="770" y="40" text-anchor="middle" font-size="9" fill="#666">DMA</text>
+    
+    
+    <!-- Network -->
+    
+    <g transform="translate(820, 20)">
+      <rect width="80" height="60" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+      
+      <text x="40" y="35" text-anchor="middle" font-size="11" fill="#333">网卡</text>
+    </g>
+  </g>
+  
+  
+  <!-- Zero Copy (Bottom) -->
+  <g transform="translate(50, 200)">
+    
+    <text x="0" y="0" font-size="14" font-weight="bold" fill="#2e7d32">零拷贝优化 (2次拷贝，2次上下文切换)</text>
+    
+    
+    <!-- Disk -->
+    
+    <g transform="translate(0, 20)">
+      <rect width="100" height="60" fill="#e0e0e0" stroke="#9e9e9e" stroke-width="2" rx="5"/>
+      
+      <text x="50" y="35" text-anchor="middle" font-size="12" fill="#333">磁盘</text>
+    </g>
+    
+    
+    <!-- Arrow: Disk to Kernel (DMA only) -->
+    
+    
+    <path d="M 100 50 L 200 50" stroke="#4caf50" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+    
+    <text x="150" y="40" text-anchor="middle" font-size="9" fill="#4caf50" font-weight="bold">DMA</text>
+    
+    
+    <!-- Page Cache -->
+    
+    <g transform="translate(210, 20)">
+      <rect width="140" height="60" fill="#c8e6c9" stroke="#4caf50" stroke-width="2" rx="5"/>
+      
+      <text x="70" y="30" text-anchor="middle" font-size="11" fill="#333">页缓存</text>
+      
+      <text x="70" y="48" text-anchor="middle" font-size="9" fill="#2e7d32">(sendfile/mmap)</text>
+    </g>
+    
+    
+    <!-- Direct transfer -->
+    
+    
+    <path d="M 350 50 L 550 50" stroke="#4caf50" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+    
+    <text x="450" y="40" text-anchor="middle" font-size="10" fill="#4caf50" font-weight="bold">内核直接转发，无用户态拷贝</text>
+    
+    
+    <!-- Network -->
+    
+    <g transform="translate(560, 20)">
+      <rect width="100" height="60" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+      
+      <text x="50" y="30" text-anchor="middle" font-size="11" fill="#333">网卡</text>
+      
+      <text x="50" y="48" text-anchor="middle" font-size="9" fill="#2e7d32">DMA发送</text>
+    </g>
+  </g>
+  
+  
+  <!-- Comparison Table -->
+  <g transform="translate(50, 320)">
+    <rect width="800" height="160" fill="#fff" stroke="#ddd" stroke-width="1" rx="8"/>
+    
+    
+    <text x="400" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">对比分析</text>
+    
+    
+    <!-- Table headers -->
+    
+    <rect x="20" y="40" width="200" height="35" fill="#f5f5f5" stroke="#ddd" stroke-width="1"/>
+    
+    <text x="120" y="62" text-anchor="middle" font-size="11" fill="#333">操作</text>
+    
+    
+    <rect x="220" y="40" width="280" height="35" fill="#ffebee" stroke="#f44336" stroke-width="1"/>
+    
+    <text x="360" y="62" text-anchor="middle" font-size="11" fill="#333">传统方式</text>
+    
+    
+    <rect x="500" y="40" width="280" height="35" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+    
+    <text x="640" y="62" text-anchor="middle" font-size="11" fill="#333">零拷贝方式</text>
+    
+    
+    <!-- Row 1 -->
+    
+    <rect x="20" y="75" width="200" height="35" fill="#f5f5f5" stroke="#ddd" stroke-width="0.5"/>
+    
+    <text x="120" y="97" text-anchor="middle" font-size="10" fill="#333">数据拷贝次数</text>
+    
+    
+    <rect x="220" y="75" width="280" height="35" fill="#fff" stroke="#ddd" stroke-width="0.5"/>
+    
+    <text x="360" y="97" text-anchor="middle" font-size="11" fill="#c62828" font-weight="bold">4次</text>
+    
+    
+    <rect x="500" y="75" width="280" height="35" fill="#fff" stroke="#ddd" stroke-width="0.5"/>
+    
+    <text x="640" y="97" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">2次 (仅DMA)</text>
+    
+    
+    <!-- Row 2 -->
+    
+    <rect x="20" y="110" width="200" height="35" fill="#f5f5f5" stroke="#ddd" stroke-width="0.5"/>
+    
+    <text x="120" y="132" text-anchor="middle" font-size="10" fill="#333">上下文切换</text>
+    
+    
+    <rect x="220" y="110" width="280" height="35" fill="#fff" stroke="#ddd" stroke-width="0.5"/>
+    
+    <text x="360" y="132" text-anchor="middle" font-size="11" fill="#c62828" font-weight="bold">4次</text>
+    
+    
+    <rect x="500" y="110" width="280" height="35" fill="#fff" stroke="#ddd" stroke-width="0.5"/>
+    
+    <text x="640" y="132" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">2次</text>
+    
+    
+    <!-- Row 3 -->
+    
+    <rect x="20" y="145" width="200" height="35" fill="#f5f5f5" stroke="#ddd" stroke-width="0.5"/>
+    
+    <text x="120" y="167" text-anchor="middle" font-size="10" fill="#333">CPU参与</text>
+    
+    
+    <rect x="220" y="145" width="280" height="35" fill="#fff" stroke="#ddd" stroke-width="0.5"/>
+    
+    <text x="360" y="167" text-anchor="middle" font-size="11" fill="#c62828">需要CPU拷贝数据</text>
+    
+    
+    <rect x="500" y="145" width="280" height="35" fill="#fff" stroke="#ddd" stroke-width="0.5"/>
+    
+    <text x="640" y="167" text-anchor="middle" font-size="11" fill="#2e7d32">DMA直接传输，CPU不参与</text>
+  </g>
+  
+  <defs>
+    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#f44336"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#4caf50"/>
+    </marker>
+  </defs>
+</svg>

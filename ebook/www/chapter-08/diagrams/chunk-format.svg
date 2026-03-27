@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400">
+  <defs>
+    <style>
+      .box { fill: #f8fafc; stroke: #475569; stroke-width: 1.5; }
+      .header { fill: #e2e8f0; stroke: #64748b; stroke-width: 1.5; }
+      .data { fill: #dbeafe; stroke: #3b82f6; stroke-width: 1.5; }
+      .label { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #334155; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: bold; fill: #0f172a; }
+      .byte { font-family: monospace; font-size: 10px; fill: #64748b; }
+      .desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #64748b; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="900" height="400" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="450" y="25" text-anchor="middle" class="title">RTMP Chunk 格式</text>
+  
+  <!-- Basic Header -->
+  <text x="50" y="55" class="title">Basic Header (1-3 bytes)</text>
+  
+  <rect x="50" y="65" width="120" height="50" class="header"/>
+  <text x="110" y="85" text-anchor="middle" class="label">fmt (2 bits)</text>
+  <text x="110" y="100" text-anchor="middle" class="byte">00=完整 01=无msg 10=无ts 11=无all</text>
+  
+  <rect x="170" y="65" width="180" height="50" class="header"/>
+  <text x="260" y="85" text-anchor="middle" class="label">Chunk Stream ID (6+ bits)</text>
+  <text x="260" y="100" text-anchor="middle" class="byte">2-63: 1字节 | 64-319: 2字节 | 64-65599: 3字节</text>
+  
+  <!-- Message Header -->
+  <text x="50" y="145" class="title">Message Header (0/3/7/11 bytes)</text>
+  
+  <!-- Type 0 (11 bytes) -->
+  <rect x="50" y="155" width="80" height="40" class="header"/>
+  <text x="90" y="172" text-anchor="middle" class="label">Timestamp</text>
+  <text x="90" y="185" text-anchor="middle" class="byte">3 bytes</text>
+  
+  <rect x="130" y="155" width="100" height="40" class="header"/>
+  <text x="180" y="172" text-anchor="middle" class="label">Message Length</text>
+  <text x="180" y="185" text-anchor="middle" class="byte">3 bytes</text>
+  
+  <rect x="230" y="155" width="80" height="40" class="header"/>
+  <text x="270" y="172" text-anchor="middle" class="label">Type ID</text>
+  <text x="270" y="185" text-anchor="middle" class="byte">1 byte</text>
+  
+  <rect x="310" y="155" width="120" height="40" class="header"/>
+  <text x="370" y="172" text-anchor="middle" class="label">Message Stream ID</text>
+  <text x="370" y="185" text-anchor="middle" class="byte">4 bytes (LE)</text>
+  
+  <text x="440" y="175" class="desc">← Type 0 (11 bytes): 完整消息头</text>
+  
+  <!-- Type 1 (7 bytes) -->
+  <rect x="50" y="200" width="80" height="35" class="header"/>
+  <text x="90" y="218" text-anchor="middle" class="label">Timestamp Delta</text>
+  <text x="90" y="228" text-anchor="middle" class="byte">3 bytes</text>
+  
+  <rect x="130" y="200" width="100" height="35" class="header"/>
+  <text x="180" y="218" text-anchor="middle" class="label">Message Length</text>
+  <text x="180" y="228" text-anchor="middle" class="byte">3 bytes</text>
+  
+  <rect x="230" y="200" width="80" height="35" class="header"/>
+  <text x="270" y="218" text-anchor="middle" class="label">Type ID</text>
+  <text x="270" y="228" text-anchor="middle" class="byte">1 byte</text>
+  
+  <text x="320" y="220" class="desc">← Type 1 (7 bytes): 同流不同消息</text>
+  
+  <!-- Type 2 (3 bytes) -->
+  <rect x="50" y="240" width="80" height="35" class="header"/>
+  <text x="90" y="258" text-anchor="middle" class="label">Timestamp Delta</text>
+  <text x="90" y="268" text-anchor="middle" class="byte">3 bytes</text>
+  
+  <text x="140" y="260" class="desc">← Type 2 (3 bytes): 同消息不同块</text>
+  
+  <!-- Type 3 (0 bytes) -->
+  <text x="50" y="300" class="desc">Type 3 (0 bytes): 完全继承前一个块</text>
+  
+  <!-- Chunk Data -->
+  <text x="50" y="330" class="title">Chunk Data (最大 128 字节默认)</text>
+  
+  <rect x="50" y="340" width="400" height="45" class="data"/>
+  <text x="250" y="365" text-anchor="middle" class="label">Payload Data</text>
+  
+  <!-- Message Types Table -->
+  <text x="520" y="55" class="title">消息类型 (Type ID)</text>
+  
+  <rect x="520" y="65" width="360" height="280" class="box"/>
+  
+  <!-- Table headers -->
+  <rect x="525" y="70" width="60" height="25" fill="#e2e8f0"/>
+  <text x="555" y="87" text-anchor="middle" class="label">Type ID</text>
+  
+  <rect x="585" y="70" width="140" height="25" fill="#e2e8f0"/>
+  <text x="655" y="87" text-anchor="middle" class="label">消息类型</text>
+  
+  <rect x="725" y="70" width="150" height="25" fill="#e2e8f0"/>
+  <text x="800" y="87" text-anchor="middle" class="label">说明</text>
+  
+  <!-- Table rows -->
+  <text x="555" y="110" text-anchor="middle" class="byte">1</text>
+  <text x="655" y="110" text-anchor="middle" class="label">Set Chunk Size</text>
+  <text x="800" y="110" text-anchor="middle" class="desc">设置块大小</text>
+  
+  <text x="555" y="130" text-anchor="middle" class="byte">2</text>
+  <text x="655" y="130" text-anchor="middle" class="label">Abort Message</text>
+  <text x="800" y="130" text-anchor="middle" class="desc">终止消息</text>
+  
+  <text x="555" y="150" text-anchor="middle" class="byte">3</text>
+  <text x="655" y="150" text-anchor="middle" class="label">Acknowledgement</text>
+  <text x="800" y="150" text-anchor="middle" class="desc">确认收到</text>
+  
+  <text x="555" y="170" text-anchor="middle" class="byte">4</text>
+  <text x="655" y="170" text-anchor="middle" class="label">User Control</text>
+  <text x="800" y="170" text-anchor="middle" class="desc">用户控制消息</text>
+  
+  <text x="555" y="190" text-anchor="middle" class="byte">5</text>
+  <text x="655" y="190" text-anchor="middle" class="label">Window Ack Size</text>
+  <text x="800" y="190" text-anchor="middle" class="desc">窗口确认大小</text>
+  
+  <text x="555" y="210" text-anchor="middle" class="byte">6</text>
+  <text x="655" y="210" text-anchor="middle" class="label">Set Peer Bandwidth</text>
+  <text x="800" y="210" text-anchor="middle" class="desc">设置对端带宽</text>
+  
+  <text x="555" y="235" text-anchor="middle" class="byte">8</text>
+  <text x="655" y="235" text-anchor="middle" class="label" fill="#dc2626">Audio Message</text>
+  <text x="800" y="235" text-anchor="middle" class="desc">音频数据</text>
+  
+  <text x="555" y="255" text-anchor="middle" class="byte">9</text>
+  <text x="655" y="255" text-anchor="middle" class="label" fill="#dc2626">Video Message</text>
+  <text x="800" y="255" text-anchor="middle" class="desc">视频数据</text>
+  
+  <text x="555" y="280" text-anchor="middle" class="byte">15/18</text>
+  <text x="655" y="280" text-anchor="middle" class="label" fill="#2563eb">Data (AMF3/0)</text>
+  <text x="800" y="280" text-anchor="middle" class="desc">元数据/共享对象</text>
+  
+  <text x="555" y="300" text-anchor="middle" class="byte">16/17</text>
+  <text x="655" y="300" text-anchor="middle" class="label" fill="#2563eb">Command (AMF3/0)</text>
+  <text x="800" y="300" text-anchor="middle" class="desc">远程调用命令</text>
+  
+  <text x="555" y="320" text-anchor="middle" class="byte">22</text>
+  <text x="655" y="320" text-anchor="middle" class="label">Aggregate Message</text>
+  <text x="800" y="320" text-anchor="middle" class="desc">聚合消息</text>
+</svg>

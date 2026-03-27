@@ -245,7 +245,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#c
 <h3 id="零拷贝技术原理详解">2.1 零拷贝技术原理详解</h3>
 <h4 id="传统数据拷贝的开销">2.1.1 传统数据拷贝的开销</h4>
 <figure>
-<img src="./diagrams/zero-copy.svg" alt="零拷贝" />
+<img src="chapter-29/diagrams/zero-copy.svg" alt="零拷贝" />
 <figcaption aria-hidden="true">零拷贝</figcaption>
 </figure>
 <p><strong>传统数据传输（以文件发送为例）</strong>：</p>
@@ -2371,9 +2371,23 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb40-1"><a href="#
 <li><p><strong>移动优化</strong>：移动设备性能差异大，如何设计自适应的性能策略？</p></li>
 <li><p><strong>容量规划</strong>：你的SFU服务器部署在云上，如何设计自动扩缩容策略？</p></li>
 </ol>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

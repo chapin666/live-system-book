@@ -1,0 +1,83 @@
+<svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="700" height="500" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="350" y="40" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">编码器选型决策树</text>
+  
+  <!-- Decision tree -->
+  <!-- Root question -->
+  <rect x="250" y="70" width="200" height="50" fill="#4a90d9" stroke="#357abd" stroke-width="2" rx="25"/>
+  <text x="350" y="100" text-anchor="middle" font-size="13" fill="white">需要浏览器播放？</text>
+  
+  <!-- Yes branch -->
+  <line x1="300" y1="120" x2="200" y2="170" stroke="#666" stroke-width="2"/>
+  <text x="230" y="145" font-size="11" fill="#666">是</text>
+  
+  <rect x="100" y="170" width="200" height="50" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+  <text x="200" y="200" text-anchor="middle" font-size="14" font-weight="bold" fill="white">H.264 (x264)</text>
+  
+  <text x="200" y="240" text-anchor="middle" font-size="11" fill="#666">兼容性最好，所有浏览器支持</text>
+  
+  <!-- No branch -->
+  <line x1="400" y1="120" x2="500" y2="170" stroke="#666" stroke-width="2"/>
+  <text x="435" y="145" font-size="11" fill="#666">否</text>
+  
+  <rect x="450" y="160" width="200" height="40" fill="#fff" stroke="#666" stroke-width="1" rx="5"/>
+  <text x="550" y="185" text-anchor="middle" font-size="12" fill="#333">需要最低码率？</text>
+  
+  <!-- Need lowest bitrate branch -->
+  <line x1="500" y1="200" x2="400" y2="250" stroke="#666" stroke-width="2"/>
+  <text x="430" y="220" font-size="11" fill="#666">是</text>
+  
+  <rect x="300" y="250" width="200" height="40" fill="#fff" stroke="#666" stroke-width="1" rx="5"/>
+  <text x="400" y="275" text-anchor="middle" font-size="12" fill="#333">有 RTX 40 系显卡？</text>
+  
+  <!-- Has RTX 40 -->
+  <line x1="360" y1="290" x2="280" y2="330" stroke="#666" stroke-width="2"/>
+  <text x="305" y="305" font-size="11" fill="#666">是</text>
+  
+  <rect x="150" y="330" width="180" height="45" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="5"/>
+  <text x="240" y="350" text-anchor="middle" font-size="13" font-weight="bold" fill="white">NVENC AV1</text>
+  <text x="240" y="368" text-anchor="middle" font-size="10" fill="#fff3e0">硬件加速，最高效率</text>
+  
+  <!-- No RTX 40 -->
+  <line x1="440" y1="290" x2="520" y2="330" stroke="#666" stroke-width="2"/>
+  <text x="465" y="305" font-size="11" fill="#666">否</text>
+  
+  <rect x="450" y="330" width="180" height="45" fill="#f0ad4e" stroke="#ec971f" stroke-width="2" rx="5"/>
+  <text x="540" y="350" text-anchor="middle" font-size="13" font-weight="bold" fill="white">x265 / SVT-AV1</text>
+  <text x="540" y="368" text-anchor="middle" font-size="10" fill="#fff3e0">软件编码，慢但质量高</text>
+  
+  <!-- Don't need lowest bitrate -->
+  <line x1="600" y1="200" x2="650" y2="250" stroke="#666" stroke-width="2"/>
+  <text x="615" y="220" font-size="11" fill="#666">否</text>
+  
+  <rect x="590" y="250" width="160" height="40" fill="#fff" stroke="#666" stroke-width="1" rx="5"/>
+  <text x="670" y="275" text-anchor="middle" font-size="12" fill="#333">有硬件编码？</text>
+  
+  <!-- Has hardware encoding -->
+  <line x1="630" y1="290" x2="580" y2="330" stroke="#666" stroke-width="2"/>
+  <text x="590" y="305" font-size="11" fill="#666">是</text>
+  
+  <rect x="490" y="400" width="180" height="45" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+  <text x="580" y="420" text-anchor="middle" font-size="13" font-weight="bold" fill="white">NVENC/QSV H.265</text>
+  <text x="580" y="438" text-anchor="middle" font-size="10" fill="#e0f2e0">硬件 H.265，平衡选择</text>
+  
+  <!-- No hardware encoding -->
+  <line x1="700" y1="290" x2="720" y2="330" stroke="#666" stroke-width="2"/>
+  <text x="700" y="305" font-size="11" fill="#666">否</text>
+  
+  <rect x="660" y="330" width="120" height="45" fill="#5cb85c" stroke="#4cae4c" stroke-width="2" rx="5"/>
+  <text x="720" y="350" text-anchor="middle" font-size="13" font-weight="bold" fill="white">x264</text>
+  <text x="720" y="368" text-anchor="middle" font-size="10" fill="#e0f2e0">平衡之选</text>
+  
+  <!-- Summary table -->
+  <g transform="translate(50, 420)">
+    <rect x="0" y="0" width="400" height="70" fill="#fff" stroke="#ddd" rx="5"/>
+    <text x="200" y="20" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">快速参考</text>
+    
+    <text x="10" y="40" font-size="10" fill="#666">普通直播 → H.264 (x264)</text>
+    <text x="10" y="55" font-size="10" fill="#666">4K直播/游戏 → NVENC H.265 或 AV1</text>
+  </g>
+</svg>

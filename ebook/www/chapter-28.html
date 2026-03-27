@@ -168,7 +168,7 @@
 <h2 id="安全威胁概览">1. 安全威胁概览</h2>
 <h3 id="直播系统面临的威胁">1.1 直播系统面临的威胁</h3>
 <figure>
-<img src="./diagrams/security-layers.svg" alt="安全层次" />
+<img src="chapter-28/diagrams/security-layers.svg" alt="安全层次" />
 <figcaption aria-hidden="true">安全层次</figcaption>
 </figure>
 <table>
@@ -218,7 +218,7 @@
 <h2 id="信令安全">2. 信令安全</h2>
 <h3 id="token认证机制">2.1 Token认证机制</h3>
 <figure>
-<img src="./diagrams/authentication-flow.svg" alt="认证流程" />
+<img src="chapter-28/diagrams/authentication-flow.svg" alt="认证流程" />
 <figcaption aria-hidden="true">认证流程</figcaption>
 </figure>
 <p><strong>JWT Token 结构</strong>：</p>
@@ -845,7 +845,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#
 <h2 id="隐私保护">6. 隐私保护</h2>
 <h3 id="端到端加密e2ee">6.1 端到端加密(E2EE)</h3>
 <figure>
-<img src="./diagrams/e2ee-arch.svg" alt="端到端加密架构" />
+<img src="chapter-28/diagrams/e2ee-arch.svg" alt="端到端加密架构" />
 <figcaption aria-hidden="true">端到端加密架构</figcaption>
 </figure>
 <p><strong>E2EE 流程</strong>：</p>
@@ -1049,9 +1049,23 @@ Token泄露后如何快速吊销？设计一个Token刷新机制。</p></li>
 <li><p><strong>隐私法规</strong>：欧盟GDPR要求”被遗忘权”（Right to be
 Forgotten）。实时通信系统如何实现对历史数据的删除？</p></li>
 </ol>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

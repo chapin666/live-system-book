@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 350">
+  <!-- Background -->
+  <rect width="900" height="350" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">TCP 队头阻塞 (Head-of-Line Blocking)</text>
+  
+  
+  <!-- TCP HOL Blocking -->
+  <g transform="translate(50, 60)">
+    <rect width="400" height="270" fill="#ffebee" stroke="#f44336" stroke-width="2" rx="8"/>
+    
+    
+    <text x="200" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#c62828">TCP 队头阻塞问题</text>
+    
+    
+    <!-- Packet 1 lost -->
+    
+    <g transform="translate(30, 50)">
+      <rect width="340" height="50" fill="#ffcdd2" rx="5"/>
+      
+      <text x="20" y="20" font-size="10" fill="#333">Packet 1</text>
+      
+      <rect x="70" y="5" width="80" height="30" fill="#f44336" rx="3"/>
+      
+      <text x="110" y="25" text-anchor="middle" font-size="10" fill="#fff">丢失!</text>
+      
+      
+      <text x="250" y="20" font-size="10" fill="#c62828">必须等待重传</text>
+      
+      <text x="250" y="38" font-size="9" fill="#666">后续包被阻塞</text>
+    </g>
+    
+    
+    <!-- Packet 2,3,4 waiting -->
+    
+    <g transform="translate(30, 110)">
+      <rect width="340" height="40" fill="#e0e0e0" rx="5"/>
+      
+      <text x="20" y="25" font-size="10" fill="#666">Packet 2</text>
+      
+      <rect x="70" y="5" width="80" height="30" fill="#9e9e9e" rx="3"/>
+      
+      <text x="110" y="25" text-anchor="middle" font-size="10" fill="#fff">已到</text>
+      
+      
+      <text x="250" y="25" font-size="10" fill="#c62828">❌ 不能处理</text>
+    </g>
+    
+    
+    <g transform="translate(30, 160)">
+      <rect width="340" height="40" fill="#e0e0e0" rx="5"/>
+      
+      <text x="20" y="25" font-size="10" fill="#666">Packet 3</text>
+      
+      <rect x="70" y="5" width="80" height="30" fill="#9e9e9e" rx="3"/>
+      
+      <text x="110" y="25" text-anchor="middle" font-size="10" fill="#fff">已到</text>
+      
+      
+      <text x="250" y="25" font-size="10" fill="#c62828">❌ 不能处理</text>
+    </g>
+    
+    
+    <g transform="translate(30, 210)">
+      <rect width="340" height="40" fill="#e0e0e0" rx="5"/>
+      
+      <text x="20" y="25" font-size="10" fill="#666">Packet 4</text>
+      
+      <rect x="70" y="5" width="80" height="30" fill="#9e9e9e" rx="3"/>
+      
+      <text x="110" y="25" text-anchor="middle" font-size="10" fill="#fff">已到</text>
+      
+      
+      <text x="250" y="25" font-size="10" fill="#c62828">❌ 不能处理</text>
+    </g>
+  </g>
+  
+  
+  <!-- UDP Solution -->
+  <g transform="translate(480, 60)">
+    
+    <rect width="370" height="270" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="8"/>
+    
+    
+    <text x="185" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#2e7d32">UDP 无队头阻塞</text>
+    
+    
+    <!-- Packet 1 lost -->
+    
+    <g transform="translate(30, 50)">
+      <rect width="310" height="50" fill="#ffcdd2" rx="5"/>
+      
+      <text x="20" y="20" font-size="10" fill="#333">Packet 1</text>
+      
+      <rect x="70" y="5" width="80" height="30" fill="#f44336" rx="3"/>
+      
+      <text x="110" y="25" text-anchor="middle" font-size="10" fill="#fff">丢失</text>
+      
+      
+      <text x="230" y="25" font-size="10" fill="#666">不影响其他包</text>
+    </g>
+    
+    
+    <!-- Packet 2,3,4 processed -->
+    
+    <g transform="translate(30, 110)">
+      <rect width="310" height="40" fill="#c8e6c9" rx="5"/>
+      
+      <text x="20" y="25" font-size="10" fill="#333">Packet 2</text>
+      
+      <rect x="70" y="5" width="80" height="30" fill="#4caf50" rx="3"/>
+      
+      <text x="110" y="25" text-anchor="middle" font-size="10" fill="#fff">已到</text>
+      
+      
+      <text x="230" y="25" font-size="10" fill="#2e7d32">✓ 立即处理</text>
+    </g>
+    
+    
+    <g transform="translate(30, 160)">
+      <rect width="310" height="40" fill="#c8e6c9" rx="5"/>
+      
+      <text x="20" y="25" font-size="10" fill="#333">Packet 3</text>
+      
+      <rect x="70" y="5" width="80" height="30" fill="#4caf50" rx="3"/>
+      
+      <text x="110" y="25" text-anchor="middle" font-size="10" fill="#fff">已到</text>
+      
+      
+      <text x="230" y="25" font-size="10" fill="#2e7d32">✓ 立即处理</text>
+    </g>
+    
+    
+    <g transform="translate(30, 210)">
+      <rect width="310" height="40" fill="#c8e6c9" rx="5"/>
+      
+      <text x="20" y="25" font-size="10" fill="#333">Packet 4</text>
+      
+      <rect x="70" y="5" width="80" height="30" fill="#4caf50" rx="3"/>
+      
+      <text x="110" y="25" text-anchor="middle" font-size="10" fill="#fff">已到</text>
+      
+      
+      <text x="230" y="25" font-size="10" fill="#2e7d32">✓ 立即处理</text>
+    </g>
+  </g>
+  
+  
+  <!-- Bottom note -->
+  <g transform="translate(50, 340)">
+    <text x="400" y="0" text-anchor="middle" font-size="11" fill="#666">结论: 实时音视频选择UDP而非TCP，避免队头阻塞导致的延迟</text>
+  </g>
+</svg>

@@ -336,7 +336,7 @@ Object）</strong>：离屏渲染的目标 - <strong>纹理绑定</strong>：将
 - Gr：颜色高斯函数（颜色相似度权重）
 - W：归一化因子</code></pre>
 <h3 id="双边滤波的可视化">2.2 双边滤波的可视化</h3>
-<p><img src="diagrams/bilateral-filter.svg" width="100%"/></p>
+<p><img src="chapter-15/diagrams/bilateral-filter.svg" width="100%"/></p>
 <p><strong>平滑区域（如脸颊）</strong>： - 周围像素颜色相似 - 颜色权重 ≈
 1 - 效果类似于高斯滤波 → 平滑</p>
 <p><strong>边缘区域（如眼睛轮廓）</strong>： - 皮肤像素 vs
@@ -447,7 +447,7 @@ class="sourceCode glsl"><code class="sourceCode glsl"><span id="cb12-1"><a href=
 <p><strong>问题</strong>：如何实现”日系清新”、“复古胶片”、“电影感”等不同风格？</p>
 <p><strong>LUT 方案</strong>： - 不做实时计算，而是”查表” - 输入颜色 →
 查表 → 输出颜色 - 换一张表 = 换一种风格</p>
-<p><img src="diagrams/lut-color-grading.svg" width="80%"/></p>
+<p><img src="chapter-15/diagrams/lut-color-grading.svg" width="80%"/></p>
 <p><strong>3D LUT 原理</strong>：</p>
 <pre><code>输入 RGB (256×256×256 种可能)
     ↓
@@ -928,9 +928,23 @@ Ch17：UDP与实时传输</h3>
 <p>每章都是渐进式案例「小直播」的有机组成部分，下一章将在本章基础上进一步扩展功能。</p>
 <p><strong>学习建议</strong>： - 确保本章内容已经掌握 -
 提前浏览下一章的目录 - 准备好相关的开发环境</p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

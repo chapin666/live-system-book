@@ -191,7 +191,7 @@
 多人：每个连接有多个远端，需要管理多路流</p>
 <h3 id="发布订阅模型">1.2 发布/订阅模型</h3>
 <figure>
-<img src="./diagrams/multi-room-arch.svg" alt="多人房间架构" />
+<img src="chapter-23/diagrams/multi-room-arch.svg" alt="多人房间架构" />
 <figcaption aria-hidden="true">多人房间架构</figcaption>
 </figure>
 <p><strong>角色定义</strong>： -
@@ -267,7 +267,7 @@
 <h2 id="多路视频渲染">2. 多路视频渲染</h2>
 <h3 id="视频布局策略">2.1 视频布局策略</h3>
 <figure>
-<img src="./diagrams/video-layouts.svg" alt="视频布局类型" />
+<img src="chapter-23/diagrams/video-layouts.svg" alt="视频布局类型" />
 <figcaption aria-hidden="true">视频布局类型</figcaption>
 </figure>
 <p><strong>常见布局模式</strong>：</p>
@@ -537,7 +537,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#
 路流，需要 18Mbps 下行带宽 - 大部分用户没有这么高的带宽</p>
 <p><strong>解决方案</strong>：动态订阅</p>
 <figure>
-<img src="./diagrams/subscription-model.svg" alt="订阅模型" />
+<img src="chapter-23/diagrams/subscription-model.svg" alt="订阅模型" />
 <figcaption aria-hidden="true">订阅模型</figcaption>
 </figure>
 <h3 id="订阅策略类型">3.2 订阅策略类型</h3>
@@ -1038,9 +1038,23 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#
 路音频混音。如何优化混音算法以降低 CPU
 占用？（提示：只混活跃说话者）</p></li>
 </ol>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

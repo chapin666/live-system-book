@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500">
+  <!-- Background -->
+  <rect width="1000" height="500" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="500" y="35" text-anchor="middle" font-size="24" font-weight="bold" fill="#333">MCU 流水线架构</text>
+  
+  <!-- Pipeline Container -->
+  <rect x="50" y="60" width="900" height="380" fill="white" stroke="#ddd" stroke-width="2" rx="10"/>
+  
+  <!-- Input Processing Stage -->
+  <g transform="translate(80, 100)">
+    <rect width="160" height="280" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    <text x="80" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">输入处理</text>
+    
+    <!-- Input modules -->
+    <rect x="15" y="45" width="130" height="50" fill="#64b5f6" rx="4"/>
+    <text x="80" y="65" text-anchor="middle" font-size="11" fill="white">RTP接收</text>
+    <text x="80" y="80" text-anchor="middle" font-size="9" fill="#e3f2fd">Jitter Buffer</text>
+    
+    <rect x="15" y="105" width="130" height="50" fill="#64b5f6" rx="4"/>
+    <text x="80" y="125" text-anchor="middle" font-size="11" fill="white">视频解码</text>
+    <text x="80" y="140" text-anchor="middle" font-size="9" fill="#e3f2fd">H.264 → YUV</text>
+    
+    <rect x="15" y="165" width="130" height="50" fill="#64b5f6" rx="4"/>
+    <text x="80" y="185" text-anchor="middle" font-size="11" fill="white">音频解码</text>
+    <text x="80" y="200" text-anchor="middle" font-size="9" fill="#e3f2fd">Opus → PCM</text>
+    
+    <rect x="15" y="225" width="130" height="40" fill="#42a5f5" rx="4"/>
+    <text x="80" y="250" text-anchor="middle" font-size="10" fill="white">同步缓冲区</text>
+  </g>
+  
+  <!-- Arrow 1 -->
+  <path d="M240 220 L280 220" stroke="#333" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <!-- Audio Mixing Stage -->
+  <g transform="translate(290, 100)">
+    <rect width="160" height="130" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" rx="8"/>
+    <text x="80" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#7b1fa2">音频混音</text>
+    
+    <rect x="15" y="40" width="130" height="35" fill="#ba68c8" rx="4"/>
+    <text x="80" y="62" text-anchor="middle" font-size="10" fill="white">VAD检测</text>
+    
+    <rect x="15" y="80" width="130" height="35" fill="#ab47bc" rx="4"/>
+    <text x="80" y="102" text-anchor="middle" font-size="10" fill="white">PCM混音</text>
+  </g>
+  
+  <!-- Video Compositing Stage -->
+  <g transform="translate(290, 250)">
+    <rect width="160" height="130" fill="#fff3e0" stroke="#f57c00" stroke-width="2" rx="8"/>
+    <text x="80" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#f57c00">视频混画</text>
+    
+    <rect x="15" y="40" width="130" height="35" fill="#ffb74d" rx="4"/>
+    <text x="80" y="62" text-anchor="middle" font-size="10" fill="white">布局管理</text>
+    
+    <rect x="15" y="80" width="130" height="35" fill="#ffa726" rx="4"/>
+    <text x="80" y="102" text-anchor="middle" font-size="10" fill="white">YUV合屏</text>
+  </g>
+  
+  <!-- Arrow 2a (Audio) -->
+  <path d="M450 165 L500 165" stroke="#7b1fa2" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <!-- Arrow 2b (Video) -->
+  <path d="M450 315 L500 315" stroke="#f57c00" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <!-- Encoding Stage -->
+  <g transform="translate(510, 100)">
+    <rect width="160" height="280" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" rx="8"/>
+    <text x="80" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">编码输出</text>
+    
+    <!-- Audio encoding -->
+    <rect x="15" y="40" width="130" height="70" fill="#81c784" rx="4"/>
+    <text x="80" y="65" text-anchor="middle" font-size="11" fill="white">音频编码</text>
+    <text x="80" y="85" text-anchor="middle" font-size="9" fill="#e8f5e9">PCM → Opus</text>
+    <text x="80" y="100" text-anchor="middle" font-size="9" fill="#e8f5e9">64kbps</text>
+    
+    <!-- Video encoding -->
+    <rect x="15" y="120" width="130" height="70" fill="#66bb6a" rx="4"/>
+    <text x="80" y="145" text-anchor="middle" font-size="11" fill="white">视频编码</text>
+    <text x="80" y="165" text-anchor="middle" font-size="9" fill="#e8f5e9">YUV → H.264</text>
+    <text x="80" y="180" text-anchor="middle" font-size="9" fill="#e8f5e9">2Mbps</text>
+    
+    <!-- RTP Output -->
+    <rect x="15" y="200" width="130" height="60" fill="#4caf50" rx="4"/>
+    <text x="80" y="230" text-anchor="middle" font-size="11" fill="white">RTP封装</text>
+    <text x="80" y="250" text-anchor="middle" font-size="9" fill="#e8f5e9">网络发送</text>
+  </g>
+  
+  <!-- Arrow 3 -->
+  <path d="M670 240 L720 240" stroke="#333" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <!-- Output -->
+  <g transform="translate(730, 160)">
+    <rect width="180" height="160" fill="#eceff1" stroke="#546e7a" stroke-width="2" rx="8"/>
+    <text x="90" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#546e7a">输出</text>
+    
+    <rect x="15" y="50" width="150" height="35" fill="#78909c" rx="4"/>
+    <text x="90" y="72" text-anchor="middle" font-size="11" fill="white">直播观众</text>
+    
+    <rect x="15" y="95" width="150" height="35" fill="#78909c" rx="4"/>
+    <text x="90" y="117" text-anchor="middle" font-size="11" fill="white">录制存储</text>
+    
+    <rect x="15" y="140" width="70" height="30" fill="#90a4ae" rx="4"/>
+    <text x="50" y="160" text-anchor="middle" font-size="10" fill="white">CDN</text>
+    
+    <rect x="95" y="140" width="70" height="30" fill="#90a4ae" rx="4"/>
+    <text x="130" y="160" text-anchor="middle" font-size="10" fill="white">HLS</text>
+  </g>
+  
+  <!-- Control/Config -->
+  <g transform="translate(80, 400)">
+    <rect width="840" height="70" fill="#fce4ec" stroke="#c2185b" stroke-width="2" rx="8"/>
+    <text x="420" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2185b">控制与配置</text>
+    
+    <rect x="20" y="40" width="120" height="22" fill="#f48fb1" rx="3"/>
+    <text x="80" y="56" text-anchor="middle" font-size="10" fill="white">布局管理器</text>
+    
+    <rect x="160" y="40" width="120" height="22" fill="#f48fb1" rx="3"/>
+    <text x="220" y="56" text-anchor="middle" font-size="10" fill="white">主讲人检测</text>
+    
+    <rect x="300" y="40" width="120" height="22" fill="#f48fb1" rx="3"/>
+    <text x="360" y="56" text-anchor="middle" font-size="10" fill="white">码率控制</text>
+    
+    <rect x="440" y="40" width="120" height="22" fill="#f48fb1" rx="3"/>
+    <text x="500" y="56" text-anchor="middle" font-size="10" fill="white">质量监控</text>
+    
+    <rect x="580" y="40" width="120" height="22" fill="#f48fb1" rx="3"/>
+    <text x="640" y="56" text-anchor="middle" font-size="10" fill="white">房间管理</text>
+    
+    <rect x="720" y="40" width="100" height="22" fill="#f48fb1" rx="3"/>
+    <text x="770" y="56" text-anchor="middle" font-size="10" fill="white">统计上报</text>
+  </g>
+  
+  <!-- Arrow Markers -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+  </defs>
+  
+  <!-- Time Annotations -->
+  <text x="80" y="485" font-size="10" fill="#666">输入延迟: 20-50ms</text>
+  <text x="290" y="485" font-size="10" fill="#666">处理延迟: 50-100ms</text>
+  <text x="510" y="485" font-size="10" fill="#666">编码延迟: 30-80ms</text>
+  <text x="730" y="485" font-size="10" fill="#666">传输延迟: 10-50ms</text>
+  
+  <text x="500" y="495" text-anchor="middle" font-size="11" font-weight="bold" fill="#333">总延迟: 110-280ms</text>
+</svg>

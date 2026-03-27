@@ -50,18 +50,27 @@ flowchart LR
 
 ## 🎯 本章学习路径
 
-```
-线程基础 ──┬──→ std::thread、join/detach、线程管理
-           │
-互斥同步 ──┼──→ mutex、lock_guard、死锁避免
-           │
-条件变量 ──┼──→ wait/notify、虚假唤醒、超时
-           │
-原子操作 ──┼──→ atomic、内存序基础
-           │
-队列实现 ──┴──→ 双条件变量、优雅停止
-
-调试技巧 ─────→ GDB多线程、TSan检测数据竞争
+```mermaid
+flowchart LR
+    A[线程基础] --> B[互斥同步]
+    B --> C[条件变量]
+    C --> D[原子操作]
+    D --> E[队列实现]
+    E --> F[调试技巧]
+    
+    A1[std::thread<br/>join/detach<br/>线程管理] -.-> A
+    B1[mutex<br/>lock_guard<br/>死锁避免] -.-> B
+    C1[wait/notify<br/>虚假唤醒<br/>超时] -.-> C
+    D1[atomic<br/>内存序基础] -.-> D
+    E1[双条件变量<br/>优雅停止] -.-> E
+    F1[GDB多线程<br/>TSan检测] -.-> F
+    
+    style A fill:#e3f2fd,stroke:#1976d2
+    style B fill:#fff3e0,stroke:#f57c00
+    style C fill:#e8f5e9,stroke:#388e3c
+    style D fill:#fce4ec,stroke:#c2185b
+    style E fill:#f3e5f5,stroke:#7b1fa2
+    style F fill:#fff9c4,stroke:#f9a825
 ```
 
 ---

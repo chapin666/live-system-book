@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320">
+  <!-- 背景 -->
+  <rect width="800" height="320" fill="#fafafa"/>
+  
+  <!-- 标题 -->
+  <text x="400" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">
+    视频帧类型与解码成本
+  </text>
+  
+  <!-- I帧 -->
+  <g transform="translate(80, 60)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#ffebee" stroke="#c62828" stroke-width="2"/>
+    <text x="100" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#c62828">I帧 (关键帧)</text>
+    <text x="100" y="60" text-anchor="middle" font-size="12" fill="#666">Intra-coded</text>
+    
+    <!-- 完整图像示意 -->
+    <rect x="30" y="80" width="140" height="90" fill="#ffcdd2" stroke="#c62828" stroke-width="1"/>
+    
+    <!-- 网格表示完整数据 -->
+    <g stroke="#ef9a9a" stroke-width="0.5">
+      <line x1="30" y1="95" x2="170" y2="95"/>
+      <line x1="30" y1="110" x2="170" y2="110"/>
+      <line x1="30" y1="125" x2="170" y2="125"/>
+      <line x1="30" y1="140" x2="170" y2="140"/>
+      <line x1="30" y1="155" x2="170" y2="155"/>
+      <line x1="55" y1="80" x2="55" y2="170"/>
+      <line x1="80" y1="80" x2="80" y2="170"/>
+      <line x1="105" y1="80" x2="105" y2="170"/>
+      <line x1="130" y1="80" x2="130" y2="170"/>
+      <line x1="155" y1="80" x2="155" y2="170"/>
+    </g>
+    
+    <text x="100" y="195" text-anchor="middle" font-size="11" fill="#666">完整存储所有像素</text>
+  </g>
+  
+  <!-- I帧信息 -->
+  <g transform="translate(80, 270)">
+    <rect x="0" y="0" width="200" height="35" rx="4" fill="#c62828" opacity="0.1"/>
+    <text x="100" y="14" text-anchor="middle" font-size="11" fill="#c62828" font-weight="bold">大小: 40-80KB</text>
+    <text x="100" y="28" text-anchor="middle" font-size="11" fill="#c62828" font-weight="bold">解码: 40-50ms ⚠️</text>
+  </g>
+  
+  <!-- P帧 -->
+  <g transform="translate(300, 60)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#e3f2fd" stroke="#1565c0" stroke-width="2"/>
+    <text x="100" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#1565c0">P帧 (预测帧)</text>
+    <text x="100" y="60" text-anchor="middle" font-size="12" fill="#666">Predicted</text>
+    
+    <!-- 差异示意 -->
+    <rect x="30" y="80" width="140" height="90" fill="#bbdefb" stroke="#1565c0" stroke-width="1"/>
+    
+    <!-- 稀疏变化点 -->
+    <circle cx="60" cy="105" r="8" fill="#1565c0" opacity="0.6"/>
+    <circle cx="110" cy="130" r="12" fill="#1565c0" opacity="0.6"/>
+    <circle cx="140" cy="95" r="6" fill="#1565c0" opacity="0.6"/>
+    <circle cx="80" cy="150" r="10" fill="#1565c0" opacity="0.6"/>
+    
+    <!-- 参考箭头 -->
+    <path d="M 100 75 L 100 55" stroke="#1565c0" stroke-width="2" marker-end="url(#arrowblue)"/>
+    <text x="100" y="50" text-anchor="middle" font-size="10" fill="#1565c0">参考前一帧</text>
+    
+    <text x="100" y="195" text-anchor="middle" font-size="11" fill="#666">只存储变化区域</text>
+  </g>
+  
+  <!-- P帧信息 -->
+  <g transform="translate(300, 270)">
+    <rect x="0" y="0" width="200" height="35" rx="4" fill="#1565c0" opacity="0.1"/>
+    <text x="100" y="14" text-anchor="middle" font-size="11" fill="#1565c0" font-weight="bold">大小: 8-15KB</text>
+    <text x="100" y="28" text-anchor="middle" font-size="11" fill="#1565c0" font-weight="bold">解码: 8-15ms ✓</text>
+  </g>
+  
+  <!-- B帧 -->
+  <g transform="translate(520, 60)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+    <text x="100" y="35" text-anchor="middle" font-size="16" font-weight="bold" fill="#2e7d32">B帧 (双向帧)</text>
+    <text x="100" y="60" text-anchor="middle" font-size="12" fill="#666">Bidirectional</text>
+    
+    <!-- 差异示意 -->
+    <rect x="30" y="80" width="140" height="90" fill="#c8e6c9" stroke="#2e7d32" stroke-width="1"/>
+    
+    <!-- 极少变化点 -->
+    <circle cx="70" cy="115" r="6" fill="#2e7d32" opacity="0.5"/>
+    <circle cx="120" cy="140" r="8" fill="#2e7d32" opacity="0.5"/>
+    
+    <!-- 双向参考箭头 -->
+    <path d="M 60 75 L 60 55" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrowgreen)"/>
+    <path d="M 140 75 L 140 55" stroke="#2e7d32" stroke-width="2" marker-end="url(#arrowgreen)"/>
+    <text x="100" y="50" text-anchor="middle" font-size="10" fill="#2e7d32">参考前后帧</text>
+    
+    <text x="100" y="195" text-anchor="middle" font-size="11" fill="#666">双向预测，变化最少</text>
+  </g>
+  
+  <!-- B帧信息 -->
+  <g transform="translate(520, 270)">
+    <rect x="0" y="0" width="200" height="35" rx="4" fill="#2e7d32" opacity="0.1"/>
+    <text x="100" y="14" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">大小: 3-8KB</text>
+    <text x="100" y="28" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">解码: 5-8ms ✓</text>
+  </g>
+  
+  <!-- 箭头定义 -->
+  <defs>
+    <marker id="arrowblue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#1565c0"/>
+    </marker>
+    <marker id="arrowgreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2e7d32"/>
+    </marker>
+  </defs>
+  
+  <!-- 底部说明 -->
+  <text x="400" y="315" text-anchor="middle" font-size="11" fill="#888">
+    I帧解码耗时是P帧的3-5倍，是B帧的5-8倍 | 30fps预算: 33ms/帧
+  </text>
+</svg>

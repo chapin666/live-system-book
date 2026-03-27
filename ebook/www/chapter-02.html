@@ -309,7 +309,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#c
 │  解封装     │    │  获取参数   │    │  器         │    │  同步渲染   │    │  释放内存   │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘</code></pre>
 <figure>
-<img src="./diagrams/video-pipeline.svg" alt="播放器 Pipeline 流程" />
+<img src="chapter-02/diagrams/video-pipeline.svg" alt="播放器 Pipeline 流程" />
 <figcaption aria-hidden="true">播放器 Pipeline 流程</figcaption>
 </figure>
 <hr />
@@ -488,9 +488,23 @@ int64_t）</p>
 <hr />
 <p><strong>本章代码</strong>：完整代码见
 <code>src/simple_player.cpp</code></p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

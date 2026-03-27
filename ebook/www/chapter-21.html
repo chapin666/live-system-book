@@ -240,7 +240,7 @@ API</strong>，让开发者能够在浏览器之外使用 WebRTC。</p>
 </ol>
 <h3 id="native-架构概览">1.3 Native 架构概览</h3>
 <figure>
-<img src="./diagrams/webrtc-native-arch.svg" alt="WebRTC Native 架构" />
+<img src="chapter-21/diagrams/webrtc-native-arch.svg" alt="WebRTC Native 架构" />
 <figcaption aria-hidden="true">WebRTC Native 架构</figcaption>
 </figure>
 <p><strong>WebRTC Native 的核心组件</strong>：</p>
@@ -401,7 +401,7 @@ class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="
 <strong>Observer</strong>：异步事件回调</p>
 <h3 id="peerconnection-状态机">3.2 PeerConnection 状态机</h3>
 <figure>
-<img src="./diagrams/peerconnection-states.svg"
+<img src="chapter-21/diagrams/peerconnection-states.svg"
 alt="PeerConnection 状态机" />
 <figcaption aria-hidden="true">PeerConnection 状态机</figcaption>
 </figure>
@@ -810,7 +810,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#
 <h2 id="信令集成">5. 信令集成</h2>
 <h3 id="信令流程概览">5.1 信令流程概览</h3>
 <figure>
-<img src="./diagrams/signaling-flow.svg" alt="信令流程" />
+<img src="chapter-21/diagrams/signaling-flow.svg" alt="信令流程" />
 <figcaption aria-hidden="true">信令流程</figcaption>
 </figure>
 <p><strong>信令的核心作用</strong>： 1. 交换 SDP（Offer/Answer） 2. 交换
@@ -1347,9 +1347,23 @@ DataChannel）</p></li>
 <li><p><strong>部署信令服务器</strong>，使用 Node.js + WebSocket
 实现一个支持多房间的简单信令服务</p></li>
 </ol>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>

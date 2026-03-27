@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400">
+  <!-- Background -->
+  <rect width="900" height="400" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="450" y="35" text-anchor="middle" font-size="22" font-weight="bold" fill="#333">SDP Offer/Answer 交换流程</text>
+  
+  
+  <!-- Offerer -->
+  <g transform="translate(80, 70)">
+    <rect width="180" height="280" fill="#e3f2fd" stroke="#1976d2" stroke-width="2" rx="8"/>
+    
+    <text x="90" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565c0">Offerer (发起方)</text>
+    
+    
+    <rect x="20" y="60" width="140" height="80" fill="#bbdefb" rx="5"/>
+    
+    <text x="90" y="85" text-anchor="middle" font-size="11" fill="#333">创建 Offer SDP</text>
+    
+    <text x="90" y="105" text-anchor="middle" font-size="9" fill="#666">• 本地媒体能力</text>
+    
+    <text x="90" y="120" text-anchor="middle" font-size="9" fill="#666">• ICE候选地址</text>
+    
+    <text x="90" y="135" text-anchor="middle" font-size="9" fill="#666">• 支持编解码列表</text>
+  </g>
+  
+  
+  <!-- Answerer -->
+  <g transform="translate(640, 70)">
+    <rect width="180" height="280" fill="#fce4ec" stroke="#e91e63" stroke-width="2" rx="8"/>
+    
+    
+    <text x="90" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#c2185b">Answerer (应答方)</text>
+    
+    
+    <rect x="20" y="150" width="140" height="80" fill="#f8bbd0" rx="5"/>
+    
+    <text x="90" y="175" text-anchor="middle" font-size="11" fill="#333">创建 Answer SDP</text>
+    
+    <text x="90" y="195" text-anchor="middle" font-size="9" fill="#666">• 选择媒体方向</text>
+    
+    <text x="90" y="210" text-anchor="middle" font-size="9" fill="#666">• 确认编解码</text>
+    
+    <text x="90" y="225" text-anchor="middle" font-size="9" fill="#666">• 添加ICE候选</text>
+  </g>
+  
+  
+  <!-- Signaling Server -->
+  <g transform="translate(360, 70)">
+    <rect width="180" height="280" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="8"/>
+    
+    
+    <text x="90" y="30" text-anchor="middle" font-size="14" font-weight="bold" fill="#e65100">信令服务器</text>
+    
+    
+    <rect x="20" y="100" width="140" height="50" fill="#ffe0b2" rx="5"/>
+    
+    <text x="90" y="120" text-anchor="middle" font-size="10" fill="#333">转发 Offer</text>
+    
+    <text x="90" y="138" text-anchor="middle" font-size="9" fill="#666">(WebSocket/HTTP)</text>
+    
+    
+    <rect x="20" y="200" width="140" height="50" fill="#ffe0b2" rx="5"/>
+    
+    <text x="90" y="220" text-anchor="middle" font-size="10" fill="#333">转发 Answer</text>
+    
+    <text x="90" y="238" text-anchor="middle" font-size="9" fill="#666">(WebSocket/HTTP)</text>
+  </g>
+  
+  
+  <!-- Arrows -->
+  <g>
+    <!-- Offer: Offerer -> Signaling -> Answerer -->
+    
+    <path d="M 260 125 L 360 125" stroke="#1976d2" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+    
+    <text x="310" y="115" text-anchor="middle" font-size="9" fill="#1976d2">Offer SDP</text>
+    
+    
+    <path d="M 540 125 L 640 125" stroke="#1976d2" stroke-width="2" fill="none" marker-end="url(#arrow-blue)"/>
+    
+    <text x="590" y="115" text-anchor="middle" font-size="9" fill="#1976d2">Offer SDP</text>
+    
+    
+    <!-- Answer: Answerer -> Signaling -> Offerer -->
+    
+    
+    <path d="M 640 215 L 540 215" stroke="#e91e63" stroke-width="2" fill="none" marker-end="url(#arrow-red)"/>
+    
+    <text x="590" y="235" text-anchor="middle" font-size="9" fill="#e91e63">Answer SDP</text>
+    
+    
+    
+    <path d="M 360 215 L 260 215" stroke="#e91e63" stroke-width="2" fill="none" marker-end="url(#arrow-red)"/>
+    
+    <text x="310" y="235" text-anchor="middle" font-size="9" fill="#e91e63">Answer SDP</text>
+  </g>
+  
+  
+  <!-- Negotiation Result -->
+  <g transform="translate(250, 370)">
+    <rect width="400" height="20" fill="#e8f5e9" stroke="#4caf50" stroke-width="1" rx="5"/>
+    
+    
+    <text x="200" y="14" text-anchor="middle" font-size="11" fill="#2e7d32" font-weight="bold">✓ 协商完成：双方都知道对方的媒体能力和网络地址，开始ICE连通性检测</text>
+  </g>
+  
+  
+  <!-- SDP Example Box -->
+  <g transform="translate(50, 400)">
+    <text x="0" y="15" font-size="11" font-weight="bold" fill="#333">SDP 关键字段:</text>
+    
+    <text x="100" y="15" font-size="10" fill="#666" font-family="monospace">v= (版本) o= (源) s= (会话名) c= (连接信息) m= (媒体描述) a= (属性)</text>
+  </g>
+  
+  <defs>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1976d2"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#e91e63"/>
+    </marker>
+  </defs>
+</svg>

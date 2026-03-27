@@ -226,7 +226,7 @@ Protocol）是互联网最常用的传输协议，它的设计目标是
 <p><strong>队头阻塞（Head-of-Line Blocking）</strong> 是 TCP
 在实时场景下的最大问题：</p>
 <figure>
-<img src="./diagrams/tcp-hol-blocking.svg" alt="TCP 队头阻塞" />
+<img src="chapter-18/diagrams/tcp-hol-blocking.svg" alt="TCP 队头阻塞" />
 <figcaption aria-hidden="true">TCP 队头阻塞</figcaption>
 </figure>
 <pre><code>时间线 →
@@ -268,7 +268,7 @@ Pkt1 Pkt2 Pkt3  Pkt4  Pkt5  Pkt6
 强制降速</p>
 <h3 id="tcp-vs-udp-对比">1.4 TCP vs UDP 对比</h3>
 <figure>
-<img src="./diagrams/tcp-vs-udp.svg" alt="TCP vs UDP 对比" />
+<img src="chapter-18/diagrams/tcp-vs-udp.svg" alt="TCP vs UDP 对比" />
 <figcaption aria-hidden="true">TCP vs UDP 对比</figcaption>
 </figure>
 <table>
@@ -671,7 +671,7 @@ RFC 3550。它运行在 UDP
 </table>
 <h3 id="rtp-包结构">3.2 RTP 包结构</h3>
 <figure>
-<img src="./diagrams/rtp-packet.svg" alt="RTP 包结构" />
+<img src="chapter-18/diagrams/rtp-packet.svg" alt="RTP 包结构" />
 <figcaption aria-hidden="true">RTP 包结构</figcaption>
 </figure>
 <pre><code>┌─────────────────────────────────────────────────────────────┐
@@ -686,7 +686,7 @@ RFC 3550。它运行在 UDP
 └─────────────────────────────────────────────────────────────┘</code></pre>
 <h3 id="rtp-头部详解">3.3 RTP 头部详解</h3>
 <figure>
-<img src="./diagrams/rtp-header.svg" alt="RTP 头部详解" />
+<img src="chapter-18/diagrams/rtp-header.svg" alt="RTP 头部详解" />
 <figcaption aria-hidden="true">RTP 头部详解</figcaption>
 </figure>
 <pre><code> 0                   1                   2                   3
@@ -988,7 +988,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#
 Protocol）</strong> 协议。</p>
 <h3 id="rtcp-的作用">4.1 RTCP 的作用</h3>
 <figure>
-<img src="./diagrams/rtcp-feedback.svg" alt="RTCP 反馈循环" />
+<img src="chapter-18/diagrams/rtcp-feedback.svg" alt="RTCP 反馈循环" />
 <figcaption aria-hidden="true">RTCP 反馈循环</figcaption>
 </figure>
 <pre><code>        发送端                                    接收端
@@ -1361,7 +1361,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#
 的作用是平滑这种抖动，保证解码器获得稳定的输入。</p>
 <h3 id="抖动的来源">5.1 抖动的来源</h3>
 <figure>
-<img src="./diagrams/jitter-sources.svg" alt="抖动来源" />
+<img src="chapter-18/diagrams/jitter-sources.svg" alt="抖动来源" />
 <figcaption aria-hidden="true">抖动来源</figcaption>
 </figure>
 <table>
@@ -1412,7 +1412,7 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#
   │    A    B    C    D    E    F  → 数据包</code></pre>
 <h3 id="jitterbuffer-工作原理">5.2 JitterBuffer 工作原理</h3>
 <figure>
-<img src="./diagrams/jitterbuffer.svg" alt="JitterBuffer 工作原理" />
+<img src="chapter-18/diagrams/jitterbuffer.svg" alt="JitterBuffer 工作原理" />
 <figcaption aria-hidden="true">JitterBuffer 工作原理</figcaption>
 </figure>
 <pre><code>┌─────────────────────────────────────────────────────────────┐
@@ -1667,9 +1667,23 @@ Conferences</li>
 </ul>
 <hr />
 <p><em>本章完</em></p>
-<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将 pre.mermaid 转换为 div.mermaid（解决 pandoc 转义问题）
+    document.querySelectorAll('pre.mermaid').forEach(function(pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  });
 </script>
 </div>
 </body>
