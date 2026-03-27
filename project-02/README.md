@@ -46,17 +46,13 @@ FFmpeg 自动处理 Range 请求，实现边下边播
 
 ### 缓冲策略
 
-```
-┌─────────────────────────────────────────┐
-│           网络缓冲区                     │
-│  ┌─────────────────────────────────┐   │
-│  │ 已下载 |=======          | 待下载 │   │
-│  └─────────────────────────────────┘   │
-│       ↓                                 │
-│  缓冲水位线: 2秒数据                      │
-│       ↓                                 │
-│  足够时开始播放                           │
-└─────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["网络缓冲区 缓冲水位线: 2秒数据 足够时开始播放"]
+    N1["已下载 |======= | 待下载"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 代码示例：网络检测
@@ -124,17 +120,13 @@ private:
 
 ## 项目结构
 
-```
-project-02/
-├── CMakeLists.txt
-├── README.md
-├── include/
-│   └── live/
-│       ├── network_player.h
-│       └── ... (继承 project-01)
-└── src/
-    ├── main.cpp
-    └── network_player.cpp
+```mermaid
+flowchart TB
+    N0["project-02/ CMakeLists.txt README.md include/ src/ main.cpp network_player.cpp"]
+    N1["live/ network_player.h ... (继承 project-01)"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ## 运行测试

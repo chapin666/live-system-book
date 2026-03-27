@@ -12,49 +12,35 @@
 
 ## 架构图
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                        信令服务器                              │
-│                    (Signaling Server)                         │
-└───────────────┬────────────────────────────────┬─────────────┘
-                │                                │
-        WebSocket                   WebSocket
-                │                                │
-┌───────────────▼────────────────▼───────────────┐
-│           PeerConnection A                      │
-│  ┌─────────┐    ┌─────────┐    ┌───────────┐   │
-│  │ GetUser │───→│   PC    │←──→│  ICE      │   │
-│  │ Media   │    │ Create  │    │  Gathering│   │
-│  └─────────┘    └────┬────┘    └───────────┘   │
-│                      │ SDP Offer/Answer         │
-│                      │ ICE Candidate            │
-│                      ▼                          │
-│               ┌──────────┐                      │
-│               │ DTLS/SRTP│                      │
-│               │ Transport│                      │
-│               └────┬─────┘                      │
-└────────────────────┼────────────────────────────┘
-                     │
-              ┌──────┴──────┐
-              │  P2P Link   │
-              └─────────────┘
+```mermaid
+flowchart LR
+    N0["WebSocket WebSocket ▼────────────────▼"]
+    N1["信令服务器 (Signaling Server) PeerConnection A ▼ P2P Link"]
+    N2["GetUser Media SDP Offer/Answer ICE Candidate DTLS/SRTP Transport"]
+    N3["PC Create"]
+    N4["ICE Gathering"]
+
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
 ```
 
 ## 项目结构
 
-```
-project-07/
-├── CMakeLists.txt
-├── README.md
-├── src/
-│   ├── main.cpp
-│   ├── webrtc_client.h/.cpp    # WebRTC客户端核心
-│   ├── signaling_client.h/.cpp  # 信令客户端
-│   ├── peer_connection.h/.cpp   # PeerConnection封装
-│   ├── sdp_parser.h/.cpp        # SDP解析
-│   └── ice_candidate.h/.cpp     # ICE候选处理
-└── config/
-    └── signaling_config.json
+```mermaid
+flowchart TB
+    N0["project-07/ CMakeLists.txt README.md src/ config/ signaling_config.json"]
+    N1["main.cpp webrtc_client.h/.cpp # WebRTC客户端核心 signaling_client.h/.cpp # 信令客户端 peer_connection.h/.cpp # PeerConnection封装 sdp_parser.h/.cpp # SDP解析 ice_candidate.h/.cpp # ICE候选处理"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ## 信令协议

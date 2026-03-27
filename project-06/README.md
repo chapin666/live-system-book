@@ -12,54 +12,34 @@
 
 ## 架构图
 
-```
-┌─────────────────┐                      ┌─────────────────┐
-│   用户A         │                      │   用户B         │
-│ ┌─────────────┐ │                      │ ┌─────────────┐ │
-│ │  采集模块    │ │                      │ │  采集模块    │ │
-│ │  Camera     │ │                      │ │  Camera     │ │
-│ │  Mic        │ │                      │ │  Mic        │ │
-│ └──────┬──────┘ │                      │ └──────┬──────┘ │
-│        │        │                      │        │        │
-│ ┌──────▼──────┐ │                      │ ┌──────▼──────┐ │
-│ │  编码器      │ │                      │ │  编码器      │ │
-│ │  H264/OPUS  │ │                      │ │  H264/OPUS  │ │
-│ └──────┬──────┘ │                      │ └──────┬──────┘ │
-│        │        │                      │        │        │
-│ ┌──────▼──────┐ │    ┌──────────┐     │ ┌──────▼──────┐ │
-│ │  RTP封装    │ │    │          │     │ │  RTP封装    │ │
-│ └──────┬──────┘ │    │  STUN    │     │ └──────┬──────┘ │
-│        │        │────│  Server  │─────│        │        │
-│ ┌──────▼──────┐ │    │          │     │ ┌──────▼──────┐ │
-│ │  UDP Socket │ │    └──────────┘     │ │  UDP Socket │ │
-│ └──────┬──────┘ │                      │ └──────┬──────┘ │
-│        │        │   P2P Direct Link    │        │        │
-│        └────────┼──────────────────────┼────────┘        │
-│                 │  (after ICE complete)│                 │
-└─────────────────┘                      └─────────────────┘
+```mermaid
+flowchart TB
+    N0["用户A ▼"]
+    N1["采集模块 Camera Mic 编码器 H264/OPUS RTP封装 UDP Socket (after ICE complete)"]
+    N2["用户B ▼ STUN P2P Direct Link"]
+    N3["Server"]
+    N4["▼"]
+    N5["采集模块 Camera Mic 编码器 H264/OPUS UDP Socket"]
+    N6["RTP封装"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
+    style N5 fill:#ede7f6,stroke:#5e35b1
+    style N6 fill:#e0f7fa,stroke:#00838f
 ```
 
 ## 项目结构
 
-```
-project-06/
-├── CMakeLists.txt
-├── README.md
-├── src/
-│   ├── main.cpp              # 程序入口
-│   ├── p2p_call.h/.cpp       # P2P通话核心
-│   ├── rtp_packet.h/.cpp     # RTP包处理
-│   ├── stun_client.h/.cpp    # STUN客户端
-│   ├── udp_socket.h/.cpp     # UDP封装
-│   ├── audio_capturer.h/.cpp # 音频采集
-│   ├── video_capturer.h/.cpp # 视频采集
-│   └── codec/                # 编解码器
-│       ├── h264_encoder.h/.cpp
-│       └── opus_encoder.h/.cpp
-├── include/
-│   └── common.h
-└── config/
-    └── stun_servers.json
+```mermaid
+flowchart TB
+    N0["project-06/ CMakeLists.txt README.md src/ include/ config/ stun_servers.json"]
+    N1["main.cpp # 程序入口 p2p_call.h/.cpp # P2P通话核心 rtp_packet.h/.cpp # RTP包处理 stun_client.h/.cpp # STUN客户端 udp_socket.h/.cpp # UDP封装 audio_capturer.h/.cpp # 音频采集 video_capturer.h/.cpp # 视频采集 codec/ # 编解码器 h264_encoder.h/.cpp opus_encoder.h/.cpp common.h"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ## 构建说明

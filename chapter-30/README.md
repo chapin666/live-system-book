@@ -137,28 +137,15 @@ flowchart LR
 ```
 
 **Docker容器架构**：
-```
-┌─────────────────────────────────────────────┐
-│  Container 1            Container 2         │
-│  ┌─────────────┐       ┌─────────────┐     │
-│  │ App A       │       │ App B       │     │
-│  │ Bin/Libs    │       │ Bin/Libs    │     │
-│  └─────────────┘       └─────────────┘     │
-│                                             │
-│  ┌─────────────────────────────────────────┐│
-│  │ Docker Engine (容器运行时管理)           ││
-│  │  • 进程隔离 (Namespace)                  ││
-│  │  • 资源限制 (Cgroup)                     ││
-│  │  • 文件系统隔离 (UnionFS)                ││
-│  └─────────────────────────────────────────┘│
-├─────────────────────────────────────────────┤
-│  Host OS (共享内核)                          │
-│  ┌─────────────────────────────────────────┐│
-│  │ Kernel (进程调度、内存管理、网络栈、文件系统)││
-│  └─────────────────────────────────────────┘│
-├─────────────────────────────────────────────┤
-│  Hardware                                   │
-└─────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["Container 1 Container 2 Host OS (共享内核) Hardware"]
+    N1["App A Bin/Libs Docker Engine (容器运行时管理) • 进程隔离 (Namespace) • 资源限制 (Cgroup) • 文件系统隔离 (UnionFS) Kernel (进程调度、内存管理、网络栈、文件系统)"]
+    N2["App B Bin/Libs"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
 ```
 
 ### 2.2 资源占用对比
@@ -171,27 +158,19 @@ flowchart LR
 | **CPU开销** | 5-15%（虚拟化） | 接近原生 | 性能更好 |
 | **密度** | 10-100/主机 | 100-1000/主机 | 资源利用率高 |
 
-```
-资源占用对比（运行相同应用）：
+```mermaid
+flowchart TB
+    N0["资源占用对比（运行相同应用）： 虚拟机部署: 总计: 6.3GB内存 + 3个完整内核 容器部署: 总计: ~450MB内存 + 1个内核"]
+    N1["Guest OS 2GB + App 100MB = 2.1GB Host OS Kernel (共享)"]
+    N2["App 100MB + Libs = 150MB"]
+    N3["Guest OS 2GB + App 100MB = 2.1GB"]
+    N4["(隔离)"]
 
-虚拟机部署:
-┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
-│   Guest OS 2GB  │ │   Guest OS 2GB  │ │   Guest OS 2GB  │
-│   + App 100MB   │ │   + App 100MB   │ │   + App 100MB   │
-│   = 2.1GB       │ │   = 2.1GB       │ │   = 2.1GB       │
-└─────────────────┘ └─────────────────┘ └─────────────────┘
-总计: 6.3GB内存 + 3个完整内核
-
-容器部署:
-┌─────────────────────────────────────────────────────────┐
-│  Host OS Kernel (共享)                                  │
-│  ┌───────────┐ ┌───────────┐ ┌───────────┐             │
-│  │ App 100MB │ │ App 100MB │ │ App 100MB │  (隔离)      │
-│  │ + Libs    │ │ + Libs    │ │ + Libs    │             │
-│  │ = 150MB   │ │ = 150MB   │ │ = 150MB   │             │
-│  └───────────┘ └───────────┘ └───────────┘             │
-└─────────────────────────────────────────────────────────┘
-总计: ~450MB内存 + 1个内核
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
 ```
 
 ### 2.3 隔离性对比
@@ -225,31 +204,18 @@ flowchart LR
 
 Docker镜像由多个只读层（Layer）组成，容器运行时在顶部添加一个可写层（Container Layer）：
 
-```
-容器运行时视图:
-┌─────────────────────────────────────┐
-│  Container Layer (可写层)           │  ← 容器内修改都在这里
-│  （写时复制 Copy-on-Write）          │
-├─────────────────────────────────────┤
-│  Layer 3: ADD app.py /app/          │  ← 应用代码层
-├─────────────────────────────────────┤
-│  Layer 2: RUN pip install -r ...    │  ← 依赖层
-├─────────────────────────────────────┤
-│  Layer 1: RUN apt-get install ...   │  ← 系统工具层
-├─────────────────────────────────────┤
-│  Layer 0: FROM ubuntu:20.04         │  ← 基础镜像层
-└─────────────────────────────────────┘
+```mermaid
+flowchart LR
+    N0["容器运行时视图: 所有层合并后的视图: / ← 文件系统根 app/ usr/ bin/... ← Layer 1 etc/... ← Layer 0"]
+    N1["Container Layer (可写层) （写时复制 Copy-on-Write） Layer 3: ADD app.py /app/ Layer 2: RUN pip install -r ... Layer 1: RUN apt-get install ... Layer 0: FROM ubuntu:20.04 app.py ← Layer 3 bin/ lib/... ← Layer 2"]
+    N2["容器内修改都在这里 应用代码层 依赖层 系统工具层 基础镜像层 python3 ← Layer 2"]
 
-所有层合并后的视图:
-/                   ← 文件系统根
-├── app/
-│   └── app.py      ← Layer 3
-├── usr/
-│   ├── bin/
-│   │   └── python3 ← Layer 2
-│   └── lib/...     ← Layer 2
-├── bin/...         ← Layer 1
-└── etc/...         ← Layer 0
+    N0 --> N1
+    N1 --> N2
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
 ```
 
 ### 3.2 写时复制（Copy-on-Write）
@@ -463,36 +429,19 @@ esac
 
 Docker利用Linux内核的网络特性实现容器网络：
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Namespace (网络隔离)                                    │
-│  每个容器拥有独立的：                                       │
-│  • 网络接口 (eth0, lo)                                    │
-│  • 路由表                                                  │
-│  • iptables规则                                            │
-│  • Socket端口空间                                          │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["容器网络 ↔ 宿主机网络的连接方式:"]
+    N1["Namespace (网络隔离) 每个容器拥有独立的： • 网络接口 (eth0, lo) • 路由表 • iptables规则 • Socket端口空间 容器A Namespace 容器B Namespace 宿主机"]
+    N2["veth0 172.17.0.2 docker0 172.17.0.1 eth0 10.0.0.5"]
+    N3["172.17.0.3 Linux Bridge (虚拟交换机) 物理网卡"]
+    N4["veth1"]
 
-容器网络 ↔ 宿主机网络的连接方式:
-┌─────────────────────────────────────────────────────────┐
-│  容器A Namespace          容器B Namespace   宿主机        │
-│  ┌─────────┐              ┌─────────┐                   │
-│  │ veth0   │──────────────│ veth1   │                   │
-│  │ 172.17.0.2            │ 172.17.0.3                   │
-│  └────┬────┘              └────┬────┘                   │
-│       │                        │                        │
-│       └──────────┬─────────────┘                        │
-│                  │                                      │
-│            ┌─────┴─────┐                                │
-│            │  docker0  │ ← Linux Bridge (虚拟交换机)      │
-│            │ 172.17.0.1│                                │
-│            └─────┬─────┘                                │
-│                  │                                      │
-│            ┌─────┴─────┐                                │
-│            │  eth0     │ ← 物理网卡                      │
-│            │ 10.0.0.5  │                                │
-│            └───────────┘                                │
-└─────────────────────────────────────────────────────────┘
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
 ```
 
 **核心网络组件**：
@@ -519,46 +468,38 @@ Docker利用Linux内核的网络特性实现容器网络：
 
 **Bridge模式（默认）**：
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  宿主机                                                   │
-│  ┌─────────────┐     ┌─────────────┐                    │
-│  │  Container A│     │  Container B│                    │
-│  │  172.17.0.2 │     │  172.17.0.3 │                    │
-│  │  port 8080  │     │  port 8080  │ ← 容器内端口        │
-│  └──────┬──────┘     └──────┬──────┘                    │
-│         │                   │                           │
-│         └─────────┬─────────┘                           │
-│                   │                                     │
-│            ┌──────┴──────┐                              │
-│            │   docker0   │  172.17.0.1                   │
-│            └──────┬──────┘                              │
-│                   │                                     │
-│            ┌──────┴──────┐                              │
-│            │  MASQUERADE │ ← iptables NAT规则            │
-│            │  port 8080  │ ← 映射到宿主机8080             │
-│            └─────────────┘                              │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["命令: docker run -d -p 8080:8080 sfu-server # 映射宿主机8080到容器8080"]
+    N1["宿主机"]
+    N2["Container A 172.17.0.2 port 8080 docker0 MASQUERADE"]
+    N3["172.17.0.1 iptables NAT规则 映射到宿主机8080"]
+    N4["Container B 172.17.0.3 port 8080"]
+    N5["容器内端口"]
 
-命令:
-docker run -d -p 8080:8080 sfu-server  # 映射宿主机8080到容器8080
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
+    style N5 fill:#ede7f6,stroke:#5e35b1
 ```
 
 **Host模式**：
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  宿主机网络栈（与容器共享）                                  │
-│  ┌─────────────┐     ┌─────────────┐                    │
-│  │  Container A│     │  Container B│                    │
-│  │  10.0.0.5   │     │  10.0.0.5   │ ← 使用宿主机IP      │
-│  │  port 8080  │     │  port 8081  │ ← 直接使用宿主机端口  │
-│  └─────────────┘     └─────────────┘                    │
-│  注意: 端口冲突需要手动避免                                   │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["命令: docker run -d --network host sfu-server # 无端口映射，直接使用宿主机端口"]
+    N1["宿主机网络栈（与容器共享） 注意: 端口冲突需要手动避免"]
+    N2["Container A 10.0.0.5 port 8080"]
+    N3["Container B 10.0.0.5 port 8081"]
+    N4["使用宿主机IP 直接使用宿主机端口"]
 
-命令:
-docker run -d --network host sfu-server  # 无端口映射，直接使用宿主机端口
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
 ```
 
 **SFU推荐网络配置**：
@@ -591,14 +532,11 @@ docker run -d --network live-network --name signaling signaling-server
 
 **Docker内置DNS**：
 
-```
-在自定义网络中，Docker提供内置DNS：
+```mermaid
+flowchart LR
+    N0["在自定义网络中，Docker提供内置DNS： 容器A (sfu) ←──DNS查询──→ Docker DNS (127.0.0.11) ←──→ 容器IP 容器B (signaling) 查询 \"sfu\" → 返回 172.20.0.2 无需 --link，直接使用容器名作为hostname"]
 
-容器A (sfu) ←──DNS查询──→ Docker DNS (127.0.0.11) ←──→ 容器IP
-                                               ↓
-容器B (signaling) 查询 "sfu" → 返回 172.20.0.2
-
-无需 --link，直接使用容器名作为hostname
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 ```bash
@@ -634,18 +572,13 @@ docker run -d \
 | **容器删除即丢失** | 容器层随容器删除 | 数据持久化问题 |
 | **联合文件系统** | 多层合并视图 | 不适合高频IO |
 
-```
-容器存储问题示意:
+```mermaid
+flowchart TB
+    N0["容器存储问题示意:"]
+    N1["Container Layer (可写，但...) • 性能较低 (CoW开销) • 容器删除 → 数据丢失 Image Layers (只读) • 配置文件不可修改 • 日志无法持久化"]
 
-┌─────────────────────────────────────────┐
-│  Container Layer (可写，但...)           │
-│  • 性能较低 (CoW开销)                    │
-│  • 容器删除 → 数据丢失                   │
-├─────────────────────────────────────────┤
-│  Image Layers (只读)                    │
-│  • 配置文件不可修改                      │
-│  • 日志无法持久化                        │
-└─────────────────────────────────────────┘
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 6.2 Volume绑定挂载

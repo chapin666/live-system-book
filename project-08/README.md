@@ -12,47 +12,36 @@
 
 ## 架构图
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    SFU Server                        │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐             │
-│  │Publisher│  │Publisher│  │Publisher│  ...        │
-│  │   A     │  │   B     │  │   C     │             │
-│  └────┬────┘  └────┬────┘  └────┬────┘             │
-│       │            │            │                   │
-│       └────────────┼────────────┘                   │
-│                    │ Router                        │
-│                    ▼                                │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐             │
-│  │Subscriber│  │Subscriber│  │Subscriber│          │
-│  │   A'    │  │   B'    │  │   C'    │  ...       │
-│  └────┬────┘  └────┬────┘  └────┬────┘             │
-└───────┼────────────┼────────────┼───────────────────┘
-        │            │            │
-   WebRTC        WebRTC       WebRTC
-        │            │            │
-    ┌───▼───┐   ┌────▼───┐  ┌────▼───┐
-    │Client │   │Client  │  │Client  │
-    │  A    │   │   B    │  │   C    │
-    └───────┘   └────────┘  └────────┘
+```mermaid
+flowchart TB
+    N0["WebRTC WebRTC WebRTC ▼───┐ ┌────▼───┐ ┌────▼"]
+    N1["SFU Server ▼ Client A"]
+    N2["Publisher A Router Subscriber A'"]
+    N3["Client B"]
+    N4["Publisher B Subscriber B'"]
+    N5["Client C"]
+    N6["Publisher C Subscriber C'"]
+    N7["..."]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
+    style N5 fill:#ede7f6,stroke:#5e35b1
+    style N6 fill:#e0f7fa,stroke:#00838f
+    style N7 fill:#fff8e1,stroke:#f9a825
 ```
 
 ## 项目结构
 
-```
-project-08/
-├── CMakeLists.txt
-├── README.md
-├── src/
-│   ├── main.cpp
-│   ├── sfu_server.h/.cpp      # SFU服务器
-│   ├── room_manager.h/.cpp    # 房间管理
-│   ├── participant.h/.cpp     # 参与者
-│   ├── rtp_router.h/.cpp      # RTP路由
-│   ├── video_forwarder.h/.cpp # 视频转发
-│   └── audio_mixer.h/.cpp     # 音频混音
-└── config/
-    └── sfu_config.yaml
+```mermaid
+flowchart TB
+    N0["project-08/ CMakeLists.txt README.md src/ config/ sfu_config.yaml"]
+    N1["main.cpp sfu_server.h/.cpp # SFU服务器 room_manager.h/.cpp # 房间管理 participant.h/.cpp # 参与者 rtp_router.h/.cpp # RTP路由 video_forwarder.h/.cpp # 视频转发 audio_mixer.h/.cpp # 音频混音"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ## 核心功能

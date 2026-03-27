@@ -368,12 +368,11 @@ for (int i = 0; i < num_chunks; i++) {
 
 下载速度和播放速度不匹配：
 
-```
-时间线：
-下载：├─10MB/s─┤├─1MB/s──┤├─10MB/s─┤
-播放：├──4MB/s──┤├──4MB/s──┤├──4MB/s──┤
-       ↑ 下载快，缓冲增长
-                 ↓ 下载慢，消耗缓冲
+```mermaid
+flowchart TB
+    N0["时间线： 下载：├─10MB/s─┤├─1MB/s──┤├─10MB/s 播放：├──4MB/s──┤├──4MB/s──┤├──4MB/s 下载快，缓冲增长 下载慢，消耗缓冲"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **缓冲区的两个作用**：
@@ -1080,11 +1079,11 @@ void SwitchToLowerBitrate() {
 
 苹果提出的 **HLS（HTTP Live Streaming）** 是最常用的 HTTP 直播方案，工作原理：
 
-```
-直播源 → 切片器 ──┬──→ [segment1.ts]  ├──┐
-                ├──→ [segment2.ts]  ──┼──→ HTTP 服务器 → 播放器
-                └──→ [segment3.ts]  ├──┘
-                     [playlist.m3u8] ←── 索引文件
+```mermaid
+flowchart LR
+    N0["直播源 → 切片器 ──┬──→ [segment1.ts] [segment2.ts] ──┼──→ HTTP 服务器 → 播放器 [segment3.ts] [playlist.m3u8] ←── 索引文件"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **播放流程**：

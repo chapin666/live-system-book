@@ -104,11 +104,21 @@ private:
 
 DMA允许外设直接与内存交换数据，无需CPU参与：
 
-```
-┌─────────┐    DMA传输     ┌─────────┐
-│  磁盘   │ ←────────────→ │  内存   │
-│  网卡   │   （无需CPU）   │（页缓存）│
-└─────────┘                └─────────┘
+```mermaid
+flowchart LR
+    N0["DMA传输"]
+    N1["磁盘 网卡"]
+    N2["（无需CPU）"]
+    N3["内存 （页缓存）"]
+
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **页缓存（Page Cache）**：
@@ -150,20 +160,18 @@ ssize_t read_page_cache(struct file *file, char __user *buf, size_t count) {
 
 将文件直接映射到进程虚拟地址空间，避免显式拷贝：
 
-```
-进程虚拟地址空间
-├─ 代码段
-├─ 数据段  
-├─ 堆
-├─ mmap区域 ←── 映射文件（共享页缓存）
-│              ┌─────────┐
-└─ 栈          │ 页缓存  │ ←── 物理内存
-               │（共享）  │
-               └────┬────┘
-                    │
-               ┌────┴────┐
-               │  磁盘   │
-               └─────────┘
+```mermaid
+flowchart LR
+    N0["进程虚拟地址空间 代码段 数据段 堆 mmap区域 ←── 映射文件（共享页缓存） 栈"]
+    N1["页缓存 （共享） 磁盘"]
+    N2["物理内存"]
+
+    N0 --> N1
+    N1 --> N2
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
 ```
 
 ```cpp
@@ -917,27 +925,21 @@ private:
 
 **BBR状态机**：
 
-```
-        ┌─────────────┐
-        │   STARTUP   │ ← 快速探测带宽（类似慢启动，但2x/RTT）
-        └──────┬──────┘
-               │ 带宽增长<25%
-               ▼
-        ┌─────────────┐
-        │    DRAIN    │ ← 排空队列中多余数据
-        └──────┬──────┘
-               │
-               ▼
-        ┌─────────────┐     周期: 8×RTprop
-   ┌───→│  PROBE_BW   │ ← 大部分时间在此状态
-   │    │  (98%带宽)  │     周期内: 1.25×带宽 → 0.75×带宽
-   │    └──────┬──────┘
-   │           │ 10秒无变化
-   │           ▼
-   │    ┌─────────────┐
-   └────┤  PROBE_RTT  │ ← 降低窗口测量最小RTT
-        │  (0.5s)     │
-        └─────────────┘
+```mermaid
+flowchart LR
+    N0["▼ 周期: 8×RTprop PROBE_RTT"]
+    N1["STARTUP 带宽增长<25% DRAIN PROBE_BW ▼ 降低窗口测量最小RTT (0.5s)"]
+    N2["快速探测带宽（类似慢启动，但2x/RTT） 排空队列中多余数据 大部分时间在此状态 (98%带宽) 10秒无变化"]
+    N3["周期内: 1.25×带宽 → 0.75×带宽"]
+
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **BBR发送速率计算**：
@@ -1078,23 +1080,19 @@ QUIC 恢复连接 (0-RTT):
 
 #### 4.2.2 QUIC协议栈架构
 
-```
-┌─────────────────────────────────────────┐
-│           HTTP/3 (HTTP over QUIC)       │
-├─────────────────────────────────────────┤
-│           QUIC Transport Layer          │
-│  ┌─────────┐ ┌─────────┐ ┌───────────┐  │
-│  │ Stream  │ │ Stream  │ │ Datagram  │  │ ← 多路复用，无队头阻塞
-│  │  (可靠)  │ │  (可靠)  │ │  (不可靠)  │  │
-│  └────┬────┘ └────┬────┘ └─────┬─────┘  │
-│       └───────────┴────────────┘        │
-│              Flow Control               │ ← 连接级+流级流控
-├─────────────────────────────────────────┤
-│              TLS 1.3                    │ ← 内置加密，1-RTT握手
-│         (使用QUIC专用扩展)               │
-├─────────────────────────────────────────┤
-│              UDP                        │ ← 基于UDP，穿透性好
-└─────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["HTTP/3 (HTTP over QUIC) QUIC Transport Layer Flow Control TLS 1.3 (使用QUIC专用扩展) UDP"]
+    N1["Stream (可靠) 连接级+流级流控 内置加密，1-RTT握手 基于UDP，穿透性好"]
+    N2["Stream (可靠)"]
+    N3["Datagram (不可靠)"]
+    N4["多路复用，无队头阻塞"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
 ```
 
 **QUIC核心特性**：
@@ -1215,18 +1213,17 @@ await datagramWriter.write(rtpPacket);
 
 **VAAPI（Video Acceleration API）**是Linux下的视频硬件加速标准：
 
-```
-┌─────────────────────────────────────────────┐
-│            应用程序 (FFmpeg/GStreamer)       │
-├─────────────────────────────────────────────┤
-│            libva (VAAPI用户态库)             │
-├─────────────────────────────────────────────┤
-│  i965/iHD驱动  │  mesa-va驱动  │  其他驱动   │ ← 厂商特定
-├────────────────┴───────────────┴─────────────┤
-│         DRM/KMS (内核显示子系统)              │
-├─────────────────────────────────────────────┤
-│         GPU硬件 (Intel/AMD/...）             │
-└─────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["应用程序 (FFmpeg/GStreamer) libva (VAAPI用户态库) i965/iHD驱动 DRM/KMS (内核显示子系统) GPU硬件 (Intel/AMD/...）"]
+    N1["mesa-va驱动"]
+    N2["其他驱动"]
+    N3["厂商特定"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 ```cpp
@@ -1536,24 +1533,17 @@ private:
 
 **SVC (Scalable Video Coding)** 是H.264/AVC和H.265/HEVC的扩展，允许视频流在多个维度上进行分层：
 
-```
-空间可伸缩性（分辨率分层）:
-┌─────────────────────────┐
-│  Layer 2: 1920x1080     │ ← 基础层 + 增强层 = 全分辨率
-│  (全分辨率)              │
-├─────────────────────────┤
-│  Layer 1: 960x540       │ ← 基础层 + 空间增强层 = 1/4分辨率
-│  (1/4分辨率)             │
-├─────────────────────────┤
-│  Layer 0: 480x270       │ ← 基础层 (Base Layer)
-│  (基础层)                │     可独立解码
-└─────────────────────────┘
+```mermaid
+flowchart TB
+    N0["空间可伸缩性（分辨率分层）: 时间可伸缩性（帧率分层）: T0 → T1 → T2 → T0 → T1 → T2 → ..."]
+    N1["Layer 2: 1920x1080 (全分辨率) Layer 1: 960x540 (1/4分辨率) Layer 0: 480x270 (基础层) _______ __________ __________________"]
+    N2["基础层 + 增强层 = 全分辨率 基础层 + 空间增强层 = 1/4分辨率 基础层 (Base Layer) 可独立解码 接收T0,T1,T2 → 30fps"]
+    N3["只接收T0 → 10fps 接收T0,T1 → 20fps"]
 
-时间可伸缩性（帧率分层）:
-T0 → T1 → T2 → T0 → T1 → T2 → ...
-│_______│          │  只接收T0 → 10fps
-│__________│       │  接收T0,T1 → 20fps
-│__________________│  接收T0,T1,T2 → 30fps
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **SVC的三种可伸缩性维度**：
@@ -1601,18 +1591,11 @@ flowchart LR
 
 **分层预测结构**：
 
-```
-时间分层预测 (Hierarchical P):
+```mermaid
+flowchart TB
+    N0["时间分层预测 (Hierarchical P): 时间层3 (TID=3): P P P P P P P P (最高帧率，如30fps) ↗↘ ↗↘ ↗↘ ↗↘ ↗↘ ↗↘ ↗↘ ↗↘ 时间层2 (TID=2): B B B B B B B (20fps) ↖↗ ↖↗ ↖↗ ↖↗ ↖↗ ↖↗ 时间层1 (TID=1): B B B (10fps) ↖───────↗ 时间层0 (TID=0): I I (5fps，关键帧) _______________ GOP边界"]
 
-时间层3 (TID=3):  P   P   P   P   P   P   P   P  (最高帧率，如30fps)
-                 ↗↘ ↗↘ ↗↘ ↗↘ ↗↘ ↗↘ ↗↘ ↗↘
-时间层2 (TID=2):   B   B   B   B   B   B   B    (20fps)
-                   ↖↗  ↖↗  ↖↗  ↖↗  ↖↗  ↖↗
-时间层1 (TID=1):     B       B       B          (10fps)
-                     ↖───────↗
-时间层0 (TID=0):         I               I        (5fps，关键帧)
-                        ↑_______________↑
-                        GOP边界
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 #### 5.2.3 SVC层选择策略
@@ -1851,10 +1834,11 @@ private:
 
 ### 7.2 性能调优流程
 
-```
-1. 测量现状 → 2. 定位瓶颈 → 3. 针对性优化 → 4. 验证效果
-     ↑                                            ↓
-     └──────────── 持续迭代 ←─────────────────────┘
+```mermaid
+flowchart LR
+    N0["1. 测量现状 → 2. 定位瓶颈 → 3. 针对性优化 → 4. 验证效果 持续迭代"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 ### 7.3 课后思考

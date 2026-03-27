@@ -130,16 +130,13 @@ void LivePlayer::Run() {
 
 ## 项目结构
 
-```
-project-03/
-├── CMakeLists.txt
-├── README.md
-├── include/
-│   └── live/
-│       └── live_player.h
-└── src/
-    ├── main.cpp
-    └── live_player.cpp
+```mermaid
+flowchart TB
+    N0["project-03/ CMakeLists.txt README.md include/ src/ main.cpp live_player.cpp"]
+    N1["live/ live_player.h"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ## 使用方法

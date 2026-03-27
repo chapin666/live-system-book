@@ -37,23 +37,13 @@
 
 ## 项目结构
 
-```
-project-01/
-├── CMakeLists.txt
-├── README.md
-├── include/
-│   └── live/
-│       ├── idemuxer.h
-│       ├── idecoder.h
-│       ├── irenderer.h
-│       ├── player.h
-│       └── raii_utils.h
-└── src/
-    ├── main.cpp
-    ├── player.cpp
-    ├── ffmpeg_demuxer.cpp
-    ├── ffmpeg_decoder.cpp
-    └── sdl_renderer.cpp
+```mermaid
+flowchart TB
+    N0["project-01/ CMakeLists.txt README.md include/ src/ main.cpp player.cpp ffmpeg_demuxer.cpp ffmpeg_decoder.cpp sdl_renderer.cpp"]
+    N1["live/ idemuxer.h idecoder.h irenderer.h player.h raii_utils.h"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ## 核心设计

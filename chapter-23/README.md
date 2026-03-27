@@ -34,21 +34,32 @@
 ### 1.1 从 P2P 到多人
 
 **P2P（一对一）**：
-```
-用户 A ←────WebRTC────→ 用户 B
+```mermaid
+flowchart LR
+    N0["用户 A ←────WebRTC────→ 用户 B"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **多人会议（SFU 架构）**：
-```
-                    ┌─────────┐
-       ┌───────────→│   SFU   │←───────────┐
-       │            │  Server │            │
-       │            └────┬────┘            │
-   ┌───┴───┐        ┌────┴────┐        ┌───┴───┐
-   │用户 A │        │ 用户 B  │        │ 用户 C │
-   └───┬───┘        └────┬────┘        └───┬───┘
-       │                 │                 │
-    发布流            订阅 A/C          订阅 A/B
+```mermaid
+flowchart LR
+    N0["发布流 订阅 A/C 订阅 A/B"]
+    N1["SFU 用户 A"]
+    N2["Server"]
+    N3["用户 B"]
+    N4["用户 C"]
+
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
 ```
 
 **关键区别**：
@@ -65,44 +76,26 @@
 - **一个用户可以同时是发布者和订阅者**
 
 **工作流程**：
-```
-1. 用户 A 加入房间
-   ├── 发布本地音视频（Publisher）
-   └── 订阅房间内的其他用户（Subscriber）
+```mermaid
+flowchart TB
+    N0["1. 用户 A 加入房间 发布本地音视频（Publisher） 订阅房间内的其他用户（Subscriber） 2. 用户 B 加入房间 发布本地音视频 订阅用户 A 的流 3. 用户 A 收到通知 订阅用户 B 的流"]
 
-2. 用户 B 加入房间
-   ├── 发布本地音视频
-   └── 订阅用户 A 的流
-   
-3. 用户 A 收到通知
-   └── 订阅用户 B 的流
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 ### 1.3 客户端架构设计
 
-```
-┌─────────────────────────────────────────────────┐
-│                  UI 层                           │
-│  ┌──────────────┐  ┌──────────────────────────┐ │
-│  │ 视频网格布局  │  │      控制面板            │ │
-│  └──────────────┘  └──────────────────────────┘ │
-├─────────────────────────────────────────────────┤
-│              业务逻辑层                          │
-│  ┌───────────┐  ┌───────────┐  ┌─────────────┐ │
-│  │  RoomManager│  │   Layout  │  │ EventHandler│ │
-│  └───────────┘  └───────────┘  └─────────────┘ │
-├─────────────────────────────────────────────────┤
-│              WebRTC 层                           │
-│  ┌───────────┐  ┌───────────┐  ┌─────────────┐ │
-│  │  PeerConn │  │  TrackMgr │  │  Subscribe  │ │
-│  └───────────┘  └───────────┘  └─────────────┘ │
-├─────────────────────────────────────────────────┤
-│              网络层                              │
-│  ┌───────────┐  ┌───────────┐                   │
-│  │  Signaling│  │   SFU     │                   │
-│  │ (WebSocket)│  │  (RTP)    │                   │
-│  └───────────┘  └───────────┘                   │
-└─────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["UI 层 业务逻辑层 WebRTC 层 网络层"]
+    N1["视频网格布局 RoomManager PeerConn Signaling (WebSocket)"]
+    N2["控制面板 Layout TrackMgr SFU (RTP)"]
+    N3["EventHandler Subscribe"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **核心模块职责**：
@@ -437,11 +430,11 @@ private:
 ### 3.3 Simulcast 分层订阅
 
 SFU 支持 Simulcast（分层编码），发送端同时发送多路质量：
-```
-发送端:
-├── 高清层 (1080p) ──┐
-├── 标清层 (720p) ──┼──→ SFU 选择一路转发给订阅者
-└── 低清层 (360p) ──┘
+```mermaid
+flowchart LR
+    N0["发送端: 高清层 (1080p) 标清层 (720p) ──┼──→ SFU 选择一路转发给订阅者 低清层 (360p)"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **订阅决策**：
@@ -554,22 +547,11 @@ void BandwidthEstimator::OnReceiverReport(const ReceiverReport& rr) {
 
 ### 4.1 房间状态模型
 
-```
-Room State:
-├── room_id: string
-├── local_user: UserInfo
-├── remote_users: Map<user_id, UserInfo>
-├── connections: Map<user_id, PeerConnection>
-└── layout: LayoutState
+```mermaid
+flowchart TB
+    N0["Room State: room_id: string local_user: UserInfo remote_users: Map<user_id, UserInfo> connections: Map<user_id, PeerConnection> layout: LayoutState UserInfo: user_id: string nickname: string has_audio: bool has_video: bool is_speaking: bool is_screen_sharing: bool join_time: timestamp"]
 
-UserInfo:
-├── user_id: string
-├── nickname: string
-├── has_audio: bool
-├── has_video: bool
-├── is_speaking: bool
-├── is_screen_sharing: bool
-└── join_time: timestamp
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 ### 4.2 事件类型
@@ -854,22 +836,13 @@ private:
 
 ### 6.1 核心概念回顾
 
-```
-多人会议客户端技术栈：
+```mermaid
+flowchart TB
+    N0["多人会议客户端技术栈："]
+    N1["布局管理（网格/主讲人/PIP） 动态订阅（Simulcast 层选择） 带宽自适应（RTCP 反馈） 事件处理（用户/流/状态） 音频混音 + 音量检测 WebRTC 连接管理"]
 
-┌─────────────────────────────────────────┐
-│  布局管理（网格/主讲人/PIP）              │
-├─────────────────────────────────────────┤
-│  动态订阅（Simulcast 层选择）             │
-├─────────────────────────────────────────┤
-│  带宽自适应（RTCP 反馈）                  │
-├─────────────────────────────────────────┤
-│  事件处理（用户/流/状态）                 │
-├─────────────────────────────────────────┤
-│  音频混音 + 音量检测                      │
-├─────────────────────────────────────────┤
-│  WebRTC 连接管理                          │
-└─────────────────────────────────────────┘
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 6.2 关键学习点

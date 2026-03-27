@@ -97,19 +97,19 @@ sequenceDiagram
 
 把解码放到**独立线程**，主线程专注于渲染和响应用户操作：
 
-```
-线程 A（解码）：读取文件 → 解码 → 写入队列 ─┐
-                                             │
-线程 B（主线程）：← 从队列读取 ──→ 渲染 ──→ 显示 ──┤
-                                                  │
-                                         响应用户操作 ←┘
+```mermaid
+flowchart LR
+    N0["线程 A（解码）：读取文件 → 解码 → 写入队列 线程 B（主线程）：← 从队列读取 ──→ 渲染 ──→ 显示 响应用户操作"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **并行后的时间线**：
-```
-解码线程：├─解码─┤├─解码─┤├─解码─┤├─解码─┤├─解码─┤
-                      ↓ 队列（缓冲3帧）
-主线程：  ├─渲染─┤├─渲染─┤├─渲染─┤├─渲染─┤├─渲染─┤
+```mermaid
+flowchart TB
+    N0["解码线程：├─解码─┤├─解码─┤├─解码─┤├─解码─┤├─解码 队列（缓冲3帧） 主线程： ├─渲染─┤├─渲染─┤├─渲染─┤├─渲染─┤├─渲染"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **关键优势**：
@@ -325,16 +325,21 @@ void Consumer() {
 
 生产者-消费者模式描述了两个角色通过**队列**解耦协作：
 
-```
-┌──────────┐      ┌──────────┐      ┌──────────┐
-│ 生产者 A │──┐   │          │   ┌──│ 消费者 X │
-├──────────┤  │   │   队列   │   │  ├──────────┤
-│ 生产者 B │──┼──→│  ┌──┐   │←──┼──│ 消费者 Y │
-├──────────┤  │   │  │  │   │   │  ├──────────┤
-│ 生产者 C │──┘   │  └──┘   │   └──│ 消费者 Z │
-└──────────┘      └──────────┘      └──────────┘
-     ↑                                 ↑
-   生产数据                          消费数据
+```mermaid
+flowchart LR
+    N0["生产数据 消费数据"]
+    N1["生产者 A 生产者 B 生产者 C"]
+    N2["队列"]
+    N3["消费者 X 消费者 Y 消费者 Z"]
+
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **核心思想**：
@@ -414,13 +419,21 @@ const size_t MAX_SIZE = 10;  // 最多缓存 10 帧
 
 队列需要管理自身状态，生产者消费者根据状态行动：
 
-```
-┌─────────┐   Push   ┌─────────┐   Push (满)   ┌─────────┐
-│  Empty  │ ───────→ │ Normal  │ ────────────→ │  Full   │
-│  (空)   │ ←─────── │ (正常)  │ ←──────────── │  (满)   │
-└─────────┘   Pop    └─────────┘   Pop (空)    └─────────┘
-     ↑                                          │
-     └────────────── Clear ─────────────────────┘
+```mermaid
+flowchart LR
+    N0["Push ┌─────────┐ Push (满) Pop └─────────┘ Pop (空) Clear"]
+    N1["Empty (空)"]
+    N2["Normal (正常)"]
+    N3["Full (满)"]
+
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **状态对应的行动**：
@@ -784,15 +797,11 @@ flowchart TB
 
 **运行时序**：
 
-```
-时间线：
-解码：├─读包─╂─解码─┤├─读包─╂─解码─┤├─读包─╂─解码─┤
-              ↓              ↓              ↓
-队列：       [F1]           [F1,F2]        [F1,F2,F3]
-              ↑              ↑              ↑
-主线程：     ├─取F1─╂─渲染─┤├─取F2─╂─渲染─┤├─取F3─╂─渲染─┤
+```mermaid
+flowchart TB
+    N0["时间线： 解码：├─读包─╂─解码─┤├─读包─╂─解码─┤├─读包─╂─解码 队列： [F1] [F1,F2] [F1,F2,F3] 主线程： ├─取F1─╂─渲染─┤├─取F2─╂─渲染─┤├─取F3─╂─渲染 注：╂ 表示可能的阻塞等待"]
 
-注：╂ 表示可能的阻塞等待
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **退出时序**：
@@ -900,19 +909,13 @@ if (decoder.GetLastError().IsError()) {
 
 ### 6.1 项目结构
 
-```
-chapter-02/
-├── CMakeLists.txt
-├── include/
-│   └── live/
-│       └── frame_queue.h
-├── src/
-│   ├── frame_queue.cpp    # 第4节的队列实现
-│   ├── decoder_thread.cpp # 解码线程
-│   ├── decoder_thread.h
-│   └── main.cpp           # 主程序
-└── diagrams/
-    └── async-arch.svg
+```mermaid
+flowchart TB
+    N0["chapter-02/ CMakeLists.txt include/ src/ diagrams/ async-arch.svg"]
+    N1["live/ frame_queue.h frame_queue.cpp # 第4节的队列实现 decoder_thread.cpp # 解码线程 decoder_thread.h main.cpp # 主程序"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 6.2 解码线程实现

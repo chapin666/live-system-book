@@ -922,19 +922,13 @@ private:
 
 ### 6.1 项目结构
 
-```
-webrtc-call-client/
-├── CMakeLists.txt
-├── src/
-│   ├── main.cpp
-│   ├── peer_connection_client.{h,cpp}
-│   ├── websocket_signaling.{h,cpp}
-│   ├── audio_device.{h,cpp}
-│   ├── video_device.{h,cpp}
-│   └── signaling_coordinator.{h,cpp}
-└── include/
-    └── live/
-        └── webrtc/
+```mermaid
+flowchart TB
+    N0["webrtc-call-client/ CMakeLists.txt src/ include/ live/ webrtc/"]
+    N1["main.cpp peer_connection_client.{h,cpp} websocket_signaling.{h,cpp} audio_device.{h,cpp} video_device.{h,cpp} signaling_coordinator.{h,cpp}"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 6.2 CMakeLists.txt

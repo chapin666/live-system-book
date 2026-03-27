@@ -268,12 +268,15 @@ void dangerous_detach() {
 
 #### 线程生命周期
 
-```
-创建线程 ──→ 运行 ──→ 结束
-    │           │
-    │           ├── join() ──→ 主线程等待
-    │           │
-    └── detach() ─→ 后台运行
+```mermaid
+flowchart LR
+    N0["创建线程 ──→ 运行 ──→ 结束 detach() ─→ 后台运行"]
+    N1["join() ──→ 主线程等待"]
+
+    N0 --> N1
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 1.3 线程ID与命名
@@ -523,17 +526,11 @@ int main() {
 
 **死锁示意图**：
 
-```
-线程A          线程B
-  │              │
-  ▼              ▼
-锁定 mtx1     锁定 mtx2
-  │              │
-  ▼              ▼
-等待 mtx2 ◄─── 等待 mtx1
- (阻塞)         (阻塞)
-   └─────────────┘
-      互相等待
+```mermaid
+flowchart TB
+    N0["线程A 线程B ▼ ▼ 锁定 mtx1 锁定 mtx2 等待 mtx2 ◄─── 等待 mtx1 (阻塞) (阻塞) 互相等待"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **避免死锁的原则**：
@@ -674,22 +671,13 @@ int main() {
 
 **条件变量工作流程**：
 
-```
-生产者                    消费者
-   │                        │
-   ▼                        ▼
-锁定 mtx                 锁定 mtx
-   │                        │
-   ▼                        ▼
-放入数据              cv.wait() 检查条件
-   │                   - 条件满足：继续
-   ▼                   - 条件不满足：解锁，阻塞
-notify_one() ◄───────────┘
-   │                     (被唤醒)
-   │                        │
-   ▼                        ▼
-解锁 mtx                 重新锁定 mtx
-                          继续执行
+```mermaid
+flowchart TB
+    N0["生产者 消费者 ▼ ▼ 锁定 mtx 锁定 mtx 放入数据 cv.wait() 检查条件 ▼ - 条件不满足：解锁，阻塞 notify_one() ◄ 解锁 mtx 重新锁定 mtx 继续执行"]
+    N1["- 条件满足：继续 (被唤醒)"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 3.3 虚假唤醒
@@ -921,17 +909,13 @@ int main() {
 
 使用两个条件变量分别处理**队列非空**和**队列非满**：
 
-```
-┌─────────────────────────────────────┐
-│         ThreadSafeQueue             │
-├─────────────────────────────────────┤
-│  std::queue<T> queue_               │
-│  std::mutex mtx_                    │
-│  std::condition_variable not_empty_ │  ← 消费者等待
-│  std::condition_variable not_full_  │  ← 生产者等待
-│  bool stop_ = false                 │
-│  size_t max_size_                   │
-└─────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["ThreadSafeQueue std::queue<T> queue_ std::mutex mtx_ std::condition_variable not_empty_ std::condition_variable not_full_ bool stop_ = false size_t max_size_"]
+    N1["消费者等待 生产者等待"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 5.3 优雅停止

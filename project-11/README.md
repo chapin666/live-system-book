@@ -12,40 +12,15 @@ Docker Compose和Kubernetes生产部署配置。
 
 ## 项目结构
 
-```
-project-11/
-├── README.md
-├── docker-compose/              # Docker Compose配置
-│   ├── docker-compose.yml
-│   ├── docker-compose.prod.yml
-│   ├── docker-compose.monitoring.yml
-│   └── .env.example
-├── kubernetes/                  # K8s配置
-│   ├── base/                    # 基础配置
-│   │   ├── namespace.yaml
-│   │   ├── configmap.yaml
-│   │   ├── secret.yaml
-│   │   ├── sfu-statefulset.yaml
-│   │   ├── sfu-service.yaml
-│   │   ├── signaling-deployment.yaml
-│   │   ├── signaling-service.yaml
-│   │   ├── mcu-deployment.yaml
-│   │   └── ingress.yaml
-│   ├── overlays/
-│   │   ├── development/
-│   │   └── production/
-│   └── kustomization.yaml
-├── monitoring/                  # 监控配置
-│   ├── prometheus/
-│   ├── grafana/
-│   └── loki/
-├── scripts/                     # 部署脚本
-│   ├── deploy.sh
-│   ├── rollback.sh
-│   └── health-check.sh
-└── ci-cd/                       # CI/CD配置
-    ├── github-actions.yml
-    └── gitlab-ci.yml
+```mermaid
+flowchart TB
+    N0["project-11/ README.md docker-compose/ # Docker Compose配置 kubernetes/ # K8s配置 monitoring/ # 监控配置 scripts/ # 部署脚本 ci-cd/ # CI/CD配置 github-actions.yml gitlab-ci.yml"]
+    N1["docker-compose.yml docker-compose.prod.yml docker-compose.monitoring.yml .env.example base/ # 基础配置 overlays/ kustomization.yaml prometheus/ grafana/ loki/ deploy.sh rollback.sh health-check.sh"]
+    N2["namespace.yaml configmap.yaml secret.yaml sfu-statefulset.yaml sfu-service.yaml signaling-deployment.yaml signaling-service.yaml mcu-deployment.yaml ingress.yaml development/ production/"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
 ```
 
 ## Docker Compose部署

@@ -31,30 +31,21 @@
 
 ## 架构设计
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         完整主播端                               │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │                      UI 层                               │   │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │   │
-│  │  │ 预览窗口  │ │ 控制面板  │ │ 统计面板  │ │ 设置面板  │   │   │
-│  │  │ (OpenGL) │ │ (ImGui)  │ │ (图表)    │ │ (配置)    │   │   │
-│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘   │   │
-│  └─────────────────────────────────────────────────────────┘   │
-│                              │                                   │
-│  ┌───────────────────────────┴───────────────────────────────┐ │
-│  │                    StreamerPipeline                        │ │
-│  │  (采集 → 美颜 → 编码 → 推流，详见 Chapter 16)              │ │
-│  └────────────────────────────────────────────────────────────┘ │
-│                              │                                   │
-│  ┌───────────────────────────┴───────────────────────────────┐ │
-│  │                    设备/网络层                             │ │
-│  │         摄像头 / 麦克风 / GPU / RTMP 连接                   │ │
-│  └────────────────────────────────────────────────────────────┘ │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["完整主播端"]
+    N1["UI 层 StreamerPipeline (采集 → 美颜 → 编码 → 推流，详见 Chapter 16) 设备/网络层 摄像头 / 麦克风 / GPU / RTMP 连接"]
+    N2["预览窗口 (OpenGL)"]
+    N3["控制面板 (ImGui)"]
+    N4["统计面板 (图表)"]
+    N5["设置面板 (配置)"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
+    style N5 fill:#ede7f6,stroke:#5e35b1
 ```
 
 ## 技术要点
@@ -222,19 +213,13 @@ void RenderVolumeMeter(float db) {
 
 ## 项目结构
 
-```
-project-05/
-├── CMakeLists.txt
-├── README.md
-├── include/live/
-│   ├── streamer_app.h
-│   ├── ui_controller.h
-│   └── stats_panel.h
-└── src/
-    ├── main.cpp
-    ├── streamer_app.cpp
-    ├── ui_controller.cpp
-    └── stats_panel.cpp
+```mermaid
+flowchart TB
+    N0["project-05/ CMakeLists.txt README.md include/live/ src/ main.cpp streamer_app.cpp ui_controller.cpp stats_panel.cpp"]
+    N1["streamer_app.h ui_controller.h stats_panel.h"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ## 使用示例

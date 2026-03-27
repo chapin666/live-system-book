@@ -12,63 +12,38 @@
 
 ## 架构图
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                      Unified Server                         │
-│                                                             │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │                   Gateway (入口)                     │   │
-│  │         HTTP/WebSocket / WebTransport               │   │
-│  └──────────────────────────┬──────────────────────────┘   │
-│                             │                              │
-│         ┌───────────────────┼───────────────────┐          │
-│         ▼                   ▼                   ▼          │
-│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐   │
-│  │   Signaling  │   │     SFU      │   │     MCU      │   │
-│  │   Service    │   │   Module     │   │   Module     │   │
-│  │              │   │              │   │              │   │
-│  │ - Room Mgmt  │   │ - RTP Router │   │ - Mixer      │   │
-│  │ - User Auth  │   │ - Forwarding │   │ - Recorder   │   │
-│  │ - Presence   │   │ - Bandwidth  │   │ - HLS        │   │
-│  └──────────────┘   └──────────────┘   └──────────────┘   │
-│                                                             │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │              Shared Components                       │   │
-│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐   │   │
-│  │  │  Redis  │ │Postgres │ │  Kafka  │ │   S3    │   │   │
-│  │  │ (Cache) │ │ (DB)    │ │ (MQ)    │ │(Storage)│   │   │
-│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘   │   │
-│  └─────────────────────────────────────────────────────┘   │
-└────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["Unified Server ▼ ▼ ▼"]
+    N1["Gateway (入口) HTTP/WebSocket / WebTransport Signaling Service - Room Mgmt - User Auth - Presence Shared Components"]
+    N2["Redis (Cache)"]
+    N3["SFU Module - RTP Router - Forwarding - Bandwidth"]
+    N4["Postgres (DB)"]
+    N5["MCU Module - Mixer - Recorder - HLS"]
+    N6["Kafka (MQ)"]
+    N7["S3 (Storage)"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
+    style N5 fill:#ede7f6,stroke:#5e35b1
+    style N6 fill:#e0f7fa,stroke:#00838f
+    style N7 fill:#fff8e1,stroke:#f9a825
 ```
 
 ## 项目结构
 
-```
-project-10/
-├── CMakeLists.txt
-├── README.md
-├── src/
-│   ├── main.cpp
-│   ├── unified_server.h/.cpp     # 统一服务入口
-│   ├── signaling/
-│   │   ├── signaling_service.h/.cpp
-│   │   ├── room_manager.h/.cpp
-│   │   └── websocket_handler.h/.cpp
-│   ├── sfu/
-│   │   ├── sfu_module.h/.cpp
-│   │   ├── rtp_router.h/.cpp
-│   │   └── bandwidth_controller.h/.cpp
-│   ├── mcu/
-│   │   ├── mcu_module.h/.cpp
-│   │   ├── mixer.h/.cpp
-│   │   └── hls_output.h/.cpp
-│   └── common/
-│       ├── config.h/.cpp
-│       ├── logger.h/.cpp
-│       └── metrics.h/.cpp
-└── config/
-    └── server_config.yaml
+```mermaid
+flowchart TB
+    N0["project-10/ CMakeLists.txt README.md src/ config/ server_config.yaml"]
+    N1["main.cpp unified_server.h/.cpp # 统一服务入口 signaling/ sfu/ mcu/ common/ config.h/.cpp logger.h/.cpp metrics.h/.cpp"]
+    N2["signaling_service.h/.cpp room_manager.h/.cpp websocket_handler.h/.cpp sfu_module.h/.cpp rtp_router.h/.cpp bandwidth_controller.h/.cpp mcu_module.h/.cpp mixer.h/.cpp hls_output.h/.cpp"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
 ```
 
 ## API接口

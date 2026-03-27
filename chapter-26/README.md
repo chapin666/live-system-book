@@ -224,21 +224,19 @@ private:
 **WHIP（WebRTC-HTTP Ingestion Protocol）**是一个基于HTTP的协议，用于简化WebRTC推流（Ingestion）过程。
 
 **传统WebRTC推流的痛点**：
-```
-传统流程 (复杂):
-浏览器 ←──SDP offer/answer──→ 信令服务器 ←──复杂信令──→ SFU
-     ←──ICE candidate交换──→
-     ←──DTLS握手───────────→
-     ←──媒体传输────────────→
+```mermaid
+flowchart LR
+    N0["传统流程 (复杂): 浏览器 ←──SDP offer/answer──→ 信令服务器 ←──复杂信令──→ SFU ICE candidate交换 DTLS握手 媒体传输"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **WHIP简化后的流程**：
-```
-WHIP流程 (简单):
-浏览器 ──HTTP POST (SDP offer)──→ WHIP服务器
-       ←──SDP answer────────────┘
-     
-直接开始媒体传输 (ICE/DTLS自动处理)
+```mermaid
+flowchart LR
+    N0["WHIP流程 (简单): 浏览器 ──HTTP POST (SDP offer)──→ WHIP服务器 SDP answer 直接开始媒体传输 (ICE/DTLS自动处理)"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 ### 2.2 WHIP 协议流程
@@ -650,19 +648,24 @@ SRT ARQ 重传：
 
 #### 延迟控制
 
-```
-SRT 延迟模型：
+```mermaid
+flowchart LR
+    N0["SRT 延迟模型： 发送端缓冲 网络传输 接收端缓冲 延迟 = 发送缓冲 + 网络抖动 + 解码延迟 ≈ 120ms + 30ms + 50ms = 200ms"]
+    N1["T+120ms T+100ms T+80ms ..."]
+    N2["jitter ..."]
+    N3["T+0ms T-20ms T-40ms"]
+    N4["播放 缓冲"]
 
-发送端缓冲          网络传输          接收端缓冲
-┌─────────┐        ┌───────┐        ┌─────────┐
-│ T+120ms │───────→│       │───────→│ T+0ms   │ 播放
-│ T+100ms │        │  jitter      ││ T-20ms  │ 缓冲
-│ T+80ms  │        │       │        │ T-40ms  │ 缓冲
-│ ...     │        └───────┘        │ ...     │
-└─────────┘                          └─────────┘
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
 
-延迟 = 发送缓冲 + 网络抖动 + 解码延迟
-     ≈ 120ms + 30ms + 50ms = 200ms
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
 ```
 
 ### 4.4 SRT 编程实战
@@ -1119,24 +1122,27 @@ private:
 
 在实际生产环境中，常常需要同时支持多种协议：
 
-```
-                    ┌─────────────────────────────────────┐
-                    │         多协议网关                  │
-                    │  ┌─────────┐  ┌─────────┐          │
-  浏览器 ──WHIP──→  │  │ WHIP    │  │ 转码    │          │
-                    │  │ Handler │──│ 模块    │          │
-  OBS ────RTMP───→  │  ├─────────┤  │  ┌─────┴─────┐     │
-                    │  │ RTMP    │  │  │  核心转发  │     │
-  编码器 ──SRT────→  │  │ Handler │  └──│   引擎    │     │
-                    │  ├─────────┤     └─────┬─────┘     │
-  工具 ────RTP────→  │  │ RTP     │           │           │
-                    │  │ Handler │  ┌────────┼────────┐  │
-                    │  └─────────┘  │        │        │  │
-                    │               ▼        ▼        ▼  │
-                    │            ┌─────┐  ┌─────┐  ┌────┐ │
-                    │            │HLS  │  │WebRTC│  │SRT │ │
-                    │            └─────┘  └─────┘  └────┘ │
-                    └─────────────────────────────────────┘
+```mermaid
+flowchart LR
+    N0["浏览器 ──WHIP OBS ────RTMP 编码器 ──SRT 工具 ────RTP"]
+    N1["多协议网关 ▼ ▼ ▼"]
+    N2["WHIP Handler RTMP RTP HLS"]
+    N3["转码 模块 引擎 WebRTC"]
+    N4["核心转发"]
+    N5["SRT"]
+
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
+    N4 --> N5
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
+    style N5 fill:#ede7f6,stroke:#5e35b1
 ```
 
 ### 6.2 协议转换核心代码
@@ -1473,25 +1479,15 @@ int main() {
 
 ### 6.6 协议选型决策树
 
-```
-协议选择决策：
+```mermaid
+flowchart LR
+    N0["协议选择决策： 开始 浏览器推流？ ──Yes──→ WHIP 广播级质量？ ──Yes──→ SRT 延迟要求 < 500ms？ ──Yes──→ WebRTC/WHIP CDN 分发？ ──Yes──→ RTMP/HLS 自定义应用？ ──Yes──→ WebTransport (灵活控制、现代协议)"]
+    N1["(原生WebRTC，无插件) (低延迟、抗丢包、AES加密) (实时连麦、互动直播) (生态成熟、成本低廉)"]
 
-开始
-  │
-  ├─ 浏览器推流？ ──Yes──→ WHIP
-  │                         (原生WebRTC，无插件)
-  │
-  ├─ 广播级质量？ ──Yes──→ SRT
-  │                         (低延迟、抗丢包、AES加密)
-  │
-  ├─ 延迟要求 < 500ms？ ──Yes──→ WebRTC/WHIP
-  │                               (实时连麦、互动直播)
-  │
-  ├─ CDN 分发？ ──Yes──→ RTMP/HLS
-  │                       (生态成熟、成本低廉)
-  │
-  └─ 自定义应用？ ──Yes──→ WebTransport
-                          (灵活控制、现代协议)
+    N0 --> N1
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ---

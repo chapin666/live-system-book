@@ -12,60 +12,32 @@
 
 ## 架构图
 
-```
-┌──────────────────────────────────────────────────────┐
-│                    MCU Recorder                       │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐              │
-│  │ Stream A│  │ Stream B│  │ Stream C│  ...          │
-│  └────┬────┘  └────┬────┘  └────┬────┘              │
-│       │            │            │                    │
-│       └────────────┼────────────┘                    │
-│                    ▼                                 │
-│            ┌───────────────┐                         │
-│            │ Audio Mixer   │                         │
-│            └───────┬───────┘                         │
-│                    │                                 │
-│       ┌────────────┼────────────┐                    │
-│       ▼            ▼            ▼                    │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐              │
-│  │ Video   │  │ Audio   │  │ Mux     │              │
-│  │ Decoder │  │ Mixer   │  │ (FFmpeg)│              │
-│  └────┬────┘  └────┬────┘  └────┬────┘              │
-│       │            │            │                    │
-│       └────────────┼────────────┘                    │
-│                    ▼                                 │
-│           ┌─────────────────┐                        │
-│           │ HLS Segmenter   │                        │
-│           │ - index.m3u8    │                        │
-│           │ - 00001.ts      │                        │
-│           │ - 00002.ts      │                        │
-│           └─────────────────┘                        │
-└──────────────────────────────────────────────────────┘
-                            │
-                            ▼
-                   ┌────────────────┐
-                   │  HTTP Server   │
-                   │ /live/room.m3u8│
-                   └────────────────┘
+```mermaid
+flowchart TB
+    N0["▼"]
+    N1["MCU Recorder ▼ ▼ ▼ ▼ HTTP Server /live/room.m3u8"]
+    N2["Stream A Audio Mixer Video Decoder HLS Segmenter - index.m3u8 - 00001.ts - 00002.ts"]
+    N3["Stream B Audio Mixer"]
+    N4["Stream C Mux (FFmpeg)"]
+    N5["..."]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
+    style N5 fill:#ede7f6,stroke:#5e35b1
 ```
 
 ## 项目结构
 
-```
-project-09/
-├── CMakeLists.txt
-├── README.md
-├── src/
-│   ├── main.cpp
-│   ├── recorder.h/.cpp        # 录制核心
-│   ├── mcu_mixer.h/.cpp       # MCU混音混画
-│   ├── hls_segmenter.h/.cpp   # HLS切片
-│   ├── playlist_manager.h/.cpp # 播放列表管理
-│   └── timeshift_buffer.h/.cpp # 时移缓存
-├── web/
-│   └── player.html            # HLS播放器
-└── config/
-    └── recorder_config.yaml
+```mermaid
+flowchart TB
+    N0["project-09/ CMakeLists.txt README.md src/ web/ config/ recorder_config.yaml"]
+    N1["main.cpp recorder.h/.cpp # 录制核心 mcu_mixer.h/.cpp # MCU混音混画 hls_segmenter.h/.cpp # HLS切片 playlist_manager.h/.cpp # 播放列表管理 timeshift_buffer.h/.cpp # 时移缓存 player.html # HLS播放器"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ## 核心功能

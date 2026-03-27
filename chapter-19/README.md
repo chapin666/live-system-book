@@ -148,12 +148,11 @@ NAT 的行为决定了 P2P 穿透的难度：
 
 **特点**：一旦内网地址被映射到公网地址，**任何外部主机**都可以通过该公网地址访问内网设备。
 
-```
-内网 A:192.168.1.10:5000
-    ↓ 访问任何外部服务器
-NAT 建立映射: 1.2.3.4:6000
-    ↓
-任意主机 ──→ 1.2.3.4:6000 都可以到达 A
+```mermaid
+flowchart LR
+    N0["内网 A:192.168.1.10:5000 访问任何外部服务器 NAT 建立映射: 1.2.3.4:6000 任意主机 ──→ 1.2.3.4:6000 都可以到达 A"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **穿透难度**：极易 ✓✓✓
@@ -364,11 +363,11 @@ private:
 2. **中继地址分配**：服务器分配一个公网 IP:端口作为客户端的"替身"
 3. **数据转发**：所有数据通过 TURN 服务器中转
 
-```
-客户端A ──→ TURN服务器(中继地址) ──→ 客户端B
-   ↑            ↓                      ↑
-Symmetric    公网可达               公网/普通NAT
-   NAT       (A的替身)              
+```mermaid
+flowchart LR
+    N0["客户端A ──→ TURN服务器(中继地址) ──→ 客户端B Symmetric 公网可达 公网/普通NAT NAT (A的替身)"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 ### 4.3 TURN 消息类型
@@ -384,24 +383,15 @@ Symmetric    公网可达               公网/普通NAT
 
 ### 4.4 Allocate 流程详解
 
-```
-客户端                                    TURN服务器
-   │                                          │
-   │── Allocate Request ─────────────────────→│
-   │   (包含: REQUESTED-TRANSPORT=UDP)        │
-   │                                          │
-   │←─ Allocate Success Response ────────────│
-   │   (包含: RELAYED-ADDRESS=203.0.113.10:50000)
-   │   (包含: XOR-MAPPED-ADDRESS=1.2.3.4:6000)
-   │                                          │
-   │   现在 A 可以使用 203.0.113.10:50000     │
-   │   作为中继地址与其他客户端通信            │
-   │                                          │
-   │── CreatePermission (B的公网地址) ───────→│
-   │   (告诉服务器允许转发来自B的数据)         │
-   │                                          │
-   │←─ Permission Success ───────────────────│
-   │                                          │
+```mermaid
+flowchart LR
+    N0["客户端 TURN服务器"]
+    N1["Allocate Request (包含: REQUESTED-TRANSPORT=UDP) Allocate Success Response (包含: RELAYED-ADDRESS=203.0.113.10:50000) (包含: XOR-MAPPED-ADDRESS=1.2.3.4:6000) 现在 A 可以使用 203.0.113.10:50000 作为中继地址与其他客户端通信 CreatePermission (B的公网地址) (告诉服务器允许转发来自B的数据) Permission Success"]
+
+    N0 --> N1
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 4.5 Refresh 与保活
@@ -525,21 +515,15 @@ D: 响应方的候选优先级
 
 **STUN 用于连通性检测**（不仅是发现公网地址）：
 
-```
-发起方 A                     响应方 B
-   │                            │
-   │── STUN Binding Request ───→│
-   │   (包含 PRIORITY, USE-CANDIDATE)  │
-   │                            │
-   │←─ STUN Binding Response ───│
-   │   (成功响应)               │
-   │                            │
-   │←─ STUN Binding Request ────│
-   │   (B 也检测 A→B)           │
-   │                            │
-   │── STUN Binding Response ──→│
-   │   (双向都成功!)            │
-   │                            │
+```mermaid
+flowchart LR
+    N0["发起方 A 响应方 B"]
+    N1["STUN Binding Request (包含 PRIORITY, USE-CANDIDATE) STUN Binding Response (成功响应) (B 也检测 A→B) (双向都成功!)"]
+
+    N0 --> N1
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 **检测成功条件**：
@@ -742,21 +726,15 @@ flowchart LR
 
 在 ICE 选定路径后，通过 DTLS 协商加密密钥：
 
-```
-A (Client)                              B (Server)
-   │                                        │
-   │── ClientHello ────────────────────────→│
-   │   (支持的加密套件、随机数)              │
-   │                                        │
-   │←─ ServerHello + Certificate + ... ────│
-   │   (选择的套件、证书、密钥交换)          │
-   │                                        │
-   │── ClientKeyExchange + ChangeCipher ──→│
-   │   (密钥交换、切换到加密模式)            │
-   │                                        │
-   │←─ ChangeCipherSpec + Finished ─────────│
-   │                                        │
-   │───── DTLS 加密隧道建立完成 ─────────────│
+```mermaid
+flowchart LR
+    N0["A (Client) B (Server)"]
+    N1["ClientHello (支持的加密套件、随机数) ServerHello + Certificate + ... (选择的套件、证书、密钥交换) ClientKeyExchange + ChangeCipher (密钥交换、切换到加密模式) ChangeCipherSpec + Finished DTLS 加密隧道建立完成"]
+
+    N0 --> N1
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 6.5 安全媒体传输（Phase 4）
@@ -779,47 +757,13 @@ A (Client)                              B (Server)
 
 ### 7.2 NAT 穿透策略
 
-```
-                    ┌──────────────────────────────────────┐
-                    │           开始 P2P 连接               │
-                    └─────────────────┬────────────────────┘
-                                      ↓
-                    ┌──────────────────────────────────────┐
-                    │  1. 收集候选地址 (Host/Srflx/Relay)    │
-                    │     - 本地接口                         │
-                    │     - STUN 发现                        │
-                    │     - TURN 分配                        │
-                    └─────────────────┬────────────────────┘
-                                      ↓
-                    ┌──────────────────────────────────────┐
-                    │  2. 信令交换 SDP (Offer/Answer)        │
-                    │     - 媒体能力协商                     │
-                    │     - 候选地址交换                     │
-                    └─────────────────┬────────────────────┘
-                                      ↓
-                    ┌──────────────────────────────────────┐
-                    │  3. ICE 连通性检测                     │
-                    │     - 候选对优先级排序                 │
-                    │     - STUN Binding 检测                │
-                    │     - 选择最佳路径                     │
-                    └─────────────────┬────────────────────┘
-                                      ↓
-              ┌───────────────────────┴───────────────────────┐
-              ↓                                               ↓
-    ┌──────────────────┐                          ┌──────────────────┐
-    │  P2P 直连成功     │                          │  需要 TURN 中继   │
-    │  (Host/Srflx)    │                          │   (Symmetric)    │
-    └────────┬─────────┘                          └────────┬─────────┘
-             ↓                                             ↓
-    ┌──────────────────┐                          ┌──────────────────┐
-    │  4. DTLS 握手     │                          │  4. DTLS 握手     │
-    │  (UDP上的TLS)    │                          │  (通过TURN中继)   │
-    └────────┬─────────┘                          └────────┬─────────┘
-             ↓                                             ↓
-    ┌──────────────────┐                          ┌──────────────────┐
-    │  5. SRTP/SCTP    │                          │  5. SRTP/SCTP    │
-    │  加密传输         │                          │  加密传输         │
-    └──────────────────┘                          └──────────────────┘
+```mermaid
+flowchart TB
+    N0["开始 P2P 连接 1. 收集候选地址 (Host/Srflx/Relay) - 本地接口 - STUN 发现 - TURN 分配 2. 信令交换 SDP (Offer/Answer) - 媒体能力协商 - 候选地址交换 3. ICE 连通性检测 - 候选对优先级排序 - STUN Binding 检测 - 选择最佳路径 P2P 直连成功 (Host/Srflx) 4. DTLS 握手 (UDP上的TLS) 5. SRTP/SCTP 加密传输"]
+    N1["需要 TURN 中继 (Symmetric) 4. DTLS 握手 (通过TURN中继) 5. SRTP/SCTP 加密传输"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 7.3 关键技术决策

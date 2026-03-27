@@ -74,13 +74,17 @@ flowchart LR
 
 Pod从创建到终止经历以下阶段：
 
-```
-创建 → Pending → Running → Succeeded/Failed → Terminating → 删除
-         │           │           │                │
-         │           │           │                └─ 优雅关闭期
-         │           │           └─ 正常完成或失败
-         │           └─ 至少一个容器运行中
-         └─ 调度中/镜像拉取中/卷挂载中
+```mermaid
+flowchart TB
+    N0["创建 → Pending → Running → Succeeded/Failed → Terminating → 删除 调度中/镜像拉取中/卷挂载中"]
+    N1["至少一个容器运行中"]
+    N2["正常完成或失败"]
+    N3["优雅关闭期"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **详细生命周期**：
@@ -99,21 +103,18 @@ Pod从创建到终止经历以下阶段：
 
 **容器状态转换**：
 
-```
-         Waiting
-            │
-            ▼
-      ┌───────────┐    退出码0    ┌─────────┐
-      │  Running  │ ────────────→ │Terminated│
-      └───────────┘    退出码≠0   └─────────┘
-            │                          │
-            │                          │
-            └────────── 重启 ──────────┘
-            
-根据restartPolicy决定:
-- Always: 总是重启（默认）
-- OnFailure: 非0退出码时重启
-- Never: 不重启
+```mermaid
+flowchart LR
+    N0["Waiting ▼ 退出码0 退出码≠0 重启 根据restartPolicy决定: - Always: 总是重启（默认） - OnFailure: 非0退出码时重启 - Never: 不重启"]
+    N1["Running"]
+    N2["Terminated"]
+
+    N0 --> N1
+    N1 --> N2
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
 ```
 
 **SFU的Pod配置示例**：
@@ -170,27 +171,11 @@ spec:
 
 **Pod删除时的优雅关闭**：
 
-```
-1. API Server接收删除请求，设置DeletionTimestamp
-          │
-          ▼
-2. Pod状态变为Terminating
-          │
-          ▼
-3. kubelet调用preStop钩子（如有）
-   同步执行，必须在terminationGracePeriodSeconds内完成
-          │
-          ▼
-4. kubelet发送SIGTERM给容器主进程
-   容器应在terminationGracePeriodSeconds内完成清理
-          │
-          ▼
-5. 超时后发送SIGKILL强制终止
-          │
-          ▼
-6. Pod资源释放
+```mermaid
+flowchart TB
+    N0["1. API Server接收删除请求，设置DeletionTimestamp ▼ 2. Pod状态变为Terminating 3. kubelet调用preStop钩子（如有） 同步执行，必须在terminationGracePeriodSeconds内完成 4. kubelet发送SIGTERM给容器主进程 容器应在terminationGracePeriodSeconds内完成清理 5. 超时后发送SIGKILL强制终止 6. Pod资源释放 默认terminationGracePeriodSeconds = 30秒"]
 
-默认terminationGracePeriodSeconds = 30秒
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 ```yaml
@@ -225,25 +210,21 @@ spec:
 
 **Kubernetes的核心设计模式**：
 
-```
-         用户
-          │ kubectl apply -f deployment.yaml
-          ▼
-    ┌─────────────┐
-    │   Etcd      │ ← 期望状态存储
-    │ (Desired)   │
-    └──────┬──────┘
-           │ watch
-           ▼
-    ┌─────────────┐     差异检测     ┌─────────────┐
-    │ Controller  │ ←──────────────→ │  当前状态    │
-    │  (控制循环)  │    调谐(Reconcile) │ (Actual)    │
-    └──────┬──────┘                  └─────────────┘
-           │ 创建/更新/删除资源
-           ▼
-    ┌─────────────┐
-    │    Pod      │
-    └─────────────┘
+```mermaid
+flowchart LR
+    N0["用户 ▼ 差异检测"]
+    N1["kubectl apply -f deployment.yaml Etcd (Desired) watch Controller (控制循环) 创建/更新/删除资源 Pod"]
+    N2["期望状态存储 调谐(Reconcile)"]
+    N3["当前状态 (Actual)"]
+
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **控制器工作原理**：
@@ -414,22 +395,15 @@ Pod删除重建后，PVC重新绑定到相同的PV
 
 **Kubernetes DNS架构**：
 
-```
-Pod A (signaling-xxx)                Pod B (sfu-0)
-    │                                      │
-    │ 查询: sfu-0.sfu-headless           │
-    │ ─────────────────────────────────────→
-    │                                      │
-    │ ← 返回: 10.244.1.5                   │
-    │                                      │
-    │ 直接通信                              │
-    └──────────────────────────────────────→
+```mermaid
+flowchart LR
+    N0["Pod A (signaling-xxx) Pod B (sfu-0) DNS解析流程: 1. Pod内查询 /etc/resolv.conf 2. nameserver指向Cluster DNS (kube-dns/CoreDNS) 3. DNS服务器查询Endpoint对象 4. 返回对应Pod IP"]
+    N1["查询: sfu-0.sfu-headless 返回: 10.244.1.5 直接通信"]
 
-DNS解析流程:
-1. Pod内查询 /etc/resolv.conf
-2. nameserver指向Cluster DNS (kube-dns/CoreDNS)
-3. DNS服务器查询Endpoint对象
-4. 返回对应Pod IP
+    N0 --> N1
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 **DNS记录格式**：
@@ -475,15 +449,11 @@ subsets:
 
 **Service与Pod的关联**：
 
-```
-Service: signaling
-    │
-    ├── selector: app=signaling
-    │
-    ▼
-Pod: signaling-xxx-abc (labels: app=signaling) → 加入Endpoints
-Pod: signaling-xxx-def (labels: app=signaling) → 加入Endpoints
-Pod: other-yyy-ghi     (labels: app=other)     → 不加入
+```mermaid
+flowchart TB
+    N0["Service: signaling selector: app=signaling ▼ Pod: signaling-xxx-abc (labels: app=signaling) → 加入Endpoints Pod: signaling-xxx-def (labels: app=signaling) → 加入Endpoints Pod: other-yyy-ghi (labels: app=other) → 不加入"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 ### 4.3 Headless Service
@@ -542,26 +512,21 @@ env:
 **PersistentVolume（PV）**：集群级别的存储资源
 **PersistentVolumeClaim（PVC）**：Pod对存储的请求
 
-```
-静态供给（管理员预先创建PV）：
+```mermaid
+flowchart LR
+    N0["静态供给（管理员预先创建PV）： 管理员创建: 用户创建: ▼ 动态供给（StorageClass自动创建PV）： 用户创建PVC → StorageClass检测到 → 自动 provisioner 创建PV → 绑定"]
+    N1["PV: pv-001 容量: 10Gi 类型: SSD 路径: /data/1 Pod使用PVC 读写/data"]
+    N2["绑定 容量: 10Gi 匹配: ReadWriteOnce"]
+    N3["PVC: sfu-data"]
 
-管理员创建:                    用户创建:
-┌───────────────┐              ┌───────────────┐
-│ PV: pv-001    │  ←──绑定──→ │ PVC: sfu-data │
-│ 容量: 10Gi    │              容量: 10Gi      │
-│ 类型: SSD     │              匹配: ReadWriteOnce
-│ 路径: /data/1 │              
-└───────────────┘              └───────┬───────┘
-                                       │
-                                       ▼
-                               ┌───────────────┐
-                               │ Pod使用PVC    │
-                               │ 读写/data     │
-                               └───────────────┘
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
 
-动态供给（StorageClass自动创建PV）：
-
-用户创建PVC → StorageClass检测到 → 自动 provisioner 创建PV → 绑定
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **StorageClass配置**：
@@ -629,13 +594,11 @@ spec:
 
 **Pod调度流程**：
 
-```
-Pod创建 → 调度队列 → 预选(Filters) → 优选(Scores) → 绑定 → 节点运行
-            │            │               │          │
-            │            │               │          │
-            ▼            ▼               ▼          ▼
-         优先级排序   排除不满足    计算得分    更新Pod的
-                     条件的节点    排序选择    nodeName
+```mermaid
+flowchart TB
+    N0["Pod创建 → 调度队列 → 预选(Filters) → 优选(Scores) → 绑定 → 节点运行 ▼ ▼ ▼ ▼ 优先级排序 排除不满足 计算得分 更新Pod的 条件的节点 排序选择 nodeName"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 ### 6.2 预选策略（Predicates）

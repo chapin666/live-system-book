@@ -76,13 +76,27 @@ flowchart LR
 
 视频播放本质上是一个**数据流处理**过程：
 
-```
-┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
-│ 输入    │───→│ 解封装  │───→│ 解码    │───→│ 渲染    │───→ 显示
-│ (URL)   │    │ (Demux) │    │ (Decode)│    │ (Render)│
-└─────────┘    └─────────┘    └─────────┘    └─────────┘
-     ↑                                            ↑
-   文件/网络                                    屏幕
+```mermaid
+flowchart LR
+    N0["文件/网络 屏幕"]
+    N1["输入 (URL)"]
+    N2["解封装 (Demux)"]
+    N3["解码 (Decode)"]
+    N4["渲染 (Render)"]
+    N5["显示"]
+
+    N0 --> N1
+    N1 --> N2
+    N2 --> N3
+    N3 --> N4
+    N4 --> N5
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
+    style N5 fill:#ede7f6,stroke:#5e35b1
 ```
 
 每个阶段：

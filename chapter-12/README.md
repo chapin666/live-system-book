@@ -166,19 +166,15 @@ flowchart TD
     style E fill:#f3e5f5
     style F fill:#e1f5fe
     style G fill:#c8e6c9
-```
-│          ↓                                                  │
-│   ┌─────────────┐                                           │
-│   │    量化     │  → 降低高频系数精度（视觉不敏感）          │
-│   └──────┬──────┘                                           │
-│          ↓                                                  │
-│   ┌─────────────┐                                           │
-│   │   熵编码    │  → CABAC 或 CAVLC 进一步压缩               │
-│   └──────┬──────┘                                           │
-│          ↓                                                  │
-│   H.264 码流 (NALU)                                          │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    N0["H.264 码流 (NALU)"]
+    N1["量化 熵编码"]
+    N2["降低高频系数精度（视觉不敏感） CABAC 或 CAVLC 进一步压缩"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
 ```
 
 ### 2.2 帧类型详解
@@ -186,30 +182,45 @@ flowchart TD
 H.264 有三种基本帧类型：
 
 **I 帧（关键帧）**：
-```
-帧内编码，不依赖其他帧
-类似 JPEG 压缩，独立解码
-┌────┬────┬────┐
-│ I  │    │    │  ← 可独立解码
-└────┴────┴────┘
+```mermaid
+flowchart TB
+    N0["帧内编码，不依赖其他帧 类似 JPEG 压缩，独立解码"]
+    N1["I"]
+    N2["可独立解码"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
 ```
 
 **P 帧（前向预测帧）**：
-```
-参考前面的 I 或 P 帧
-只传输运动向量和残差
-┌────┬────┬────┐
-│ I  │→P  │→P  │  ← 依赖前一帧
-└────┴────┴────┘
+```mermaid
+flowchart TB
+    N0["参考前面的 I 或 P 帧 只传输运动向量和残差"]
+    N1["I"]
+    N2["P"]
+    N3["依赖前一帧"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
 ```
 
 **B 帧（双向预测帧）**：
-```
-参考前后帧，压缩率最高
-需要更多缓存，延迟较大
-┌────┬────┬────┬────┐
-│ I  │←B  │→P  │←B  │  ← 参考前后
-└────┴────┴────┴────┘
+```mermaid
+flowchart TB
+    N0["参考前后帧，压缩率最高 需要更多缓存，延迟较大"]
+    N1["I"]
+    N2["B"]
+    N3["P"]
+    N4["参考前后"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
 ```
 
 **帧类型对比**：
@@ -226,20 +237,19 @@ H.264 有三种基本帧类型：
 
 利用图像内部的空间相关性，用相邻像素预测当前块：
 
-```
-┌───┬───┬───┐
-│ A │ B │ C │  ← 已编码像素（参考）
-├───┼───┼───┤
-│ D │ ? │ ? │  ← 当前块（待预测）
-├───┼───┼───┤
-│ D │ ? │ ? │
-└───┴───┴───┘
+```mermaid
+flowchart TB
+    N0["预测模式： - 模式 0（垂直）：? = B（垂直复制） - 模式 1（水平）：? = D（水平复制） - 模式 2（DC）：? = (A+B+C+D)/4（平均值） - 模式 3+（对角线）：按角度方向插值"]
+    N1["A D"]
+    N2["B ?"]
+    N3["C ?"]
+    N4["已编码像素（参考） 当前块（待预测）"]
 
-预测模式：
-- 模式 0（垂直）：? = B（垂直复制）
-- 模式 1（水平）：? = D（水平复制）  
-- 模式 2（DC）：? = (A+B+C+D)/4（平均值）
-- 模式 3+（对角线）：按角度方向插值
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
+    style N3 fill:#fce4ec,stroke:#c2185b
+    style N4 fill:#f5f5f5,stroke:#666
 ```
 
 **残差计算**：
@@ -252,16 +262,15 @@ H.264 有三种基本帧类型：
 
 利用视频帧之间的时间相关性，只传输运动信息：
 
-```
-第 N 帧（参考帧）        第 N+1 帧（当前帧）
-┌────────────────┐      ┌────────────────┐
-│                │      │                │
-│     🚗         │  →   │        🚗      │  汽车向右移动
-│                │      │                │
-└────────────────┘      └────────────────┘
+```mermaid
+flowchart TB
+    N0["第 N 帧（参考帧） 第 N+1 帧（当前帧） 运动向量：(x=50, y=0) 表示向右移动 50 像素 残差：几乎为 0（背景不变）"]
+    N1["🚗"]
+    N2["汽车向右移动"]
 
-运动向量：(x=50, y=0)  表示向右移动 50 像素
-残差：几乎为 0（背景不变）
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
+    style N2 fill:#e8f5e9,stroke:#388e3c
 ```
 
 **运动估计**：
@@ -745,13 +754,11 @@ av_dict_set(&opts, "tune", "zerolatency", 0);  // 零延迟
 ```
 
 **码率曲线**：
-```
-码率
-  │    ┌───┐     ┌───┐     ┌───┐
-4M├────┤   ├─────┤   ├─────┤   ├──
-  │    └───┘     └───┘     └───┘
-  └─────────────────────────────────
-     时间（恒定）
+```mermaid
+flowchart TB
+    N0["码率 4M 时间（恒定）"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 **优缺点**：
@@ -783,16 +790,13 @@ AVDictionary* opts = nullptr;
 ```
 
 **码率曲线**：
-```
-码率
-  │         ┌────────┐
-8M├─────────┤  复杂  ├───────────
-  │    ┌────┘ 场景   └────┐
-4M├────┤                  ├───
-  │    │    ┌──┐         │
-  └────┴────┴──┴─────────┴───
-     简单  复杂  简单
-     场景  场景  场景
+```mermaid
+flowchart TB
+    N0["码率 8M├─────────┤ 复杂 4M 简单 复杂 简单 场景 场景 场景"]
+    N1["场景"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 5.4 CRF（恒定质量）
@@ -1314,25 +1318,15 @@ flowchart TB
     style D fill:#fce4ec,stroke:#e91e63
     style E fill:#f3e5f5,stroke:#9c27b0
     style G fill:#f5f5f5,stroke:#666
-```
-│   音频采集 ──→ PCM                                          │
-│       ↓                                                     │
-│   音频编码（AAC）──→ ADTS 格式                               │
-│       ↓                                                     │
-│   ┌─────────────────────────────────────┐                   │
-│   │  FLV 封装                            │                   │
-│   │  - 视频 Tag（H.264）                  │                   │
-│   │  - 音频 Tag（AAC）                    │                   │                   
-│   │  - 时间戳同步                         │                   │
-│   └─────────────────────────────────────┘                   │
-│       ↓                                                     │
-│   RTMP 协议 ──→ librtmp / FFmpeg                            │
-│       ↓                                                     │
-│   流媒体服务器（SRS/Nginx-RTMP）                             │
-│       ↓                                                     │
-│   CDN 分发                                                  │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    N0["音频采集 ──→ PCM 音频编码（AAC）──→ ADTS 格式 RTMP 协议 ──→ librtmp / FFmpeg 流媒体服务器（SRS/Nginx-RTMP） CDN 分发"]
+    N1["FLV 封装 - 视频 Tag（H.264） - 音频 Tag（AAC） - 时间戳同步"]
+
+    N0 --> N1
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ### 8.2 FLV 封装
@@ -1664,10 +1658,11 @@ gop_size = fps * 2   // 2 秒一个 I 帧
 
 ### 10.2 当前能力
 
-```
-摄像头采集 → YUV420P → H.264 编码 ─┐
-                                    ├──→ FLV 封装 → RTMP 推流 → 服务器
-音频采集 → PCM → AAC 编码 ──────────┘
+```mermaid
+flowchart LR
+    N0["摄像头采集 → YUV420P → H.264 编码 FLV 封装 → RTMP 推流 → 服务器 音频采集 → PCM → AAC 编码"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
 ```
 
 ### 10.3 编码器配置速查

@@ -206,21 +206,13 @@ private:
 
 ## 项目结构
 
-```
-project-04/
-├── CMakeLists.txt
-├── README.md
-├── include/live/
-│   ├── capture_manager.h
-│   ├── video_composer.h
-│   ├── stats_overlay.h
-│   └── local_recorder.h
-└── src/
-    ├── main.cpp
-    ├── capture_manager.cpp
-    ├── video_composer.cpp
-    ├── stats_overlay.cpp
-    └── local_recorder.cpp
+```mermaid
+flowchart TB
+    N0["project-04/ CMakeLists.txt README.md include/live/ src/ main.cpp capture_manager.cpp video_composer.cpp stats_overlay.cpp local_recorder.cpp"]
+    N1["capture_manager.h video_composer.h stats_overlay.h local_recorder.h"]
+
+    style N0 fill:#e3f2fd,stroke:#1976d2
+    style N1 fill:#fff3e0,stroke:#f57c00
 ```
 
 ## 使用示例
