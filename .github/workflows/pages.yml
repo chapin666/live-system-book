@@ -1,4 +1,4 @@
-name: Deploy GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -24,23 +24,24 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Install Pandoc
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y pandoc
 
-      - name: Build Website
+      - name: Build website
         run: python3 build_www.py
 
-      - name: Copy to _site
+      - name: Verify build
         run: |
-          mkdir -p _site
-          cp -r ebook/www/* _site/
+          ls -la ebook/www/
+          head -5 ebook/www/chapter-01.html
+          grep -o '<h1 id="第[^"]*">' ebook/www/chapter-01.html | head -1
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: ebook/www
 
   deploy:
     environment:
