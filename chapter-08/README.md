@@ -95,12 +95,20 @@ Ch3 的 HTTP 播放器播放的是**已经存在的视频文件**：
 
 直播是**正在发生**的内容，服务器边收边发：
 
-```
-主播端：摄像头 → 编码 → 推流 ──┐
-                               ↓
-服务器：接收流 → 转发给多个观众
-                               ↓
-观众端：收到数据 → 立即播放（不能等待）
+```mermaid
+flowchart LR
+    A["📹 摄像头"] --> B["⚙️ 编码"]
+    B --> C["📤 推流"]
+    C --> D["🌐 服务器"]
+    D --> E["📥 收到数据"]
+    E --> F["🎬 立即播放"]
+    
+    style A fill:#e3f2fd
+    style B fill:#fff3e0
+    style C fill:#e8f5e9
+    style D fill:#fce4ec
+    style E fill:#fff9c4
+    style F fill:#f3e5f5
 ```
 
 **关键区别**：直播数据是"实时产生"的，不能像文件那样等生成好了再下载。
@@ -109,14 +117,30 @@ Ch3 的 HTTP 播放器播放的是**已经存在的视频文件**：
 
 Apple 提出的 **HLS（HTTP Live Streaming）** 用 HTTP 协议做直播：
 
-```
-服务器端：
-直播流 → 切片器 → 收集3秒 → [片段1.ts] → 收集3秒 → [片段2.ts]
-
-客户端：
-下载片段1（3秒）→ 下载片段2（3秒）→ 播放
-    ↑_____________________________↓
-         延迟 = 切片时间 + 下载时间 = 5-15秒
+```mermaid
+flowchart TB
+    subgraph 服务器端["🌐 服务器端"]
+        S1["直播流"] --> S2["切片器"]
+        S2 --> S3["收集3秒"]
+        S3 --> S4["[片段1.ts]"]
+        S4 --> S5["收集3秒"]
+        S5 --> S6["[片段2.ts]"]
+    end
+    
+    subgraph 客户端["📱 客户端"]
+        C1["下载片段1 (3秒)"] --> C2["下载片段2 (3秒)"]
+        C2 --> C3["播放"]
+    end
+    
+    S6 -.-> C1
+    
+    style S1 fill:#e3f2fd
+    style S2 fill:#fff3e0
+    style S4 fill:#e8f5e9
+    style S6 fill:#e8f5e9
+    style C1 fill:#fce4ec
+    style C2 fill:#fce4ec
+    style C3 fill:#f3e5f5
 ```
 
 **为什么延迟高？**
