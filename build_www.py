@@ -129,10 +129,16 @@ def convert_file(src_file, html_name):
     # 生成导航
     nav = generate_nav(html_name)
     
-    # 注入 Mermaid.js 支持（在 </body> 前插入）
-    mermaid_script = '''<script type="module">
-  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    # 注入 Mermaid.js 支持（使用兼容方式加载）
+    mermaid_script = '''<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'default',
+      securityLevel: 'loose'
+    });
+  });
 </script>
 '''
     content = content.replace('</body>', f'{mermaid_script}</body>')
