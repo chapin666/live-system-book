@@ -13,9 +13,7 @@ lang: zh-CN
 > **一本让你从 C++ 开发者成长为音视频工程师的实战教程**  
 > **目标平台**：Linux / macOS（仅 POSIX API，不支持 Windows）
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![C++14](https://img.shields.io/badge/C++-14-blue.svg)](https://isocpp.org/)
-[![FFmpeg](https://img.shields.io/badge/FFmpeg-4.0+-green.svg)](https://ffmpeg.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![C++14](https://img.shields.io/badge/C++-14-blue.svg)](https://isocpp.org/) [![FFmpeg](https://img.shields.io/badge/FFmpeg-4.0+-green.svg)](https://ffmpeg.org/)
 
 ---
 
@@ -60,7 +58,7 @@ ffmpeg -f lavfi -i testsrc=duration=10:size=640x480:rate=30 -pix_fmt yuv420p tes
 | Ch5 | [C++11 多线程](chapter-05/) | thread/mutex/条件变量、线程安全队列实现 |
 | Ch6 | [异步多线程播放器](chapter-06/) | 解码与渲染分离、双缓冲队列、流畅播放原理 |
 | **P2** | [网络点播播放器](project-02/) | 整合Ch4-6，实现HTTP播放、网络缓冲、断线重连 |
-| Ch7 | [网络基础](chapter-07/) | HTTP/HTTPS流播放、环形缓冲、下载策略 |
+| Ch7 | [网络播放基础](chapter-07/) | HTTP/HTTPS流播放、环形缓冲、下载策略 |
 | Ch8 | [直播 vs 点播](chapter-08/) | RTMP协议、直播拉流、追帧策略、延迟优化 |
 | **P3** | [直播观众端](project-03/) | 整合Ch7-8，实现RTMP播放器、弱网对抗 |
 | Ch9 | [硬件解码优化](chapter-09/) | VideoToolbox/VAAPI/NVDEC、4K播放、功耗优化 |
@@ -83,7 +81,7 @@ ffmpeg -f lavfi -i testsrc=duration=10:size=640x480:rate=30 -pix_fmt yuv420p tes
 
 | 章节 | 内容 | 简介 |
 |:---:|:---|:---|
-| Ch17 | [网络编程基础](chapter-17/) ⭐ 新增 | Socket API、UDP编程、字节序、数据序列化 |
+| Ch17 | [Socket网络编程](chapter-17/) ⭐ 新增 | Socket API、UDP编程、字节序、数据序列化 |
 | Ch18 | [UDP与实时传输](chapter-18/) | RTP/RTCP协议、JitterBuffer、拥塞控制基础 |
 | Ch19 | [NAT穿透与P2P](chapter-19/) | STUN/TURN/ICE协议、点对点连接建立 |
 | **P6** | [P2P通话工具](project-06/) | UDP/RTP/NAT穿透，双人音视频通话 |
@@ -6333,7 +6331,7 @@ std::cout << "[T" << std::this_thread::get_id() << "] Message" << std::endl;
      HTTP/RTMP（速度慢，不稳定）
 ```
 
-### 9.3 下一步：网络基础
+### 9.3 下一步：网络播放基础
 
 第三章将引入**网络下载**：
 
@@ -6450,7 +6448,7 @@ std::cout << "[T" << std::this_thread::get_id() << "] Message" << std::endl;
 
 ## 下章预告
 
-### Ch7：网络基础
+### Ch7：网络播放基础
 
 **为什么要学下一章？**
 
@@ -6648,11 +6646,11 @@ project-02/
 
 <!-- chapter-07.md -->
 
-# 第7章：网络基础
+# 第7章：网络播放基础
 
 | 项目 | 内容 |
 |:---|:---|
-| **本章目标** | 掌握网络基础的核心概念和实践 |
+| **本章目标** | 掌握网络播放的核心概念和实践 |
 | **难度** | ⭐⭐ 中等 |
 | **前置知识** | Ch6：异步播放器架构 |
 | **预计时间** | 2-3 小时 |
@@ -7796,7 +7794,7 @@ void SwitchToLowerBitrate() {
 
 ### Q1：本章的核心难点是什么？
 
-**A**：网络基础涉及的核心难点包括：
+**A**：网络播放涉及的核心难点包括：
 - 理解新概念的内在原理
 - 将理论知识转化为实际代码
 - 处理边界情况和错误恢复
@@ -7842,7 +7840,7 @@ void SwitchToLowerBitrate() {
 ### 核心知识点
 
 通过本章学习，你应该掌握：
-1. 网络基础的核心概念和原理
+1. 网络播放的核心概念和原理
 2. 相关的 API 和工具使用
 3. 实际项目中的应用方法
 4. 常见问题的解决方案
@@ -7859,7 +7857,7 @@ void SwitchToLowerBitrate() {
 ### 本章产出
 
 - 完成本章所有示例代码
-- 理解 网络基础的工作原理
+- 理解 网络播放的工作原理
 - 为后续章节打下基础
 ---
 
@@ -7891,7 +7889,7 @@ void SwitchToLowerBitrate() {
 |:---|:---|
 | **本章目标** | 掌握直播 vs 点播的核心概念和实践 |
 | **难度** | ⭐⭐ 中等 |
-| **前置知识** | Ch7：网络基础、HTTP协议 |
+| **前置知识** | Ch7：网络播放基础、HTTP协议 |
 | **预计时间** | 2-3 小时 |
 
 > **本章引言**
@@ -7911,7 +7909,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     subgraph "P3 直播观众端"
-        A["Ch7 网络基础"] --> B["📍 Ch8 直播vs点播"]
+        A["Ch7 网络播放基础"] --> B["📍 Ch8 直播vs点播"]
         B --> C["Ch9 硬件解码"]
     end
     
@@ -15987,7 +15985,7 @@ encoder_config.noiseReductionLevel = 3;  // 1-5
 
 ## 下章预告
 
-### Ch16.5：网络编程基础（新增）→ Ch17：UDP与实时传输
+### Ch16.5：Socket网络编程（新增）→ Ch17：UDP与实时传输
 
 **为什么要学下一章？**
 
@@ -17882,11 +17880,11 @@ ffplay "rtmp://localhost/live/test"
 
 <!-- chapter-17.md -->
 
-# 第17章：网络编程基础
+# 第17章：Socket网络编程
 
 | 项目 | 内容 |
 |:---|:---|
-| **本章目标** | 掌握Socket API、UDP编程、字节序转换等网络编程基础 |
+| **本章目标** | 掌握Socket API、UDP编程、字节序转换等Socket网络编程 |
 | **难度** | ⭐⭐ 中等 |
 | **前置知识** | Ch16：主播端架构、C++ 基础 |
 | **预计时间** | 2-3 小时 |
@@ -17897,7 +17895,7 @@ ffplay "rtmp://localhost/live/test"
 ```mermaid
 flowchart LR
     subgraph "P6 P2P通话工具"
-        A["Ch16 主播端架构"] --> B["📍 Ch17 网络编程基础"]
+        A["Ch16 主播端架构"] --> B["📍 Ch17 Socket网络编程"]
         B --> C["Ch18 UDP与RTP"]
         C --> D["Ch19 NAT穿透"]
         D --> E["P6 P2P通话工具"]
@@ -18881,7 +18879,7 @@ nc localhost 8080   # 连接端口
 - 实现 JitterBuffer 平滑网络抖动
 
 **本章与第17章的关系**：
-- Ch17 是 **网络编程基础** —— Socket API、UDP编程基础
+- Ch17 是 **Socket网络编程** —— Socket API、UDP编程基础
 - Ch18 是 **实时传输基础** —— 如何用 UDP 实现低延迟传输
 
 ---

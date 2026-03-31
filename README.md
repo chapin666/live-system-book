@@ -3,10 +3,7 @@
 > **一本让你从 C++ 开发者成长为音视频工程师的实战教程**  
 > **目标平台**：Linux / macOS（仅 POSIX API，不支持 Windows）
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![C++14](https://img.shields.io/badge/C++-14-blue.svg)](https://isocpp.org/)
-[![FFmpeg](https://img.shields.io/badge/FFmpeg-4.0+-green.svg)](https://ffmpeg.org/)
-[![Pages](https://img.shields.io/badge/在线阅读-GitHub%20Pages-blue)](https://chapin666.github.io/live-system-book/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![C++14](https://img.shields.io/badge/C++-14-blue.svg)](https://isocpp.org/) [![FFmpeg](https://img.shields.io/badge/FFmpeg-4.0+-green.svg)](https://ffmpeg.org/) [![Pages](https://img.shields.io/badge/在线阅读-GitHub%20Pages-blue)](https://chapin666.github.io/live-system-book/)
 
 ---
 
@@ -84,7 +81,7 @@ cd ebook && python3 -m http.server 8080
 | Ch5 | [C++11 多线程](chapter-05/) | thread/mutex/条件变量、线程安全队列实现 |
 | Ch6 | [异步多线程播放器](chapter-06/) | 解码与渲染分离、双缓冲队列、流畅播放原理 |
 | **P2** | [网络点播播放器](project-02/) | 整合Ch4-6，实现HTTP播放、网络缓冲、断线重连 |
-| Ch7 | [网络基础](chapter-07/) | HTTP/HTTPS流播放、环形缓冲、下载策略 |
+| Ch7 | [网络播放基础](chapter-07/) | HTTP/HTTPS流播放、环形缓冲、下载策略 |
 | Ch8 | [直播 vs 点播](chapter-08/) | RTMP协议、直播拉流、追帧策略、延迟优化 |
 | **P3** | [直播观众端](project-03/) | 整合Ch7-8，实现RTMP播放器、弱网对抗 |
 | Ch9 | [硬件解码优化](chapter-09/) | VideoToolbox/VAAPI/NVDEC、4K播放、功耗优化 |
@@ -107,7 +104,7 @@ cd ebook && python3 -m http.server 8080
 
 | 章节 | 内容 | 简介 |
 |:---:|:---|:---|
-| Ch17 | [网络编程基础](chapter-17/) ⭐ 新增 | Socket API、UDP编程、字节序、数据序列化 |
+| Ch17 | [Socket网络编程](chapter-17/) ⭐ 新增 | Socket API、UDP编程、字节序、数据序列化 |
 | Ch18 | [UDP与实时传输](chapter-18/) | RTP/RTCP协议、JitterBuffer、拥塞控制基础 |
 | Ch19 | [NAT穿透与P2P](chapter-19/) | STUN/TURN/ICE协议、点对点连接建立 |
 | **P6** | [P2P通话工具](project-06/) | UDP/RTP/NAT穿透，双人音视频通话 |
@@ -231,3 +228,4 @@ MIT License — 可自由用于学习或商业项目
 
 **🌟 如果对你有帮助，请点个 Star！**
 # Force redeploy
+eploy
