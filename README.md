@@ -3,12 +3,9 @@
 > **一本让你从 C++ 开发者成长为音视频工程师的实战教程**  
 > **目标平台**：Linux / macOS（仅 POSIX API，不支持 Windows）
 
-<p align="center">
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://isocpp.org/"><img src="https://img.shields.io/badge/C++-14-blue.svg" alt="C++14"></a>
-  <a href="https://ffmpeg.org/"><img src="https://img.shields.io/badge/FFmpeg-4.0+-green.svg" alt="FFmpeg"></a>
-  <a href="https://chapin666.github.io/live-system-book/"><img src="https://img.shields.io/badge/在线阅读-GitHub%20Pages-blue" alt="Pages"></a>
-</p>
+| | | | |
+|:---:|:---:|:---:|:---:|
+| [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) | [![C++14](https://img.shields.io/badge/C++-14-blue.svg)](https://isocpp.org/) | [![FFmpeg](https://img.shields.io/badge/FFmpeg-4.0+-green.svg)](https://ffmpeg.org/) | [![Pages](https://img.shields.io/badge/在线阅读-GitHub%20Pages-blue)](https://chapin666.github.io/live-system-book/) |
 
 ---
 
