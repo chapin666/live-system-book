@@ -93,8 +93,8 @@
   
   <line x1="610" y1="232" x2="630" y2="232" class="arrow"/>
   
-  <rect x="630" y="215" width="140" height="35" class="data"/
-003ctext x="700" y="237" text-anchor="middle" class="label">从新位置播放</text>
+  <rect x="630" y="215" width="140" height="35" class="data"/>
+  <text x="700" y="237" text-anchor="middle" class="label">从新位置播放</text>
   
   <!-- Range request detail -->
   <rect x="70" y="260" width="350" height="40" fill="#fffbeb" stroke="#f59e0b" rx="2"/>
@@ -131,8 +131,7 @@
   
   <text x="500" y="380" class="label">状态码处理:</text>
   
-  <rect x="500" y="390" width="330" height="80" fill="#f8fafc" stroke="#e2e8f0" rx="2"/
-003e
+  <rect x="500" y="390" width="330" height="80" fill="#f8fafc" stroke="#e2e8f0" rx="2"/>
   
   <text x="510" y="410" class="code">200 OK</text>
   <text x="580" y="410" class="small">→ 普通下载，无 Range 支持</text>
