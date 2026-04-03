@@ -1,0 +1,117 @@
+<svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="900" height="320" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="450" y="25" text-anchor="middle" font-size="18" font-weight="bold" fill="#333">三种多人通信架构对比</text>
+  
+  <!-- === Mesh (P2P) === -->
+  <rect x="30" y="45" width="270" height="260" rx="8" fill="#fff" stroke="#e0e0e0" stroke-width="2"/>
+  <text x="165" y="70" text-anchor="middle" font-size="14" font-weight="bold" fill="#1976d2">Mesh (P2P)</text>
+  
+  <!-- Nodes -->
+  <circle cx="100" cy="120" r="22" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="100" y="125" text-anchor="middle" font-size="11" fill="#1976d2">A</text>
+  
+  <circle cx="165" cy="120" r="22" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="165" y="125" text-anchor="middle" font-size="11" fill="#1976d2">B</text>
+  
+  <circle cx="132" cy="180" r="22" fill="#e3f2fd" stroke="#1976d2" stroke-width="2"/>
+  <text x="132" y="185" text-anchor="middle" font-size="11" fill="#1976d2">C</text>
+  
+  <!-- Connections -->
+  <line x1="115" y1="115" x2="150" y2="115" stroke="#1976d2" stroke-width="2"/>
+  <line x1="108" y1="135" x2="125" y2="168" stroke="#1976d2" stroke-width="2"/>
+  <line x1="145" y1="168" x2="158" y2="135" stroke="#1976d2" stroke-width="2"/
+  
+  <!-- Pros/Cons -->
+  <rect x="50" y="220" width="110" height="70" rx="4" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+  <text x="105" y="238" text-anchor="middle" font-size="10" font-weight="bold" fill="#2e7d32">优点</text>
+  <text x="55" y="255" font-size="9" fill="#388e3c">• 服务器不参与</text>
+  <text x="55" y="270" font-size="9" fill="#388e3c">• 延迟低</text>
+  <text x="55" y="282" font-size="9" fill="#388e3c">• 隐私性好</text>
+  
+  <rect x="170" y="220" width="110" height="70" rx="4" fill="#ffebee" stroke="#ef5350" stroke-width="1"/>
+  <text x="225" y="238" text-anchor="middle" font-size="10" font-weight="bold" fill="#c62828">缺点</text>
+  <text x="175" y="255" font-size="9" fill="#d32f2f">• 带宽爆炸</text>
+  <text x="175" y="270" font-size="9" fill="#d32f2f">• 设备压力大</text>
+  <text x="175" y="282" font-size="9" fill="#d32f2f">• 最大 3-4 人</text>
+  
+  <!-- === MCU === -->
+  <rect x="315" y="45" width="270" height="260" rx="8" fill="#fff" stroke="#e0e0e0" stroke-width="2"/>
+  <text x="450" y="70" text-anchor="middle" font-size="14" font-weight="bold" fill="#f57c00">MCU (Multipoint)</text>
+  
+  <!-- Nodes -->
+  <circle cx="380" cy="110" r="20" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="380" y="115" text-anchor="middle" font-size="11" fill="#e65100">A</text>
+  
+  <circle cx="450" cy="110" r="20" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="450" y="115" text-anchor="middle" font-size="11" fill="#e65100">B</text>
+  
+  <circle cx="415" cy="170" r="20" fill="#fff3e0" stroke="#f57c00" stroke-width="2"/>
+  <text x="415" y="175" text-anchor="middle" font-size="11" fill="#e65100">C</text>
+  
+  <!-- Server -->
+  <rect x="370" y="210" width="90" height="40" rx="4" fill="#ffcc80" stroke="#ef6c00" stroke-width="2"/>
+  <text x="415" y="228" text-anchor="middle" font-size="10" font-weight="bold" fill="#e65100">Server</text>
+  <text x="415" y="242" text-anchor="middle" font-size="9" fill="#ef6c00">混音合成</text>
+  
+  <!-- Connections -->
+  <line x1="380" y1="135" x2="400" y2="210" stroke="#f57c00" stroke-width="2"/>
+  <line x1="450" y1="135" x2="430" y2="210" stroke="#f57c00" stroke-width="2"/>
+  <line x1="415" y1="195" x2="415" y2="210" stroke="#f57c00" stroke-width="2"/>
+  
+  <!-- Pros/Cons -->
+  <rect x="480" y="100" width="90" height="85" rx="4" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+  <text x="525" y="118" text-anchor="middle" font-size="10" font-weight="bold" fill="#2e7d32">优点</text>
+  <text x="485" y="135" font-size="9" fill="#388e3c">• 客户端消耗小</text>
+  <text x="485" y="150" font-size="9" fill="#388e3c">• 只收 1 路</text>
+  <text x="485" y="165" font-size="9" fill="#388e3c">• 支持 100+ 人</text>
+  
+  <rect x="480" y="195" width="90" height="95" rx="4" fill="#ffebee" stroke="#ef5350" stroke-width="1"/>
+  <text x="525" y="213" text-anchor="middle" font-size="10" font-weight="bold" fill="#c62828">缺点</text>
+  <text x="485" y="230" font-size="9" fill="#d32f2f">• 服务器 CPU 高</text>
+  <text x="485" y="245" font-size="9" fill="#d32f2f">• 延迟高 100-500ms</text>
+  <text x="485" y="260" font-size="9" fill="#d32f2f">• 布局固定</text>
+  
+  <!-- === SFU === -->
+  <rect x="600" y="45" width="270" height="260" rx="8" fill="#fff" stroke="#e0e0e0" stroke-width="2"/>
+  <text x="735" y="70" text-anchor="middle" font-size="14" font-weight="bold" fill="#388e3c">SFU (Selective)</text>
+  
+  <!-- Nodes -->
+  <circle cx="665" cy="110" r="20" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="665" y="115" text-anchor="middle" font-size="11" fill="#2e7d32">A</text>
+  
+  <circle cx="735" cy="110" r="20" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="735" y="115" text-anchor="middle" font-size="11" fill="#2e7d32">B</text>
+  
+  <circle cx="700" cy="170" r="20" fill="#e8f5e9" stroke="#388e3c" stroke-width="2"/>
+  <text x="700" y="175" text-anchor="middle" font-size="11" fill="#2e7d32">C</text>
+  
+  <!-- Server -->
+  <rect x="655" y="210" width="90" height="40" rx="4" fill="#a5d6a7" stroke="#2e7d32" stroke-width="2"/>
+  <text x="700" y="228" text-anchor="middle" font-size="10" font-weight="bold" fill="#1b5e20">Server</text>
+  <text x="700" y="242" text-anchor="middle" font-size="9" fill="#2e7d32">只转发不处理</text>
+  
+  <!-- Connections (bidirectional) -->
+  <line x1="665" y1="135" x2="685" y2="210" stroke="#388e3c" stroke-width="2"/>
+  <line x1="735" y1="135" x2="715" y2="210" stroke="#388e3c" stroke-width="2"/>
+  <line x1="700" y1="195" x2="700" y2="210" stroke="#388e3c" stroke-width="2"/>
+  
+  <!-- Arrow markers showing bidirectional -->
+  <text x="660" y="175" font-size="12" fill="#388e3c">↕</text>
+  <text x="730" y="175" font-size="12" fill="#388e3c">↕</text>
+  
+  <!-- Pros/Cons -->
+  <rect x="765" y="100" width="95" height="85" rx="4" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+  <text x="812" y="118" text-anchor="middle" font-size="10" font-weight="bold" fill="#2e7d32">优点</text>
+  <text x="770" y="135" font-size="9" fill="#388e3c">• 延迟低 10-50ms</text>
+  <text x="770" y="150" font-size="9" fill="#388e3c">• 服务器 CPU 低</text>
+  <text x="770" y="165" font-size="9" fill="#388e3c">• 灵活订阅</text>
+  
+  <rect x="765" y="195" width="95" height="95" rx="4" fill="#ffebee" stroke="#ef5350" stroke-width="1"/>
+  <text x="812" y="213" text-anchor="middle" font-size="10" font-weight="bold" fill="#c62828">缺点</text>
+  <text x="770" y="230" font-size="9" fill="#d32f2f">• 需解码多路</text>
+  <text x="770" y="245" font-size="9" fill="#d32f2f">• 带宽中等</text>
+  <text x="770" y="260" font-size="9" fill="#d32f2f">• 最大 50+ 人</text>
+</svg>

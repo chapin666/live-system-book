@@ -36,18 +36,7 @@
 
 每个参与者需要向其他所有参与者发送媒体流：
 
-```mermaid
-flowchart TB
-    N0["3 人 P2P 通话 Alice 的上行: 2 Mbps × 2 = 4 Mbps (发给 Bob 和 Charlie) 总带宽消耗: 每个人 4 Mbps 上行 + 4 Mbps 下行 = 8 Mbps"]
-    N1["Alice 2 Mbps Bob"]
-    N2["Charlie"]
-    N3["Alice"]
-
-    style N0 fill:#e3f2fd,stroke:#1976d2
-    style N1 fill:#fff3e0,stroke:#f57c00
-    style N2 fill:#e8f5e9,stroke:#388e3c
-    style N3 fill:#fce4ec,stroke:#c2185b
-```
+![3人P2P带宽问题](./diagrams/p2p-bandwidth.svg)
 
 对于 N 人通话，每个参与者需要：
 - **上行带宽**：(N-1) × 个人码率
@@ -85,51 +74,19 @@ P2P 需要建立 N×(N-1)/2 条连接：
 
 ### 1.2 SFU vs MCU vs Mesh
 
-![SFU vs P2P 对比](./diagrams/sfu-vs-p2p.svg)
+![三种架构对比](./diagrams/architecture-compare.svg)
 
 **Mesh（网状，纯 P2P）**：
-```mermaid
-flowchart LR
-    N0["A ←──→ B ↘ C"]
-
-    style N0 fill:#e3f2fd,stroke:#1976d2
-```
 - 优点：服务器不参与媒体处理，隐私性好
 - 缺点：带宽和 CPU 消耗随人数平方增长
 - 适用：2-3 人小规模通话
 
 **MCU（Multipoint Control Unit）**：
-```mermaid
-flowchart LR
-    N0["A B C"]
-    N1["Server (Mixing) 合成一路"]
-    N2["A看到B+C的合屏 B看到A+C的合屏 C看到A+B的合屏"]
-
-    N0 --> N1
-    N1 --> N2
-
-    style N0 fill:#e3f2fd,stroke:#1976d2
-    style N1 fill:#fff3e0,stroke:#f57c00
-    style N2 fill:#e8f5e9,stroke:#388e3c
-```
 - 优点：客户端消耗最小，只收 1 路
 - 缺点：服务器 CPU 消耗大（需要解码+合成+编码），延迟高（100-500ms）
 - 适用：Webinar（ webinar 只需看主讲人），大规模直播
 
 **SFU（Selective Forwarding Unit）**：
-```mermaid
-flowchart LR
-    N0["A B C"]
-    N1["Server (Routing) 只转发不处理"]
-    N2["转发 B 给 A 转发 C 给 A 转发 A 给 B/C"]
-
-    N0 --> N1
-    N1 --> N2
-
-    style N0 fill:#e3f2fd,stroke:#1976d2
-    style N1 fill:#fff3e0,stroke:#f57c00
-    style N2 fill:#e8f5e9,stroke:#388e3c
-```
 - 优点：服务器只转发不处理，延迟低（10-50ms），灵活控制订阅
 - 缺点：客户端需要解码多路，带宽消耗中等
 - 适用：多人视频会议（4-50 人）
@@ -157,15 +114,6 @@ flowchart LR
 ### 2.1 整体架构
 
 ![SFU 架构](./diagrams/sfu-arch.svg)
-
-```mermaid
-flowchart TB
-    N0["SFU Server Clients"]
-    N1["Signaling Layer (WebSocket / HTTP / gRPC - Room Management) Router Layer (Track Management - Publisher/Subscriber Model) Transport Layer (ICE/DTLS/SRTP - Per-participant PeerConnection) RTP Routing Engine (Packet Forwarding - No Decoding/Encoding)"]
-
-    style N0 fill:#e3f2fd,stroke:#1976d2
-    style N1 fill:#fff3e0,stroke:#f57c00
-```
 
 ### 2.2 Publish/Subscribe 模型
 
@@ -361,12 +309,7 @@ private:
 
 **Simulcast（多播）** 让发送者同时发送多路不同质量的视频：
 
-```mermaid
-flowchart LR
-    N0["发送者 (Alice) 高清层 (1080p @ 2Mbps) ──→ 大屏显示、主讲人 标清层 (540p @ 500Kbps) ──→ 中等窗口 低清层 (270p @ 150Kbps) ──→ 小窗口、弱网用户"]
-
-    style N0 fill:#e3f2fd,stroke:#1976d2
-```
+![Simulcast 分层](./diagrams/simulcast-layers.svg)
 
 ### 3.2 Simulcast 分层结构
 
@@ -563,22 +506,9 @@ public:
 
 **GCC（Google Congestion Control）** 是 WebRTC 默认的拥塞控制算法，结合发送端和接收端估计：
 
-```mermaid
-flowchart LR
-    N0["GCC 架构 发送端 接收端 编码器码率调整"]
-    N1["发送码率控制 (基于丢包) 带宽估计 (通过 RTCP TransportCC) 最终目标码率 = min(丢包, 延迟)"]
-    N2["取两者最小值"]
-    N3["延迟变化检测 (基于到达时间)"]
-
-    N0 --> N1
-    N1 --> N2
-    N2 --> N3
-
-    style N0 fill:#e3f2fd,stroke:#1976d2
-    style N1 fill:#fff3e0,stroke:#f57c00
-    style N2 fill:#e8f5e9,stroke:#388e3c
-    style N3 fill:#fce4ec,stroke:#c2185b
-```
+- **发送端**：基于丢包率估计带宽
+- **接收端**：基于延迟变化估计带宽
+- **最终码率**：取两者最小值
 
 ### 4.3 GCC 算法流程
 
@@ -778,13 +708,19 @@ std::map<std::string, int64_t> BitrateAllocator::Allocate(
 
 ### 5.1 项目结构
 
-```mermaid
-flowchart TB
-    N0["simple-sfu/ CMakeLists.txt src/ include/ live/ sfu/"]
-    N1["main.cpp sfu_server.{h,cpp} room.{h,cpp} rtp_router.{h,cpp} signaling_handler.{h,cpp} bandwidth_controller.{h,cpp}"]
-
-    style N0 fill:#e3f2fd,stroke:#1976d2
-    style N1 fill:#fff3e0,stroke:#f57c00
+```
+simple-sfu/
+├── CMakeLists.txt
+├── src/
+│   ├── main.cpp
+│   ├── sfu_server.{h,cpp}
+│   ├── room.{h,cpp}
+│   ├── rtp_router.{h,cpp}
+│   ├── signaling_handler.{h,cpp}
+│   └── bandwidth_controller.{h,cpp}
+└── include/
+    └── live/
+        └── sfu/
 ```
 
 ### 5.2 CMakeLists.txt
